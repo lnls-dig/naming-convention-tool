@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:fc="http://java.sun.com/jsf/composite/comps"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:form id="menuform">
+		<p:growl id="menumsgs" />
+		<ui:include src="about.xhtml" />
+		<fc:logincomp display="false" updates=":menuform:mainMenu" />
+
+
+		<p:menubar id="mainMenu">
+			<p:menuitem value="Home" icon="ui-icon-home" title="Home"
+				url="index.xhtml" />
+			<p:menuitem value="Browse" icon="ui-icon-arrow-4-diag"
+				title="Browse All Names" url="names.xhtml" />
+
+			<p:submenu label="Name Parts" icon="ui-icon-comment">
+				<p:menuitem value="Submit Request" title="Submit a Change Request"
+					url="parts-request-sub.xhtml" icon="ui-icon-suitcase"
+					disabled="#{not userManager.loggedIn}" />
+				<p:menuitem value="My Requests"
+					title="Check status of your requests"
+					url="parts-request-sub.xhtml?option=user" icon="ui-icon-comment"
+					disabled="#{not userManager.loggedIn}" />
+			</p:submenu>
+
+			<p:submenu label="NC Names" icon="ui-icon-comment">
+				<p:menuitem value="Manage" title="Manage NC Names"
+					url="nc-request-sub.xhtml" icon="ui-icon-suitcase"
+					disabled="#{not userManager.loggedIn}" />
+			</p:submenu>
+
+			<p:menuitem value="Reports" title="Reports" icon="ui-icon-print"
+				url="reports.xhtml" disabled="false" />
+
+			<p:submenu label="Admin" icon="ui-icon-note">
+				<p:menuitem value="Process Requests" title="Accept/Reject Requests"
+					url="request-proc.xhtml" icon="ui-icon-wrench"
+					disabled="#{not userManager.editor}" />
+				<p:menuitem value="Publish Names"
+					title="Release a new version of Naming Convention"
+					url="publish.xhtml" icon="ui-icon-note"
+					disabled="#{not userManager.editor}" />
+			</p:submenu>
+
+			<p:menuitem value="Preferences" title="Preferences"
+				icon="ui-icon-gear" url="preferences.xhtml" />
+
+			<!-- p:menuitem value="login" title="Login"  icon="ui-icon-gear" url="login.xhtml" / -->
+
+			<p:submenu label="Help" icon="ui-icon-help">
+				<p:menuitem value=" Online Help" title="Online Help"
+					icon="ui-icon-help" url="help.xhtml" />
+				<p:menuitem value=" API Manual" title="API Manual"
+					icon="ui-icon-script" url="api-manual.xhtml" />
+				<p:menuitem value=" Naming Document"
+					title="Latest Naming System Document" icon="ui-icon-document"
+					target="_blank"
+					url="#{publicationManager.latestRelease eq null? '/' : publicationManager.latestRelease.docUrl}"
+					disabled="#{publicationManager.latestRelease eq null}" />
+				<p:menuitem value=" Report Problems"
+					title="Report Problems/Suggestions" icon="ui-icon-alert"
+					target="_blank" url="https://controls.frib.msu.edu/controlshelp/"
+					rendered="false" />
+				<p:menuitem value=" About" id="aboutMenu" icon="ui-icon-info"
+					title="About Naming Convention Tool" />
+			</p:submenu>
+
+			<f:facet name="options">
+				<h:outputText value="#{userManager.user}" style="margin-right:10px"
+					rendered="#{userManager.loggedIn}" />
+				<p:commandButton id="loginBtn" type="button" value="Login"
+					icon="ui-icon-person" onclick="loginWidget.show()"
+					rendered="#{not userManager.loggedIn}">
+					<f:param value="Y" name="doAuthenticate" />
+				</p:commandButton>
+				<p:commandButton id="logoutBtn" value="Logout" icon="ui-icon-person"
+					update=":menuform:mainMenu :menuform:menumsgs"
+					action="#{loginManager.onLogout()}" immediate="true"
+					rendered="#{userManager.loggedIn}" />
+			</f:facet>
+
+		</p:menubar>
+	</h:form>
+</ui:composition>

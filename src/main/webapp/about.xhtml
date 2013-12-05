@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--
+    About the application
+
+    @author: Vasu V
+-->
+<ui:composition 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:h="http://java.sun.com/jsf/html">
+
+    <p:overlayPanel id="aboutPanel"  for="aboutMenu"  showEffect="fade" hideEffect="fade" > 
+        <p:panelGrid>  
+            <f:facet name="header">  
+                <p:row>
+                    <p:column colspan="2">#{msgs.title}</p:column>
+                </p:row>   
+            </f:facet>  
+            <p:row>  
+                <p:column>Version</p:column>  
+                <p:column>#{msgs.version}</p:column>    
+            </p:row> 
+            <p:row>  
+                <p:column>Schema Version</p:column>  
+                <p:column>#{msgs.dbversion}</p:column>    
+            </p:row>
+            <p:row>  
+                <p:column>API Version</p:column>  
+                <p:column>#{msgs.apiversion}</p:column>    
+            </p:row>
+            <p:row>  
+                <p:column>Team</p:column>  
+                <p:column>${msgs.devTeam}</p:column>    
+            </p:row>                      
+            <p:row>  
+                <p:column>Support </p:column>  
+                <p:column>Send Email to <a href="mailto:#{msgs.supportEmail}?Subject=Naming-Convention-Tool">Support Team</a></p:column>    
+            </p:row>
+            <p:row>
+                <p:column colspan="2" style="text-align: center; font-weight: bold">#{msgs.tagline}</p:column>
+            </p:row>
+        </p:panelGrid>
+    </p:overlayPanel>
+</ui:composition>

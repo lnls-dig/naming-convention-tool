@@ -1,0 +1,63 @@
+
+
+Copyright (c) Facility for Rare Isotope Beam (FRIB)
+
+Release Notes: Naming System Application
+
+Overview: Naming System is for managing the FRIB Naming Convention. 
+
+Naming System Version 2.4.0  Date: 2013-Aug-02
+
+Summary of Changes from Previous Version:
+  - RESTful API 
+  - Changes in GUI: categories moved in browsing mode
+  - Fixed AUTO_INCREMENT bug
+  - changed how authorization works
+
+  Known Issues:
+  - In browse mode, selecting or deselecting 'Delete' refreshes the view
+  - When modifying a request, everthing has to be re-entered inclduing category
+  - 'Request' submenu blocks the 'logoff' button
+  
+Naming System Version 2.3  Date: 2013-May-24
+
+Summary of Changes from Previous Version:
+  - It is somewhat generic so other labs can use it.
+  - Name Categories come from the database.
+  - Authentication is now through container not Auth service
+  - Fixed empty-database bugs
+  
+  Known Defects:
+  - Categories and privileges have to be loaded manually
+  - index.html has to be replaced manually (by other labs)  
+  
+Naming System Version 2.1  Date: 2013-May-07
+
+Summary of Changes from Previous Version:
+  - Editors can publish a new release of the naming system.
+  - States of a name (published, modified, added, deleted) are displayed, and highlighted with different colors.
+  - Rejected and cancelled names are not displayed at all except in reports.
+  - Added user preferences and (experimental) GUI themes
+  - Auth Service is configured through JNDI. Code moved to EJB.
+  
+Naming System Version 2.0  Date: 2013-Apr-11
+
+Summary of Changes from Previous Version:
+  - Users can submit change requests. Editors can approve/reject them.
+  - Added reporting capability
+  - Users can look at history of name changes
+  
+Naming System Version 1.1  Date: 2013-Jan-16
+
+ Summary of Changes from Previous Version:
+  - Linked to R003 of the doc
+  - added favicon
+  - made minor layout changes
+
+Naming System Version 1.0  Date: 2012-Aug-21
+
+ Summary of Changes from Previous Version:
+  - Initial Version
+
+ Known Defects:
+  - No updates and hence no authentication 
