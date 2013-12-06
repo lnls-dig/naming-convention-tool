@@ -1,6 +1,5 @@
 * text=auto !eol
 /.classpath -text
-/.project -text
 .settings/org.eclipse.core.resources.prefs -text
 .settings/org.eclipse.jdt.core.prefs -text
 .settings/org.eclipse.m2e.core.prefs -text
