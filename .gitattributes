@@ -1,8 +1,5 @@
 * text=auto !eol
 /.classpath -text
-.settings/org.eclipse.core.resources.prefs -text
-.settings/org.eclipse.jdt.core.prefs -text
-.settings/org.eclipse.m2e.core.prefs -text
 /README.txt -text
 /Release-Notes.txt -text
 data/categories-privileges.sql -text
