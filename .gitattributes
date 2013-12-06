@@ -1,5 +1,4 @@
 * text=auto !eol
-/.classpath -text
 /README.txt -text
 /Release-Notes.txt -text
 data/categories-privileges.sql -text
