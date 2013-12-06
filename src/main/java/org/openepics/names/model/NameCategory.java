@@ -17,6 +17,7 @@ package org.openepics.names.model;
 
 import java.io.Serializable;
 import java.util.List;
+
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -35,123 +36,124 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
- *
+ * 
  * @author Vasu V <vuppala@frib.msu.org>
  */
 @Entity
 @Table(name = "name_category")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "NameCategory.findAll", query = "SELECT n FROM NameCategory n"),
-    @NamedQuery(name = "NameCategory.findById", query = "SELECT n FROM NameCategory n WHERE n.id = :id"),
-    @NamedQuery(name = "NameCategory.findByName", query = "SELECT n FROM NameCategory n WHERE n.name = :name"),
-    @NamedQuery(name = "NameCategory.findByDescription", query = "SELECT n FROM NameCategory n WHERE n.description = :description"),
-    @NamedQuery(name = "NameCategory.findByVersion", query = "SELECT n FROM NameCategory n WHERE n.version = :version")})
+		@NamedQuery(name = "NameCategory.findAll", query = "SELECT n FROM NameCategory n"),
+		@NamedQuery(name = "NameCategory.findById", query = "SELECT n FROM NameCategory n WHERE n.id = :id"),
+		@NamedQuery(name = "NameCategory.findByName", query = "SELECT n FROM NameCategory n WHERE n.name = :name"),
+		@NamedQuery(name = "NameCategory.findByDescription", query = "SELECT n FROM NameCategory n WHERE n.description = :description"),
+		@NamedQuery(name = "NameCategory.findByVersion", query = "SELECT n FROM NameCategory n WHERE n.version = :version") })
 public class NameCategory implements Serializable {
-    private static final long serialVersionUID = 1L;
-    
-    @Id
+	private static final long serialVersionUID = 1L;
+
+	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-    @Basic(optional = false)
-    @Column(name = "id")
-    private Integer id;
-    
-    @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 32)
-    @Column(name = "name")
-    private String name;
-    
-    @Size(max = 255)
-    @Column(name = "description")
-    private String description;
-    
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "version")
-    @Version
-    private int version;
-    
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "nameCategoryId")
-    private List<NameEvent> nameEventList;
+	@Basic(optional = false)
+	@Column(name = "id")
+	private Integer id;
 
-    public NameCategory() {
-    }
+	@Basic(optional = false)
+	@NotNull
+	@Size(min = 1, max = 32)
+	@Column(name = "name")
+	private String name;
 
-    public NameCategory(Integer id) {
-        this.id = id;
-    }
+	@Size(max = 255)
+	@Column(name = "description")
+	private String description;
 
-    public NameCategory(Integer id, String name, int version) {
-        this.id = id;
-        this.name = name;
-        this.version = version;
-    }
+	@Basic(optional = false)
+	@NotNull
+	@Column(name = "version")
+	@Version
+	private int version;
 
-    public Integer getId() {
-        return id;
-    }
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "nameCategory")
+	private List<NameEvent> nameEventList;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public NameCategory() {
+	}
 
-    public String getName() {
-        return name;
-    }
+	public NameCategory(Integer id) {
+		this.id = id;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public NameCategory(Integer id, String name, int version) {
+		this.id = id;
+		this.name = name;
+		this.version = version;
+	}
 
-    public String getDescription() {
-        return description;
-    }
+	public Integer getId() {
+		return id;
+	}
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public int getVersion() {
-        return version;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setVersion(int version) {
-        this.version = version;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    @XmlTransient
-    public List<NameEvent> getNameEventList() {
-        return nameEventList;
-    }
+	public String getDescription() {
+		return description;
+	}
 
-    public void setNameEventList(List<NameEvent> nameEventList) {
-        this.nameEventList = nameEventList;
-    }
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
+	public int getVersion() {
+		return version;
+	}
 
-    @Override
-    public boolean equals(Object object) {
-        //TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof NameCategory)) {
-            return false;
-        }
-        NameCategory other = (NameCategory) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
-    }
+	public void setVersion(int version) {
+		this.version = version;
+	}
 
-    @Override
-    public String toString() {
-        return "org.openepics.names.NameCategory[ id=" + id + " ]";
-    }
-    
+	@XmlTransient
+	public List<NameEvent> getNameEventList() {
+		return nameEventList;
+	}
+
+	public void setNameEventList(List<NameEvent> nameEventList) {
+		this.nameEventList = nameEventList;
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = 0;
+		hash += (id != null ? id.hashCode() : 0);
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		// TODO: Warning - this method won't work in the case the id fields are
+		// not set
+		if (!(object instanceof NameCategory)) {
+			return false;
+		}
+		NameCategory other = (NameCategory) object;
+		if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "org.openepics.names.NameCategory[ id=" + id + " ]";
+	}
+
 }

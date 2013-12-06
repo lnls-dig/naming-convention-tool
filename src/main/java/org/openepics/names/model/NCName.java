@@ -27,25 +27,23 @@ import javax.xml.bind.annotation.XmlRootElement;
  *         Prelog</a>
  */
 @Entity
-@Table(name = "NC_name", uniqueConstraints = { @UniqueConstraint(columnNames = {
-		"section_id", "discipline_id", "signal_id", "instance_index" }) })
+@Table(name = "NC_name", uniqueConstraints = { @UniqueConstraint(columnNames = { "section_id", "discipline_id", "signal_id",
+		"instance_index" }) })
 @XmlRootElement
 @NamedQueries({
-	@NamedQuery(name = "NameEvent.findAll", query = "SELECT n FROM NCName n"),
-	@NamedQuery(name = "NameEvent.findById", query = "SELECT n FROM NCName n WHERE n.id = :id"),
-	@NamedQuery(name = "NameEvent.findBySection", query = "SELECT n FROM NCName n WHERE n.section = :section"),
-	@NamedQuery(name = "NameEvent.findByDiscipline", query = "SELECT n FROM NCName n WHERE n.section = :section"),
-	@NamedQuery(name = "NameEvent.findBySignal", query = "SELECT n FROM NCName n WHERE n.section = :section"),
-	@NamedQuery(name = "NameEvent.findByName", query = "SELECT n FROM NCName n WHERE n.section = :section"),
-	@NamedQuery(name = "NameEvent.findByStatus", query = "SELECT n FROM NCName n WHERE n.section = :section"),
-	@NamedQuery(name = "NameEvent.findByParts", query = "SELECT n FROM NCName n WHERE n.section = :section AND n.discipline = :discipline AND n.signal = :signal AND n.instanceIndex = :instanceIndex")})
+		@NamedQuery(name = "NCName.findAll", query = "SELECT n FROM NCName n"),
+		@NamedQuery(name = "NCName.findById", query = "SELECT n FROM NCName n WHERE n.id = :id"),
+		@NamedQuery(name = "NCName.findBySection", query = "SELECT n FROM NCName n WHERE n.section = :section"),
+		@NamedQuery(name = "NCName.findByDiscipline", query = "SELECT n FROM NCName n WHERE n.section = :section"),
+		@NamedQuery(name = "NCName.findBySignal", query = "SELECT n FROM NCName n WHERE n.section = :section"),
+		@NamedQuery(name = "NCName.findByName", query = "SELECT n FROM NCName n WHERE n.section = :section"),
+		@NamedQuery(name = "NCName.findByStatus", query = "SELECT n FROM NCName n WHERE n.section = :section"),
+		@NamedQuery(name = "NCName.findByParts", query = "SELECT n FROM NCName n WHERE n.section = :section AND n.discipline = :discipline AND n.signal = :signal AND n.instanceIndex = :instanceIndex") })
 public class NCName implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	public enum NCNameStatus {
-		INVALID,
-		VALID,
-		DELETED;
+		INVALID, VALID, DELETED;
 	}
 
 	@Id
@@ -95,8 +93,7 @@ public class NCName implements Serializable {
 		this.id = id;
 	}
 
-	public NCName(Integer id, NameEvent section, NameEvent discipline,
-			NameEvent signal, Character instanceIndex, String name,
+	public NCName(Integer id, NameEvent section, NameEvent discipline, NameEvent signal, Character instanceIndex, String name,
 			NCNameStatus status, Integer version) {
 		this.id = id;
 		this.section = section;
