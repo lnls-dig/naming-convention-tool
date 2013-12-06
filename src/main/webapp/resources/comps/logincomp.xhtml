@@ -21,7 +21,7 @@
             </f:facet>                 
             <p:panelGrid columns="2">
                 <h:outputLabel for="userid" value="#{msgs.loginUser}" />    
-                <p:inputText id="userid" value="#{loginManager.inputUserID}" required="true"  label="User ID" />
+                <p:inputText id="userid" value="#{loginManager.inputUsername}" required="true"  label="User ID" />
                 <h:outputLabel for="passwd" value="#{msgs.loginPass}" />
                 <p:password id="passwd" value="#{loginManager.inputPassword}"   label="Password"/>          
             </p:panelGrid>       

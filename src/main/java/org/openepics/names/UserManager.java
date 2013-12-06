@@ -17,6 +17,7 @@ package org.openepics.names;
 
 import java.io.Serializable;
 import java.security.Principal;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.ejb.EJB;
@@ -26,11 +27,12 @@ import javax.faces.context.FacesContext;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 
 import org.openepics.names.model.Privilege;
 
 /**
- *
+ * 
  * @author Vasu V <vuppala@frib.msu.org>
  */
 @Named
@@ -38,112 +40,102 @@ import org.openepics.names.model.Privilege;
 public class UserManager implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@EJB
-    private NamesEJBLocal namesEJB;
-    @SuppressWarnings("unused")
-    private static final Logger logger = Logger.getLogger("org.openepics.names");
-    private Privilege User;
-    private boolean LoggedIn = false;
-    private boolean Editor = false;
-    
-    //TODO is this correctly here?
-    @PersistenceContext(unitName = "org.openepics.names.punit")
-    private EntityManager em;
+	private NamesEJBLocal namesEJB;
+	@SuppressWarnings("unused")
+	private static final Logger logger = Logger
+			.getLogger("org.openepics.names");
+	private Privilege User;
+	private boolean loggedIn = false;
+	private boolean editor = false;
 
-    /**
-     * Creates a new instance of UserManager
-     */
-    public UserManager() {
-    }
+	// TODO is this correctly here?
+	@PersistenceContext(unitName = "org.openepics.names.punit")
+	private EntityManager em;
 
-    public void init() {
-        Principal principal = FacesContext.getCurrentInstance().getExternalContext().getUserPrincipal();
-        if (principal == null) {
-            User = new Privilege();
-            LoggedIn = false;
-            Editor = false;
-        } else {
-            User = em.find(Privilege.class, principal.getName());
-            LoggedIn = true;
-            Editor = namesEJB.isEditor(User);
-        }
-    }
+	/**
+	 * Creates a new instance of UserManager
+	 */
+	public UserManager() {
+	}
 
-    /*
-    public String onLogin() throws IOException {
-        FacesContext context = FacesContext.getCurrentInstance();
-        HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
-        String originalURL = (String) context.getExternalContext().getRequestMap().get(RequestDispatcher.FORWARD_REQUEST_URI);
+	public void init() {
+		Principal principal = FacesContext.getCurrentInstance()
+				.getExternalContext().getUserPrincipal();
+		if (principal == null) {
+			User = new Privilege();
+			loggedIn = false;
+			editor = false;
+		} else {
+			TypedQuery<Privilege> query = em.createQuery(
+					"SELECT p FROM Privilege p WHERE p.username = :username",
+					Privilege.class).setParameter("username",
+					principal.getName());
+			List<Privilege> users = query.getResultList();
+			User = users.get(0);
+			loggedIn = true;
+			editor = namesEJB.isEditor(User);
+		}
+	}
 
-        if (originalURL == null) {
-            originalURL = "index.xhtml";
-        }
-        //TODO: find an alternative for this workaround
-        // Sometimes the user is already logged in. This is a workaround for it. 
-        try {
-            request.logout();
-        } catch (Exception e) {
-            logger.log(Level.INFO, "Cannot log out during login");
-        }
+	/*
+	 * public String onLogin() throws IOException { FacesContext context =
+	 * FacesContext.getCurrentInstance(); HttpServletRequest request =
+	 * (HttpServletRequest) context.getExternalContext().getRequest(); String
+	 * originalURL = (String)
+	 * context.getExternalContext().getRequestMap().get(RequestDispatcher
+	 * .FORWARD_REQUEST_URI);
+	 * 
+	 * if (originalURL == null) { originalURL = "index.xhtml"; } //TODO: find an
+	 * alternative for this workaround // Sometimes the user is already logged
+	 * in. This is a workaround for it. try { request.logout(); } catch
+	 * (Exception e) { logger.log(Level.INFO, "Cannot log out during login"); }
+	 * 
+	 * try { // resp = namesEJB.authenticate(inputUserID, inputPassword);
+	 * 
+	 * request.login(this.inputUserID, this.inputPassword); inputPassword =
+	 * "xxxxxxxx"; //TODO implement a better way destroy the password (from JVM)
+	 * loggedIn = true; User = inputUserID; editor = namesEJB.isEditor(User);
+	 * showMessage(FacesMessage.SEVERITY_INFO,
+	 * "You are logged in. Welcome to Proteus.", inputUserID);
+	 * context.getExternalContext().redirect(originalURL); } catch
+	 * (ServletException e) { Ticket = null; loggedIn = false; User = null;
+	 * editor = false; showMessage(FacesMessage.SEVERITY_ERROR,
+	 * "Login Failed! Please try again. ", "Status: ");
+	 * 
+	 * } finally { } return null; }
+	 * 
+	 * public String onLogout() { FacesContext context =
+	 * FacesContext.getCurrentInstance(); HttpServletRequest request =
+	 * (HttpServletRequest) context.getExternalContext().getRequest(); try {
+	 * request.logout(); loggedIn = false; Ticket = ""; inputUserID = ""; editor
+	 * = false; showMessage(FacesMessage.SEVERITY_INFO,
+	 * "You have been logged out.", "Thank you!"); } catch (Exception e) {
+	 * showMessage(FacesMessage.SEVERITY_ERROR, "Strangely, logout has failed",
+	 * "That's odd!"); }
+	 * 
+	 * return "/index.xhtml"; }
+	 */
 
-        try {
-            // resp = namesEJB.authenticate(inputUserID, inputPassword);
+	public Privilege getUser() {
+		return User;
+	}
 
-            request.login(this.inputUserID, this.inputPassword);
-            inputPassword = "xxxxxxxx"; //TODO implement a better way destroy the password (from JVM)
-            LoggedIn = true;
-            User = inputUserID;
-            Editor = namesEJB.isEditor(User);
-            showMessage(FacesMessage.SEVERITY_INFO, "You are logged in. Welcome to Proteus.", inputUserID);
-            context.getExternalContext().redirect(originalURL);
-        } catch (ServletException e) {
-            Ticket = null;
-            LoggedIn = false;
-            User = null;
-            Editor = false;
-            showMessage(FacesMessage.SEVERITY_ERROR, "Login Failed! Please try again. ", "Status: ");
+	public boolean isLoggedIn() {
+		return loggedIn;
+	}
 
-        } finally {
-        }
-        return null;
-    }
+	public boolean isEditor() {
+		return editor;
+	}
 
-    public String onLogout() {
-        FacesContext context = FacesContext.getCurrentInstance();
-        HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
-        try {
-            request.logout();
-            LoggedIn = false;
-            Ticket = "";
-            inputUserID = "";
-            Editor = false;
-            showMessage(FacesMessage.SEVERITY_INFO, "You have been logged out.", "Thank you!");
-        } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Strangely, logout has failed", "That's odd!");
-        }
+	// TODO: Move it to a common utility class
+	private void showMessage(FacesMessage.Severity severity, String summary,
+			String message) {
+		FacesContext context = FacesContext.getCurrentInstance();
 
-        return "/index.xhtml";
-    }
-*/
-    
-    public Privilege getUser() {
-        return User;
-    }
-
-    public boolean isLoggedIn() {
-        return LoggedIn;
-    }
-
-    public boolean isEditor() {
-        return Editor;
-    }
-
-    //TODO: Move it to a common utility class
-    private void showMessage(FacesMessage.Severity severity, String summary, String message) {
-        FacesContext context = FacesContext.getCurrentInstance();
-
-        context.addMessage(null, new FacesMessage(severity, summary, message));
-        // FacesMessage n = new FacesMessage();
-    }
+		context.addMessage(null, new FacesMessage(severity, summary, message));
+		// FacesMessage n = new FacesMessage();
+	}
 }

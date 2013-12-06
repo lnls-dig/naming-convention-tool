@@ -37,15 +37,15 @@
                     <h:outputText value="#{namesManager.nameStatus(stdname)}" />                                                                              
                 </p:column>
                 
-                <p:column id="nameCat" sortBy="#{stdname.nameCategoryId.id}"
-                          filterBy="#{stdname.nameCategoryId.id}"
+                <p:column id="nameCat" sortBy="#{stdname.nameCategory.name}"
+                          filterBy="#{stdname.nameCategory.name}"
                           filterMatchMode="contains" 
                           style="width: 15%" > 
                     <f:facet name="header">
                         <!--ToDo: Move it to the menubar, if possible-->
                         <p:menuButton model="#{menuManager.model}"  value="#{msgs.nameElementCategory}"/>                      
                     </f:facet>
-                    <h:outputText value="#{stdname.nameCategoryId.id}" /> 
+                    <h:outputText value="#{stdname.nameCategory.name}" /> 
                     
                 </p:column>
                 <p:column id="nameCode" headerText="Code" sortBy="#{stdname.nameCode}"
@@ -76,7 +76,7 @@
                         <h:outputText value="#{nevent.nameId}" />                              
                     </p:column>
                     <p:column id="nameCat" headerText="Category"   >                  
-                        <h:outputText value="#{nevent.nameCategoryId.id}" />                              
+                        <h:outputText value="#{nevent.nameCategory.name}" />                              
                     </p:column>
                     <p:column id="nameCode" headerText="Code" >                  
                         <h:outputText value="#{nevent.nameCode}" />                              

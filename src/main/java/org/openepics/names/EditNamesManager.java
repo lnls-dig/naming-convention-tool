@@ -37,7 +37,7 @@ public class EditNamesManager implements Serializable {
 	
 	private List<NameEvent> superSectionNames;
 	private List<NameEvent> sectionNames;
-	private List<NameEvent> subectionNames;
+	private List<NameEvent> subsectionNames;
 	private List<NameEvent> disciplineNames;
 	private List<NameEvent> categoryNames;
 	private List<NameEvent> genDevNames;
@@ -57,7 +57,9 @@ public class EditNamesManager implements Serializable {
 					break;
 				}
 			}
-			superSectionNames = namesEJB.findEventsByCategory(superSection);
+			logger.log(Level.INFO, "Found supersection category: "+superSection+" "+superSection.getId());
+			superSectionNames = superSection == null ? null : namesEJB.findEventsByCategory(superSection);
+			logger.log(Level.INFO, "Found supersections. Total = "+superSectionNames.size());
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
 			System.err.println(e);
@@ -86,6 +88,7 @@ public class EditNamesManager implements Serializable {
 	}
 
 	public List<NameEvent> getSuperSectionNames() {
+		logger.log(Level.INFO, "Accessing supersections. Superections: "+superSectionNames);
 		return superSectionNames;
 	}
 
@@ -101,12 +104,12 @@ public class EditNamesManager implements Serializable {
 		this.sectionNames = sectionNames;
 	}
 
-	public List<NameEvent> getSubectionNames() {
-		return subectionNames;
+	public List<NameEvent> getSubsectionNames() {
+		return subsectionNames;
 	}
 
-	public void setSubectionNames(List<NameEvent> subectionNames) {
-		this.subectionNames = subectionNames;
+	public void setSubsectionNames(List<NameEvent> subsectionNames) {
+		this.subsectionNames = subsectionNames;
 	}
 
 	public List<NameEvent> getDisciplineNames() {
@@ -179,6 +182,14 @@ public class EditNamesManager implements Serializable {
 
 	public void setGenDevice(NameEvent genDevice) {
 		this.genDevice = genDevice;
+	}
+	
+	public boolean isSupserSectionSelected() {
+		return superSection != null;
+	}
+	
+	public boolean isSectionSelected() {
+		return section != null;
 	}
 
 	private void showMessage(FacesMessage.Severity severity, String summary, String message) {

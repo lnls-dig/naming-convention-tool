@@ -71,7 +71,7 @@
                 <p:column id="type" headerText="Type" rendered="#{requestManager.myRequest}" style="width: 7%">                  
                     <h:outputText value="#{requestManager.requestType(nevent.eventType)}" />                              
                 </p:column>
-                <p:column id="nameCat" headerText="Category" filterBy="#{nevent.nameCategoryId.id}"
+                <p:column id="nameCat" headerText="Category" filterBy="#{nevent.nameCategory.name}"
                           filterMatchMode="contains" style="width: 15%" >                  
                     <h:outputText value="#{nevent.nameCategory.name}" />                              
                 </p:column>

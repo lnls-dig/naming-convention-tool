@@ -32,7 +32,7 @@
 
 			<p:submenu label="NC Names" icon="ui-icon-comment">
 				<p:menuitem value="Manage" title="Manage NC Names"
-					url="nc-request-sub.xhtml" icon="ui-icon-suitcase"
+					url="nc-edit.xhtml" icon="ui-icon-suitcase"
 					disabled="#{not userManager.loggedIn}" />
 			</p:submenu>
 
@@ -73,7 +73,7 @@
 			</p:submenu>
 
 			<f:facet name="options">
-				<h:outputText value="#{userManager.user}" style="margin-right:10px"
+				<h:outputText value="#{userManager.user.username}" style="margin-right:10px"
 					rendered="#{userManager.loggedIn}" />
 				<p:commandButton id="loginBtn" type="button" value="Login"
 					icon="ui-icon-person" onclick="loginWidget.show()"

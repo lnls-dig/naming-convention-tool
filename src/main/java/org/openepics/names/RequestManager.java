@@ -92,7 +92,7 @@ public class RequestManager implements Serializable {
 			}
 			newCode = newDescription = newComment = null;
 			newCategory = newParent = null;
-			selectedName = validNames == null ? null : validNames.get(0);
+			selectedName = (validNames == null || validNames.size() == 0) ? null : validNames.get(0);
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Could not initialize Request Manager.");
 			System.err.println(e);

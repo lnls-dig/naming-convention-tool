@@ -263,7 +263,7 @@ public class NamesEJB implements NamesEJBLocal {
 		TypedQuery<NameEvent> query = em
 				.createQuery(
 						"SELECT n FROM NameEvent n WHERE n.nameCategory = :nameCategory ORDER BY n.name",
-						NameEvent.class).setParameter("nameCategory", category.getId()); // TODO:
+						NameEvent.class).setParameter("nameCategory", category); // TODO:
 																			// convert
 																			// to
 																			// criteria
@@ -398,7 +398,7 @@ public class NamesEJB implements NamesEJBLocal {
 		if (includeDeleted) {
 			query = em
 					.createQuery(
-							"SELECT n FROM NameEvent n WHERE n.nameCategoryId.name LIKE :categ AND n.requestDate = (SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name AND (r.status = 'a' OR r.status = 'p')) ORDER BY n.nameCategoryId.id, n.name",
+							"SELECT n FROM NameEvent n WHERE n.nameCategory.name LIKE :categ AND n.requestDate = (SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name AND (r.status = 'a' OR r.status = 'p')) ORDER BY n.nameCategory.id, n.name",
 							NameEvent.class).setParameter("categ", category); // TODO:
 																				// convert
 																				// to
@@ -407,7 +407,7 @@ public class NamesEJB implements NamesEJBLocal {
 		} else {
 			query = em
 					.createQuery(
-							"SELECT n FROM NameEvent n WHERE n.nameCategoryId.name LIKE :categ AND n.requestDate = (SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name AND (r.status = 'a' OR r.status = 'p')) AND NOT (n.eventType = 'd' AND n.status = 'a') ORDER BY n.nameCategoryId.id, n.name",
+							"SELECT n FROM NameEvent n WHERE n.nameCategory.name LIKE :categ AND n.requestDate = (SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name AND (r.status = 'a' OR r.status = 'p')) AND NOT (n.eventType = 'd' AND n.status = 'a') ORDER BY n.nameCategory.id, n.name",
 							NameEvent.class).setParameter("categ", category); // TODO:
 																				// convert
 																				// to
