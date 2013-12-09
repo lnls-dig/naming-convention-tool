@@ -22,10 +22,6 @@
     </navigation-rule>
     
     <application>
-    	<message-bundle>resources.application</message-bundle>
-    	<locale-config>
-    		<default-locale>en</default-locale>
-    	</locale-config>
         <resource-bundle>
             <base-name>messages</base-name>
             <var>msgs</var>
