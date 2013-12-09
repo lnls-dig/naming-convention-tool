@@ -10,10 +10,10 @@
             max-pool-size="5"
             steady-pool-size="0"
             statement-timeout-in-seconds="30" >
-        <property name="User" value="namesapp"></property>
-        <property name="Password" value="namesapp"></property>
+        <property name="User" value="discs_names"></property>
+        <property name="Password" value="discs_names"></property>
         <property name="portNumber" value="3306"></property>
-        <property name="dataBaseName" value="namesapp"></property>
+        <property name="dataBaseName" value="discs_names"></property>
         <property name="serverName" value="localhost"></property>
     </jdbc-connection-pool>
     <jdbc-resource pool-name="java:app/org.openepics.conf.dbpool" jndi-name="java:app/org.openepics.names.data"></jdbc-resource>
