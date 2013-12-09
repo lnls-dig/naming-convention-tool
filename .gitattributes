@@ -19,6 +19,7 @@ design/names_schema_v2.3.sql -text
 design/names_schema_v2.4.eap -text
 design/names_schema_v2.4.sql -text
 design/names_schema_v2.5.sql -text
+design/names_schema_v3.0.sql -text
 docs/Names-Design-v2.3.docx -text
 docs/Names-Design-v2.3.pdf -text
 docs/Names-Installation-v2.3.pdf -text
