@@ -36,7 +36,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 
 		List<NCName> deviceInstances = getNCNamesByRef(nameSections.section, nameSections.disciplineOrSubsection,
 				nameSections.deviceName);
-		String deviceInstanceIndex = getDeviceInstanceIndex(deviceInstances);
+		String deviceInstanceIndex = subsection.getName().substring(0, 2) + getDeviceInstanceIndex(deviceInstances);
 
 		if (signal == null)
 			return new NCName(subsection, device, null, deviceInstanceIndex,
@@ -158,7 +158,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 	}
 
 	@Override
-	public NCName findNCNameByReference(NameEvent section, NameEvent discipline, NameEvent signal, Character instanceIndex) {
+	public NCName findNCNameByReference(NameEvent section, NameEvent discipline, NameEvent signal, String instanceIndex) {
 		if (section == null)
 			throw new IllegalArgumentException("section is null");
 		if (discipline == null)
@@ -194,7 +194,26 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 
 	@Override
 	public boolean isNameValid(String ncName) throws NamingConventionException {
-		// TODO Auto-generated method stub
+		String[] majorParts = ncName.split(":");
+
+		if (majorParts.length < 2)
+			return false;
+
+		int dashIndex = majorParts[0].indexOf('-');
+		// section at least one character and not all of the string
+		if ((dashIndex < 1) || (dashIndex >= majorParts[0].length() - 1))
+			return false;
+		String section = majorParts[0].substring(0, dashIndex);
+		String discipline = majorParts[0].substring(dashIndex + 1);
+
+		dashIndex = majorParts[1].indexOf('-');
+		if ((dashIndex < 1) || (dashIndex >= majorParts[0].length() - 1))
+			return false;
+		String device = majorParts[1].substring(0, dashIndex);
+		String deviceQ = majorParts[1].substring(dashIndex + 1);
+
+		// TODO check if all parts exist. Also for signal
+
 		return false;
 	}
 

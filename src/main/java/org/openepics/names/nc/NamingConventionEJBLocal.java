@@ -38,7 +38,7 @@ public interface NamingConventionEJBLocal {
 
 	NCName findNCNameByName(String name);
 
-	NCName findNCNameByReference(NameEvent section, NameEvent discipline, NameEvent signal, Character instanceIndex);
+	NCName findNCNameByReference(NameEvent section, NameEvent discipline, NameEvent signal, String instanceIndex);
 
 	List<NCName> getActiveNames();
 
