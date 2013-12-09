@@ -15,7 +15,24 @@ public interface NamingConventionEJBLocal {
 		ACCELERATOR, TARGET
 	}
 
-	NCName createNCName(NameEvent section, NameEvent discipline, NameEvent signal, ESSNameConstructionMethod method);
+	/**
+	 * @param section
+	 *            - For accelerator and target: must be a SUBSECTION
+	 * 
+	 * @param device
+	 *            - can be either GDEV or SDEV
+	 * @param signal
+	 *            - can be <code>null</code>. Is <code>signal</code> is
+	 *            <code>null</code>, then we are constructing a new device.
+	 *            Otherwise, the we are adding a new signal to the existing
+	 *            device. In this case the <code>subsection</code> must belong
+	 *            to the <code>device</code>.
+	 * @param method
+	 * @return - returns null if this would not construct a valid device name.
+	 *         Example incorrect entities were used for section, device or
+	 *         signal
+	 */
+	NCName createNCName(NameEvent subsection, NameEvent device, NameEvent signal, ESSNameConstructionMethod method);
 
 	NCName findNCNameById(Integer id);
 

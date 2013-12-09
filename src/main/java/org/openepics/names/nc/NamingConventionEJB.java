@@ -15,52 +15,134 @@ import org.openepics.names.model.NameEvent;
 @Stateless
 public class NamingConventionEJB implements NamingConventionEJBLocal {
 
+	private class NameSections {
+		NameEvent section;
+		NameEvent disciplineOrSubsection;
+		String deviceName;
+	}
+
 	@PersistenceContext(unitName = "org.openepics.names.punit")
 	private EntityManager em;
 
 	@Override
-	public NCName createNCName(NameEvent section, NameEvent discipline, NameEvent signal,
+	public NCName createNCName(NameEvent subsection, NameEvent device, NameEvent signal,
 			NamingConventionEJBLocal.ESSNameConstructionMethod method) {
-		if ((section.getStatus() == 'a')
-				&& (section.getNameCategory().getName().equalsIgnoreCase("SUP")
-						|| section.getNameCategory().getName().equalsIgnoreCase("SECT") || section.getNameCategory().getName()
-						.equalsIgnoreCase("SUB"))
-				&& (discipline.getStatus() == 'a')
-				&& (discipline.getNameCategory().getName().equalsIgnoreCase("DSCP")
-						|| discipline.getNameCategory().getName().equalsIgnoreCase("CAT")
-						|| discipline.getNameCategory().getName().equalsIgnoreCase("GDEV") || discipline.getNameCategory()
-						.getName().equalsIgnoreCase("SDEV"))) {
-			if (signal == null) {
-				if (findNCNameByReference(section, discipline, signal, null) != null)
-					return null; // name already exists
-				return new NCName(section, discipline, signal, null, section.getName() + "-" + discipline.getName(),
-						NCNameStatus.INVALID, 1);
-			} else {
-				List<NCName> signalNames = getNCNamesByRef(section, discipline, signal);
-				// 3 possibilities:
-				// 1) The first signal
-				// 2) One signal exists
-				// 3) More than on signal exists
-				if (signalNames.size() == 0) {
-					return new NCName(section, discipline, signal, null, section.getName() + "-" + discipline.getName(),
-							NCNameStatus.INVALID, 1);
-				}
-			}
-		} else
+		if (subsection == null || device == null)
 			return null;
 
-		return new NCName(section, discipline, signal, null, section.getName() + "-" + discipline.getName(),
-				NCNameStatus.VALID, 1);
+		NameSections nameSections = getNameSections(subsection, device, method);
+		if (nameSections == null)
+			return null;
+
+		List<NCName> deviceInstances = getNCNamesByRef(nameSections.section, nameSections.disciplineOrSubsection,
+				nameSections.deviceName);
+		String deviceInstanceIndex = getDeviceInstanceIndex(deviceInstances);
+
+		if (signal == null)
+			return new NCName(subsection, device, null, deviceInstanceIndex,
+					nameSections.section.getName() + "-" + nameSections.disciplineOrSubsection.getName() + ":"
+							+ nameSections.deviceName + "-" + deviceInstanceIndex, NCNameStatus.INVALID, 1);
+
+		return new NCName(subsection, device, signal, deviceInstanceIndex, nameSections.section.getName() + "-"
+				+ nameSections.disciplineOrSubsection.getName() + ":" + nameSections.deviceName + "-" + deviceInstanceIndex
+				+ ":" + validateSignalName(signal), NCNameStatus.INVALID, 1);
 	}
 
-	private List<NCName> getNCNamesByRef(NameEvent section, NameEvent discipline, NameEvent signal) {
-		TypedQuery<NCName> query = em
-				.createQuery(
-						"SELECT n FROM NCName n WHERE n.section = :section AND n.discipline = :discipline AND n.signal = :signal ORDER BY n.instanceIndex ASC",
-						NCName.class);
-		query.setParameter("section", section).setParameter("discipline", discipline).setParameter("signal", signal);
+	private String getDeviceInstanceIndex(List<NCName> names) {
+		if (names.size() == 0)
+			return "A";
+		return "" + ((char) (names.size() % 26 + 'A')) + (names.size() / 26);
+	}
+
+	private NameSections getNameSections(NameEvent subsection, NameEvent device,
+			NamingConventionEJBLocal.ESSNameConstructionMethod method) {
+
+		if (!((subsection.getStatus() == 'a') && subsection.getNameCategory().getName().equalsIgnoreCase("SUB")
+				&& (device.getStatus() == 'a') && (device.getNameCategory().getName().equalsIgnoreCase("GDEV") || device
+				.getNameCategory().getName().equalsIgnoreCase("SDEV"))))
+			return null;
+
+		NameSections nameSections = new NameSections();
+
+		NameEvent section;
+		NameEvent genDevice;
+
+		switch (method) {
+		case ACCELERATOR:
+			// find the correct section name
+			section = subsection;
+			while (!section.getNameCategory().getName().equalsIgnoreCase("SECT")) {
+				if (section.getParentName() == null)
+					return null; // validation failed
+				section = section.getParentName();
+			}
+			nameSections.section = section;
+
+			// find the correct discipline based on the device
+			NameEvent discipline = device;
+			while (!discipline.getNameCategory().getName().equalsIgnoreCase("DSCP")) {
+				if (discipline.getParentName() == null)
+					return null; // validation failed
+				discipline = discipline.getParentName();
+			}
+			nameSections.disciplineOrSubsection = discipline;
+
+			// find the appropriate generic device name
+			genDevice = device;
+			while (!genDevice.getNameCategory().getName().equalsIgnoreCase("GDEV")) {
+				if (genDevice.getParentName() == null)
+					return null; // validation failed
+				genDevice = genDevice.getParentName();
+			}
+			nameSections.deviceName = genDevice.getName();
+			break;
+		case TARGET:
+			section = subsection;
+			while (!section.getNameCategory().getName().equalsIgnoreCase("SECT")) {
+				if (section.getParentName() == null)
+					return null; // validation failed
+				section = section.getParentName();
+			}
+			nameSections.section = section;
+
+			nameSections.disciplineOrSubsection = subsection;
+
+			// find the appropriate generic device name
+			genDevice = device;
+			while (!genDevice.getNameCategory().getName().equalsIgnoreCase("GDEV")) {
+				if (genDevice.getParentName() == null)
+					return null; // validation failed
+				genDevice = genDevice.getParentName();
+			}
+			nameSections.deviceName = genDevice.getName();
+			break;
+		default:
+			// all possible enum values taken care off
+			return null;
+
+		}
+
+		return nameSections;
+	}
+
+	private List<NCName> getNCNamesByRef(NameEvent section, NameEvent discipline, String deviceName) {
+		//@formatter:off
+		TypedQuery<NCName> query = em.createQuery("SELECT n FROM NCName n " + 
+														"WHERE n.section = :section " +
+														"AND n.discipline = :discipline " + 
+														"AND n.name = :name " + 
+														"ORDER BY n.instanceIndex ASC", 
+														NCName.class);
+		// @formatter:on
+		query.setParameter("section", section).setParameter("discipline", discipline).setParameter("name", deviceName);
 
 		return query.getResultList();
+	}
+
+	private String validateSignalName(NameEvent signal) {
+		if (signal == null)
+			return null;
+		return signal.getName();
 	}
 
 	@Override

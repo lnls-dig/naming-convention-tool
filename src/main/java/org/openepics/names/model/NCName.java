@@ -64,11 +64,11 @@ public class NCName implements Serializable {
 	@ManyToOne(optional = true)
 	private NameEvent signal;
 
-	@Column(name = "instance_index")
-	private Character instanceIndex;
+	@Column(name = "instance_index", length = 32)
+	private String instanceIndex;
 
 	@Basic(optional = false)
-	@Column(name = "name")
+	@Column(name = "name", length = 48)
 	private String name;
 
 	@Basic(optional = false)
@@ -86,7 +86,7 @@ public class NCName implements Serializable {
 		// EMPTY
 	}
 
-	public NCName(NameEvent section, NameEvent discipline, NameEvent signal, Character instanceIndex, String name,
+	public NCName(NameEvent section, NameEvent discipline, NameEvent signal, String instanceIndex, String name,
 			NCNameStatus status, Integer version) {
 		this.section = section;
 		this.discipline = discipline;
@@ -121,11 +121,11 @@ public class NCName implements Serializable {
 		this.signal = signal;
 	}
 
-	public Character getInstanceIndex() {
+	public String getInstanceIndex() {
 		return instanceIndex;
 	}
 
-	public void setInstanceIndex(Character instanceIndex) {
+	public void setInstanceIndex(String instanceIndex) {
 		this.instanceIndex = instanceIndex;
 	}
 
