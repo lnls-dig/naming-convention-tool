@@ -172,44 +172,48 @@
 					<h:outputLabel for="isup" value="Supersection:" />
 					<p:selectOneMenu id="isup"
 						value="#{editNamesManager.superSection}">
+						<p:ajax listener="#{editNamesManager.loadSections}" event="change" update="isec" /> 
 						<f:selectItems value="#{editNamesManager.superSectionNames}"
 							var="asup" itemLabel="#{asup.name}" itemValue="#{asup}" />
 					</p:selectOneMenu>
 
 					<h:outputLabel for="isec" value="Section:" />
 					<p:selectOneMenu id="isec"
-						value="#{editNamesManager.sectionNames}">
-						disabled="#{!editNamesManager.isSupserSectionSelected()}"
-						<f:selectItems value="#{editNamesManager.section}"
+						value="#{editNamesManager.section}">
+						<!--disabled="#{!editNamesManager.isSupserSectionSelected()}"-->
+						<p:ajax listener="#{editNamesManager.loadSubsections}" event="change" update="isub" /> 
+						<f:selectItems value="#{editNamesManager.sectionNames}"
 							var="asec" itemLabel="#{asec.name}" itemValue="#{asec.id}" />
 					</p:selectOneMenu>
 
 					<h:outputLabel for="isub" value="Subsection:" />
 					<p:selectOneMenu id="isub"
-						value="#{editNamesManager.subsectionNames}">
-						disabled="#{!editNamesManager.isSectionSelected()}"
-						<f:selectItems value="#{editNamesManager.subsection}"
+						value="#{editNamesManager.subsection}"
+						disabled="#{!editNamesManager.isSectionSelected()}">
+						<f:selectItems value="#{editNamesManager.subsectionNames}"
 							var="asub" itemLabel="#{asub.name}" itemValue="#{asub.id}" />
 					</p:selectOneMenu>
 
 					<h:outputLabel for="idsc" value="Discipline:" />
 					<p:selectOneMenu id="idsc"
-						value="#{editNamesManager.disciplineNames}">
-						<f:selectItems value="#{editNamesManager.discipline}"
+						value="#{editNamesManager.discipline}">
+						<f:selectItems value="#{editNamesManager.disciplineNames}"
 							var="adsc" itemLabel="#{adsc.name}" itemValue="#{adsc.id}" />
 					</p:selectOneMenu>
 
 					<h:outputLabel for="icat" value="Category:" />
 					<p:selectOneMenu id="icat"
-						value="#{editNamesManager.categoryNames}">
-						<f:selectItems value="#{editNamesManager.category}"
+						value="#{editNamesManager.category}"
+						disabled="#{!editNamesManager.isDisciplineSelected()}">
+						<f:selectItems value="#{editNamesManager.categoryNames}"
 							var="acat" itemLabel="#{acat.name}" itemValue="#{acat.id}" />
 					</p:selectOneMenu>
 
 					<h:outputLabel for="igdv" value="Generic Device:" />
 					<p:selectOneMenu id="igdv"
-						value="#{editNamesManager.genDevNames}">
-						<f:selectItems value="#{editNamesManager.genDevice}"
+						value="#{editNamesManager.genDevice}"
+						disabled="#{!editNamesManager.isCategorySelected()}">
+						<f:selectItems value="#{editNamesManager.genDevNames}"
 							var="agdv" itemLabel="#{agdv.name}" itemValue="#{agdv.id}" />
 					</p:selectOneMenu>
 				</p:panelGrid>
