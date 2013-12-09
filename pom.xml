@@ -69,6 +69,11 @@
 			<artifactId>junit</artifactId>
 			<version>4.4</version>
 		</dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.27</version>
+        </dependency>
 	</dependencies>
 
 	<build>
@@ -93,6 +98,25 @@
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
 			</plugin>
+            <plugin>
+                <groupId>org.glassfish</groupId>
+                <artifactId>maven-embedded-glassfish-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <goalPrefix>embedded-glassfish</goalPrefix>
+                    <app>target/${project.build.finalName}.war</app>
+                    <port>8888</port>
+                    <autoDelete>true</autoDelete>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 			<!-- <plugin> -->
 			<!-- <groupId>org.apache.maven.plugins</groupId> -->
 			<!-- <artifactId>maven-dependency-plugin</artifactId> -->

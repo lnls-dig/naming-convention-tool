@@ -18,6 +18,7 @@ design/names_schema_v2.3.eap -text
 design/names_schema_v2.3.sql -text
 design/names_schema_v2.4.eap -text
 design/names_schema_v2.4.sql -text
+design/names_schema_v2.5.sql -text
 docs/Names-Design-v2.3.docx -text
 docs/Names-Design-v2.3.pdf -text
 docs/Names-Installation-v2.3.pdf -text
@@ -58,6 +59,7 @@ src/main/resources/messages.properties -text
 src/main/setup/glassfish-resources.xml -text
 src/main/webapp/WEB-INF/beans.xml -text
 src/main/webapp/WEB-INF/faces-config.xml -text
+src/main/webapp/WEB-INF/glassfish-resources.xml -text
 src/main/webapp/WEB-INF/glassfish-web.xml -text
 src/main/webapp/WEB-INF/web.xml -text
 src/main/webapp/about.xhtml -text

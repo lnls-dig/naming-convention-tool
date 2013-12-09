@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE resources PUBLIC "-//GlassFish.org//DTD GlassFish Application Server 3.1 Resource Definitions//EN" "http://glassfish.org/dtds/glassfish-resources_1_5.dtd">
+
+<resources>
+    <jdbc-connection-pool
+            name="java:app/org.openepics.conf.dbpool"
+            res-type="javax.sql.DataSource"
+            datasource-classname="com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
+            pool-resize-quantity="1"
+            max-pool-size="5"
+            steady-pool-size="0"
+            statement-timeout-in-seconds="30" >
+        <property name="User" value="namesapp"></property>
+        <property name="Password" value="namesapp"></property>
+        <property name="portNumber" value="3306"></property>
+        <property name="dataBaseName" value="namesapp"></property>
+        <property name="serverName" value="localhost"></property>
+    </jdbc-connection-pool>
+    <jdbc-resource pool-name="java:app/org.openepics.conf.dbpool" jndi-name="java:app/org.openepics.names.data"></jdbc-resource>
+</resources>
