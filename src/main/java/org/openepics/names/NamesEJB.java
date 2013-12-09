@@ -421,7 +421,12 @@ public class NamesEJB implements NamesEJBLocal {
 		return nameEvents;
 	}
 
-	/**
+    @Override
+    public NameEvent findEventById(Integer id) {
+        return em.find(NameEvent.class, id);
+    }
+
+    /**
 	 * Update the status of a set of events.
 	 * 
 	 * @author Vasu V <vuppala@frib.msu.org>

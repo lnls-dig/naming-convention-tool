@@ -48,6 +48,8 @@ public interface NamesEJBLocal {
 	public List<NameEvent> getStandardNames(String category,
 			boolean includeDeleted);
 
+    public NameEvent findEventById(Integer id);
+
 	public List<NameEvent> findEventsByName(String nameId);
 
 	public List<NameEvent> getUserRequests();

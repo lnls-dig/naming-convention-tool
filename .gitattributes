@@ -54,6 +54,8 @@ src/main/java/org/openepics/names/service/NameElementResource.java -text
 src/main/java/org/openepics/names/service/NameEventResource.java -text
 src/main/java/org/openepics/names/service/NameReleaseResource.java -text
 src/main/java/org/openepics/names/service/NameRestService.java -text
+src/main/java/org/openepics/names/service/nc/DefaultResource.java -text
+src/main/java/org/openepics/names/service/nc/NamingConventionRestService.java -text
 src/main/resources/META-INF/persistence.xml -text
 src/main/resources/messages.properties -text
 src/main/setup/glassfish-resources.xml -text
