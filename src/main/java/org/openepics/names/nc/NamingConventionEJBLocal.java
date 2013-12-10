@@ -16,7 +16,7 @@ public interface NamingConventionEJBLocal {
 	}
 
 	/**
-	 * @param section
+	 * @param subsection
 	 *            - For accelerator and target: must be a SUBSECTION
 	 * 
 	 * @param device
@@ -32,13 +32,27 @@ public interface NamingConventionEJBLocal {
 	 *         Example incorrect entities were used for section, device or
 	 *         signal
 	 */
-	NCName createNCName(NameEvent subsection, NameEvent device, NameEvent signal, ESSNameConstructionMethod method);
+	NCName createNCNameSignal(NameEvent subsection, NameEvent device, String deviceInstanceIndex, NameEvent signal,
+			ESSNameConstructionMethod method);
+
+	/**
+	 * @param subsection
+	 *            - For accelerator and target: must be a SUBSECTION
+	 * 
+	 * @param device
+	 *            - can be either GDEV or SDEV
+	 * @param method
+	 * @return - returns null if this would not construct a valid device name.
+	 *         Example incorrect entities were used for section, device or
+	 *         signal
+	 */
+	NCName createNCNameDevice(NameEvent subsection, NameEvent device, ESSNameConstructionMethod method);
 
 	NCName findNCNameById(Integer id);
 
 	NCName findNCNameByName(String name);
 
-	NCName findNCNameByReference(NameEvent section, NameEvent discipline, NameEvent signal, String instanceIndex);
+	NCName findNCNameByReference(NameEvent section, NameEvent discipline, String instanceIndex, NameEvent signal);
 
 	List<NCName> getActiveNames();
 
@@ -46,6 +60,15 @@ public interface NamingConventionEJBLocal {
 
 	boolean isNameValid(NCName ncName) throws NamingConventionException;
 
+	/**
+	 * Checks whether the name is composed of the actual active name parts and
+	 * this conforms to the naming convention. This can also be called for names
+	 * that have not been defined yet.
+	 * 
+	 * @param ncName
+	 * @return
+	 * @throws NamingConventionException
+	 */
 	boolean isNameValid(String ncName) throws NamingConventionException;
 
 	boolean isNamePartValid(NameEvent namePart) throws NamingConventionException;

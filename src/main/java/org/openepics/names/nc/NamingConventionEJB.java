@@ -1,6 +1,7 @@
 package org.openepics.names.nc;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -25,10 +26,26 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 	private EntityManager em;
 
 	@Override
-	public NCName createNCName(NameEvent subsection, NameEvent device, NameEvent signal,
+	public NCName createNCNameSignal(NameEvent subsection, NameEvent device, String deviceInstanceIndex, NameEvent signal,
+			ESSNameConstructionMethod method) {
+		if (subsection == null || device == null || deviceInstanceIndex == null || signal == null)
+			return null;
+
+		NameSections nameSections = getNameSections(subsection, device, method);
+		if (nameSections == null)
+			return null;
+
+		if (method == ESSNameConstructionMethod.ACCELERATOR && !isDeviceInstanceIndexValid(subsection, deviceInstanceIndex))
+			return null;
+
+		return new NCName(subsection, device, signal, deviceInstanceIndex, nameSections.section.getName() + "-"
+				+ nameSections.disciplineOrSubsection.getName() + ":" + nameSections.deviceName + "-" + deviceInstanceIndex
+				+ ":" + validateSignalName(signal), NCNameStatus.INVALID, 1);
+	}
+
+	@Override
+	public NCName createNCNameDevice(NameEvent subsection, NameEvent device,
 			NamingConventionEJBLocal.ESSNameConstructionMethod method) {
-		// TODO it is not entirely clear how to discriminate between new device
-		// and new signal
 		if (subsection == null || device == null)
 			return null;
 
@@ -36,24 +53,25 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		if (nameSections == null)
 			return null;
 
-		List<NCName> deviceInstances = getNCNamesByRef(nameSections.section, nameSections.disciplineOrSubsection,
-				nameSections.deviceName);
+		long deviceInstances = countNCNamesByRef(subsection, device);
 		String deviceInstanceIndex = subsection.getName().substring(0, 2) + getDeviceInstanceIndex(deviceInstances);
 
-		if (signal == null)
-			return new NCName(subsection, device, null, deviceInstanceIndex,
-					nameSections.section.getName() + "-" + nameSections.disciplineOrSubsection.getName() + ":"
-							+ nameSections.deviceName + "-" + deviceInstanceIndex, NCNameStatus.INVALID, 1);
-
-		return new NCName(subsection, device, signal, deviceInstanceIndex, nameSections.section.getName() + "-"
-				+ nameSections.disciplineOrSubsection.getName() + ":" + nameSections.deviceName + "-" + deviceInstanceIndex
-				+ ":" + validateSignalName(signal), NCNameStatus.INVALID, 1);
+		return new NCName(subsection, device, null, deviceInstanceIndex, nameSections.section.getName() + "-"
+				+ nameSections.disciplineOrSubsection.getName() + ":" + nameSections.deviceName + "-" + deviceInstanceIndex,
+				NCNameStatus.INVALID, 1);
 	}
 
-	private String getDeviceInstanceIndex(List<NCName> names) {
-		if (names.size() == 0)
+	private String getDeviceInstanceIndex(long namesCount) {
+		if (namesCount <= 0)
 			return "A";
-		return "" + ((char) (names.size() % 26 + 'A')) + (names.size() / 26);
+		return "" + ((char) (namesCount % 26 + 'A')) + (namesCount / 26);
+	}
+
+	private boolean isDeviceInstanceIndexValid(NameEvent subsection, String deviceInstanceIndex) {
+		if (!subsection.getName().substring(0, 2).equals(deviceInstanceIndex.substring(0, 2)))
+			return false;
+
+		return Pattern.matches("[A-Za-z]\\d{0,4}", deviceInstanceIndex.substring(2));
 	}
 
 	private NameSections getNameSections(NameEvent subsection, NameEvent device,
@@ -127,18 +145,15 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		return nameSections;
 	}
 
-	private List<NCName> getNCNamesByRef(NameEvent section, NameEvent discipline, String deviceName) {
+	private long countNCNamesByRef(NameEvent subsection, NameEvent device) {
 		//@formatter:off
-		TypedQuery<NCName> query = em.createQuery("SELECT n FROM NCName n " + 
+		TypedQuery<Long> query = em.createQuery("SELECT COUNT(n) FROM NCName n " + 
 														"WHERE n.section = :section " +
-														"AND n.discipline = :discipline " + 
-														"AND n.name = :name " + 
-														"ORDER BY n.instanceIndex ASC", 
-														NCName.class);
+														"AND n.discipline = :device ", 
+														Long.class);
 		// @formatter:on
-		query.setParameter("section", section).setParameter("discipline", discipline).setParameter("name", deviceName);
-
-		return query.getResultList();
+		query.setParameter("section", subsection).setParameter("device", device);
+		return query.getSingleResult().longValue();
 	}
 
 	private String validateSignalName(NameEvent signal) {
@@ -159,16 +174,18 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		return query.getSingleResult();
 	}
 
+	// instance index cannot be null.
 	@Override
-	public NCName findNCNameByReference(NameEvent section, NameEvent discipline, NameEvent signal, String instanceIndex) {
+	public NCName findNCNameByReference(NameEvent section, NameEvent device, String instanceIndex, NameEvent signal) {
 		if (section == null)
 			throw new IllegalArgumentException("section is null");
-		if (discipline == null)
-			throw new IllegalArgumentException("discipline is null");
+		if (device == null)
+			throw new IllegalArgumentException("device is null");
+		if (instanceIndex == null)
+			throw new IllegalArgumentException("device quantifier is null");
 
 		TypedQuery<NCName> query = em.createNamedQuery("NCName.findByParts", NCName.class).setParameter("section", section)
-				.setParameter("discipline", discipline).setParameter("signal", signal)
-				.setParameter("instanceIndex", instanceIndex);
+				.setParameter("device", device).setParameter("signal", signal).setParameter("instanceIndex", instanceIndex);
 
 		return query.getSingleResult();
 	}
@@ -256,4 +273,5 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		return (nameEvent.getStatus() == 'a') && (nameEvent.getNameCategory().equals(category));
 
 	}
+
 }

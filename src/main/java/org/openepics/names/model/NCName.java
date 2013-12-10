@@ -39,7 +39,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 		@NamedQuery(name = "NCName.findBySignal", query = "SELECT n FROM NCName n WHERE n.signal = :signal"),
 		@NamedQuery(name = "NCName.findByName", query = "SELECT n FROM NCName n WHERE n.name = :name"),
 		@NamedQuery(name = "NCName.findByStatus", query = "SELECT n FROM NCName n WHERE n.status = :status"),
-		@NamedQuery(name = "NCName.findByParts", query = "SELECT n FROM NCName n WHERE n.section = :section AND n.discipline = :discipline AND n.signal = :signal AND n.instanceIndex = :instanceIndex") })
+		@NamedQuery(name = "NCName.findByParts", query = "SELECT n FROM NCName n WHERE n.section = :section AND n.discipline = :device AND n.signal = :signal AND n.instanceIndex = :instanceIndex") })
 public class NCName implements Serializable {
 	private static final long serialVersionUID = 3745635930595784338L;
 
