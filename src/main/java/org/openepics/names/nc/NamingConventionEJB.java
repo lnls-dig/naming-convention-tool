@@ -27,6 +27,8 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 	@Override
 	public NCName createNCName(NameEvent subsection, NameEvent device, NameEvent signal,
 			NamingConventionEJBLocal.ESSNameConstructionMethod method) {
+		// TODO it is not entirely clear how to discriminate between new device
+		// and new signal
 		if (subsection == null || device == null)
 			return null;
 
@@ -203,16 +205,40 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		// section at least one character and not all of the string
 		if ((dashIndex < 1) || (dashIndex >= majorParts[0].length() - 1))
 			return false;
-		String section = majorParts[0].substring(0, dashIndex);
-		String discipline = majorParts[0].substring(dashIndex + 1);
+		String sectionName = majorParts[0].substring(0, dashIndex);
+		String disciplineName = majorParts[0].substring(dashIndex + 1);
 
 		dashIndex = majorParts[1].indexOf('-');
 		if ((dashIndex < 1) || (dashIndex >= majorParts[0].length() - 1))
 			return false;
-		String device = majorParts[1].substring(0, dashIndex);
-		String deviceQ = majorParts[1].substring(dashIndex + 1);
+		String deviceName = majorParts[1].substring(0, dashIndex);
+		String deviceQntf = majorParts[1].substring(dashIndex + 1);
 
-		// TODO check if all parts exist. Also for signal
+		// checking whether section exists, is it approved and does its category
+		// equals SECT
+		TypedQuery<NameEvent> sectionQ = em.createNamedQuery("NameEvent.findByName", NameEvent.class);
+		sectionQ.setParameter("name", sectionName);
+		NameEvent section = sectionQ.getSingleResult();
+		if ((section.getStatus() != 'a') || !section.getNameCategory().getName().equalsIgnoreCase("SECT"))
+			return false;
+
+		// checking whether discipline exists, is it approved and does its
+		// category equals DSCP
+		TypedQuery<NameEvent> disciplineQ = em.createNamedQuery("NameEvent.findByName", NameEvent.class);
+		disciplineQ.setParameter("name", disciplineName);
+		NameEvent discipline = disciplineQ.getSingleResult();
+		if ((discipline.getStatus() != 'a') || !discipline.getNameCategory().getName().equalsIgnoreCase("DSCP"))
+			return false;
+
+		// checking whether device exists, is it approved and does its
+		// category equals GDEV
+		TypedQuery<NameEvent> deviceQ = em.createNamedQuery("NameEvent.findByName", NameEvent.class);
+		deviceQ.setParameter("name", deviceName);
+		NameEvent genDevice = deviceQ.getSingleResult();
+		if ((genDevice.getStatus() != 'a') || !genDevice.getNameCategory().getName().equalsIgnoreCase("GDEV"))
+			return false;
+
+		// TODO what to do with device quantifier and signal
 
 		return false;
 	}

@@ -18,6 +18,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -65,10 +66,12 @@ public class NCName implements Serializable {
 	private NameEvent signal;
 
 	@Column(name = "instance_index", length = 32)
+	@Size(min = 1, max = 32)
 	private String instanceIndex;
 
 	@Basic(optional = false)
 	@Column(name = "name", length = 48)
+	@Size(min = 9, max = 48)
 	private String name;
 
 	@Basic(optional = false)
