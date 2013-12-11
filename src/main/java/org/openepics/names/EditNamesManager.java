@@ -16,6 +16,7 @@ import org.openepics.names.model.NCName;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
 import org.openepics.names.nc.NamingConventionEJBLocal;
+import org.openepics.names.nc.NamingConventionEJBLocal.ESSNameConstructionMethod;
 
 @ManagedBean
 @ViewScoped
@@ -28,12 +29,15 @@ public class EditNamesManager implements Serializable {
 	private NamesEJBLocal namesEJB;
 	private static final Logger logger = Logger.getLogger("org.openepics.names");
 	
-	private NameEvent superSection;
-	private NameEvent section;
-	private NameEvent subsection;
-	private NameEvent discipline;
-	private NameEvent category;
-	private NameEvent genDevice;
+	private Integer superSectionID;
+	private Integer sectionID;
+	private Integer subsectionID;
+	private Integer disciplineID;
+	private Integer categoryID;
+	private Integer genDeviceID;
+	private Integer specDeviceID;
+	
+	private NCName selectedNCName;
 	
 	private List<NameEvent> superSectionNames;
 	private List<NameEvent> sectionNames;
@@ -41,6 +45,7 @@ public class EditNamesManager implements Serializable {
 	private List<NameEvent> disciplineNames;
 	private List<NameEvent> categoryNames;
 	private List<NameEvent> genDevNames;
+	private List<NameEvent> specDevNames;
 
 	public EditNamesManager() {
 		// EMPTY
@@ -49,7 +54,12 @@ public class EditNamesManager implements Serializable {
 	@PostConstruct
 	public void init() {
 		loadSuperSections();
+		loadSections();
+		loadSubsections();
 		loadDisciplines();
+		loadCategories();
+		loadGenericDevices();
+		loadSpecificDevices();
 	}
 	
 	public void onAdd() {
@@ -57,10 +67,12 @@ public class EditNamesManager implements Serializable {
 
 		try {
 			logger.log(Level.INFO, "Adding NC Name");
-			if (superSection == null || section == null || subsection == null || discipline == null || category == null || genDevice == null) {
+			if (superSectionID == null || sectionID == null || subsectionID == null || disciplineID == null || categoryID == null || genDeviceID == null) {
 				showMessage(FacesMessage.SEVERITY_ERROR, "Required field missing", " ");
 			}
-			newNCName = ncEJB.createNCName(section, discipline, null);
+			NameEvent subsection = namesEJB.findEventById(subsectionID);
+			NameEvent genDevice = namesEJB.findEventById(genDeviceID);
+			newNCName = ncEJB.createNCNameDevice(subsection, genDevice, ESSNameConstructionMethod.ACCELERATOR);
 			showMessage(FacesMessage.SEVERITY_INFO,
 					"NC Name successfully added.",
 					"Name: " + newNCName.getName());
@@ -93,22 +105,28 @@ public class EditNamesManager implements Serializable {
 	}
 	
 	public void loadSections() {
-		try {
-			sectionNames = namesEJB.findEventsByParent(superSection);
-			logger.log(Level.INFO, "Found sections. Total = "+sectionNames.size());
-		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
-			System.err.println(e);
+		if(superSectionID != null) {
+			try {
+				NameEvent superSection = namesEJB.findEventById(superSectionID);
+				sectionNames = namesEJB.findEventsByParent(superSection);
+				logger.log(Level.INFO, "Found sections. Total = "+sectionNames.size());
+			} catch (Exception e) {
+				logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
+				System.err.println(e);
+			}
 		}
 	}
 	
 	public void loadSubsections() {
-		try {
-			subsectionNames = namesEJB.findEventsByParent(section);
-			logger.log(Level.INFO, "Found subsections. Total = "+sectionNames.size());
-		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
-			System.err.println(e);
+		if(sectionID != null) {
+			try {
+				NameEvent section = namesEJB.findEventById(sectionID);
+				subsectionNames = namesEJB.findEventsByParent(section);
+				logger.log(Level.INFO, "Found subsections. Total = "+sectionNames.size());
+			} catch (Exception e) {
+				logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
+				System.err.println(e);
+			}
 		}
 	}
 	
@@ -132,22 +150,41 @@ public class EditNamesManager implements Serializable {
 	}
 	
 	public void loadCategories() {
-		try {
-			categoryNames = namesEJB.findEventsByParent(discipline);
-			logger.log(Level.INFO, "Found categories. Total = "+sectionNames.size());
-		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
-			System.err.println(e);
+		if(disciplineID != null) {
+			try {
+				NameEvent discipline = namesEJB.findEventById(disciplineID);
+				categoryNames = namesEJB.findEventsByParent(discipline);
+				logger.log(Level.INFO, "Found categories. Total = "+sectionNames.size());
+			} catch (Exception e) {
+				logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
+				System.err.println(e);
+			}
 		}
 	}
 	
 	public void loadGenericDevices() {
-		try {
-			genDevNames = namesEJB.findEventsByParent(genDevice);
-			logger.log(Level.INFO, "Found generic devices. Total = "+genDevNames.size());
-		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
-			System.err.println(e);
+		if(categoryID != null) {
+			try {
+				NameEvent category = namesEJB.findEventById(categoryID);
+				genDevNames = namesEJB.findEventsByParent(category);
+				logger.log(Level.INFO, "Found generic devices. Total = "+genDevNames.size());
+			} catch (Exception e) {
+				logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
+				System.err.println(e);
+			}
+		}
+	}
+	
+	public void loadSpecificDevices() {
+		if(genDeviceID != null) {
+			try {
+				NameEvent genDevice = namesEJB.findEventById(genDeviceID);
+				specDevNames = namesEJB.findEventsByParent(genDevice);
+				logger.log(Level.INFO, "Found specific devices. Total = "+specDevNames.size());
+			} catch (Exception e) {
+				logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
+				System.err.println(e);
+			}
 		}
 	}
 
@@ -199,68 +236,96 @@ public class EditNamesManager implements Serializable {
 		this.genDevNames = genDevNames;
 	}
 
-	public NameEvent getSuperSection() {
-		return superSection;
+	public List<NameEvent> getSpecDevNames() {
+		return specDevNames;
 	}
 
-	public void setSuperSection(NameEvent superSection) {
-		this.superSection = superSection;
+	public void setSpecDevNames(List<NameEvent> specDevNames) {
+		this.specDevNames = specDevNames;
 	}
 
-	public NameEvent getSection() {
-		return section;
+	public Integer getSuperSectionID() {
+		return superSectionID;
 	}
 
-	public void setSection(NameEvent section) {
-		this.section = section;
+	public void setSuperSectionID(Integer superSectionID) {
+		this.superSectionID = superSectionID;
 	}
 
-	public NameEvent getSubsection() {
-		return subsection;
+	public Integer getSectionID() {
+		return sectionID;
 	}
 
-	public void setSubsection(NameEvent subsection) {
-		this.subsection = subsection;
+	public void setSectionID(Integer sectionID) {
+		this.sectionID = sectionID;
 	}
 
-	public NameEvent getDiscipline() {
-		return discipline;
+	public Integer getSubsectionID() {
+		return subsectionID;
 	}
 
-	public void setDiscipline(NameEvent discipline) {
-		this.discipline = discipline;
+	public void setSubsectionID(Integer subsectionID) {
+		this.subsectionID = subsectionID;
 	}
 
-	public NameEvent getCategory() {
-		return category;
+	public Integer getDisciplineID() {
+		return disciplineID;
 	}
 
-	public void setCategory(NameEvent category) {
-		this.category = category;
+	public void setDisciplineID(Integer disciplineID) {
+		this.disciplineID = disciplineID;
 	}
 
-	public NameEvent getGenDevice() {
-		return genDevice;
+	public Integer getCategoryID() {
+		return categoryID;
 	}
 
-	public void setGenDevice(NameEvent genDevice) {
-		this.genDevice = genDevice;
+	public void setCategoryID(Integer categoryID) {
+		this.categoryID = categoryID;
+	}
+
+	public Integer getGenDeviceID() {
+		return genDeviceID;
+	}
+
+	public void setGenDeviceID(Integer genDeviceID) {
+		this.genDeviceID = genDeviceID;
+	}
+
+	public Integer getSpecDeviceID() {
+		return specDeviceID;
+	}
+
+	public void setSpecDeviceID(Integer specDeviceID) {
+		this.specDeviceID = specDeviceID;
+	}
+
+	public NCName getSelectedNCName() {
+		return selectedNCName;
+	}
+
+	public void setSelectedNCName(NCName selectedNCName) {
+		this.selectedNCName = selectedNCName;
 	}
 	
 	public boolean isSupserSectionSelected() {
-		return superSection != null;
+		return superSectionID != null;
 	}
 	
 	public boolean isSectionSelected() {
-		return section != null;
+		return sectionID != null;
 	}
 	
 	public boolean isDisciplineSelected() {
-		return discipline != null;
+		return disciplineID != null;
 	}
 	
 	public boolean isCategorySelected() {
-		return category != null;
+		return categoryID != null;
+	}
+	
+	public boolean isGenDeviceSelected() {
+		return genDeviceID != null;
 	}
 
 	private void showMessage(FacesMessage.Severity severity, String summary, String message) {
