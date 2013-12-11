@@ -307,8 +307,8 @@ public class NamesEJB implements NamesEJBLocal {
 		
 		TypedQuery<NameEvent> query = em
 				.createQuery(
-						"SELECT n FROM NameEvent n WHERE n.parentNameId = :parentId ORDER BY n.name",
-						NameEvent.class).setParameter("parentNameId", parent.getId()); // TODO:
+						"SELECT n FROM NameEvent n WHERE n.parentName = :parentName ORDER BY n.name",
+						NameEvent.class).setParameter("parentName", parent); // TODO:
 																			// convert
 																			// to
 																			// criteria
