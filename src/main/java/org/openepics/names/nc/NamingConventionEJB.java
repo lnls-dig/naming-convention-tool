@@ -244,8 +244,17 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		TypedQuery<NameEvent> disciplineQ = em.createNamedQuery("NameEvent.findByName", NameEvent.class);
 		disciplineQ.setParameter("name", disciplineName);
 		NameEvent discipline = disciplineQ.getSingleResult();
-		if ((discipline.getStatus() != 'a') || !discipline.getNameCategory().getName().equalsIgnoreCase("DSCP"))
+		NamingConventionEJBLocal.ESSNameConstructionMethod method;
+		if (discipline.getStatus() != 'a')
 			return false;
+		else {
+			if (discipline.getNameCategory().getName().equalsIgnoreCase("DSCP"))
+				method = ESSNameConstructionMethod.ACCELERATOR;
+			else if (discipline.getNameCategory().getName().equalsIgnoreCase("SUB"))
+				method = ESSNameConstructionMethod.TARGET;
+			else
+				return false;
+		}
 
 		// checking whether device exists, is it approved and does its
 		// category equals GDEV
@@ -255,9 +264,12 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		if ((genDevice.getStatus() != 'a') || !genDevice.getNameCategory().getName().equalsIgnoreCase("GDEV"))
 			return false;
 
-		// TODO what to do with device quantifier and signal
+		if (method == ESSNameConstructionMethod.ACCELERATOR && !isDeviceInstanceIndexValid(discipline, deviceQntf))
+			return false;
 
-		return false;
+		// TODO insert signal verification here once it is defined. For now
+		// reaching this point means name is valid.
+		return true;
 	}
 
 	@Override

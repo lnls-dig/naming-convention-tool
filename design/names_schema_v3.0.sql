@@ -46,16 +46,16 @@ CREATE TABLE IF NOT EXISTS `name_category` (
 DELETE FROM `name_category`;
 /*!40000 ALTER TABLE `name_category` DISABLE KEYS */;
 INSERT INTO `name_category` (`id`, `name`, `description`, `version`) VALUES
-	(0000000001, 'Sup', 'Super section', 0000000000),
-	(0000000002, 'Sec', 'Section', 0000000000),
-	(0000000003, 'Sub', 'Subsection', 0000000000),
-	(0000000004, 'Dsc', 'Discipline', 0000000000),
-	(0000000005, 'Cat', 'Category', 0000000000),
-	(0000000006, 'GDv', 'Generic device', 0000000000),
-	(0000000007, 'SDv', 'Specific device', 0000000000),
-	(0000000008, 'Sig', 'Signal part', 0000000000),
-	(0000000009, 'Sig', 'Signal part', 0000000000),
-	(0000000010, 'Sig', 'Signal part', 0000000000);
+	(0000000001, 'SUP', 'Super section', 0000000001),
+	(0000000002, 'SECT', 'Section', 0000000001),
+	(0000000003, 'SUB', 'Subsection', 0000000001),
+	(0000000004, 'DSCP', 'Discipline', 0000000001),
+	(0000000005, 'CAT', 'Category', 0000000001),
+	(0000000006, 'GDEV', 'Generic device', 0000000001),
+	(0000000007, 'SDEV', 'Specific device', 0000000001),
+	(0000000008, 'STYP', 'Signal type', 0000000001),
+	(0000000009, 'SINS', 'Signal instance', 0000000001),
+	(0000000010, 'ADS', 'Additional signal description', 0000000001);
 /*!40000 ALTER TABLE `name_category` ENABLE KEYS */;
 
 
@@ -91,18 +91,30 @@ CREATE TABLE IF NOT EXISTS `name_event` (
 DELETE FROM `name_event`;
 /*!40000 ALTER TABLE `name_event` DISABLE KEYS */;
 INSERT INTO `name_event` (`id`, `name`, `full_name`, `name_category_id`, `parent_name_id`, `event_type`, `requested_by`, `request_date`, `status`, `processed_by`, `process_date`, `requestor_comment`, `processor_comment`, `version`) VALUES
-	(0000000001, 'Sup1', 'Super Section 1', 1, NULL, 'i', 2, '2013-12-06 14:59:48', 'unconfirmed', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000002, 'Sup2', 'Super Section 2', 1, NULL, 'i', 2, '2013-12-06 15:15:27', 'unconfirmed', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000003, 'Sec1', 'Section 1', 2, 1, 'i', 2, '2013-12-09 09:06:15', 'unconfirmed', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000004, 'Sec2', 'Section 2', 2, 2, 'i', 2, '2013-12-09 09:06:24', 'unconfirmed', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000005, 'Sec3', 'Section 3', 2, 2, 'i', 2, '2013-12-06 15:15:27', 'unconfirmed', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000006, 'Sub1', 'Subsection 1', 3, 3, 'i', 2, '2013-12-06 15:15:27', 'unconfirmed', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000007, 'Sub2', 'Subsection 2', 3, 3, 'i', 2, '2013-12-06 15:15:27', 'unconfirmed', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000008, 'Sub3', 'Subsection 3', 3, 4, 'i', 2, '2013-12-06 15:15:27', 'unconfirmed', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000009, 'Sub4', 'Subsection 4', 3, 5, 'i', 2, '2013-12-06 15:15:27', 'unconfirmed', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000010, 'Dsc1', 'Discipline 1', 4, NULL, 'i', 2, '2013-12-09 10:20:42', 'unconfirmed', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000011, 'Cat1', 'Category 1', 5, 10, 'i', 2, '2013-12-09 10:20:42', 'unconfirmed', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000012, 'GDv1', 'Generic Device 1', 6, 11, 'i', 2, '2013-12-09 10:20:42', 'unconfirmed', NULL, NULL, NULL, NULL, 0000000001);
+	(0000000001, 'Sup1', 'Super Section 1', 1, NULL, 'i', 2, '2013-12-06 14:59:48', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000002, 'Sup2', 'Super Section 2', 1, NULL, 'i', 2, '2013-12-06 15:15:27', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000003, 'Sec1', 'Section 1', 2, 1, 'i', 2, '2013-12-09 09:06:15', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000004, 'Sec2', 'Section 2', 2, 2, 'i', 2, '2013-12-09 09:06:24', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000005, 'Sec3', 'Section 3', 2, 2, 'i', 2, '2013-12-06 15:15:27', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000006, '01', 'Subsection 1', 3, 3, 'i', 2, '2013-12-06 15:15:27', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000007, '02', 'Subsection 2', 3, 3, 'i', 2, '2013-12-06 15:15:27', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000008, '03', 'Subsection 3', 3, 4, 'i', 2, '2013-12-06 15:15:27', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000009, '04', 'Subsection 4', 3, 5, 'i', 2, '2013-12-06 15:15:27', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000010, 'Dsc1', 'Discipline 1', 4, NULL, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000011, 'Dsc2', 'Discipline 2', 4, NULL, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000012, 'Dsc3', 'Discipline 3', 4, NULL, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000013, 'Cat1', 'Category 1', 5, 10, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000014, 'Cat2', 'Category 2', 5, 10, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000015, 'Cat3', 'Category 3', 5, 11, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000016, 'GDv1', 'Generic Device 1', 6, 14, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
+	(0000000017, 'GDv2', 'Generic Device 2', 6, 13, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
+	(0000000018, 'GDv3', 'Generic Device 3', 6, 13, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
+	(0000000019, 'SDv1', 'Specific Device 1', 7, 14, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
+	(0000000020, 'SDv2', 'Specific Device 2', 7, 13, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
+	(0000000021, 'SDv3', 'Specific Device 3', 7, 13, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
+	(0000000022, 'S001', 'Signal (Type) 1', 8, NULL, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
+	(0000000023, 'S002', 'Signal (Type) 2', 8, NULL, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
+	(0000000024, 'S003', 'Signal (Type) 3', 8, NULL, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
 /*!40000 ALTER TABLE `name_event` ENABLE KEYS */;
 
 
