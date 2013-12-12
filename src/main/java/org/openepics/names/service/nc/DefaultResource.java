@@ -40,7 +40,7 @@ public class DefaultResource {
             final NameEvent section = namesEJB.findEventById(sectionId);
             final NameEvent discipline = namesEJB.findEventById(disciplineId);
             final NameEvent signal = namesEJB.findEventById(signalId);
-            namingConventionEJB.createNCName(section, discipline, signal, constructionMethod);
+            namingConventionEJB.createNCNameDevice(section, discipline, constructionMethod);
             return Response.ok().build();
         }
     }

@@ -1,6 +1,8 @@
 package org.openepics.names.nc;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import javax.ejb.Stateless;
@@ -16,6 +18,8 @@ import org.openepics.names.model.NameEvent;
 @Stateless
 public class NamingConventionEJB implements NamingConventionEJBLocal {
 
+	private static final Logger logger = Logger.getLogger("org.openepics.names");
+	
 	private class NameSections {
 		NameEvent section;
 		NameEvent disciplineOrSubsection;
@@ -188,6 +192,18 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 				.setParameter("device", device).setParameter("signal", signal).setParameter("instanceIndex", instanceIndex);
 
 		return query.getSingleResult();
+	}
+	
+	@Override
+	public List<NCName> getAllNCNames() {
+		List<NCName> ncNames;
+
+		TypedQuery<NCName> query = em.createNamedQuery(
+				"NCName.findAll", NCName.class);
+		ncNames = query.getResultList();
+		logger.log(Level.INFO, "Total number of NCNames: " + ncNames.size());
+
+		return ncNames;
 	}
 
 	@Override

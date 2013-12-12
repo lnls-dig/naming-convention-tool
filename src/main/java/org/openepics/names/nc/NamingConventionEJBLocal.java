@@ -54,6 +54,8 @@ public interface NamingConventionEJBLocal {
 
 	NCName findNCNameByReference(NameEvent section, NameEvent discipline, String instanceIndex, NameEvent signal);
 
+	List<NCName> getAllNCNames();
+
 	List<NCName> getActiveNames();
 
 	List<NCName> getNCNamesByStatus(NCNameStatus status);
