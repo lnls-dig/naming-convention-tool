@@ -155,10 +155,13 @@
                                        itemLabel="#{acat.name}" itemValue="#{acat.id}" />                       
                     </p:selectOneMenu>  
 
-                    <h:outputLabel for="icode" value="Code:" />                     
-                    <h:inputText id="icode" value="#{requestManager.newCode}" required="true"  label="Short identifier fot the name" />                   
+                    <h:outputLabel for="iparent" value="Parent name:" />
+                    <h:inputText id="iparent" value="#{requestManager.newParent}" required="true"  label="Name parent ID" />                   
 
-                    <h:outputLabel for="idesc" value="Description:" />                    
+                    <h:outputLabel for="icode" value="Name:" />                     
+                    <h:inputText id="icode" value="#{requestManager.newCode}" required="true"  label="Short identifier for the name" />                   
+
+                    <h:outputLabel for="idesc" value="Full Name:" />                    
                     <p:inputTextarea id="idesc" value="#{requestManager.newDescription}" 
                                      rows="4" cols="60"
                                      required="true"  label="A description of the name"/>

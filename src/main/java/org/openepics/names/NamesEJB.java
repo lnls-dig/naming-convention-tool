@@ -84,12 +84,19 @@ public class NamesEJB implements NamesEJBLocal {
 			return null;
 		}
 
+		NameEvent parent = em.find(NameEvent.class, parentNameID);
+		if (parent == null) {
+			logger.log(Level.SEVERE, "Invalid parent: " + parentNameID);
+			return null;
+		}
+
 		if (ncEJB.isNamePartValid(name, ncat)) {
 			NameEvent mEvent = new NameEvent('?', userManager.getUser(), curdate, '?', name, fullName, 0);
 			logger.log(Level.INFO, "new created:" + name + ":" + fullName);
 
 			mEvent.setRequestorComment(comment);
 			mEvent.setNameCategory(ncat);
+			mEvent.setParentName(parent);
 			logger.log(Level.INFO, "set properties...");
 			em.persist(mEvent);
 			logger.log(Level.INFO, "persisted...");
