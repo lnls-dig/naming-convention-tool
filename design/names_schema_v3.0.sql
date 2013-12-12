@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `configuration` (
 ) ENGINE=InnoDB DEFAULT CHARSET=cp1250 COMMENT='Each row is a module property';
 
 -- Dumping data for table discs_names.configuration: ~1 rows (approximately)
-DELETE FROM `configuration`;
+-- DELETE FROM `configuration`;
 /*!40000 ALTER TABLE `configuration` DISABLE KEYS */;
 INSERT INTO `configuration` (`name`, `value`) VALUES
 	('version', '3.0');
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `name_category` (
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=cp1250;
 
 -- Dumping data for table discs_names.name_category: ~10 rows (approximately)
-DELETE FROM `name_category`;
+-- DELETE FROM `name_category`;
 /*!40000 ALTER TABLE `name_category` DISABLE KEYS */;
 INSERT INTO `name_category` (`id`, `name`, `description`, `version`) VALUES
 	(0000000001, 'SUP', 'Super section', 0000000001),
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `name_event` (
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=cp1250;
 
 -- Dumping data for table discs_names.name_event: ~12 rows (approximately)
-DELETE FROM `name_event`;
+-- DELETE FROM `name_event`;
 /*!40000 ALTER TABLE `name_event` DISABLE KEYS */;
 INSERT INTO `name_event` (`id`, `name`, `full_name`, `name_category_id`, `parent_name_id`, `event_type`, `requested_by`, `request_date`, `status`, `processed_by`, `process_date`, `requestor_comment`, `processor_comment`, `version`) VALUES
 	(0000000001, 'Sup1', 'Super Section 1', 1, NULL, 'i', 2, '2013-12-06 14:59:48', 'a', NULL, NULL, NULL, NULL, 0000000001),
@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS `name_release` (
 ) ENGINE=InnoDB DEFAULT CHARSET=cp1250 COMMENT='Each row is a naming system release';
 
 -- Dumping data for table discs_names.name_release: ~0 rows (approximately)
-DELETE FROM `name_release`;
+-- DELETE FROM `name_release`;
 /*!40000 ALTER TABLE `name_release` DISABLE KEYS */;
 /*!40000 ALTER TABLE `name_release` ENABLE KEYS */;
 
@@ -158,7 +158,7 @@ CREATE TABLE IF NOT EXISTS `NC_name` (
 ) ENGINE=InnoDB DEFAULT CHARSET=cp1250;
 
 -- Dumping data for table discs_names.NC_name: ~0 rows (approximately)
-DELETE FROM `NC_name`;
+-- DELETE FROM `NC_name`;
 /*!40000 ALTER TABLE `NC_name` DISABLE KEYS */;
 /*!40000 ALTER TABLE `NC_name` ENABLE KEYS */;
 
@@ -174,7 +174,7 @@ CREATE TABLE IF NOT EXISTS `privilege` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=cp1250;
 
 -- Dumping data for table discs_names.privilege: ~2 rows (approximately)
-DELETE FROM `privilege`;
+-- DELETE FROM `privilege`;
 /*!40000 ALTER TABLE `privilege` DISABLE KEYS */;
 INSERT INTO `privilege` (`id`, `username`, `operation`, `version`) VALUES
 	(0000000001, 'root', 'S', 0000000000),

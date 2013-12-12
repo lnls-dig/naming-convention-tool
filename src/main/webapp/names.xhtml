@@ -48,16 +48,16 @@
                     <h:outputText value="#{stdname.nameCategory.name}" /> 
                     
                 </p:column>
-                <p:column id="nameCode" headerText="Code" sortBy="#{stdname.nameCode}"
-                          filterBy="#{stdname.nameCode}"
+                <p:column id="nameCode" headerText="Name" sortBy="#{stdname.name}"
+                          filterBy="#{stdname.name}"
                           filterMatchMode="startsWith" style="width: 15%" >                  
-                    <h:outputText value="#{stdname.nameCode}" />
+                    <h:outputText value="#{stdname.name}" />
                                     
                 </p:column>              
-                <p:column id="nameDesc" headerText="Description" 
-                          filterBy="#{stdname.nameDescription}"
+                <p:column id="fullName" headerText="Full Name" 
+                          filterBy="#{stdname.fullName}"
                           filterMatchMode="contains" >                  
-                    <h:outputText value="#{stdname.nameDescription}" />                              
+                    <h:outputText value="#{stdname.fullName}" />                              
                 </p:column>
 
             </p:dataTable>
@@ -79,10 +79,13 @@
                         <h:outputText value="#{nevent.nameCategory.name}" />                              
                     </p:column>
                     <p:column id="nameCode" headerText="Code" >                  
-                        <h:outputText value="#{nevent.nameCode}" />                              
+                        <h:outputText value="#{nevent.name}" />                              
                     </p:column>              
-                    <p:column id="nameDesc" headerText="Description">                  
-                        <h:outputText value="#{nevent.nameDescription}" />                              
+                    <p:column id="fullName" headerText="Full Name">                  
+                        <h:outputText value="#{nevent.fullName}" />                              
+                    </p:column>
+                    <p:column id="parentName" headerText="Parent Name">                  
+                        <h:outputText value="#{nevent.parentName != null ? nevent.parentName.name : '-' }" />                              
                     </p:column>
                     <p:column id="type" headerText="Type" >                  
                         <h:outputText value="#{requestManager.requestType(nevent.eventType) }" />                              

@@ -17,6 +17,7 @@ package org.openepics.names.model;
 
 import java.io.Serializable;
 import java.util.Date;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -60,70 +61,70 @@ import javax.xml.bind.annotation.XmlRootElement;
 		@NamedQuery(name = "NameEvent.findByVersion", query = "SELECT n FROM NameEvent n WHERE n.version = :version") })
 public class NameEvent implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Basic(optional = false)
 	@Column(name = "id")
 	private Integer id;
-	
+
 	@Basic(optional = false)
 	@Size(min = 1, max = 32)
 	@NotNull
 	@Column(name = "name")
 	private String name;
-	
+
 	@Basic(optional = false)
 	@Size(min = 1, max = 255)
 	@NotNull
 	@Column(name = "full_name")
 	private String fullName;
-	
+
 	@JoinColumn(name = "name_category_id", referencedColumnName = "id")
 	@ManyToOne(optional = false)
 	private NameCategory nameCategory;
-	
+
 	@JoinColumn(name = "parent_name_id", referencedColumnName = "id")
 	@ManyToOne(optional = true)
 	private NameEvent parentName;
-	
+
 	@Basic(optional = false)
 	@NotNull
 	@Column(name = "event_type")
 	private char eventType;
-	
+
 	@JoinColumn(name = "requested_by", referencedColumnName = "id")
 	@ManyToOne(optional = false)
 	private Privilege requestedBy;
-	
+
 	@Size(max = 255)
 	@Column(name = "requestor_comment")
 	private String requestorComment;
-	
+
 	@Basic(optional = false)
 	@NotNull
 	@Column(name = "request_date")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date requestDate;
-	
+
 	@Basic(optional = false)
 	@NotNull
 	@Size(max = 32)
 	@Column(name = "status")
 	private char status;
-	
+
 	@JoinColumn(name = "processed_by", referencedColumnName = "id")
 	@ManyToOne(optional = true)
 	private Privilege processedBy;
-	
+
 	@Size(max = 255)
 	@Column(name = "processor_comment")
 	private String processorComment;
-	
+
 	@Column(name = "process_date")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date processDate;
-	
+
 	@Basic(optional = false)
 	@NotNull
 	@Column(name = "version")
@@ -131,17 +132,11 @@ public class NameEvent implements Serializable {
 	private int version;
 
 	public NameEvent() {
-		//EMPTY
+		// EMPTY
 	}
 
-	public NameEvent(Integer id) {
-		this.id = id;
-	}
-
-	public NameEvent(Integer id, char eventType, Privilege requestedBy,
-			Date requestDate, char status, String name,
-			String fullName, int version) {
-		this.id = id;
+	public NameEvent(char eventType, Privilege requestedBy, Date requestDate, char status, String name, String fullName,
+			int version) {
 		this.eventType = eventType;
 		this.requestedBy = requestedBy;
 		this.requestDate = requestDate;
@@ -153,10 +148,6 @@ public class NameEvent implements Serializable {
 
 	public Integer getId() {
 		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public String getName() {
@@ -182,11 +173,11 @@ public class NameEvent implements Serializable {
 	public void setNameCategory(NameCategory nameCategory) {
 		this.nameCategory = nameCategory;
 	}
-	
+
 	public NameEvent getParentName() {
 		return parentName;
 	}
-	
+
 	public void setParentName(NameEvent parentName) {
 		this.parentName = parentName;
 	}
@@ -272,14 +263,13 @@ public class NameEvent implements Serializable {
 
 	@Override
 	public boolean equals(Object object) {
-		//TODO: Warning - this method won't work in the case the id fields are
+		// TODO: Warning - this method won't work in the case the id fields are
 		// not set
 		if (!(object instanceof NameEvent)) {
 			return false;
 		}
 		NameEvent other = (NameEvent) object;
-		if ((this.id == null && other.id != null)
-				|| (this.id != null && !this.id.equals(other.id))) {
+		if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
 			return false;
 		}
 		return true;

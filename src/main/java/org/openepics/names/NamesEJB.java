@@ -46,8 +46,7 @@ public class NamesEJB implements NamesEJBLocal {
 
 	// Add business logic below. (Right-click in editor and choose
 	// "Insert Code > Add Business Method")
-	private static final Logger logger = Logger
-			.getLogger("org.openepics.names");
+	private static final Logger logger = Logger.getLogger("org.openepics.names");
 	// TODO: Remove the injection. Not a good way to authorize.
 	@Inject
 	private UserManager userManager;
@@ -64,8 +63,7 @@ public class NamesEJB implements NamesEJBLocal {
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
 	@Override
-	public NameEvent createNewEvent(String name, String fullName,
-			int nameCategoryID, int parentNameID, char eventType,
+	public NameEvent createNewEvent(String name, String fullName, int nameCategoryID, int parentNameID, char eventType,
 			String comment) throws Exception {
 		logger.log(Level.INFO, "creating...");
 		Date curdate = new Date();
@@ -75,10 +73,9 @@ public class NamesEJB implements NamesEJBLocal {
 		}
 
 		if (!userManager.isLoggedIn()) {
-			throw new Exception(
-					"You are not authorized to perform this operation.");
+			throw new Exception("You are not authorized to perform this operation.");
 		}
-		
+
 		// NameCategory ncat = new NameCategory(category, category,0);
 		NameCategory ncat;
 		ncat = em.find(NameCategory.class, nameCategoryID);
@@ -86,9 +83,9 @@ public class NamesEJB implements NamesEJBLocal {
 			logger.log(Level.SEVERE, "Invalid categroy: " + nameCategoryID);
 			return null;
 		}
-		
-		if(ncEJB.isNamePartValid(name, ncat)) {
-			NameEvent mEvent = new NameEvent(0, '?', userManager.getUser(), curdate, '?', name, fullName, 0);
+
+		if (ncEJB.isNamePartValid(name, ncat)) {
+			NameEvent mEvent = new NameEvent('?', userManager.getUser(), curdate, '?', name, fullName, 0);
 			logger.log(Level.INFO, "new created:" + name + ":" + fullName);
 
 			mEvent.setRequestorComment(comment);
@@ -98,8 +95,8 @@ public class NamesEJB implements NamesEJBLocal {
 			logger.log(Level.INFO, "persisted...");
 			return mEvent;
 		}
-		
-		//TODO really null?
+
+		// TODO really null?
 		return null;
 	}
 
@@ -109,13 +106,11 @@ public class NamesEJB implements NamesEJBLocal {
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
 	@Override
-	public NameRelease createNewRelease(NameRelease newRelease)
-			throws Exception {
+	public NameRelease createNewRelease(NameRelease newRelease) throws Exception {
 		logger.log(Level.INFO, "creating release...");
 
 		if (!userManager.isEditor()) {
-			throw new Exception(
-					"You are not authorized to perform this operation.");
+			throw new Exception("You are not authorized to perform this operation.");
 		}
 		newRelease.setReleaseDate(new Date());
 		// logger.log(Level.INFO, "set properties...");
@@ -135,12 +130,11 @@ public class NamesEJB implements NamesEJBLocal {
 	public List<NameEvent> getUnprocessedEvents() {
 		List<NameEvent> nameEvents;
 
-		TypedQuery<NameEvent> query = em.createQuery(
-				"SELECT n FROM NameEvent n WHERE n.status = 'p'",
-				NameEvent.class); // TODO: convert to criteria query
+		// TODO: convert to criteria query.
+		TypedQuery<NameEvent> query = em.createQuery("SELECT n FROM NameEvent n WHERE n.status = 'p'", NameEvent.class);
+
 		nameEvents = query.getResultList();
-		logger.log(Level.INFO,
-				"retreived pending requests: " + nameEvents.size());
+		logger.log(Level.INFO, "retreived pending requests: " + nameEvents.size());
 		return nameEvents;
 	}
 
@@ -185,9 +179,8 @@ public class NamesEJB implements NamesEJBLocal {
 			return null;
 		}
 
-		TypedQuery<NameEvent> query = em.createQuery(
-				"SELECT n FROM NameEvent n WHERE n.requestedBy = :user",
-				NameEvent.class).setParameter("user", user);
+		TypedQuery<NameEvent> query = em.createQuery("SELECT n FROM NameEvent n WHERE n.requestedBy = :user", NameEvent.class)
+				.setParameter("user", user);
 
 		nameEvents = query.getResultList();
 		logger.log(Level.INFO, "Results for requests: " + nameEvents.size());
@@ -205,9 +198,9 @@ public class NamesEJB implements NamesEJBLocal {
 	public List<NameEvent> getAllEvents() {
 		List<NameEvent> nameEvents;
 
-		TypedQuery<NameEvent> query = em.createQuery(
-				"SELECT n FROM NameEvent n ORDER BY n.requestDate DESC",
-				NameEvent.class); // TODO: convert to criteria query.
+		// TODO: convert to criteria query.
+		TypedQuery<NameEvent> query = em.createQuery("SELECT n FROM NameEvent n ORDER BY n.requestDate DESC", NameEvent.class);
+
 		nameEvents = query.getResultList();
 		logger.log(Level.INFO, "Results for all events: " + nameEvents.size());
 		return nameEvents;
@@ -224,9 +217,9 @@ public class NamesEJB implements NamesEJBLocal {
 	public List<NameRelease> getAllReleases() {
 		List<NameRelease> releases;
 
-		TypedQuery<NameRelease> query = em.createQuery(
-				"SELECT n FROM NameRelease n ORDER BY n.releaseDate DESC",
-				NameRelease.class); // TODO: convert to criteria query.
+		// TODO: convert to criteria query.
+		TypedQuery<NameRelease> query = em.createQuery("SELECT n FROM NameRelease n ORDER BY n.releaseDate DESC",
+				NameRelease.class);
 		releases = query.getResultList();
 		logger.log(Level.INFO, "Results for all events: " + releases.size());
 		return releases;
@@ -243,31 +236,25 @@ public class NamesEJB implements NamesEJBLocal {
 	public List<NameEvent> findEventsByName(String name) {
 		List<NameEvent> nameEvents;
 
-		TypedQuery<NameEvent> query = em
-				.createQuery(
-						"SELECT n FROM NameEvent n WHERE n.name = :name ORDER BY n.requestDate DESC",
-						NameEvent.class).setParameter("name", name); // TODO:
-																			// convert
-																			// to
-																			// criteria
-																			// query.
+		// TODO: convert to criteria query.
+		TypedQuery<NameEvent> query = em.createQuery(
+				"SELECT n FROM NameEvent n WHERE n.name = :name ORDER BY n.requestDate DESC", NameEvent.class).setParameter(
+				"name", name);
+
 		nameEvents = query.getResultList();
 		logger.log(Level.INFO, "Events for " + name + nameEvents.size());
 		return nameEvents;
 	}
-	
+
 	@Override
 	public List<NameEvent> findEventsByCategory(NameCategory category) {
 		List<NameEvent> nameEvents;
 
-		TypedQuery<NameEvent> query = em
-				.createQuery(
-						"SELECT n FROM NameEvent n WHERE n.nameCategory = :nameCategory ORDER BY n.name",
-						NameEvent.class).setParameter("nameCategory", category); // TODO:
-																			// convert
-																			// to
-																			// criteria
-																			// query.
+		// TODO: convert to criteria query.
+		TypedQuery<NameEvent> query = em.createQuery(
+				"SELECT n FROM NameEvent n WHERE n.nameCategory = :nameCategory ORDER BY n.name", NameEvent.class)
+				.setParameter("nameCategory", category);
+
 		nameEvents = query.getResultList();
 		logger.log(Level.INFO, "Events for category " + category.getName() + nameEvents.size());
 		return nameEvents;
@@ -284,14 +271,11 @@ public class NamesEJB implements NamesEJBLocal {
 	public NameEvent findLatestEvent(String name) {
 		List<NameEvent> nameEvents;
 
-		TypedQuery<NameEvent> query = em
-				.createQuery(
-						"SELECT n FROM NameEvent n WHERE n.name = :name  AND n.status != 'r' ORDER BY n.requestDate DESC",
-						NameEvent.class).setParameter("name", name); // TODO:
-																			// convert
-																			// to
-																			// criteria
-																			// query.
+		// TODO: convert to criteria query.
+		TypedQuery<NameEvent> query = em.createQuery(
+				"SELECT n FROM NameEvent n WHERE n.name = :name  AND n.status != 'r' ORDER BY n.requestDate DESC",
+				NameEvent.class).setParameter("name", name);
+
 		nameEvents = query.getResultList();
 		// logger.log(Level.INFO, "Events for " + nameId + nameEvents.size());
 		if (nameEvents.isEmpty()) {
@@ -300,19 +284,16 @@ public class NamesEJB implements NamesEJBLocal {
 			return nameEvents.get(0);
 		}
 	}
-	
+
 	@Override
 	public List<NameEvent> findEventsByParent(NameEvent parent) {
 		List<NameEvent> childEvents;
-		
-		TypedQuery<NameEvent> query = em
-				.createQuery(
-						"SELECT n FROM NameEvent n WHERE n.parentName = :parentName ORDER BY n.name",
-						NameEvent.class).setParameter("parentName", parent); // TODO:
-																			// convert
-																			// to
-																			// criteria
-																			// query.
+
+		// TODO: convert to criteria query.
+		TypedQuery<NameEvent> query = em.createQuery(
+				"SELECT n FROM NameEvent n WHERE n.parentName = :parentName ORDER BY n.name", NameEvent.class).setParameter(
+				"parentName", parent);
+
 		childEvents = query.getResultList();
 		logger.log(Level.INFO, "Child events for " + parent.getName() + childEvents.size());
 		return childEvents;
@@ -338,26 +319,16 @@ public class NamesEJB implements NamesEJBLocal {
 		String cons = "";
 
 		if (eventType != 0) {
-			cons += " n.eventType = '" + String.valueOf(eventType) + "' "; // TODO:
-																			// Bad
-																			// idea!
-																			// change
-																			// to
-																			// criteria
-																			// query
+			// TODO:Bad idea! change to criteria query.
+			cons += " n.eventType = '" + String.valueOf(eventType) + "' ";
 		}
 
 		if (eventStatus != 0) {
 			if (!"".equals(cons)) {
 				cons += " AND ";
 			}
-			cons += " n.status = '" + String.valueOf(eventStatus) + "' "; // TODO:
-																			// Bad
-																			// idea!
-																			// change
-																			// to
-																			// criteria
-																			// query
+			// TODO:Bad idea! change to criteria query.
+			cons += " n.status = '" + String.valueOf(eventStatus) + "' ";
 		}
 
 		if (!"".equals(cons)) {
@@ -366,11 +337,8 @@ public class NamesEJB implements NamesEJBLocal {
 
 		logger.log(Level.INFO, "Search query is: " + queryStr);
 
-		TypedQuery<NameEvent> query = em.createQuery(queryStr, NameEvent.class); // TODO:
-																					// convert
-																					// to
-																					// criteria
-																					// query.
+		// TODO: convert to criteria query.
+		TypedQuery<NameEvent> query = em.createQuery(queryStr, NameEvent.class);
 
 		nameEvents = query.getResultList();
 		logger.log(Level.INFO, "Search hits: " + nameEvents.size());
@@ -387,8 +355,7 @@ public class NamesEJB implements NamesEJBLocal {
 	@Override
 	// @TransactionAttribute(TransactionAttributeType.SUPPORTS) // No
 	// transaction as it is read-only query
-	public List<NameEvent> getStandardNames(String category,
-			boolean includeDeleted) {
+	public List<NameEvent> getStandardNames(String category, boolean includeDeleted) {
 		List<NameEvent> nameEvents;
 		TypedQuery<NameEvent> query;
 
@@ -396,57 +363,47 @@ public class NamesEJB implements NamesEJBLocal {
 		// em.createQuery("SELECT n FROM NameEvent n WHERE n.status = 'a' AND n.eventType IN (?1, ?2) AND n.nameCategoryId.id LIKE ?3 AND n.processDate <= (SELECT MAX(r.releaseDate) FROM NameRelease r) ORDER BY n.nameCategoryId.id, n.nameCode",
 		// NameEvent.class)
 		if (includeDeleted) {
+			// TODO: convert to criteria query.
 			query = em
 					.createQuery(
 							"SELECT n FROM NameEvent n WHERE n.nameCategory.name LIKE :categ AND n.requestDate = (SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name AND (r.status = 'a' OR r.status = 'p')) ORDER BY n.nameCategory.id, n.name",
-							NameEvent.class).setParameter("categ", category); // TODO:
-																				// convert
-																				// to
-																				// criteria
-																				// query.
+							NameEvent.class).setParameter("categ", category);
 		} else {
+			// TODO: convert to criteria query.
 			query = em
 					.createQuery(
 							"SELECT n FROM NameEvent n WHERE n.nameCategory.name LIKE :categ AND n.requestDate = (SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name AND (r.status = 'a' OR r.status = 'p')) AND NOT (n.eventType = 'd' AND n.status = 'a') ORDER BY n.nameCategory.id, n.name",
-							NameEvent.class).setParameter("categ", category); // TODO:
-																				// convert
-																				// to
-																				// criteria
-																				// query.
+							NameEvent.class).setParameter("categ", category);
 		}
 		// TODO: check category values
 		nameEvents = query.getResultList();
-		logger.log(Level.INFO, "Results for category " + category + ":"
-				+ nameEvents.size());
+		logger.log(Level.INFO, "Results for category " + category + ":" + nameEvents.size());
 		return nameEvents;
 	}
 
-    @Override
-    public NameEvent findEventById(Integer id) {
-        return em.find(NameEvent.class, id);
-    }
+	@Override
+	public NameEvent findEventById(Integer id) {
+		return em.find(NameEvent.class, id);
+	}
 
-    /**
+	/**
 	 * Update the status of a set of events.
 	 * 
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
 	@Override
-	public void processEvents(NameEvent[] nevents, char status, String comment)
-			throws Exception {
+	public void processEvents(NameEvent[] nevents, char status, String comment) throws Exception {
 		NameEvent mEvent;
 
 		// TODO; check if user has privs to processEvents.
 		if (!userManager.isEditor()) {
-			throw new Exception(
-					"You are not authorized to perform this operation.");
+			throw new Exception("You are not authorized to perform this operation.");
 		}
 		logger.log(Level.INFO, "Processing events " + nevents.length);
 		for (NameEvent event : nevents) {
 			logger.log(Level.INFO, "Processing  " + event.getName());
-			mEvent = em.find(NameEvent.class, event.getId(),
-					LockModeType.OPTIMISTIC); // TODO: better to merge or extend
-												// the persistence context?
+			// TODO: better to merge or extend the persistence context?
+			mEvent = em.find(NameEvent.class, event.getId(), LockModeType.OPTIMISTIC);
 			mEvent.setStatus(status);
 			mEvent.setProcessDate(new java.util.Date());
 			mEvent.setProcessorComment(comment);
@@ -471,21 +428,13 @@ public class NamesEJB implements NamesEJBLocal {
 		NameEvent mEvent;
 
 		// TODO; check if user has privs to processEvents.
-		mEvent = em.find(NameEvent.class, eventId, LockModeType.OPTIMISTIC); // TODO:
-																				// better
-																				// to
-																				// merge
-																				// or
-																				// extend
-																				// the
-																				// persistence
-																				// context?
+		// TODO: better to merge or extend the persistence context?
+		mEvent = em.find(NameEvent.class, eventId, LockModeType.OPTIMISTIC);
 
 		if (mEvent == null) {
 			throw new Exception("Event not found.");
 		}
-		if (!userManager.isEditor()
-				&& !mEvent.getRequestedBy().equals(userManager.getUser())) {
+		if (!userManager.isEditor() && !mEvent.getRequestedBy().equals(userManager.getUser())) {
 			throw new Exception("Unauthorized access");
 		}
 		logger.log(Level.INFO, "Processing  " + mEvent.getName());
@@ -520,8 +469,7 @@ public class NamesEJB implements NamesEJBLocal {
 	public List<NameCategory> getCategories() {
 		List<NameCategory> cats;
 
-		TypedQuery<NameCategory> query = em.createNamedQuery(
-				"NameCategory.findAll", NameCategory.class);
+		TypedQuery<NameCategory> query = em.createNamedQuery("NameCategory.findAll", NameCategory.class);
 		cats = query.getResultList();
 		logger.log(Level.INFO, "Total number of categories: " + cats.size());
 

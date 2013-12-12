@@ -92,10 +92,10 @@
                         <h:outputText value="#{nevent.nameCategory.name}" />                              
                     </p:column>
                     <p:column id="nameCode" headerText="Name"   >                  
-                        <h:outputText value="#{nevent.nameCode}" />                              
+                        <h:outputText value="#{nevent.name}" />                              
                     </p:column>              
-                    <p:column id="nameDesc" headerText="Description" >                  
-                        <h:outputText value="#{nevent.nameDescription}" />                              
+                    <p:column id="fullName" headerText="Full Name" >                  
+                        <h:outputText value="#{nevent.fullName}" />                              
                     </p:column>
                     <p:column id="type" headerText="Type"   >                  
                         <h:outputText value="#{requestManager.requestType(nevent.eventType)}" />                              
