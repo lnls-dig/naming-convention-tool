@@ -42,9 +42,11 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		if (method == ESSNameConstructionMethod.ACCELERATOR && !isDeviceInstanceIndexValid(subsection, deviceInstanceIndex))
 			return null;
 
-		return new NCName(subsection, device, signal, deviceInstanceIndex, nameSections.section.getName() + "-"
+		NCName newNCName = new NCName(subsection, device, signal, deviceInstanceIndex, nameSections.section.getName() + "-"
 				+ nameSections.disciplineOrSubsection.getName() + ":" + nameSections.deviceName + "-" + deviceInstanceIndex
 				+ ":" + validateSignalName(signal), NCNameStatus.INVALID, 1);
+		em.persist(newNCName);
+		return newNCName;
 	}
 
 	@Override
@@ -60,9 +62,11 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		long deviceInstances = countNCNamesByRef(subsection, device);
 		String deviceInstanceIndex = subsection.getName().substring(0, 2) + getDeviceInstanceIndex(deviceInstances);
 
-		return new NCName(subsection, device, null, deviceInstanceIndex, nameSections.section.getName() + "-"
+		NCName newNCName = new NCName(subsection, device, null, deviceInstanceIndex, nameSections.section.getName() + "-"
 				+ nameSections.disciplineOrSubsection.getName() + ":" + nameSections.deviceName + "-" + deviceInstanceIndex,
 				NCNameStatus.INVALID, 1);
+		em.persist(newNCName);
+		return newNCName;
 	}
 
 	private String getDeviceInstanceIndex(long namesCount) {
