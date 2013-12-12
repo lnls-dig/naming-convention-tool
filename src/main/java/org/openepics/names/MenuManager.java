@@ -16,6 +16,9 @@
 package org.openepics.names;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -23,15 +26,15 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.model.SelectItem;
+import javax.faces.model.SelectItemGroup;
 
 import org.openepics.names.model.NameCategory;
-import org.primefaces.component.menuitem.MenuItem;
-import org.primefaces.model.DefaultMenuModel;
-import org.primefaces.model.MenuModel;
+import org.openepics.names.model.NameEvent;
 
 /**
  * For generating menu items for Naming Categories
- *
+ * 
  * @author Vasu V <vuppala@frib.msu.org>
  */
 @ManagedBean
@@ -40,58 +43,60 @@ public class MenuManager implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	@EJB
-    private NamesEJBLocal namesEJB;
-	
+	private NamesEJBLocal namesEJB;
+
 	@SuppressWarnings("unused")
-    private static final Logger logger = Logger.getLogger("org.openepics.names");
-	
-    private MenuModel model;
-    private List<NameCategory> categories;
+	private static final Logger logger = Logger.getLogger("org.openepics.names");
 
-    /**
-     * Creates a new instance of MenuManager
-     */
-    public MenuManager() {
-    }
+	private List<SelectItem> categories;
 
-    @PostConstruct
-    private void init() {
-        model = new DefaultMenuModel();
-        categories = namesEJB.getCategories();
-        //menubar = new Menubar();
-        //Submenu submenu = new Submenu();
-        //submenu.setId("_category");
-        //submenu.setLabel("Category");
-        //submenu.setIcon("ui-icon-carat-2-e-w");
+	public List<SelectItem> parents;
 
-        //ToDo: Remove literal references to 'names.xhtml'. Use generic way.
-        MenuItem item = new MenuItem();
-        item.setId("_all");
-        item.setValue("All");
-        item.setUrl("/names.xhtml");
-        model.addMenuItem(item);
-        //TODO: Move to facelets, if possible
-        for (NameCategory cat : categories) {
-            item = new MenuItem();
-            item.setId("_" + cat.getName());
-            item.setValue(cat.getDescription());
-            item.setUrl("/names.xhtml?category=" + cat.getId());
-            // submenu.getChildren().add(item);
-            // item.setUpdate("@form");
-            // menubar.getChildren().add(item);
-            model.addMenuItem(item);
-        }
+	/**
+	 * Creates a new instance of MenuManager
+	 */
+	public MenuManager() {
+	}
 
-        // submenu.getChildren().add(item);
-        // model.addSubmenu(submenu);
-        // menubar.getChildren().add(1, submenu);       
-    }
+	@PostConstruct
+	private void init() {
+		categories = new ArrayList<>();
+		List<NameCategory> lcategories = namesEJB.getCategories();
 
-    public List<NameCategory> getCategories() {
-        return categories;
-    }
+		Hashtable<String, List<SelectItem>> groups = new Hashtable<>();
 
-    public MenuModel getModel() {
-        return model;
-    }
+		for (NameCategory cat : lcategories) {
+			categories.add(new SelectItem(cat.getId(), cat.getName()));
+			groups.put(cat.getName(), new ArrayList<SelectItem>());
+		}
+
+		List<NameEvent> names = namesEJB.getValidNames();
+		for (NameEvent name : names) {
+			groups.get(name.getNameCategory().getName()).add(new SelectItem(name.getId(), name.getName()));
+		}
+
+		parents = new ArrayList<>();
+		for (Enumeration<String> keys = groups.keys(); keys.hasMoreElements();) {
+			String key = keys.nextElement();
+			List<SelectItem> itemList = groups.get(key);
+			int size = itemList.size();
+			if (size > 0) {
+				SelectItem[] items = new SelectItem[size];
+				for (int i = 0; i < size; i++)
+					items[i] = itemList.get(i);
+				SelectItemGroup sig = new SelectItemGroup(key);
+				sig.setSelectItems(items);
+				parents.add(sig);
+			}
+		}
+	}
+
+	public List<SelectItem> getCategories() {
+		return categories;
+	}
+
+	public List<SelectItem> getParents() {
+		return parents;
+	}
+
 }

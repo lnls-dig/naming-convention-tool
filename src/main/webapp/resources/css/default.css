@@ -2,6 +2,11 @@ body {
     font-size: 12px;
     font-family: Verdana, "Verdana CE",  Arial, "Arial CE", "Lucida Grande CE", lucida, "Helvetica CE", sans-serif; 
 }
+
+.ui-selectonemenu-panel {
+   height:5em;
+}
+
 /*
 
 body {

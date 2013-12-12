@@ -8,7 +8,13 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:h="http://java.sun.com/jsf/html"
                 >
+    <!--
+	<h:head>
+		<h.outputStylesheet name="styles.css" />
+	</h:head>
 
+	<h:body>
+	-->
     <ui:define name="content">
         <h:outputText value="You must first login to perform this action." rendered="#{not userManager.loggedIn}" />
         <h:form id="ReqSubForm" rendered="#{userManager.loggedIn}"> 
@@ -156,7 +162,10 @@
                     </p:selectOneMenu>  
 
                     <h:outputLabel for="iparent" value="Parent name:" />
-                    <h:inputText id="iparent" value="#{requestManager.newParent}" required="true"  label="Name parent ID" />                   
+                    <p:selectOneMenu id="iparent" value="#{requestManager.newParent}">
+                        <f:selectItems value="#{menuManager.parents}" var="prnt"
+                                       itemLabel="#{prnt.name}" itemValue="#{prnt.id}" />                       
+                    </p:selectOneMenu>                   
 
                     <h:outputLabel for="icode" value="Name:" />                     
                     <h:inputText id="icode" value="#{requestManager.newCode}" required="true"  label="Short identifier for the name" />                   
@@ -324,4 +333,5 @@
 
         </h:form>
     </ui:define>
+    <!-- </h:body> -->
 </ui:composition>
