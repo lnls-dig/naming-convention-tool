@@ -201,7 +201,7 @@
 
                     <p:row>
                         <p:column><h:outputLabel for="mpart" value="#{msgs.nameElementCategory}:" /></p:column>
-                        <p:column><h:outputText value="#{requestManager.selectedName.nameCategoryId.name}" /></p:column>
+                        <p:column><h:outputText value="#{requestManager.selectedName.nameCategory.name}" /></p:column>
                         <p:column>
                             <h:selectOneMenu id="mpart" value="#{requestManager.newCategory}" >                             
                                 <f:selectItems value="#{menuManager.categories}" var="mcat"
@@ -211,12 +211,12 @@
                     </p:row>
                     <p:row>
                         <p:column><h:outputLabel for="mcode" value="Code:"  /> </p:column>
-                        <p:column><h:outputText value="#{requestManager.selectedName.nameCode}" /></p:column>
+                        <p:column><h:outputText value="#{requestManager.selectedName.name}" /></p:column>
                         <p:column><p:inputText id="mcode" value="#{requestManager.newCode}" required="true" /></p:column>
                     </p:row>
                     <p:row>
                         <p:column><h:outputLabel for="mdesc" value="Description:" /></p:column>
-                        <p:column><h:outputText value="#{requestManager.selectedName.nameDescription}"/></p:column>
+                        <p:column><h:outputText value="#{requestManager.selectedName.fullName}"/></p:column>
                         <p:column><p:inputTextarea id="mdesc" rows="4" cols="40" 
                                                    value="#{requestManager.newDescription}" 
                                                    required="true" /></p:column>
@@ -256,13 +256,13 @@
                 </f:facet>
                 <p:panelGrid id="pgrid" columns="2" style="text-align: left">
                     <h:outputText  value="Category:" />
-                    <h:outputText value="#{requestManager.selectedName.nameCategoryId.name}" />
+                    <h:outputText value="#{requestManager.selectedName.nameCategory.name}" />
 
                     <h:outputText value="Code:" />    
-                    <h:outputText value="#{requestManager.selectedName.nameCode}" />
+                    <h:outputText value="#{requestManager.selectedName.name}" />
 
                     <h:outputText value="Description:" />
-                    <h:outputText value="#{requestManager.selectedName.nameDescription}"/>
+                    <h:outputText value="#{requestManager.selectedName.fullName}"/>
 
                     <h:outputLabel for="dcomm" value="Comment:" /> 
                     <p:inputTextarea id="dcomm" rows="5" cols="40" counter="dcounter" maxlength="254" 
@@ -292,13 +292,13 @@
                 </f:facet>
                 <p:panelGrid id="pgrid" columns="2" style="text-align: left">
                     <h:outputText  value="Category:" />
-                    <h:outputText value="#{requestManager.selectedName.nameCategoryId.name}" />
+                    <h:outputText value="#{requestManager.selectedName.nameCategory.name}" />
 
                     <h:outputText value="Code:" />    
-                    <h:outputText value="#{requestManager.selectedName.nameCode}" />
+                    <h:outputText value="#{requestManager.selectedName.name}" />
 
                     <h:outputText value="Description:" />
-                    <h:outputText value="#{requestManager.selectedName.nameDescription}"/>
+                    <h:outputText value="#{requestManager.selectedName.fullName}"/>
 
                     <h:outputLabel for="ccomm" value="Comment:" /> 
                     <p:inputTextarea id="ccomm" rows="5" cols="40" counter="ccounter" maxlength="254" 
