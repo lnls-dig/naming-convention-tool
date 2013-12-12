@@ -17,16 +17,19 @@ public interface NamingConventionEJBLocal {
 
 	/**
 	 * @param subsection
-	 *            - For accelerator and target: must be a SUBSECTION
+	 *            For accelerator and target: must be a SUBSECTION
 	 * 
 	 * @param device
-	 *            - can be either GDEV or SDEV
+	 *            can be either GDEV or SDEV
+	 * 
+	 * @param deviceInstanceIndex
+	 *            this is selecting or determining the actual device instance
+	 *            that the signal is belonging to.
+	 * 
 	 * @param signal
-	 *            - can be <code>null</code>. Is <code>signal</code> is
-	 *            <code>null</code>, then we are constructing a new device.
-	 *            Otherwise, the we are adding a new signal to the existing
-	 *            device. In this case the <code>subsection</code> must belong
-	 *            to the <code>device</code>.
+	 *            We are adding a new signal to the existing device or reserving
+	 *            a signal name for a device which does not exist yet.
+	 * 
 	 * @param method
 	 * @return - returns null if this would not construct a valid device name.
 	 *         Example incorrect entities were used for section, device or
