@@ -19,9 +19,9 @@
 				<h:outputText value="Active Naming Convention Names" />
 			</f:facet>
 
-			<p:column selectionMode="single" style="width: 5%" />
-
-			<p:column id="nameString" headerText="NC Name" style="width: 20%">
+			<p:column id="nameString" headerText="NC Name"
+				filterBy="#{ncName.name}" filterMatchMode="contains"
+				style="width: 20%">
 				<h:outputText value="#{ncName.name}" />
 			</p:column>
 			<p:column id="nameSection" headerText="Section"
@@ -35,8 +35,8 @@
 				<h:outputText value="#{ncName.discipline.fullName}" />
 			</p:column>
 			<p:column id="nameStatus" headerText="Status"
-				filterBy="#{ncName.status.toString()}" filterMatchMode="contains">
-				<h:outputText value="#{ncName.status.toString()}" />
+				filterBy="#{ncName.status}" filterMatchMode="contains">
+				<h:outputText value="#{ncName.status}" />
 			</p:column>
 
 		</p:dataTable>
