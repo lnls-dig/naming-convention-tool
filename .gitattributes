@@ -75,8 +75,10 @@ src/main/webapp/login.xhtml -text
 src/main/webapp/menubar.xhtml -text
 src/main/webapp/names.xhtml -text
 src/main/webapp/namesTemplate.xhtml -text
-src/main/webapp/nc-edit.xhtml -text
+src/main/webapp/nc-dev-edit.xhtml -text
+src/main/webapp/nc-report.xhtml -text
 src/main/webapp/nc-request-proc.xhtml -text
+src/main/webapp/nc-sig-edit.xhtml -text
 src/main/webapp/parts-request-proc.xhtml -text
 src/main/webapp/parts-request-sub.xhtml -text
 src/main/webapp/preferences.xhtml -text

@@ -31,9 +31,14 @@
 			</p:submenu>
 
 			<p:submenu label="NC Names" icon="ui-icon-comment">
-				<p:menuitem value="Manage" title="Manage NC Names"
-					url="nc-edit.xhtml" icon="ui-icon-suitcase"
+				<p:menuitem value="Manage Devices" title="Manage Device NC Names"
+					url="nc-dev-edit.xhtml" icon="ui-icon-suitcase"
 					disabled="#{not userManager.loggedIn}" />
+					<p:menuitem value="Manage Signals" title="Manage Signal NC Names"
+					url="nc-sig-edit.xhtml" icon="ui-icon-suitcase"
+					disabled="true" />
+					<p:menuitem value="List NC Names" title="Show All Active NC Names"
+					url="nc-report.xhtml" icon="ui-icon-print" />
 			</p:submenu>
 
 			<p:menuitem value="Reports" title="Reports" icon="ui-icon-print"

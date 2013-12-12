@@ -15,6 +15,7 @@ import javax.faces.context.FacesContext;
 import org.openepics.names.model.NCName;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
+import org.openepics.names.model.NCName.NCNameStatus;
 import org.openepics.names.nc.NamingConventionEJBLocal;
 import org.openepics.names.nc.NamingConventionEJBLocal.ESSNameConstructionMethod;
 
@@ -67,7 +68,7 @@ public class EditNamesManager implements Serializable {
 
 		try {
 			logger.log(Level.INFO, "Adding NC Name");
-			if (superSectionID == null || sectionID == null || subsectionID == null || disciplineID == null || categoryID == null || genDeviceID == null) {
+			if (subsectionID == null || genDeviceID == null) {
 				showMessage(FacesMessage.SEVERITY_ERROR, "Required field missing", " ");
 			}
 			NameEvent subsection = namesEJB.findEventById(subsectionID);
@@ -85,12 +86,36 @@ public class EditNamesManager implements Serializable {
 		}
 	}
 	
+	public void onModify() {
+		try {
+			logger.log(Level.INFO, "Modifying NC Name");
+			if (subsectionID == null || genDeviceID == null || selectedNCName == null) {
+				showMessage(FacesMessage.SEVERITY_ERROR, "Required field missing", " ");
+			}
+			NameEvent subsection = namesEJB.findEventById(subsectionID);
+			NameEvent genDevice = namesEJB.findEventById(genDeviceID);
+			selectedNCName.setSection(subsection);
+			selectedNCName.setDiscipline(genDevice);
+		} catch (Exception e) {
+			showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
+					e.getMessage());
+			System.err.println(e);
+		} finally {
+			init();
+		}
+	}
+	
+	public void onDelete() {
+		if(selectedNCName != null)
+			selectedNCName.setStatus(NCNameStatus.DELETED);
+	}
+	
 	public void loadSuperSections() {
 		try {
 			List<NameCategory> categories = namesEJB.getCategories();
 			NameCategory superSectionCategory = null;
 			for(NameCategory category : categories) {
-				if(category.getName().equalsIgnoreCase("Sup")) {
+				if(category.getName().equalsIgnoreCase("SUP")) {
 					superSectionCategory = category;
 					break;
 				}
@@ -99,7 +124,7 @@ public class EditNamesManager implements Serializable {
 			superSectionNames = superSectionCategory == null ? null : namesEJB.findEventsByCategory(superSectionCategory);
 			logger.log(Level.INFO, "Found supersections. Total = "+superSectionNames.size());
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
+			logger.log(Level.SEVERE, "Could not load supersections.");
 			System.err.println(e);
 		}
 	}
@@ -111,7 +136,7 @@ public class EditNamesManager implements Serializable {
 				sectionNames = namesEJB.findEventsByParent(superSection);
 				logger.log(Level.INFO, "Found sections. Total = "+sectionNames.size());
 			} catch (Exception e) {
-				logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
+				logger.log(Level.SEVERE, "Could not load sections.");
 				System.err.println(e);
 			}
 		}
@@ -124,7 +149,7 @@ public class EditNamesManager implements Serializable {
 				subsectionNames = namesEJB.findEventsByParent(section);
 				logger.log(Level.INFO, "Found subsections. Total = "+sectionNames.size());
 			} catch (Exception e) {
-				logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
+				logger.log(Level.SEVERE, "Could not load subsections.");
 				System.err.println(e);
 			}
 		}
@@ -135,7 +160,7 @@ public class EditNamesManager implements Serializable {
 			List<NameCategory> categories = namesEJB.getCategories();
 			NameCategory disciplineCategory = null;
 			for(NameCategory category : categories) {
-				if(category.getName().equalsIgnoreCase("Dsc")) {
+				if(category.getName().equalsIgnoreCase("DSCP")) {
 					disciplineCategory = category;
 					break;
 				}
@@ -144,7 +169,7 @@ public class EditNamesManager implements Serializable {
 			disciplineNames = disciplineCategory == null ? null : namesEJB.findEventsByCategory(disciplineCategory);
 			logger.log(Level.INFO, "Found disciplines. Total = "+disciplineNames.size());
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
+			logger.log(Level.SEVERE, "Could not load disciplines.");
 			System.err.println(e);
 		}
 	}
@@ -156,7 +181,7 @@ public class EditNamesManager implements Serializable {
 				categoryNames = namesEJB.findEventsByParent(discipline);
 				logger.log(Level.INFO, "Found categories. Total = "+sectionNames.size());
 			} catch (Exception e) {
-				logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
+				logger.log(Level.SEVERE, "Could not load categories.");
 				System.err.println(e);
 			}
 		}
@@ -169,7 +194,7 @@ public class EditNamesManager implements Serializable {
 				genDevNames = namesEJB.findEventsByParent(category);
 				logger.log(Level.INFO, "Found generic devices. Total = "+genDevNames.size());
 			} catch (Exception e) {
-				logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
+				logger.log(Level.SEVERE, "Could not load generic devices.");
 				System.err.println(e);
 			}
 		}
@@ -182,7 +207,7 @@ public class EditNamesManager implements Serializable {
 				specDevNames = namesEJB.findEventsByParent(genDevice);
 				logger.log(Level.INFO, "Found specific devices. Total = "+specDevNames.size());
 			} catch (Exception e) {
-				logger.log(Level.SEVERE, "Could not initialize NCNamesManager.");
+				logger.log(Level.SEVERE, "Could not load specific devices.");
 				System.err.println(e);
 			}
 		}
@@ -299,7 +324,6 @@ public class EditNamesManager implements Serializable {
 	public void setSpecDeviceID(Integer specDeviceID) {
 		this.specDeviceID = specDeviceID;
 	}
-
 	public NCName getSelectedNCName() {
 		return selectedNCName;
 	}

@@ -106,14 +106,14 @@ INSERT INTO `name_event` (`id`, `name`, `full_name`, `name_category_id`, `parent
 	(0000000013, 'Cat1', 'Category 1', 5, 10, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
 	(0000000014, 'Cat2', 'Category 2', 5, 10, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
 	(0000000015, 'Cat3', 'Category 3', 5, 11, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000016, 'GDv1', 'Generic Device 1', 6, 14, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
-	(0000000017, 'GDv2', 'Generic Device 2', 6, 13, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
-	(0000000018, 'GDv3', 'Generic Device 3', 6, 13, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
-	(0000000019, 'SDv1', 'Specific Device 1', 7, 16, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
-	(0000000020, 'SDv2', 'Specific Device 2', 7, 17, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
-	(0000000021, 'SDv3', 'Specific Device 3', 7, 18, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
-	(0000000022, 'S001', 'Signal (Type) 1', 8, NULL, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
-	(0000000023, 'S002', 'Signal (Type) 2', 8, NULL, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
+	(0000000016, 'GDv1', 'Generic Device 1', 6, 14, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000017, 'GDv2', 'Generic Device 2', 6, 13, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000018, 'GDv3', 'Generic Device 3', 6, 13, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000019, 'SDv1', 'Specific Device 1', 7, 16, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000020, 'SDv2', 'Specific Device 2', 7, 17, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000021, 'SDv3', 'Specific Device 3', 7, 18, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000022, 'S001', 'Signal (Type) 1', 8, NULL, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
+	(0000000023, 'S002', 'Signal (Type) 2', 8, NULL, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001),
 	(0000000024, 'S003', 'Signal (Type) 3', 8, NULL, 'i', 2, '2013-12-09 10:20:42', 'a', NULL, NULL, NULL, NULL, 0000000001);
 /*!40000 ALTER TABLE `name_event` ENABLE KEYS */;
 
