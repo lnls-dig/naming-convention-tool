@@ -170,7 +170,7 @@
 							<p:selectOneMenu id="aisup"
 								value="#{editNamesManager.superSectionID}">
 								<p:ajax listener="#{editNamesManager.loadSections()}"
-									update="aisec" />
+									update="aisec,aisub" />
 								<f:selectItems value="#{editNamesManager.superSectionNames}"
 									var="asup" itemLabel="#{asup.fullName}" itemValue="#{asup.id}" />
 							</p:selectOneMenu>
@@ -206,7 +206,7 @@
 							<p:selectOneMenu id="aidsc"
 								value="#{editNamesManager.disciplineID}">
 								<p:ajax listener="#{editNamesManager.loadCategories()}"
-									update="aicat" />
+									update="aicat,aigdv,aisdv" />
 								<f:selectItems value="#{editNamesManager.disciplineNames}"
 									var="adsc" itemLabel="#{adsc.fullName}" itemValue="#{adsc.id}" />
 							</p:selectOneMenu>
@@ -216,7 +216,7 @@
 								value="#{editNamesManager.categoryID}"
 								disabled="#{!editNamesManager.isDisciplineSelected()}">
 								<p:ajax listener="#{editNamesManager.loadGenericDevices()}"
-									update="aigdv" />
+									update="aigdv,aisdv" />
 								<f:selectItems value="#{editNamesManager.categoryNames}"
 									var="acat" itemLabel="#{acat.fullName}" itemValue="#{acat.id}" />
 							</p:selectOneMenu>

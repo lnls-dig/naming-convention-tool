@@ -178,16 +178,16 @@ public class NamesEJB implements NamesEJBLocal {
 	// transaction as it is read-only query
 	public List<NameEvent> getUserRequests() {
 		List<NameEvent> nameEvents;
-		Integer userId = userManager.getUser().getId();
+		Privilege user = userManager.getUser();
 		// String user = "system";
 
-		if (userId == null) {
+		if (user == null) {
 			return null;
 		}
 
 		TypedQuery<NameEvent> query = em.createQuery(
-				"SELECT n FROM NameEvent n WHERE n.requestedBy = :userId",
-				NameEvent.class).setParameter("userId", userId);
+				"SELECT n FROM NameEvent n WHERE n.requestedBy = :user",
+				NameEvent.class).setParameter("user", user);
 
 		nameEvents = query.getResultList();
 		logger.log(Level.INFO, "Results for requests: " + nameEvents.size());

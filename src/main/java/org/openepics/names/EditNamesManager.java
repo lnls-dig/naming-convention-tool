@@ -123,6 +123,16 @@ public class EditNamesManager implements Serializable {
 			logger.log(Level.INFO, "Found Super Section category: "+superSectionCategory+" "+superSectionCategory.getId());
 			superSectionNames = superSectionCategory == null ? null : namesEJB.findEventsByCategory(superSectionCategory);
 			logger.log(Level.INFO, "Found supersections. Total = "+superSectionNames.size());
+			
+			sectionID = null;
+			if(sectionNames != null)
+				sectionNames.clear();
+			subsectionID = null;
+			if(subsectionNames != null)
+				subsectionNames.clear();
+			
+			if(superSectionNames.size() == 1)
+				superSectionID = superSectionNames.get(0).getId();
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Could not load supersections.");
 			System.err.println(e);
@@ -135,6 +145,13 @@ public class EditNamesManager implements Serializable {
 				NameEvent superSection = namesEJB.findEventById(superSectionID);
 				sectionNames = namesEJB.findEventsByParent(superSection);
 				logger.log(Level.INFO, "Found sections. Total = "+sectionNames.size());
+				
+				subsectionID = null;
+				if(subsectionNames != null)
+					subsectionNames.clear();
+				
+				if(sectionNames.size() == 1)
+					sectionID = sectionNames.get(0).getId();
 			} catch (Exception e) {
 				logger.log(Level.SEVERE, "Could not load sections.");
 				System.err.println(e);
@@ -148,6 +165,9 @@ public class EditNamesManager implements Serializable {
 				NameEvent section = namesEJB.findEventById(sectionID);
 				subsectionNames = namesEJB.findEventsByParent(section);
 				logger.log(Level.INFO, "Found subsections. Total = "+sectionNames.size());
+				
+				if(subsectionNames.size() == 1)
+					subsectionID = subsectionNames.get(0).getId();
 			} catch (Exception e) {
 				logger.log(Level.SEVERE, "Could not load subsections.");
 				System.err.println(e);
@@ -168,6 +188,19 @@ public class EditNamesManager implements Serializable {
 			logger.log(Level.INFO, "Found Discipline category: "+disciplineCategory+" "+disciplineCategory.getId());
 			disciplineNames = disciplineCategory == null ? null : namesEJB.findEventsByCategory(disciplineCategory);
 			logger.log(Level.INFO, "Found disciplines. Total = "+disciplineNames.size());
+			
+			categoryID = null;
+			if(categoryNames != null)
+				categoryNames.clear();
+			genDeviceID = null;
+			if(genDevNames != null)
+				genDevNames.clear();
+			specDeviceID = null;
+			if(specDevNames != null)
+				specDevNames.clear();
+			
+			if(disciplineNames.size() == 1)
+				disciplineID = disciplineNames.get(0).getId();
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Could not load disciplines.");
 			System.err.println(e);
@@ -180,6 +213,16 @@ public class EditNamesManager implements Serializable {
 				NameEvent discipline = namesEJB.findEventById(disciplineID);
 				categoryNames = namesEJB.findEventsByParent(discipline);
 				logger.log(Level.INFO, "Found categories. Total = "+sectionNames.size());
+				
+				genDeviceID = null;
+				if(genDevNames != null)
+					genDevNames.clear();
+				specDeviceID = null;
+				if(specDevNames != null)
+					specDevNames.clear();
+				
+				if(categoryNames.size() == 1)
+					categoryID = categoryNames.get(0).getId();
 			} catch (Exception e) {
 				logger.log(Level.SEVERE, "Could not load categories.");
 				System.err.println(e);
@@ -193,6 +236,13 @@ public class EditNamesManager implements Serializable {
 				NameEvent category = namesEJB.findEventById(categoryID);
 				genDevNames = namesEJB.findEventsByParent(category);
 				logger.log(Level.INFO, "Found generic devices. Total = "+genDevNames.size());
+				
+				specDeviceID = null;
+				if(specDevNames != null)
+					specDevNames.clear();
+				
+				if(genDevNames.size() == 1)
+					genDeviceID = genDevNames.get(0).getId();
 			} catch (Exception e) {
 				logger.log(Level.SEVERE, "Could not load generic devices.");
 				System.err.println(e);
@@ -206,6 +256,9 @@ public class EditNamesManager implements Serializable {
 				NameEvent genDevice = namesEJB.findEventById(genDeviceID);
 				specDevNames = namesEJB.findEventsByParent(genDevice);
 				logger.log(Level.INFO, "Found specific devices. Total = "+specDevNames.size());
+				
+				if(specDevNames.size() == 1)
+					specDeviceID = specDevNames.get(0).getId();
 			} catch (Exception e) {
 				logger.log(Level.SEVERE, "Could not load specific devices.");
 				System.err.println(e);

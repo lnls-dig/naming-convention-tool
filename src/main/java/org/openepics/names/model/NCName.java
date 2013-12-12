@@ -42,10 +42,18 @@ import javax.xml.bind.annotation.XmlRootElement;
 		@NamedQuery(name = "NCName.findByParts", query = "SELECT n FROM NCName n WHERE n.section = :section AND n.discipline = :device AND n.signal = :signal AND n.instanceIndex = :instanceIndex") })
 public class NCName implements Serializable {
 	private static final long serialVersionUID = 3745635930595784338L;
-
-	public enum NCNameStatus {
-		INVALID, VALID, DELETED;
-	}
+	
+//TODO EcliseLink specific mapping implementation. Fix to be JPA only, when possible.
+//@ObjectTypeConverter(	name = "ncStatusConverter",
+//						objectType = NCNameStatus.class,
+//						dataType = String.class,
+//						conversionValues = {
+//							@ConversionValue(objectValue = "INVALID", dataValue = "invalid"),
+//							@ConversionValue(objectValue = "VALID", dataValue = "valid"),
+//							@ConversionValue(objectValue = "DELETED", dataValue = "deleted")})
+public enum NCNameStatus {
+	INVALID, VALID, DELETED;
+}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -77,6 +85,7 @@ public class NCName implements Serializable {
 	@Basic(optional = false)
 	@Column(name = "status")
 	@Enumerated(EnumType.STRING)
+//	@Convert("ncStatusConverter")
 	private NCNameStatus status;
 
 	@Basic(optional = false)
@@ -164,3 +173,5 @@ public class NCName implements Serializable {
 		this.id = id;
 	}
 }
+
+
