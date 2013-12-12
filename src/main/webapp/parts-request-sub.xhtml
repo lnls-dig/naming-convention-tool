@@ -8,13 +8,6 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:h="http://java.sun.com/jsf/html"
                 >
-    <!--
-	<h:head>
-		<h.outputStylesheet name="styles.css" />
-	</h:head>
-
-	<h:body>
-	-->
     <ui:define name="content">
         <h:outputText value="You must first login to perform this action." rendered="#{not userManager.loggedIn}" />
         <h:form id="ReqSubForm" rendered="#{userManager.loggedIn}"> 
@@ -333,5 +326,4 @@
 
         </h:form>
     </ui:define>
-    <!-- </h:body> -->
 </ui:composition>

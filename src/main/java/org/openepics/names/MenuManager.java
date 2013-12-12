@@ -17,8 +17,6 @@ package org.openepics.names;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -27,7 +25,6 @@ import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
-import javax.faces.model.SelectItemGroup;
 
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
@@ -63,31 +60,14 @@ public class MenuManager implements Serializable {
 		categories = new ArrayList<>();
 		List<NameCategory> lcategories = namesEJB.getCategories();
 
-		Hashtable<String, List<SelectItem>> groups = new Hashtable<>();
-
 		for (NameCategory cat : lcategories) {
 			categories.add(new SelectItem(cat.getId(), cat.getName()));
-			groups.put(cat.getName(), new ArrayList<SelectItem>());
-		}
-
-		List<NameEvent> names = namesEJB.getValidNames();
-		for (NameEvent name : names) {
-			groups.get(name.getNameCategory().getName()).add(new SelectItem(name.getId(), name.getName()));
 		}
 
 		parents = new ArrayList<>();
-		for (Enumeration<String> keys = groups.keys(); keys.hasMoreElements();) {
-			String key = keys.nextElement();
-			List<SelectItem> itemList = groups.get(key);
-			int size = itemList.size();
-			if (size > 0) {
-				SelectItem[] items = new SelectItem[size];
-				for (int i = 0; i < size; i++)
-					items[i] = itemList.get(i);
-				SelectItemGroup sig = new SelectItemGroup(key);
-				sig.setSelectItems(items);
-				parents.add(sig);
-			}
+		List<NameEvent> names = namesEJB.getValidNames();
+		for (NameEvent name : names) {
+			parents.add(new SelectItem(name.getId(), name.getName()));
 		}
 	}
 
