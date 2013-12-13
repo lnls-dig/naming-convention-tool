@@ -64,7 +64,7 @@ public class MenuManager implements Serializable {
 	private void init() {
 		model = new DefaultMenuModel();
 
-		categories = new ArrayList<>();
+		categories = new ArrayList<SelectItem>();
 		List<NameCategory> lcategories = namesEJB.getCategories();
 
 		for (NameCategory cat : lcategories) {
@@ -76,7 +76,7 @@ public class MenuManager implements Serializable {
 			categories.add(new SelectItem(cat.getId(), cat.getName()));
 		}
 
-		parents = new ArrayList<>();
+		parents = new ArrayList<SelectItem>();
 		List<NameEvent> names = namesEJB.getValidNames();
 		for (NameEvent name : names) {
 			parents.add(new SelectItem(name.getId(), name.getName()));
