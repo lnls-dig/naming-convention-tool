@@ -57,17 +57,17 @@
                           filterMatchMode="contains"  >                  
                     <h:outputText value="#{nevent.nameCategory.name}" />                              
                 </p:column>
-                <p:column id="nameCode" headerText="Name" filterBy="#{nevent.nameCode}"
+                <p:column id="name" headerText="Name" filterBy="#{nevent.name}"
                           filterMatchMode="startsWith"  >                  
-                    <h:outputText value="#{nevent.nameCode}" />                              
+                    <h:outputText value="#{nevent.name}" />                              
                 </p:column>              
-                <p:column id="nameDesc" headerText="Description" filterBy="#{nevent.nameDescription}"
+                <p:column id="fullName" headerText="Full Name" filterBy="#{nevent.fullName}"
                           filterMatchMode="contains" >                  
-                    <h:outputText value="#{nevent.nameDescription}" />                              
+                    <h:outputText value="#{nevent.fullName}" />                              
                 </p:column>
                 
-                <p:column id="reqBy" headerText="By" sortBy="#{nevent.requestedBy}" >                  
-                    <h:outputText value="#{nevent.requestedBy}" />                              
+                <p:column id="reqBy" headerText="By" sortBy="#{nevent.requestedBy.username}" >                  
+                    <h:outputText value="#{nevent.requestedBy.username}" />                              
                 </p:column>
                 <p:column id="reqDate" headerText="Date" sortBy="#{nevent.requestDate}" >                  
                     <h:outputText value="#{nevent.requestDate}" >
