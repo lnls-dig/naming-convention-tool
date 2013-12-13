@@ -1,6 +1,7 @@
 package org.openepics.names.nc;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -11,6 +12,8 @@ import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.faces.context.FacesContext;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.servlet.ServletContext;
@@ -342,11 +345,90 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 
 	@Override
 	public boolean isNamePartValid(String namePart, NameCategory category) throws NamingConventionException {
-		TypedQuery<NameEvent> query = em.createNamedQuery("NameEvent.findByName", NameEvent.class).setParameter("name",
-				namePart);
-		NameEvent nameEvent = query.getSingleResult();
-		return (nameEvent.getStatus() == 'a') && (nameEvent.getNameCategory().equals(category));
+		try {
+			TypedQuery<NameEvent> query = em.createNamedQuery("NameEvent.findByName", NameEvent.class).setParameter("name",
+					namePart);
+			NameEvent nameEvent = query.getSingleResult();
+			return (nameEvent.getStatus() == 'a') && (nameEvent.getNameCategory().equals(category));
+		} catch (NoResultException e) {
+			// if the names does not exist, check whether similar names exist
+			// according to business logic
+			// if YES, then the name is INVALID
+			List<String> alts = generateNameAlternatives(namePart);
+			if (alts == null)
+				return false;
+			TypedQuery<NameEvent> similarQuery = em.createQuery(
+					"SELECT n FROM NameEvent n WHERE UPPER(n.name) IN :alternatives", NameEvent.class);
+			similarQuery.setParameter("alternatives", alts);
+			List<NameEvent> similarNames = similarQuery.getResultList();
+			return !(similarNames.size() > 0);
+		} catch (NonUniqueResultException e) {
+			return false;
+		}
 
+	}
+
+	/**
+	 * Generates name alternatives according to ESS business logic all in UPPER
+	 * CASE.
+	 * 
+	 * @param name
+	 *            - the name to generate alternatives for
+	 * @return
+	 */
+	private List<String> generateNameAlternatives(String name) {
+		List<String> results = new ArrayList<>();
+		if (name == null || name.isEmpty())
+			return null;
+
+		String upName = name.toUpperCase();
+
+		boolean followZero = false;
+		char c = upName.charAt(0);
+		if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z')))
+			return null;
+		addAlternatives(results, "", upName.charAt(0));
+
+		for (int i = 1; i < upName.length(); i++) {
+			List<String> newResults = new ArrayList<>();
+			c = upName.charAt(i);
+			if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z')))
+				return null;
+			followZero = (c >= 'A' && c <= 'Z') || (followZero && c == '0');
+			for (String prefix : results) {
+				addAlternatives(newResults, prefix, c);
+				if (followZero && c == '0')
+					newResults.add(prefix);
+			}
+			results = newResults;
+		}
+
+		return results;
+	}
+
+	private void addAlternatives(List<String> prefixes, String prefix, char c) {
+		switch (c) {
+		case '0':
+		case 'O':
+			prefixes.add(prefix + 'O');
+			prefixes.add(prefix + '0');
+			break;
+		case 'V':
+		case 'W':
+			prefixes.add(prefix + 'V');
+			prefixes.add(prefix + 'W');
+			break;
+		case 'I':
+		case '1':
+		case 'L':
+			prefixes.add(prefix + 'I');
+			prefixes.add(prefix + '1');
+			prefixes.add(prefix + 'L');
+			break;
+		default:
+			prefixes.add(prefix + c);
+			break;
+		}
 	}
 
 }
