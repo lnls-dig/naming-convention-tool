@@ -28,6 +28,9 @@ import javax.faces.model.SelectItem;
 
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
+import org.primefaces.component.menuitem.MenuItem;
+import org.primefaces.model.DefaultMenuModel;
+import org.primefaces.model.MenuModel;
 
 /**
  * For generating menu items for Naming Categories
@@ -47,7 +50,9 @@ public class MenuManager implements Serializable {
 
 	private List<SelectItem> categories;
 
-	public List<SelectItem> parents;
+	private List<SelectItem> parents;
+
+	private MenuModel model;
 
 	/**
 	 * Creates a new instance of MenuManager
@@ -57,10 +62,17 @@ public class MenuManager implements Serializable {
 
 	@PostConstruct
 	private void init() {
+		model = new DefaultMenuModel();
+
 		categories = new ArrayList<>();
 		List<NameCategory> lcategories = namesEJB.getCategories();
 
 		for (NameCategory cat : lcategories) {
+			MenuItem item = new MenuItem();
+			item.setId("_" + cat.getId());
+			item.setValue(cat.getName());
+			item.setUrl("/names.xhtml?category=" + cat.getId());
+			model.addMenuItem(item);
 			categories.add(new SelectItem(cat.getId(), cat.getName()));
 		}
 
@@ -77,6 +89,10 @@ public class MenuManager implements Serializable {
 
 	public List<SelectItem> getParents() {
 		return parents;
+	}
+
+	public MenuModel getModel() {
+		return model;
 	}
 
 }

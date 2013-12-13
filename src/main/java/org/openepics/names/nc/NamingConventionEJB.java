@@ -354,12 +354,14 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 			// if the names does not exist, check whether similar names exist
 			// according to business logic
 			// if YES, then the name is INVALID
+
 			List<String> alts = generateNameAlternatives(namePart);
 			if (alts == null)
 				return false;
 			TypedQuery<NameEvent> similarQuery = em.createQuery(
-					"SELECT n FROM NameEvent n WHERE UPPER(n.name) IN :alternatives", NameEvent.class);
-			similarQuery.setParameter("alternatives", alts);
+					"SELECT n FROM NameEvent n WHERE UPPER(n.name) IN :alternatives AND n.nameCategory = :nameCategory",
+					NameEvent.class);
+			similarQuery.setParameter("alternatives", alts).setParameter("nameCategory", category);
 			List<NameEvent> similarNames = similarQuery.getResultList();
 			return !(similarNames.size() > 0);
 		} catch (NonUniqueResultException e) {
