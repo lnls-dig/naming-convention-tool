@@ -353,15 +353,61 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		} catch (NoResultException e) {
 			// if the names does not exist, check whether similar names exist
 			// according to business logic
-			// if YES, then the name is INVALID
 
+			// but first check whether the static rules apply
+			// BLED-NAM-032
+			for (int i = 0; i < namePart.length(); i++) {
+				char c = namePart.charAt(i);
+				if (!(c >= '0' && c <= '9') && !(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z'))
+					return false;
+			}
+
+			// BLED-NAM-034
+			if (category.getName().equals(categoryValues.getProperty("section"))
+					||
+					// TODO D-type subsection missing
+					category.getName().equals(categoryValues.getProperty("discipline"))
+					|| category.getName().equals(categoryValues.getProperty("genericDevice"))
+					|| category.getName().equals(categoryValues.getProperty("specificDevice")) ||
+					// TODO A-type section qualifier
+					category.getName().equals(categoryValues.getProperty("signalType"))) {
+				char c = namePart.charAt(0);
+				if (!(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z'))
+					return false;
+			}
+
+			// now determine the categories for which the similarity must be
+			// checked
+			TypedQuery<NameCategory> catQuery = em.createNamedQuery("NameCategory.findByName", NameCategory.class);
+
+			List<NameCategory> categories = new ArrayList<>();
+			if (category.getName().equals(categoryValues.getProperty("section"))
+					|| category.getName().equals(categoryValues.getProperty("discipline"))
+					|| category.getName().equals(categoryValues.getProperty("specificDevice"))) {
+				catQuery.setParameter("name", categoryValues.getProperty("section"));
+				categories.add(catQuery.getSingleResult());
+				catQuery.setParameter("name", categoryValues.getProperty("discipline"));
+				categories.add(catQuery.getSingleResult());
+				catQuery.setParameter("name", categoryValues.getProperty("specificDevice"));
+				categories.add(catQuery.getSingleResult());
+			} else if (category.getName().equals(categoryValues.getProperty("subsection"))
+					|| category.getName().equals(categoryValues.getProperty("genericDevice"))) {
+				catQuery.setParameter("name", categoryValues.getProperty("section"));
+				categories.add(catQuery.getSingleResult());
+				catQuery.setParameter("name", categoryValues.getProperty("discipline"));
+				categories.add(catQuery.getSingleResult());
+			} else {
+				categories.add(category);
+			}
+
+			// build the list of similar names
 			List<String> alts = generateNameAlternatives(namePart);
 			if (alts == null)
 				return false;
 			TypedQuery<NameEvent> similarQuery = em.createQuery(
-					"SELECT n FROM NameEvent n WHERE UPPER(n.name) IN :alternatives AND n.nameCategory = :nameCategory",
+					"SELECT n FROM NameEvent n WHERE UPPER(n.name) IN :alternatives AND n.nameCategory IN :nameCategories",
 					NameEvent.class);
-			similarQuery.setParameter("alternatives", alts).setParameter("nameCategory", category);
+			similarQuery.setParameter("alternatives", alts).setParameter("nameCategories", categories);
 			List<NameEvent> similarNames = similarQuery.getResultList();
 			return !(similarNames.size() > 0);
 		} catch (NonUniqueResultException e) {
