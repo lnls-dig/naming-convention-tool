@@ -379,7 +379,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 	 * @return
 	 */
 	private List<String> generateNameAlternatives(String name) {
-		List<String> results = new ArrayList<>();
+		List<String> results = new ArrayList<String>();
 		if (name == null || name.isEmpty())
 			return null;
 
@@ -392,7 +392,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		addAlternatives(results, "", upName.charAt(0));
 
 		for (int i = 1; i < upName.length(); i++) {
-			List<String> newResults = new ArrayList<>();
+			List<String> newResults = new ArrayList<String>();
 			c = upName.charAt(i);
 			if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z')))
 				return null;

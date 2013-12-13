@@ -17,11 +17,12 @@
 			<!-- =================== Menus ============================ -->
 			<p:menu id="ncReqMenu" styleClass="fixedPosition box"
 				style="width: 8%">
-				<p:submenu label="Requests">
+				<p:submenu label="NC Names">
 					<p:menuitem value="Add" icon="ui-icon-plus"
 						oncomplete="addNCName.show()" title="Add Name"
 						rendered="#{userManager.editor}" />
 					<p:menuitem value="Delete" icon="ui-icon-trash"
+						action="editNamesManager.loadSelectedName()"
 						update=":delNCNameForm" oncomplete="delNCName.show()"
 						title="Delete NC Name" rendered="#{userManager.editor}"
 						disabled="#{empty editNamesManager.selectedNCName}" />
@@ -277,8 +278,7 @@
 							</p:selectOneMenu>
 						</p:column>
 						<p:column style="width: 128px">
-							<p:selectOneMenu id="misec" value="#{editNamesManager.sectionID}"
-								disabled="#{!editNamesManager.isSupserSectionSelected()}">
+							<p:selectOneMenu id="misec" value="#{editNamesManager.sectionID}">
 								<p:ajax listener="#{editNamesManager.loadSubsections()}"
 									update="misub" />
 								<f:selectItems value="#{editNamesManager.sectionNames}"
@@ -287,8 +287,7 @@
 						</p:column>
 						<p:column style="width: 128px">
 							<p:selectOneMenu id="misub"
-								value="#{editNamesManager.subsectionID}"
-								disabled="#{!editNamesManager.isSectionSelected()}">
+								value="#{editNamesManager.subsectionID}">
 								<f:selectItems value="#{editNamesManager.subsectionNames}"
 									var="msub" itemLabel="#{msub.fullName}" itemValue="#{msub.id}" />
 							</p:selectOneMenu>
@@ -314,8 +313,7 @@
 						</p:column>
 						<p:column style="width: 128px">
 							<p:selectOneMenu id="micat"
-								value="#{editNamesManager.categoryID}"
-								disabled="#{!editNamesManager.isDisciplineSelected()}">
+								value="#{editNamesManager.categoryID}">
 								<p:ajax listener="#{editNamesManager.loadGenericDevices()}"
 									update="migdv" />
 								<f:selectItems value="#{editNamesManager.categoryNames}"
@@ -324,8 +322,7 @@
 						</p:column>
 						<p:column style="width: 128px">
 							<p:selectOneMenu id="migdv"
-								value="#{editNamesManager.genDeviceID}"
-								disabled="#{!editNamesManager.isCategorySelected()}">
+								value="#{editNamesManager.genDeviceID}">
 								<f:selectItems value="#{editNamesManager.genDevNames}"
 									var="mgdv" itemLabel="#{mgdv.fullName}" itemValue="#{mgdv.id}" />
 								<p:ajax listener="#{editNamesManager.loadSpecificDevices()}"
@@ -334,8 +331,7 @@
 						</p:column>
 						<p:column style="width: 128px">
 							<p:selectOneMenu id="misdv"
-								value="#{editNamesManager.specDeviceID}"
-								disabled="#{!editNamesManager.isGenDeviceSelected()}">
+								value="#{editNamesManager.specDeviceID}">
 								<f:selectItems value="#{editNamesManager.specDevNames}"
 									var="msdv" itemLabel="#{msdv.fullName}" itemValue="#{msdv.id}" />
 							</p:selectOneMenu>

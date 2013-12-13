@@ -58,6 +58,8 @@ public class RequestManager implements Serializable {
 	private String newDescription;
 	private String newComment;
 	private static final Map<String, String> requestTypeNames;
+	
+	private boolean useParent;
 
 	static {
 		Map<String, String> map = new HashMap<String, String>();
@@ -304,5 +306,13 @@ public class RequestManager implements Serializable {
 
 	public List<NameEvent> getHistoryEvents() {
 		return historyEvents;
+	}
+
+	public boolean isUseParent() {
+		return useParent;
+	}
+
+	public void setUseParent(boolean useParent) {
+		this.useParent = useParent;
 	}
 }

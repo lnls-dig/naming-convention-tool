@@ -1,7 +1,9 @@
 package org.openepics.names;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -13,9 +15,9 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 
 import org.openepics.names.model.NCName;
+import org.openepics.names.model.NCName.NCNameStatus;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
-import org.openepics.names.model.NCName.NCNameStatus;
 import org.openepics.names.nc.NamingConventionEJBLocal;
 import org.openepics.names.nc.NamingConventionEJBLocal.ESSNameConstructionMethod;
 
@@ -262,6 +264,46 @@ public class EditNamesManager implements Serializable {
 			} catch (Exception e) {
 				logger.log(Level.SEVERE, "Could not load specific devices.");
 				System.err.println(e);
+			}
+		}
+	}
+	
+	public void loadSelectedName() {
+		if(selectedNCName != null) {
+			Map<String, Integer> namePartMap = new HashMap<String, Integer>();
+			
+			NameEvent sectionNode = selectedNCName.getSection();
+			while(sectionNode.getParentName() != null) {
+				namePartMap.put(sectionNode.getNameCategory().getName(), sectionNode.getId());
+				sectionNode = sectionNode.getParentName();
+			}
+			namePartMap.put(sectionNode.getNameCategory().getName(), sectionNode.getId());
+			
+			NameEvent disciplineNode = selectedNCName.getDiscipline();
+			while(disciplineNode.getParentName() != null) {
+				namePartMap.put(disciplineNode.getNameCategory().getName(), sectionNode.getId());
+				sectionNode = disciplineNode.getParentName();
+			}
+			namePartMap.put(disciplineNode.getNameCategory().getName(), sectionNode.getId());
+			
+			init();
+			
+			for(String categoryName : namePartMap.keySet()) {
+				if(categoryName.equalsIgnoreCase("SUP")) {
+					superSectionID = namePartMap.get(categoryName);
+				} else if(categoryName.equalsIgnoreCase("SECT")) {
+					sectionID = namePartMap.get(categoryName);
+				} else if(categoryName.equalsIgnoreCase("SUB")) {
+					subsectionID = namePartMap.get(categoryName);
+				} else if(categoryName.equalsIgnoreCase("DSCP")) {
+					disciplineID = namePartMap.get(categoryName);
+				} else if(categoryName.equalsIgnoreCase("CAT")) {
+					categoryID = namePartMap.get(categoryName);
+				} else if(categoryName.equalsIgnoreCase("GDEV")) {
+					genDeviceID = namePartMap.get(categoryName);
+				} else if(categoryName.equalsIgnoreCase("SDEV")) {
+					specDeviceID = namePartMap.get(categoryName);
+				}
 			}
 		}
 	}
