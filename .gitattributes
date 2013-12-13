@@ -61,6 +61,7 @@ src/main/resources/META-INF/persistence.xml -text
 src/main/resources/messages.properties -text
 src/main/setup/glassfish-resources.xml -text
 src/main/webapp/WEB-INF/beans.xml -text
+src/main/webapp/WEB-INF/catergories.properties -text
 src/main/webapp/WEB-INF/faces-config.xml -text
 src/main/webapp/WEB-INF/glassfish-resources.xml -text
 src/main/webapp/WEB-INF/glassfish-web.xml -text

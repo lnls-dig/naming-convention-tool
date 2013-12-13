@@ -1,14 +1,19 @@
 package org.openepics.names.nc;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
+import javax.faces.context.FacesContext;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import javax.servlet.ServletContext;
 
 import org.openepics.names.model.NCName;
 import org.openepics.names.model.NCName.NCNameStatus;
@@ -19,7 +24,7 @@ import org.openepics.names.model.NameEvent;
 public class NamingConventionEJB implements NamingConventionEJBLocal {
 
 	private static final Logger logger = Logger.getLogger("org.openepics.names");
-	
+
 	private class NameSections {
 		NameEvent section;
 		NameEvent disciplineOrSubsection;
@@ -28,6 +33,42 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 
 	@PersistenceContext(unitName = "org.openepics.names.punit")
 	private EntityManager em;
+
+	private Properties categoryValues;
+
+	@PostConstruct
+	public void init() {
+		FacesContext fContext = FacesContext.getCurrentInstance();
+		ServletContext context = (ServletContext) fContext.getExternalContext().getContext();
+
+		// Set<String> paths = context.getResourcePaths("/WEB-INF");
+		// for (String path : paths) {
+		// logger.info(" * ** Path: " + path);
+		// }
+
+		// logger.info("Before try _ _ _ _ - - - - -");
+		categoryValues = new Properties();
+		try {
+			categoryValues.load(context.getResourceAsStream("/WEB-INF/catergories.properties"));
+			logger.info("categories loaded!!!!");
+			// for (Enumeration<Object> keys = categoryValues.keys();
+			// keys.hasMoreElements();) {
+			// String key = (String) keys.nextElement();
+			// logger.info(key + "::" + categoryValues.getProperty(key));
+			// }
+		} catch (IOException e) {
+			categoryValues.put("supersection", "SUP");
+			categoryValues.put("section", "SECT");
+			categoryValues.put("subsection", "SUB");
+			categoryValues.put("discipline", "DSCP");
+			categoryValues.put("category", "CAT");
+			categoryValues.put("genericDevice", "GDEV");
+			categoryValues.put("specificDevice", "SDEV");
+			categoryValues.put("signalType", "STYP");
+			categoryValues.put("signalInstance", "SINS");
+			categoryValues.put("additionalSignalDescription", "ADS");
+		}
+	}
 
 	@Override
 	public NCName createNCNameSignal(NameEvent subsection, NameEvent device, String deviceInstanceIndex, NameEvent signal,
@@ -85,9 +126,11 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 	private NameSections getNameSections(NameEvent subsection, NameEvent device,
 			NamingConventionEJBLocal.ESSNameConstructionMethod method) {
 
-		if (!((subsection.getStatus() == 'a') && subsection.getNameCategory().getName().equalsIgnoreCase("SUB")
-				&& (device.getStatus() == 'a') && (device.getNameCategory().getName().equalsIgnoreCase("GDEV") || device
-				.getNameCategory().getName().equalsIgnoreCase("SDEV"))))
+		if (!((subsection.getStatus() == 'a')
+				&& subsection.getNameCategory().getName().equals(categoryValues.getProperty("subsection"))
+				&& (device.getStatus() == 'a') && (device.getNameCategory().getName()
+				.equals(categoryValues.getProperty("genericDevice")) || device.getNameCategory().getName()
+				.equals(categoryValues.getProperty("specificDevice")))))
 			return null;
 
 		NameSections nameSections = new NameSections();
@@ -99,7 +142,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		case ACCELERATOR:
 			// find the correct section name
 			section = subsection;
-			while (!section.getNameCategory().getName().equalsIgnoreCase("SECT")) {
+			while (!section.getNameCategory().getName().equals(categoryValues.getProperty("section"))) {
 				if (section.getParentName() == null)
 					return null; // validation failed
 				section = section.getParentName();
@@ -108,7 +151,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 
 			// find the correct discipline based on the device
 			NameEvent discipline = device;
-			while (!discipline.getNameCategory().getName().equalsIgnoreCase("DSCP")) {
+			while (!discipline.getNameCategory().getName().equals(categoryValues.getProperty("discipline"))) {
 				if (discipline.getParentName() == null)
 					return null; // validation failed
 				discipline = discipline.getParentName();
@@ -117,7 +160,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 
 			// find the appropriate generic device name
 			genDevice = device;
-			while (!genDevice.getNameCategory().getName().equalsIgnoreCase("GDEV")) {
+			while (!genDevice.getNameCategory().getName().equals(categoryValues.getProperty("genericDevice"))) {
 				if (genDevice.getParentName() == null)
 					return null; // validation failed
 				genDevice = genDevice.getParentName();
@@ -126,7 +169,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 			break;
 		case TARGET:
 			section = subsection;
-			while (!section.getNameCategory().getName().equalsIgnoreCase("SECT")) {
+			while (!section.getNameCategory().getName().equals(categoryValues.getProperty("section"))) {
 				if (section.getParentName() == null)
 					return null; // validation failed
 				section = section.getParentName();
@@ -137,7 +180,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 
 			// find the appropriate generic device name
 			genDevice = device;
-			while (!genDevice.getNameCategory().getName().equalsIgnoreCase("GDEV")) {
+			while (!genDevice.getNameCategory().getName().equals(categoryValues.getProperty("genericDevice"))) {
 				if (genDevice.getParentName() == null)
 					return null; // validation failed
 				genDevice = genDevice.getParentName();
@@ -197,13 +240,12 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 
 		return query.getSingleResult();
 	}
-	
+
 	@Override
 	public List<NCName> getAllNCNames() {
 		List<NCName> ncNames;
 
-		TypedQuery<NCName> query = em.createNamedQuery(
-				"NCName.findAll", NCName.class);
+		TypedQuery<NCName> query = em.createNamedQuery("NCName.findAll", NCName.class);
 		ncNames = query.getResultList();
 		logger.log(Level.INFO, "Total number of NCNames: " + ncNames.size());
 
@@ -256,7 +298,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		TypedQuery<NameEvent> sectionQ = em.createNamedQuery("NameEvent.findByName", NameEvent.class);
 		sectionQ.setParameter("name", sectionName);
 		NameEvent section = sectionQ.getSingleResult();
-		if ((section.getStatus() != 'a') || !section.getNameCategory().getName().equalsIgnoreCase("SECT"))
+		if ((section.getStatus() != 'a') || !section.getNameCategory().getName().equals(categoryValues.getProperty("section")))
 			return false;
 
 		// checking whether discipline exists, is it approved and does its
@@ -268,9 +310,9 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		if (discipline.getStatus() != 'a')
 			return false;
 		else {
-			if (discipline.getNameCategory().getName().equalsIgnoreCase("DSCP"))
+			if (discipline.getNameCategory().getName().equals(categoryValues.getProperty("discipline")))
 				method = ESSNameConstructionMethod.ACCELERATOR;
-			else if (discipline.getNameCategory().getName().equalsIgnoreCase("SUB"))
+			else if (discipline.getNameCategory().getName().equals(categoryValues.getProperty("subsection")))
 				method = ESSNameConstructionMethod.TARGET;
 			else
 				return false;
@@ -281,7 +323,8 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		TypedQuery<NameEvent> deviceQ = em.createNamedQuery("NameEvent.findByName", NameEvent.class);
 		deviceQ.setParameter("name", deviceName);
 		NameEvent genDevice = deviceQ.getSingleResult();
-		if ((genDevice.getStatus() != 'a') || !genDevice.getNameCategory().getName().equalsIgnoreCase("GDEV"))
+		if ((genDevice.getStatus() != 'a')
+				|| !genDevice.getNameCategory().getName().equals(categoryValues.getProperty("genericDevice")))
 			return false;
 
 		if (method == ESSNameConstructionMethod.ACCELERATOR && !isDeviceInstanceIndexValid(discipline, deviceQntf))
