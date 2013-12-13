@@ -39,7 +39,7 @@ public interface NamesEJBLocal {
 	public void processEvents(NameEvent[] nevents, char status, String comment)
 			throws Exception;
 
-	public NameEvent createNewEvent(String name, String fullName,
+	public NameEvent createNewEvent(String nameId, String name, String fullName,
 			int nameCategoryID, int parentNameID, char eventType,
 			String comment) throws Exception;
 

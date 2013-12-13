@@ -67,6 +67,10 @@ public class NameEvent implements Serializable {
 	@Basic(optional = false)
 	@Column(name = "id")
 	private Integer id;
+	
+	@Size(max = 64)
+    @Column(name = "name_id")
+    private String nameId;
 
 	@Basic(optional = false)
 	@Size(min = 1, max = 32)
@@ -149,6 +153,14 @@ public class NameEvent implements Serializable {
 	public Integer getId() {
 		return id;
 	}
+	
+	public String getNameId() {
+        return nameId;
+    }
+
+    public void setNameId(String nameId) {
+        this.nameId = nameId;
+    }
 
 	public String getName() {
 		return name;

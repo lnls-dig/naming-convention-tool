@@ -17,6 +17,7 @@ package org.openepics.names;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,54 +59,43 @@ public class NamesEJB implements NamesEJBLocal {
 	// private AuthServ authService = null; //* Authentication service
 
 	/**
-	 * Create a new event i.e. name creation, modification, deletion etc.
-	 * 
-	 * @author Vasu V <vuppala@frib.msu.org>
-	 */
-	@Override
-	public NameEvent createNewEvent(String name, String fullName, int nameCategoryID, int parentNameID, char eventType,
-			String comment) throws Exception {
-		logger.log(Level.INFO, "creating...");
-		Date curdate = new Date();
+     * Create a new event i.e. name creation, modification, deletion etc.
+     *
+     * @author Vasu V <vuppala@frib.msu.org>
+     */
+    @Override
+    public NameEvent createNewEvent(String nameId, String name, String fullName, int nameCategoryID, int parentNameID, char eventType, String comment) throws Exception {
+        logger.log(Level.INFO, "creating...");
+        Date curdate = new Date();
 
-		if (userManager == null) {
-			throw new Exception("userManager is null. Cannot inject it");
-		}
+        if (userManager == null) {
+            throw new Exception("userManager is null. Cannot inject it");
+        }
 
-		if (!userManager.isLoggedIn()) {
-			throw new Exception("You are not authorized to perform this operation.");
-		}
+        if (!userManager.isLoggedIn()) {
+            throw new Exception("You are not authorized to perform this operation.");
+        }
+        //NameCategory ncat = new NameCategory(category, category,0);
+        NameCategory ncat;
+        ncat = em.find(NameCategory.class, nameCategoryID);
+        if (ncat == null) {
+            logger.log(Level.SEVERE, "Invalid categroy: " + nameCategoryID);
+            return null;
+        }
+        NameEvent mEvent = new NameEvent(eventType, userManager.getUser(), curdate, 'p', name, fullName, 0);
+        logger.log(Level.INFO, "new created:" + name + ":" + fullName);
+        if (eventType == 'i') { // initiation/insert. 
+            nameId = UUID.randomUUID().toString();
+        }
 
-		// NameCategory ncat = new NameCategory(category, category,0);
-		NameCategory ncat;
-		ncat = em.find(NameCategory.class, nameCategoryID);
-		if (ncat == null) {
-			logger.log(Level.SEVERE, "Invalid categroy: " + nameCategoryID);
-			return null;
-		}
-
-		NameEvent parent = em.find(NameEvent.class, parentNameID);
-		if (parent == null) {
-			logger.log(Level.SEVERE, "Invalid parent: " + parentNameID);
-			return null;
-		}
-
-		if (ncEJB.isNamePartValid(name, ncat)) {
-			NameEvent mEvent = new NameEvent('?', userManager.getUser(), curdate, '?', name, fullName, 0);
-			logger.log(Level.INFO, "new created:" + name + ":" + fullName);
-
-			mEvent.setRequestorComment(comment);
-			mEvent.setNameCategory(ncat);
-			mEvent.setParentName(parent);
-			logger.log(Level.INFO, "set properties...");
-			em.persist(mEvent);
-			logger.log(Level.INFO, "persisted...");
-			return mEvent;
-		}
-
-		// TODO really null?
-		return null;
-	}
+        mEvent.setRequestorComment(comment);
+        mEvent.setNameCategory(ncat);
+        mEvent.setNameId(nameId);
+        logger.log(Level.INFO, "set properties...");
+        em.persist(mEvent);
+        logger.log(Level.INFO, "persisted...");
+        return mEvent;
+    }
 
 	/**
 	 * Publish a new release of the naming system.
