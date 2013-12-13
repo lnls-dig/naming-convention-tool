@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -28,6 +29,8 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import org.openepics.names.environment.NameCategories;
 
 import org.openepics.names.model.NameEvent;
 
@@ -60,7 +63,7 @@ public class RequestManager implements Serializable {
 	private static final Map<String, String> requestTypeNames;
 	
 	private boolean useParent;
-
+    
 	static {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("i", "Add");
@@ -121,10 +124,16 @@ public class RequestManager implements Serializable {
 		NameEvent newRequest;
 
 		try {
-			logger.log(Level.INFO, "Adding ");
+			logger.log(Level.INFO, "Adding...");
 			if (newCode == null || newCode.isEmpty()) {
 				showMessage(FacesMessage.SEVERITY_ERROR, "Code is empty", " ");
 			}
+            String newCategoryName = namesEJB.findEventById(newCategory).getName();
+            if(newCategoryName.equals(NameCategories.supersection()) || 
+                    newCategoryName.equals(NameCategories.discipline()) || 
+                    newCategoryName.equals(NameCategories.signalType())) {
+                newParent = null;
+            }
 			newRequest = namesEJB.createNewEvent("", newCode, newDescription, newCategory, newParent, 'i', newComment);
 //			newRequest = namesEJB.createNewEvent('i', "", newCategory, newCode,
 //					newDescription, newComment);

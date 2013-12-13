@@ -29,6 +29,13 @@ public class NameRestService extends Application {
         resources.add(org.openepics.names.service.NameEventResource.class);
         resources.add(org.openepics.names.service.NameReleaseResource.class);
         resources.add(org.openepics.names.service.nc.DefaultResource.class);
+        // following code can be used to customize Jersey 1.x JSON provider:
+        try {
+            Class jacksonProvider = Class.forName("org.codehaus.jackson.jaxrs.JacksonJsonProvider");
+            resources.add(jacksonProvider);
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(getClass().getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
         return resources;
     }
     

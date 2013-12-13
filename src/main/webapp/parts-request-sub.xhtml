@@ -154,8 +154,7 @@
                                        itemLabel="#{acat.name}" itemValue="#{acat.id}" />                       
                     </p:selectOneMenu>  
 
-                    <h:selectBooleanCheckbox id="icbparent" label="Parent:"
-                    						value="#{requestManager.useParent}" />
+                    <h:outputLabel id="icbparent" value="Parent:" />
                     <p:selectOneMenu id="iparent" value="#{requestManager.newParent}">
                         <f:selectItems value="#{menuManager.parents}" var="prnt"
                                        itemLabel="#{prnt.name}" itemValue="#{prnt.id}" />                       

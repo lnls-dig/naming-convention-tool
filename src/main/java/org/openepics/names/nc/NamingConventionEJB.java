@@ -1,22 +1,18 @@
 package org.openepics.names.nc;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
-import javax.faces.context.FacesContext;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.servlet.ServletContext;
+import org.openepics.names.environment.NameCategories;
 
 import org.openepics.names.model.NCName;
 import org.openepics.names.model.NCName.NCNameStatus;
@@ -36,42 +32,6 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 
 	@PersistenceContext(unitName = "org.openepics.names.punit")
 	private EntityManager em;
-
-	private Properties categoryValues;
-
-	@PostConstruct
-	public void init() {
-		FacesContext fContext = FacesContext.getCurrentInstance();
-		ServletContext context = (ServletContext) fContext.getExternalContext().getContext();
-
-		// Set<String> paths = context.getResourcePaths("/WEB-INF");
-		// for (String path : paths) {
-		// logger.info(" * ** Path: " + path);
-		// }
-
-		// logger.info("Before try _ _ _ _ - - - - -");
-		categoryValues = new Properties();
-		try {
-			categoryValues.load(context.getResourceAsStream("/WEB-INF/catergories.properties"));
-			logger.info("categories loaded!!!!");
-			// for (Enumeration<Object> keys = categoryValues.keys();
-			// keys.hasMoreElements();) {
-			// String key = (String) keys.nextElement();
-			// logger.info(key + "::" + categoryValues.getProperty(key));
-			// }
-		} catch (IOException e) {
-			categoryValues.put("supersection", "SUP");
-			categoryValues.put("section", "SECT");
-			categoryValues.put("subsection", "SUB");
-			categoryValues.put("discipline", "DSCP");
-			categoryValues.put("category", "CAT");
-			categoryValues.put("genericDevice", "GDEV");
-			categoryValues.put("specificDevice", "SDEV");
-			categoryValues.put("signalType", "STYP");
-			categoryValues.put("signalInstance", "SINS");
-			categoryValues.put("additionalSignalDescription", "ADS");
-		}
-	}
 
 	@Override
 	public NCName createNCNameSignal(NameEvent subsection, NameEvent device, String deviceInstanceIndex, NameEvent signal,
@@ -130,10 +90,10 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 			NamingConventionEJBLocal.ESSNameConstructionMethod method) {
 
 		if (!((subsection.getStatus() == 'a')
-				&& subsection.getNameCategory().getName().equals(categoryValues.getProperty("subsection"))
+				&& subsection.getNameCategory().getName().equals(NameCategories.subsection())
 				&& (device.getStatus() == 'a') && (device.getNameCategory().getName()
-				.equals(categoryValues.getProperty("genericDevice")) || device.getNameCategory().getName()
-				.equals(categoryValues.getProperty("specificDevice")))))
+				.equals(NameCategories.genericDevice()) || device.getNameCategory().getName()
+				.equals(NameCategories.specificDevice()))))
 			return null;
 
 		NameSections nameSections = new NameSections();
@@ -145,7 +105,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		case ACCELERATOR:
 			// find the correct section name
 			section = subsection;
-			while (!section.getNameCategory().getName().equals(categoryValues.getProperty("section"))) {
+			while (!section.getNameCategory().getName().equals(NameCategories.section())) {
 				if (section.getParentName() == null)
 					return null; // validation failed
 				section = section.getParentName();
@@ -154,7 +114,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 
 			// find the correct discipline based on the device
 			NameEvent discipline = device;
-			while (!discipline.getNameCategory().getName().equals(categoryValues.getProperty("discipline"))) {
+			while (!discipline.getNameCategory().getName().equals(NameCategories.discipline())) {
 				if (discipline.getParentName() == null)
 					return null; // validation failed
 				discipline = discipline.getParentName();
@@ -163,7 +123,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 
 			// find the appropriate generic device name
 			genDevice = device;
-			while (!genDevice.getNameCategory().getName().equals(categoryValues.getProperty("genericDevice"))) {
+			while (!genDevice.getNameCategory().getName().equals(NameCategories.genericDevice())) {
 				if (genDevice.getParentName() == null)
 					return null; // validation failed
 				genDevice = genDevice.getParentName();
@@ -172,7 +132,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 			break;
 		case TARGET:
 			section = subsection;
-			while (!section.getNameCategory().getName().equals(categoryValues.getProperty("section"))) {
+			while (!section.getNameCategory().getName().equals(NameCategories.section())) {
 				if (section.getParentName() == null)
 					return null; // validation failed
 				section = section.getParentName();
@@ -183,7 +143,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 
 			// find the appropriate generic device name
 			genDevice = device;
-			while (!genDevice.getNameCategory().getName().equals(categoryValues.getProperty("genericDevice"))) {
+			while (!genDevice.getNameCategory().getName().equals(NameCategories.genericDevice())) {
 				if (genDevice.getParentName() == null)
 					return null; // validation failed
 				genDevice = genDevice.getParentName();
@@ -301,7 +261,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		TypedQuery<NameEvent> sectionQ = em.createNamedQuery("NameEvent.findByName", NameEvent.class);
 		sectionQ.setParameter("name", sectionName);
 		NameEvent section = sectionQ.getSingleResult();
-		if ((section.getStatus() != 'a') || !section.getNameCategory().getName().equals(categoryValues.getProperty("section")))
+		if ((section.getStatus() != 'a') || !section.getNameCategory().getName().equals(NameCategories.section()))
 			return false;
 
 		// checking whether discipline exists, is it approved and does its
@@ -313,9 +273,9 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		if (discipline.getStatus() != 'a')
 			return false;
 		else {
-			if (discipline.getNameCategory().getName().equals(categoryValues.getProperty("discipline")))
+			if (discipline.getNameCategory().getName().equals(NameCategories.discipline()))
 				method = ESSNameConstructionMethod.ACCELERATOR;
-			else if (discipline.getNameCategory().getName().equals(categoryValues.getProperty("subsection")))
+			else if (discipline.getNameCategory().getName().equals(NameCategories.subsection()))
 				method = ESSNameConstructionMethod.TARGET;
 			else
 				return false;
@@ -327,7 +287,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		deviceQ.setParameter("name", deviceName);
 		NameEvent genDevice = deviceQ.getSingleResult();
 		if ((genDevice.getStatus() != 'a')
-				|| !genDevice.getNameCategory().getName().equals(categoryValues.getProperty("genericDevice")))
+				|| !genDevice.getNameCategory().getName().equals(NameCategories.genericDevice()))
 			return false;
 
 		if (method == ESSNameConstructionMethod.ACCELERATOR && !isDeviceInstanceIndexValid(discipline, deviceQntf))
@@ -363,14 +323,14 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 			}
 
 			// BLED-NAM-034
-			if (category.getName().equals(categoryValues.getProperty("section"))
+			if (category.getName().equals(NameCategories.section())
 					||
 					// TODO D-type subsection missing
-					category.getName().equals(categoryValues.getProperty("discipline"))
-					|| category.getName().equals(categoryValues.getProperty("genericDevice"))
-					|| category.getName().equals(categoryValues.getProperty("specificDevice")) ||
+					category.getName().equals(NameCategories.discipline())
+					|| category.getName().equals(NameCategories.genericDevice())
+					|| category.getName().equals(NameCategories.specificDevice()) ||
 					// TODO A-type section qualifier
-					category.getName().equals(categoryValues.getProperty("signalType"))) {
+					category.getName().equals(NameCategories.signalType())) {
 				char c = namePart.charAt(0);
 				if (!(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z'))
 					return false;
@@ -381,20 +341,20 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 			TypedQuery<NameCategory> catQuery = em.createNamedQuery("NameCategory.findByName", NameCategory.class);
 
 			List<NameCategory> categories = new ArrayList<>();
-			if (category.getName().equals(categoryValues.getProperty("section"))
-					|| category.getName().equals(categoryValues.getProperty("discipline"))
-					|| category.getName().equals(categoryValues.getProperty("specificDevice"))) {
-				catQuery.setParameter("name", categoryValues.getProperty("section"));
+			if (category.getName().equals(NameCategories.section())
+					|| category.getName().equals(NameCategories.discipline())
+					|| category.getName().equals(NameCategories.specificDevice())) {
+				catQuery.setParameter("name", NameCategories.section());
 				categories.add(catQuery.getSingleResult());
-				catQuery.setParameter("name", categoryValues.getProperty("discipline"));
+				catQuery.setParameter("name", NameCategories.discipline());
 				categories.add(catQuery.getSingleResult());
-				catQuery.setParameter("name", categoryValues.getProperty("specificDevice"));
+				catQuery.setParameter("name", NameCategories.specificDevice());
 				categories.add(catQuery.getSingleResult());
-			} else if (category.getName().equals(categoryValues.getProperty("subsection"))
-					|| category.getName().equals(categoryValues.getProperty("genericDevice"))) {
-				catQuery.setParameter("name", categoryValues.getProperty("section"));
+			} else if (category.getName().equals(NameCategories.subsection())
+					|| category.getName().equals(NameCategories.genericDevice())) {
+				catQuery.setParameter("name", NameCategories.section());
 				categories.add(catQuery.getSingleResult());
-				catQuery.setParameter("name", categoryValues.getProperty("discipline"));
+				catQuery.setParameter("name", NameCategories.discipline());
 				categories.add(catQuery.getSingleResult());
 			} else {
 				categories.add(category);

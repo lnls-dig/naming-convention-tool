@@ -48,9 +48,9 @@ public class MenuManager implements Serializable {
 	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger("org.openepics.names");
 
-	private List<SelectItem> categories;
+	private List<NameCategory> categories;
 
-	private List<SelectItem> parents;
+	private List<NameEvent> parents;
 
 	private MenuModel model;
 
@@ -64,30 +64,24 @@ public class MenuManager implements Serializable {
 	private void init() {
 		model = new DefaultMenuModel();
 
-		categories = new ArrayList<SelectItem>();
-		List<NameCategory> lcategories = namesEJB.getCategories();
+		categories = namesEJB.getCategories();
 
-		for (NameCategory cat : lcategories) {
+		for (NameCategory cat : categories) {
 			MenuItem item = new MenuItem();
 			item.setId("_" + cat.getId());
 			item.setValue(cat.getName());
 			item.setUrl("/names.xhtml?category=" + cat.getId());
 			model.addMenuItem(item);
-			categories.add(new SelectItem(cat.getId(), cat.getName()));
 		}
 
-		parents = new ArrayList<SelectItem>();
-		List<NameEvent> names = namesEJB.getValidNames();
-		for (NameEvent name : names) {
-			parents.add(new SelectItem(name.getId(), name.getName()));
-		}
+		parents = namesEJB.getValidNames();
 	}
 
-	public List<SelectItem> getCategories() {
+	public List<NameCategory> getCategories() {
 		return categories;
 	}
 
-	public List<SelectItem> getParents() {
+	public List<NameEvent> getParents() {
 		return parents;
 	}
 

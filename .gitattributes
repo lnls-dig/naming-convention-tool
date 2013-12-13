@@ -40,6 +40,7 @@ src/main/java/org/openepics/names/ReportManager.java -text
 src/main/java/org/openepics/names/RequestManager.java -text
 src/main/java/org/openepics/names/RequestProcManager.java -text
 src/main/java/org/openepics/names/UserManager.java -text
+src/main/java/org/openepics/names/environment/NameCategories.java -text
 src/main/java/org/openepics/names/model/Configuration.java -text
 src/main/java/org/openepics/names/model/NCName.java -text
 src/main/java/org/openepics/names/model/NameCategory.java -text
@@ -61,7 +62,6 @@ src/main/resources/META-INF/persistence.xml -text
 src/main/resources/messages.properties -text
 src/main/setup/glassfish-resources.xml -text
 src/main/webapp/WEB-INF/beans.xml -text
-src/main/webapp/WEB-INF/catergories.properties -text
 src/main/webapp/WEB-INF/faces-config.xml -text
 src/main/webapp/WEB-INF/glassfish-resources.xml -text
 src/main/webapp/WEB-INF/glassfish-web.xml -text
