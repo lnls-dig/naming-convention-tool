@@ -108,7 +108,6 @@ public class RequestManager implements Serializable {
 
         try {
             logger.log(Level.INFO, "Modifying ");
-            logger.log(Level.INFO, "!_!_! "+selectedName);
             newRequest = namesEJB.createNewEvent(selectedName.getNameId(), newCode, newDescription, newCategory, newParent, 'm', newComment);
 //			newRequest = namesEJB.createNewEvent('m', selectedName.getName(), newCategory, newCode, newDescription, newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
@@ -135,8 +134,6 @@ public class RequestManager implements Serializable {
                 newParent = null;
             }
 			newRequest = namesEJB.createNewEvent("", newCode, newDescription, newCategory, newParent, 'i', newComment);
-//			newRequest = namesEJB.createNewEvent('i', "", newCategory, newCode,
-//					newDescription, newComment);
 			showMessage(FacesMessage.SEVERITY_INFO,
 					"Your request was successfully submitted.",
 					"Request Number: " + newRequest.getId());
@@ -167,11 +164,9 @@ public class RequestManager implements Serializable {
 			}
 
 			logger.log(Level.INFO, "Deleting ");
-			newRequest = namesEJB.createNewEvent(selectedName.getNameId(), selectedName.getName(), selectedName.getFullName(), selectedName.getNameCategory().getId(), selectedName.getParentName().getId(), 'd', newComment);
-//			newRequest = namesEJB.createNewEvent('d', selectedName.getName(),
-//					selectedName.getNameCategory().getId(),
-//					selectedName.getName(), selectedName.getFullName(),
-//					newComment);
+			Integer categoryID = selectedName.getNameCategory() == null ? null : selectedName.getNameCategory().getId(); 
+			Integer parentID = selectedName.getParentName() == null ? null : selectedName.getParentName().getId(); 
+			newRequest = namesEJB.createNewEvent(selectedName.getNameId(), selectedName.getName(), selectedName.getFullName(), categoryID, parentID, 'd', newComment);
 			showMessage(FacesMessage.SEVERITY_INFO,
 					"Your request was successfully submitted.",
 					"Request Number: " + newRequest.getId());

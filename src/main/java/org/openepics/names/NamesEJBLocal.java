@@ -42,7 +42,7 @@ public interface NamesEJBLocal {
 			throws Exception;
 
 	public NameEvent createNewEvent(String nameId, String name, String fullName,
-			int nameCategoryID, int parentNameID, char eventType,
+			Integer nameCategoryID, Integer parentNameID, char eventType,
 			String comment) throws Exception;
 
 	public List<NameEvent> getUnprocessedEvents();

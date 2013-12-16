@@ -64,7 +64,7 @@ public class NamesEJB implements NamesEJBLocal {
      * @author Vasu V <vuppala@frib.msu.org>
      */
     @Override
-    public NameEvent createNewEvent(String nameId, String name, String fullName, int nameCategoryID, int parentNameID, char eventType, String comment) throws Exception {
+    public NameEvent createNewEvent(String nameId, String name, String fullName, Integer nameCategoryID, Integer parentNameID, char eventType, String comment) throws Exception {
         logger.log(Level.INFO, "creating...");
         Date curdate = new Date();
 
@@ -75,9 +75,10 @@ public class NamesEJB implements NamesEJBLocal {
         if (!userManager.isLoggedIn()) {
             throw new Exception("You are not authorized to perform this operation.");
         }
-        //NameCategory ncat = new NameCategory(category, category,0);
-        NameCategory ncat;
-        ncat = em.find(NameCategory.class, nameCategoryID);
+        
+        NameCategory ncat = null;
+        if(nameCategoryID != null)
+        	ncat = em.find(NameCategory.class, nameCategoryID);
         if (ncat == null) {
             logger.log(Level.SEVERE, "Invalid categroy: " + nameCategoryID);
             return null;
