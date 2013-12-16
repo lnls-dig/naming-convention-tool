@@ -111,6 +111,7 @@ public class NamesEJB implements NamesEJBLocal {
 			throw new Exception("You are not authorized to perform this operation.");
 		}
 		newRelease.setReleaseDate(new Date());
+		newRelease.setReleasedBy(userManager.getUser());
 		// logger.log(Level.INFO, "set properties...");
 		em.persist(newRelease);
 		logger.log(Level.INFO, "published new release ...");

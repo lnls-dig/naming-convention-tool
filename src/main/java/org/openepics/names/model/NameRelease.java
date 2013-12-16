@@ -21,6 +21,8 @@ import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
@@ -66,6 +68,10 @@ public class NameRelease implements Serializable {
     @Column(name = "release_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date releaseDate;
+    
+    @JoinColumn(name = "released_by", referencedColumnName = "id")
+	@ManyToOne(optional = false)
+    private Privilege releasedBy;
     
     @Basic(optional = false)
     @NotNull
@@ -114,6 +120,14 @@ public class NameRelease implements Serializable {
 
     public void setReleaseDate(Date releaseDate) {
         this.releaseDate = releaseDate;
+    }
+    
+    public Privilege getReleasedBy() {
+    	return releasedBy;
+    }
+    
+    public void setReleasedBy(Privilege releasedBy) {
+    	this.releasedBy = releasedBy;
     }
 
     public int getVersion() {

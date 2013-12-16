@@ -126,9 +126,11 @@ CREATE TABLE IF NOT EXISTS `name_release` (
   `description` varchar(255) NOT NULL,
   `doc_url` varchar(255) DEFAULT NULL,
   `release_date` datetime NOT NULL,
-  `released_by` varchar(64) NOT NULL,
+  `released_by` int(10) unsigned NOT NULL,
   `version` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `FK_released_by_privilege_id` (`released_by`),
+  CONSTRAINT `FK_released_by_privilege_id` FOREIGN KEY (`released_by`) REFERENCES `privilege` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=cp1250 COMMENT='Each row is a naming system release';
 
 -- Dumping data for table discs_names.name_release: ~0 rows (approximately)
