@@ -24,8 +24,8 @@ docs/Names-Design-v2.3.docx -text
 docs/Names-Design-v2.3.pdf -text
 docs/Names-Installation-v2.3.pdf -text
 docs/Names-Installation-v2.4.docx -text
-docs/naming[!!-~]devenv.odt -text
-docs/naming[!!-~]devenv.pdf -text
+docs/Names-devenv-instructions.odt -text
+docs/Names-devenv-instructions.pdf -text
 /faces-config.NavData -text
 /nb-configuration.xml -text
 /pom.xml -text
