@@ -46,8 +46,16 @@
                         <p:menuButton model="#{menuManager.model}"  value="#{msgs.nameElementCategory}"/>                      
                     </f:facet>
                     <h:outputText value="#{stdname.nameCategory.name}" /> 
-                    
                 </p:column>
+                
+                <p:column id="parentName" headerText="Parent" sortBy="#{stdname.parentName.name}"
+                          filterBy="#{stdname.parentName.name}"
+                          filterMatchMode="startsWith" style="width: 15%" >                  
+                    <h:outputText value="#{stdname.parentName.name == null ? '-' : stdname.parentName.name}" />
+                                    
+                </p:column>              
+
+                
                 <p:column id="nameCode" headerText="Name" sortBy="#{stdname.name}"
                           filterBy="#{stdname.name}"
                           filterMatchMode="startsWith" style="width: 15%" >                  
