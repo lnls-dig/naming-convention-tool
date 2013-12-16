@@ -215,12 +215,12 @@
                         </p:column>
                     </p:row>
                     <p:row>
-                        <p:column><h:outputLabel for="mcode" value="Code:"  /> </p:column>
+                        <p:column><h:outputLabel for="mcode" value="Name:" /> </p:column>
                         <p:column><h:outputText value="#{requestManager.selectedName.name}" /></p:column>
                         <p:column><p:inputText id="mcode" value="#{requestManager.newCode}" required="true" /></p:column>
                     </p:row>
                     <p:row>
-                        <p:column><h:outputLabel for="mdesc" value="Description:" /></p:column>
+                        <p:column><h:outputLabel for="mdesc" value="Full name:" /></p:column>
                         <p:column><h:outputText value="#{requestManager.selectedName.fullName}"/></p:column>
                         <p:column><p:inputTextarea id="mdesc" rows="4" cols="40" 
                                                    value="#{requestManager.newDescription}" 
@@ -244,11 +244,11 @@
                 <p:watermark for="mcomm" value="Why do you want to change this name?" />
                 <p:separator />
 
-                <p:commandButton value="Submit" style="float: right"
+                <p:commandButton value="Submit" style="float: left"
                                  update=":ReqSubForm"                               
                                  oncomplete="modName.hide()"  
                                  action="#{requestManager.onModify()}"/> 
-                <p:commandButton  value="Cancel" style="float: left"
+                <p:commandButton  value="Cancel" style="float: right"
                                   onclick="modName.hide()"  />  
             </p:dialog>
         </h:form>
@@ -263,10 +263,10 @@
                     <h:outputText  value="Category:" />
                     <h:outputText value="#{requestManager.selectedName.nameCategory.name}" />
 
-                    <h:outputText value="Code:" />    
+                    <h:outputText value="Name:" />    
                     <h:outputText value="#{requestManager.selectedName.name}" />
 
-                    <h:outputText value="Description:" />
+                    <h:outputText value="Full name:" />
                     <h:outputText value="#{requestManager.selectedName.fullName}"/>
 
                     <h:outputLabel for="dcomm" value="Comment:" /> 
