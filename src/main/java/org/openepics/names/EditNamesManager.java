@@ -268,6 +268,42 @@ public class EditNamesManager implements Serializable {
 		}
 	}
 	
+	public String getSelectedNCNameSectionString() {
+		if(selectedNCName != null) {
+			NameEvent bottomName = selectedNCName.getSection();
+			String sectionString = "";
+			boolean firstTime = true;
+			while(bottomName != null) {
+				if(firstTime)
+					firstTime = false;
+				else
+					sectionString = " - "+sectionString;
+				sectionString = bottomName.getFullName()+sectionString;
+				bottomName = bottomName.getParentName();
+			}
+			return sectionString.trim();
+		}
+		return "No selection!";
+	}
+	
+	public String getSelectedNCNameDisciplineString() {
+		if(selectedNCName != null) {
+			NameEvent bottomName = selectedNCName.getDiscipline();
+			String disciplineString = "";
+			boolean firstTime = true;
+			while(bottomName != null) {
+				if(firstTime)
+					firstTime = false;
+				else
+					disciplineString = " - "+disciplineString;
+				disciplineString = bottomName.getFullName()+disciplineString;
+				bottomName = bottomName.getParentName();
+			}
+			return disciplineString.trim();
+		}
+		return "No selection!";
+	}
+	
 	public void loadSelectedName() {
 		if(selectedNCName != null) {
 			Map<String, Integer> namePartMap = new HashMap<String, Integer>();

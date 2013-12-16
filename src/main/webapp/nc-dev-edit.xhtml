@@ -8,9 +8,9 @@
 	xmlns:h="http://java.sun.com/jsf/html">
 
 	<ui:define name="content">
-		<h:outputText value="You must first login to perform this action."
-			rendered="#{not userManager.loggedIn}" />
-		<h:form id="ManageNameForm" rendered="#{userManager.loggedIn}">
+		<h:outputText value="You must be a device editor to perform this action."
+			rendered="#{not userManager.editor}" />
+		<h:form id="ManageNameForm" rendered="#{userManager.editor}">
 			<p:growl id="ncRequestMsgs" showDetail="true" sticky="false"
 				life="30000" />
 
@@ -268,6 +268,14 @@
 						</p:column>
 					</p:row>
 					<p:row>
+						<p:column colspan="1">
+							Current values:
+						</p:column>
+						<p:column colspan="3">
+							<h:outputText value="#{editNamesManager.getSelectedNCNameSectionString()}" />
+						</p:column>
+					</p:row>
+					<p:row>
 						<p:column style="width: 128px">
 							<p:selectOneMenu id="misup"
 								value="#{editNamesManager.superSectionID}">
@@ -299,6 +307,14 @@
 					<p:row>
 						<p:column colspan="4">
 							What is this device?
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column colspan="1">
+							Current values:
+						</p:column>
+						<p:column colspan="3">
+							<h:outputText value="#{editNamesManager.getSelectedNCNameDisciplineString()}" />
 						</p:column>
 					</p:row>
 					<p:row>

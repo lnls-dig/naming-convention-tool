@@ -9,8 +9,8 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 >
     <ui:define name="content">
-        <h:outputText value="You must first login to perform this action." rendered="#{not userManager.loggedIn}" />
-        <h:form id="ReqSubForm" rendered="#{userManager.loggedIn}"> 
+        <h:outputText value="You must be a device editor to perform this action." rendered="#{not userManager.editor}" />
+        <h:form id="ReqSubForm" rendered="#{userManager.editor}"> 
             <p:growl id="requestMsgs" showDetail="true" sticky="false"  life="30000" />
 
             <!-- =================== Menus      ============================ -->

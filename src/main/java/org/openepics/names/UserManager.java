@@ -46,9 +46,10 @@ public class UserManager implements Serializable {
 	@SuppressWarnings("unused")
 	private static final Logger logger = Logger
 			.getLogger("org.openepics.names");
-	private Privilege User;
+	private Privilege user;
 	private boolean loggedIn = false;
 	private boolean editor = false;
+	private boolean superUser = false;
 
 	// TODO is this correctly here?
 	@PersistenceContext(unitName = "org.openepics.names.punit")
@@ -64,18 +65,20 @@ public class UserManager implements Serializable {
 		Principal principal = FacesContext.getCurrentInstance()
 				.getExternalContext().getUserPrincipal();
 		if (principal == null) {
-			User = new Privilege();
+			user = new Privilege();
 			loggedIn = false;
 			editor = false;
+			superUser = false;
 		} else {
 			TypedQuery<Privilege> query = em.createQuery(
 					"SELECT p FROM Privilege p WHERE p.username = :username",
 					Privilege.class).setParameter("username",
 					principal.getName());
 			List<Privilege> users = query.getResultList();
-			User = users.get(0);
+			user = users.get(0);
 			loggedIn = true;
-			editor = namesEJB.isEditor(User);
+			editor = namesEJB.isEditor(user);
+			superUser = namesEJB.isSuperUser(user);
 		}
 	}
 
@@ -96,11 +99,11 @@ public class UserManager implements Serializable {
 	 * 
 	 * request.login(this.inputUserID, this.inputPassword); inputPassword =
 	 * "xxxxxxxx"; //TODO implement a better way destroy the password (from JVM)
-	 * loggedIn = true; User = inputUserID; editor = namesEJB.isEditor(User);
+	 * loggedIn = true; user = inputUserID; editor = namesEJB.isEditor(user);
 	 * showMessage(FacesMessage.SEVERITY_INFO,
 	 * "You are logged in. Welcome to Proteus.", inputUserID);
 	 * context.getExternalContext().redirect(originalURL); } catch
-	 * (ServletException e) { Ticket = null; loggedIn = false; User = null;
+	 * (ServletException e) { Ticket = null; loggedIn = false; user = null;
 	 * editor = false; showMessage(FacesMessage.SEVERITY_ERROR,
 	 * "Login Failed! Please try again. ", "Status: ");
 	 * 
@@ -119,7 +122,7 @@ public class UserManager implements Serializable {
 	 */
 
 	public Privilege getUser() {
-		return User;
+		return user;
 	}
 
 	public boolean isLoggedIn() {
@@ -128,6 +131,10 @@ public class UserManager implements Serializable {
 
 	public boolean isEditor() {
 		return editor;
+	}
+	
+	public boolean isSuperUser() {
+		return superUser;
 	}
 
 	// TODO: Move it to a common utility class

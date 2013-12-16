@@ -8,8 +8,8 @@
                 >
 
     <ui:define name="content">
-        <h:outputText value="Sorry, you are not authorized to perform this action." rendered="#{not userManager.editor}" />
-        <h:form id="publishForm" rendered="#{userManager.editor}"> 
+        <h:outputText value="Sorry, you are not authorized to perform this action." rendered="#{not userManager.superUser}" />
+        <h:form id="publishForm" rendered="#{userManager.superUser}"> 
 
             <p:menu id="reqMenu" styleClass="fixedPosition box"  style="width: 8%" >
                 <p:submenu label="Publish">                                          

@@ -20,18 +20,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import org.openepics.names.environment.NameCategories;
 
+import org.openepics.names.environment.NameCategories;
 import org.openepics.names.model.NameEvent;
 
 /**
@@ -109,6 +108,7 @@ public class RequestManager implements Serializable {
 
         try {
             logger.log(Level.INFO, "Modifying ");
+            logger.log(Level.INFO, "!_!_! "+selectedName);
             newRequest = namesEJB.createNewEvent(selectedName.getNameId(), newCode, newDescription, newCategory, newParent, 'm', newComment);
 //			newRequest = namesEJB.createNewEvent('m', selectedName.getName(), newCategory, newCode, newDescription, newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());

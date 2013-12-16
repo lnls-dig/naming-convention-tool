@@ -23,17 +23,17 @@
 			<p:submenu label="Name Parts" icon="ui-icon-comment">
 				<p:menuitem value="Submit Request" title="Submit a Change Request"
 					url="parts-request-sub.xhtml" icon="ui-icon-suitcase"
-					disabled="#{not userManager.loggedIn}" />
+					disabled="#{not userManager.editor}" />
 				<p:menuitem value="My Requests"
 					title="Check status of your requests"
 					url="parts-request-sub.xhtml?option=user" icon="ui-icon-comment"
-					disabled="#{not userManager.loggedIn}" />
+					disabled="#{not userManager.editor}" />
 			</p:submenu>
 
 			<p:submenu label="NC Names" icon="ui-icon-comment">
 				<p:menuitem value="Manage Devices" title="Manage Device NC Names"
 					url="nc-dev-edit.xhtml" icon="ui-icon-suitcase"
-					disabled="#{not userManager.loggedIn}" />
+					disabled="#{not userManager.editor}" />
 					<p:menuitem value="Manage Signals" title="Manage Signal NC Names"
 					url="nc-sig-edit.xhtml" icon="ui-icon-suitcase"
 					disabled="true" />
@@ -47,11 +47,11 @@
 			<p:submenu label="Admin" icon="ui-icon-note">
 				<p:menuitem value="Process Requests" title="Accept/Reject Requests"
 					url="parts-request-proc.xhtml" icon="ui-icon-wrench"
-					disabled="#{not userManager.editor}" />
+					disabled="#{not userManager.superUser}" />
 				<p:menuitem value="Publish Names"
 					title="Release a new version of Naming Convention"
 					url="publish.xhtml" icon="ui-icon-note"
-					disabled="#{not userManager.editor}" />
+					disabled="#{not userManager.superUser}" />
 			</p:submenu>
 
 			<p:menuitem value="Preferences" title="Preferences"

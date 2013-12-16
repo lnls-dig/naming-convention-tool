@@ -8,8 +8,8 @@
                 >
 
     <ui:define name="content">
-        <h:outputText value="Sorry, you are not authorized to perform this operation." rendered="#{not userManager.editor}" />
-        <h:form id="requestForm" rendered="#{userManager.editor}"> 
+        <h:outputText value="Sorry, you are not authorized to perform this operation." rendered="#{not userManager.superUser}" />
+        <h:form id="requestForm" rendered="#{userManager.superUser}"> 
             <p:panelGrid style="position:fixed" styleClass="noBorders"  rendered="false">
                 <p:row>
                     <p:column>

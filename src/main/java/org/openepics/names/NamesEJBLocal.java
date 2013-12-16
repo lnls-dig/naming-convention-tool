@@ -34,6 +34,8 @@ import org.openepics.names.model.Privilege;
 public interface NamesEJBLocal {
 	public boolean isEditor(Privilege user);
 
+	public boolean isSuperUser(Privilege user);
+
 	public List<NameEvent> getAllEvents();
 
 	public void processEvents(NameEvent[] nevents, char status, String comment)

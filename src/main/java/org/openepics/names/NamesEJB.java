@@ -451,7 +451,20 @@ public class NamesEJB implements NamesEJBLocal {
 	// TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public boolean isEditor(Privilege user) {
 		if (user != null) {
-			return "E".equals(user.getOperation());
+			return "E".equalsIgnoreCase(user.getOperation()) || "S".equalsIgnoreCase(user.getOperation());
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Is the current user an Editor?
+	 */
+	@Override
+	// TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	public boolean isSuperUser(Privilege user) {
+		if (user != null) {
+			return "S".equalsIgnoreCase(user.getOperation());
 		} else {
 			return false;
 		}

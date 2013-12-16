@@ -340,7 +340,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 			// checked
 			TypedQuery<NameCategory> catQuery = em.createNamedQuery("NameCategory.findByName", NameCategory.class);
 
-			List<NameCategory> categories = new ArrayList<>();
+			List<NameCategory> categories = new ArrayList<NameCategory>();
 			if (category.getName().equals(NameCategories.section())
 					|| category.getName().equals(NameCategories.discipline())
 					|| category.getName().equals(NameCategories.specificDevice())) {
