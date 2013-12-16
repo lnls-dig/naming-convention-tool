@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS `NC_name` (
   `section_id` int(10) unsigned NOT NULL,
   `discipline_id` int(10) unsigned NOT NULL,
   `signal_id` int(10) unsigned DEFAULT NULL,
-  `instance_index` char(1) DEFAULT NULL,
+  `instance_index` varchar(10) DEFAULT NULL,
   `name` varchar(32) NOT NULL,
   `status` varchar(16) NOT NULL DEFAULT 'invalid',
   `version` int(10) unsigned zerofill NOT NULL DEFAULT '0000000001',
