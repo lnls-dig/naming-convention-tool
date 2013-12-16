@@ -78,6 +78,10 @@
                           filterMatchMode="startsWith" style="width: 15%" >                  
                     <h:outputText value="#{nevent.name}" />                              
                 </p:column>              
+                <p:column id="parent" headerText="Parent Name" filterBy="#{nevent.parentName.name}"
+                          filterMatchMode="startsWith" style="width: 15%" >                  
+                    <h:outputText value="#{nevent.parentName.name == null ? '-' : nevent.parentName.name}" />                              
+                </p:column>              
                 <p:column id="nameDesc" headerText="Full Name" filterBy="#{nevent.fullName}"
                           filterMatchMode="contains" >                  
                     <h:outputText value="#{nevent.fullName}" />                              

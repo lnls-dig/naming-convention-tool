@@ -48,7 +48,7 @@
                     <h:outputText value="#{stdname.nameCategory.name}" /> 
                 </p:column>
                 
-                <p:column id="parentName" headerText="Parent" sortBy="#{stdname.parentName.name}"
+                <p:column id="parentName" headerText="Parent name" sortBy="#{stdname.parentName.name}"
                           filterBy="#{stdname.parentName.name}"
                           filterMatchMode="startsWith" style="width: 15%" >                  
                     <h:outputText value="#{stdname.parentName.name == null ? '-' : stdname.parentName.name}" />
