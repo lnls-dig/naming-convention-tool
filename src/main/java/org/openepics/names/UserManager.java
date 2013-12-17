@@ -122,7 +122,7 @@ public class UserManager implements Serializable {
 	 */
 
 	public Privilege getUser() {
-		return user;
+		return user != null ? em.find(Privilege.class, user.getId()) : null;
 	}
 
 	public boolean isLoggedIn() {
