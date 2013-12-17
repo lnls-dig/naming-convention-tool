@@ -29,6 +29,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 
 import org.openepics.names.model.NameEvent;
+import org.openepics.names.model.NameRelease;
 
 /**
  * Manages naming events.
@@ -102,50 +103,23 @@ public class NamesManager implements Serializable {
 		}
 	}
 
-	/*
-	 * returns a names status
-	 */
 	public String nameStatus(NameEvent nreq) {
-		String stat = "unknown";
-
-		// Published: processed before the latest release, approved, and not a
-		// deletion request
-		if (nreq.getProcessDate() != null
-				&& nreq.getProcessDate().before(
-						pubManager.getLatestRelease().getReleaseDate())
-				&& nreq.getStatus() == 'a' && nreq.getEventType() != 'd') {
-			return "Published";
-		}
-
 		switch (nreq.getStatus()) {
-		case 'p':
-			stat = "In-Process";
-			break;
-		case 'c': // cancelled
-			stat = "Cancelled";
-			break;
-		case 'r': // rejected
-			stat = "Rejected";
-			break;
-		case 'a': // approved
-			switch (nreq.getEventType()) {
-			case 'i': // add
-				stat = "Added";
-				break;
-			case 'm': // modify
-				stat = "Modified";
-				break;
-			case 'd': // delete
-				stat = "Deleted";
-				break;
-			default:
-				stat = "unknown";
-				break;
-			}
-			break;
+			case 'p': return "In-Process";
+			case 'c': return "Cancelled";
+			case 'r': return "Rejected";
+			case 'a': // approved
+				final NameRelease latestRelease = pubManager.getLatestRelease();
+				final boolean processedBeforeLatestRelease = latestRelease != null && nreq.getProcessDate() != null && nreq.getProcessDate().before(latestRelease.getReleaseDate());
+				switch (nreq.getEventType()) {
+				case 'i': return processedBeforeLatestRelease ? "Published" : "Added";
+				case 'm': return processedBeforeLatestRelease ? "Publisher" : "Modified";
+				case 'd': return "Deleted";
+				default:
+					return "unknown";
+				}
+			default: return "unknown";
 		}
-
-		return stat;
 	}
 
 	private void showMessage(FacesMessage.Severity severity, String summary,
