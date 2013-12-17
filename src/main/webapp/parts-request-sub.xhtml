@@ -158,7 +158,7 @@
                                        itemLabel="#{acat.name}" itemValue="#{acat.id}" />                       
                     </p:selectOneMenu>  
 
-                    <h:outputLabel id="icbparent" value="Parent:" />
+                    <h:outputLabel for="iparent" value="Parent:" />
                     <p:selectOneMenu id="iparent" value="#{requestManager.newParent}">
                         <f:selectItems value="#{menuManager.parents}" var="prnt"
                                        itemLabel="#{prnt.name}" itemValue="#{prnt.id}" />                       

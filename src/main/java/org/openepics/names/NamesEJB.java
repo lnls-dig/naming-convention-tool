@@ -83,6 +83,11 @@ public class NamesEJB implements NamesEJBLocal {
             logger.log(Level.SEVERE, "Invalid categroy: " + nameCategoryID);
             return null;
         }
+        
+        NameEvent parent = null;
+        if(parentNameID != null)
+            parent = em.find(NameEvent.class, parentNameID);
+        
         NameEvent mEvent = new NameEvent(eventType, userManager.getUser(), curdate, 'p', name, fullName, 0);
         logger.log(Level.INFO, "new created:" + name + ":" + fullName);
         if (eventType == 'i') { // initiation/insert. 
@@ -92,6 +97,8 @@ public class NamesEJB implements NamesEJBLocal {
         mEvent.setRequestorComment(comment);
         mEvent.setNameCategory(ncat);
         mEvent.setNameId(nameId);
+        if(parent != null)
+            mEvent.setParentName(parent);
         logger.log(Level.INFO, "set properties...");
         em.persist(mEvent);
         logger.log(Level.INFO, "persisted...");
