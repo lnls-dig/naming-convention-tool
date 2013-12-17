@@ -66,11 +66,19 @@ public class MenuManager implements Serializable {
 
 		categories = namesEJB.getCategories();
 
+        MenuItem item = new MenuItem();
+        item.setId("__" );
+		item.setValue("All");
+		item.setUrl("/names.xhtml");
+        item.setStyle("font-style: italic");
+		model.addMenuItem(item);
+        
+        
 		for (NameCategory cat : categories) {
-			MenuItem item = new MenuItem();
+			item = new MenuItem();
 			item.setId("_" + cat.getId());
 			item.setValue(cat.getName());
-			item.setUrl("/names.xhtml?category=" + cat.getId());
+			item.setUrl("/names.xhtml?category=" + cat.getName());
 			model.addMenuItem(item);
 		}
 
