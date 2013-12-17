@@ -10,8 +10,8 @@
             max-pool-size="5"
             steady-pool-size="0"
             statement-timeout-in-seconds="30" >
-        <property name="User" value="discs_names"></property>
-        <property name="Password" value="discs_names"></property>
+        <property name="User" value="root"></property>
+        <property name="Password" value="root12"></property>
         <property name="portNumber" value="3306"></property>
         <property name="dataBaseName" value="discs_names"></property>
         <property name="serverName" value="localhost"></property>

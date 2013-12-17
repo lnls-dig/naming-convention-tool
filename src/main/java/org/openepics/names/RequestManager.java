@@ -16,6 +16,7 @@
 package org.openepics.names;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 
 import org.openepics.names.environment.NameCategories;
+import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
 
 /**
@@ -54,14 +56,14 @@ public class RequestManager implements Serializable {
 										// i.e. 'option' param is 'user'
 	private String option = null; // option parameter
 	// Input parameters from input page
-	private Integer newCategory;
-	private Integer newParent;
+	private Integer newCategoryID;
+	private Integer newParentID;
 	private String newCode;
 	private String newDescription;
 	private String newComment;
 	private static final Map<String, String> requestTypeNames;
 	
-	private boolean useParent;
+	private List<NameEvent> parentCandidates;
     
 	static {
 		Map<String, String> map = new HashMap<String, String>();
@@ -95,7 +97,7 @@ public class RequestManager implements Serializable {
 				myRequest = true;
 			}
 			newCode = newDescription = newComment = null;
-			newCategory = newParent = null;
+			newCategoryID = newParentID = null;
 			selectedName = (validNames == null || validNames.size() == 0) ? null : validNames.get(0);
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Could not initialize Request Manager.");
@@ -108,8 +110,8 @@ public class RequestManager implements Serializable {
 
         try {
             logger.log(Level.INFO, "Modifying ");
-            newRequest = namesEJB.createNewEvent(selectedName.getNameId(), newCode, newDescription, newCategory, newParent, 'm', newComment);
-//			newRequest = namesEJB.createNewEvent('m', selectedName.getName(), newCategory, newCode, newDescription, newComment);
+            newRequest = namesEJB.createNewEvent(selectedName.getNameId(), newCode, newDescription, newCategoryID, newParentID, 'm', newComment);
+//			newRequest = namesEJB.createNewEvent('m', selectedName.getName(), newCategoryID, newCode, newDescription, newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } catch (Exception e) {
             showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error", e.getMessage());
@@ -127,13 +129,13 @@ public class RequestManager implements Serializable {
 			if (newCode == null || newCode.isEmpty()) {
 				showMessage(FacesMessage.SEVERITY_ERROR, "Code is empty", " ");
 			}
-            String newCategoryName = namesEJB.findEventById(newCategory).getName();
+            String newCategoryName = namesEJB.findEventById(newCategoryID).getName();
             if(newCategoryName.equals(NameCategories.supersection()) || 
                     newCategoryName.equals(NameCategories.discipline()) || 
                     newCategoryName.equals(NameCategories.signalType())) {
-                newParent = null;
+                newParentID = null;
             }
-			newRequest = namesEJB.createNewEvent("", newCode, newDescription, newCategory, newParent, 'i', newComment);
+			newRequest = namesEJB.createNewEvent("", newCode, newDescription, newCategoryID, newParentID, 'i', newComment);
 			showMessage(FacesMessage.SEVERITY_INFO,
 					"Your request was successfully submitted.",
 					"Request Number: " + newRequest.getId());
@@ -264,20 +266,20 @@ public class RequestManager implements Serializable {
 		this.filteredNames = filteredNames;
 	}
 
-	public Integer getNewCategory() {
-		return newCategory;
+	public Integer getNewCategoryID() {
+		return newCategoryID;
 	}
 
-	public void setNewCategory(Integer newCategory) {
-		this.newCategory = newCategory;
+	public void setNewCategoryID(Integer newCategoryID) {
+		this.newCategoryID = newCategoryID;
 	}
 	
-	public Integer getNewParent() {
-		return newParent;
+	public Integer getNewParentID() {
+		return newParentID;
 	}
 	
-	public void setNewParent(Integer newParent) {
-		this.newParent = newParent;
+	public void setNewParentID(Integer newParentID) {
+		this.newParentID = newParentID;
 	}
 
 	public String getNewCode() {
@@ -312,11 +314,58 @@ public class RequestManager implements Serializable {
 		return historyEvents;
 	}
 
-	public boolean isUseParent() {
-		return useParent;
+	public List<NameEvent> getParentCandidates() {
+		return parentCandidates;
 	}
 
-	public void setUseParent(boolean useParent) {
-		this.useParent = useParent;
+	public void setParentCandidates(List<NameEvent> parentCandidates) {
+		this.parentCandidates = parentCandidates;
+	}
+	
+	public void loadParentCandidates() {
+		if(newCategoryID != null) {
+			NameCategory category = namesEJB.findCategoryById(newCategoryID);
+			if(category != null) {
+				String parentCategoryName = null;
+				if(category.getName().equalsIgnoreCase(NameCategories.supersection())) {
+					setParentCandidates(new ArrayList<NameEvent>());
+				} else if(category.getName().equalsIgnoreCase(NameCategories.discipline())) {
+					setParentCandidates(new ArrayList<NameEvent>());
+				} else if(category.getName().equalsIgnoreCase(NameCategories.section())) {
+					parentCategoryName = NameCategories.supersection();
+				} else if(category.getName().equalsIgnoreCase(NameCategories.subsection())) {
+					parentCategoryName = NameCategories.section();
+				} else if(category.getName().equalsIgnoreCase(NameCategories.category())) {
+					parentCategoryName = NameCategories.discipline();
+				} else if(category.getName().equalsIgnoreCase(NameCategories.genericDevice())) {
+					parentCategoryName = NameCategories.category();
+				} else if(category.getName().equalsIgnoreCase(NameCategories.specificDevice())) {
+					parentCategoryName = NameCategories.genericDevice();
+				}
+				
+				if(parentCategoryName != null) {
+					List<NameCategory> categories = namesEJB.getCategories();
+					for(NameCategory parentCategory : categories)
+						if(parentCategory.getName().equalsIgnoreCase(parentCategoryName))
+							setParentCandidates(namesEJB.findEventsByCategory(parentCategory));
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Returns <code>true</code> if the <code>newCategoryID</code> value is referring to a category,
+	 * that 
+	 * @return
+	 */
+	public boolean isParentSelectable() {
+		if(newCategoryID == null)
+			return false;
+		NameCategory category = namesEJB.findCategoryById(newCategoryID);
+		if(category.getName().equalsIgnoreCase(NameCategories.supersection()))
+			return false;
+		if(category.getName().equalsIgnoreCase(NameCategories.discipline()))
+			return false;
+		return true;
 	}
 }

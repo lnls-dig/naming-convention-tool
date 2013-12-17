@@ -76,6 +76,8 @@ public interface NamesEJBLocal {
 	// public AuthResponse authenticate(String userid, String password) throws
 	// Exception;
 	public List<NameCategory> getCategories();
+	
+	public NameCategory findCategoryById(Integer id);
 
 	List<NameEvent> findEventsByCategory(NameCategory category);
 }

@@ -387,6 +387,9 @@ public class NamesEJB implements NamesEJBLocal {
 		return nameEvents;
 	}
 
+	/**
+	 * Finds a {@link NameEvent} with the specified ID.
+	 */
 	@Override
 	public NameEvent findEventById(Integer id) {
 		return em.find(NameEvent.class, id);
@@ -493,6 +496,14 @@ public class NamesEJB implements NamesEJBLocal {
 		logger.log(Level.INFO, "Total number of categories: " + cats.size());
 
 		return cats;
+	}
+	
+	/**
+	 * Finds a {@link NameCategory} with the specified ID.
+	 */
+	@Override
+	public NameCategory findCategoryById(Integer categoryID) {
+		return em.find(NameCategory.class, categoryID);
 	}
 
 	/*
