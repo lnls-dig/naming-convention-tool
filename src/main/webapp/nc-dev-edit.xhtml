@@ -179,26 +179,26 @@
 								value="#{editNamesManager.superSectionID}">
 								<p:ajax listener="#{editNamesManager.loadSections()}"
 									update="aisec aisub ibsub" />
-                                <f:selectItem itemLabel="Select..." noSelectionOption="true" itemDisabled="true"/>
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
 								<f:selectItems value="#{editNamesManager.superSectionNames}"
 									var="asup" itemLabel="#{asup.fullName}" itemValue="#{asup.id}" />
 							</p:selectOneMenu>
 						</p:column>
 						<p:column style="width: 128px">
 							<p:selectOneMenu id="aisec"
-								value="#{editNamesManager.sectionID}"
-								disabled="#{!editNamesManager.isSupserSectionSelected()}">
+								value="#{editNamesManager.sectionID}">
 								<p:ajax listener="#{editNamesManager.loadSubsections()}"
 									update="aisub ibsub" />
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
 								<f:selectItems value="#{editNamesManager.sectionNames}"
 									var="asec" itemLabel="#{asec.fullName}" itemValue="#{asec.id}" />
 							</p:selectOneMenu>
 						</p:column>
 						<p:column style="width: 128px">
 							<p:selectOneMenu id="aisub"
-								value="#{editNamesManager.subsectionID}"
-								disabled="#{!editNamesManager.isSectionSelected()}">
+								value="#{editNamesManager.subsectionID}">
 								<p:ajax process="@this" update="ibsub"/>
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
 								<f:selectItems value="#{editNamesManager.subsectionNames}"
 									var="asub" itemLabel="#{asub.fullName}" itemValue="#{asub.id}" />
 							</p:selectOneMenu>
@@ -218,35 +218,35 @@
 								value="#{editNamesManager.disciplineID}">
 								<p:ajax listener="#{editNamesManager.loadCategories()}"
 									update="aicat aigdv aisdv ibsub" />
-                                <f:selectItem itemLabel="Select..." noSelectionOption="true" itemDisabled="true" />
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
 								<f:selectItems value="#{editNamesManager.disciplineNames}"
 									var="adsc" itemLabel="#{adsc.fullName}" itemValue="#{adsc.id}" />
 							</p:selectOneMenu>
 						</p:column>
 						<p:column style="width: 128px">
 							<p:selectOneMenu id="aicat"
-								value="#{editNamesManager.categoryID}"
-								disabled="#{!editNamesManager.isDisciplineSelected()}">
+								value="#{editNamesManager.categoryID}">
 								<p:ajax listener="#{editNamesManager.loadGenericDevices()}"
 									update="aigdv aisdv ibsub" />
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
 								<f:selectItems value="#{editNamesManager.categoryNames}"
 									var="acat" itemLabel="#{acat.fullName}" itemValue="#{acat.id}" />
 							</p:selectOneMenu>
 						</p:column>
 						<p:column style="width: 128px">
 							<p:selectOneMenu id="aigdv"
-								value="#{editNamesManager.genDeviceID}"
-								disabled="#{!editNamesManager.isCategorySelected()}">
+								value="#{editNamesManager.genDeviceID}">
 								<p:ajax listener="#{editNamesManager.loadSpecificDevices()}"
 									update="aisdv ibsub" />
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
 								<f:selectItems value="#{editNamesManager.genDevNames}"
 									var="agdv" itemLabel="#{agdv.fullName}" itemValue="#{agdv.id}" />
 							</p:selectOneMenu>
 						</p:column>
 						<p:column style="width: 128px">
 							<p:selectOneMenu id="aisdv"
-								value="#{editNamesManager.specDeviceID}"
-								disabled="#{!editNamesManager.isGenDeviceSelected()}">
+								value="#{editNamesManager.specDeviceID}">
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
 								<f:selectItems value="#{editNamesManager.specDevNames}"
 									var="asdv" itemLabel="#{asdv.fullName}" itemValue="#{asdv.id}" />
 							</p:selectOneMenu>
@@ -259,7 +259,7 @@
 				<p:commandButton id="ibsub" value="Submit" style="float: left"
 					update=":ManageNameForm" oncomplete="addNCName.hide()"
 					action="#{editNamesManager.onAdd()}"
-					disabled="#{!editNamesManager.isSubsectionSelected() or !editNamesManager.isGenDeviceSelected()}"/>
+					disabled="#{!editNamesManager.isFormFilled()}"/>
 				<p:commandButton value="Cancel" style="float: right"
 					onclick="addNCName.hide()" />
 			</p:dialog>
@@ -370,7 +370,7 @@
 				<p:commandButton id="mbsub" value="Submit" style="float: left"
 					update=":ManageNameForm" oncomplete="modNCName.hide()"
 					action="#{editNamesManager.onModify()}"
-					disabled="#{!editNamesManager.isSubsectionSelected() or !editNamesManager.isGenDeviceSelected()}"/>
+					disabled="#{!editNamesManager.isFormFilled()}"/>
 				<p:commandButton value="Cancel" style="float: right"
 					onclick="modNCName.hide()" />
 			</p:dialog>

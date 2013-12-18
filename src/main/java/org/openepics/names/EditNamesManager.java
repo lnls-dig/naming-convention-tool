@@ -15,6 +15,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
+import org.openepics.names.environment.NameCategories;
 import org.openepics.names.model.NCName;
 import org.openepics.names.model.NCName.NCNameStatus;
 import org.openepics.names.model.NameCategory;
@@ -126,7 +127,7 @@ public class EditNamesManager implements Serializable {
 			List<NameCategory> categories = namesEJB.getCategories();
 			NameCategory superSectionCategory = null;
 			for(NameCategory category : categories) {
-				if(category.getName().equalsIgnoreCase("SUP")) {
+				if(category.getName().equalsIgnoreCase(NameCategories.supersection())) {
 					superSectionCategory = category;
 					break;
 				}
@@ -141,9 +142,6 @@ public class EditNamesManager implements Serializable {
 			subsectionID = null;
 			if(subsectionNames != null)
 				subsectionNames.clear();
-
-			if(superSectionNames.size() == 1)
-				superSectionID = superSectionNames.get(0).getId();
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Could not load supersections.");
 			System.err.println(e);
@@ -163,13 +161,12 @@ public class EditNamesManager implements Serializable {
 				subsectionID = null;
 				if(subsectionNames != null)
 					subsectionNames.clear();
-
-				if(sectionNames.size() == 1)
-					sectionID = sectionNames.get(0).getId();
 			} catch (Exception e) {
 				logger.log(Level.SEVERE, "Could not load sections.");
 				System.err.println(e);
 			}
+		} else {
+			sectionNames = null;
 		}
 	}
 
@@ -182,13 +179,12 @@ public class EditNamesManager implements Serializable {
 				NameEvent section = namesEJB.findEventById(sectionID);
 				subsectionNames = namesEJB.findEventsByParent(section);
 				logger.log(Level.INFO, "Found subsections. Total = "+sectionNames.size());
-
-				if(subsectionNames.size() == 1)
-					subsectionID = subsectionNames.get(0).getId();
 			} catch (Exception e) {
 				logger.log(Level.SEVERE, "Could not load subsections.");
 				System.err.println(e);
 			}
+		} else {
+			subsectionNames = null;
 		}
 	}
 
@@ -218,9 +214,6 @@ public class EditNamesManager implements Serializable {
 			specDeviceID = null;
 			if(specDevNames != null)
 				specDevNames.clear();
-
-			if(disciplineNames.size() == 1)
-				disciplineID = disciplineNames.get(0).getId();
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Could not load disciplines.");
 			System.err.println(e);
@@ -243,13 +236,12 @@ public class EditNamesManager implements Serializable {
 				specDeviceID = null;
 				if(specDevNames != null)
 					specDevNames.clear();
-
-				if(categoryNames.size() == 1)
-					categoryID = categoryNames.get(0).getId();
 			} catch (Exception e) {
 				logger.log(Level.SEVERE, "Could not load categories.");
 				System.err.println(e);
 			}
+		} else {
+			categoryNames = null;
 		}
 	}
 
@@ -266,13 +258,12 @@ public class EditNamesManager implements Serializable {
 				specDeviceID = null;
 				if(specDevNames != null)
 					specDevNames.clear();
-
-				if(genDevNames.size() == 1)
-					genDeviceID = genDevNames.get(0).getId();
 			} catch (Exception e) {
 				logger.log(Level.SEVERE, "Could not load generic devices.");
 				System.err.println(e);
 			}
+		} else {
+			genDevNames = null;
 		}
 	}
 
@@ -285,13 +276,12 @@ public class EditNamesManager implements Serializable {
 				NameEvent genDevice = namesEJB.findEventById(genDeviceID);
 				specDevNames = namesEJB.findEventsByParent(genDevice);
 				logger.log(Level.INFO, "Found specific devices. Total = "+specDevNames.size());
-
-				if(specDevNames.size() == 1)
-					specDeviceID = specDevNames.get(0).getId();
 			} catch (Exception e) {
 				logger.log(Level.SEVERE, "Could not load specific devices.");
 				System.err.println(e);
 			}
+		} else {
+			specDevNames = null;
 		}
 	}
 
@@ -516,29 +506,14 @@ public class EditNamesManager implements Serializable {
 	public void setAllNCNames(List<NCName> allNCNames) {
 		this.allNCNames = allNCNames;
 	}
-
-	public boolean isSupserSectionSelected() {
-		return superSectionID != null;
-	}
-
-	public boolean isSectionSelected() {
-		return sectionID != null;
-	}
-
-	public boolean isSubsectionSelected() {
-		return subsectionID != null;
-	}
 	
-	public boolean isDisciplineSelected() {
-		return disciplineID != null;
-	}
-
-	public boolean isCategorySelected() {
-		return categoryID != null;
-	}
-
-	public boolean isGenDeviceSelected() {
-		return genDeviceID != null;
+	public boolean isFormFilled() {
+		return 	superSectionID != null &&
+				sectionID != null &&
+				subsectionID != null &&
+				disciplineID != null &&
+				categoryID != null &&
+				genDeviceID != null;
 	}
 
 	private void showMessage(FacesMessage.Severity severity, String summary, String message) {
