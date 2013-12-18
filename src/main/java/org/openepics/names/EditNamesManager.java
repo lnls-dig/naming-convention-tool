@@ -17,7 +17,6 @@ import javax.inject.Inject;
 
 import org.openepics.names.environment.NameCategories;
 import org.openepics.names.model.NCName;
-import org.openepics.names.model.NCName.NCNameStatus;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
 import org.openepics.names.nc.NamingConventionEJB;
@@ -57,6 +56,8 @@ public class EditNamesManager implements Serializable {
 
 	private List<NCName> allNCNames;
     private List<NCName> historyNCNames;
+    
+    private boolean showDeletedNames = true;
 
 	public EditNamesManager() {
 		// EMPTY
@@ -71,7 +72,7 @@ public class EditNamesManager implements Serializable {
 		loadCategories();
 		loadGenericDevices();
 		loadSpecificDevices();
-		loadAllNCNames();
+		refreshNCNames();
         clearSelectionIds();
 	}
     
@@ -413,12 +414,8 @@ public class EditNamesManager implements Serializable {
                 ncEJB.setNameProcessed(selectedNCName, userManager.getUser().getId());
                 break;
         }
-        loadAllNCNames();
+        refreshNCNames();
     }
-
-	private void loadAllNCNames() {
-		setAllNCNames(ncEJB.getAllNCNames());
-	}
 
 	public List<NameEvent> getSuperSectionNames() {
 		return superSectionNames;
@@ -584,7 +581,6 @@ public class EditNamesManager implements Serializable {
 				historyNCNames = null;
 				return;
 			}
-			logger.info("history ");
 			historyNCNames = ncEJB.getNCNameHistory(selectedNCName.getNameId());
 		} catch (Exception e) {
 			showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
@@ -602,4 +598,18 @@ public class EditNamesManager implements Serializable {
         return userManager.isSuperUser();
     }
     
+   	public boolean isShowDeletedNames() {
+		return showDeletedNames;
+	}
+
+	public void setShowDeletedNames(boolean showDeletedNames) {
+		this.showDeletedNames = showDeletedNames;
+	}
+
+    public void refreshNCNames() {
+        if(showDeletedNames)
+            allNCNames = ncEJB.getAllNCNames();
+        else
+            allNCNames = ncEJB.getExistingNCNames();
+    }
 }

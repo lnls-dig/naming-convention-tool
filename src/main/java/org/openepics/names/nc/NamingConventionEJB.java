@@ -347,7 +347,7 @@ public class NamingConventionEJB {
 	}
     
 	/**
-     * Gets only the NC Names with status VALID or INVALID.
+     * Gets only the NC Names with status VALID or INVALID or "DELETED, but UNAPPROVED"
      * @return 
      */
     public List<NCName> getExistingNCNames() {
@@ -356,7 +356,8 @@ public class NamingConventionEJB {
 		TypedQuery<NCName> query;
         query = em.createQuery(
                 "SELECT n FROM NCName n WHERE n.requestDate = "
-                        + "(SELECT MAX(r.requestDate) FROM NCName r WHERE (r.nameId = n.nameId) AND (r.status <> :status)) "
+                        + "(SELECT MAX(r.requestDate) FROM NCName r WHERE (r.nameId = n.nameId))"
+                        + " AND NOT ((n.status = :status) AND (n.processDate IS NOT NULL)) "
                         + "ORDER BY n.status, n.discipline.id, n.section.id, n.name",
                 NCName.class).setParameter("status", NCNameStatus.DELETED);
 		ncNames = query.getResultList();
@@ -373,7 +374,6 @@ public class NamingConventionEJB {
         return ncNames;
         
     }
-            
     
 	public List<NCName> getActiveNames() {
 		List<NCName> ncNames;

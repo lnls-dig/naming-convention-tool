@@ -96,8 +96,16 @@
 					filterMatchMode="contains" style="width: 15%">
 					<h:outputText value="#{ncName.discipline.fullName}" />
 				</p:column>
-				<p:column id="nameStatus" headerText="Status"
-					filterBy="#{ncName.status}" filterMatchMode="contains">
+				<p:column id="nameStatus">
+                    <f:facet name="header">
+                        <h:outputText value="Status" />
+                        <br />
+                        <p:selectBooleanButton value="#{editNamesManager.showDeletedNames}" 
+                                               onLabel="Deleted" offLabel="Deleted" 
+                                               onIcon="ui-icon-check" offIcon="ui-icon-close">  
+                            <p:ajax update="ncCrTable"  listener="#{editNamesManager.refreshNCNames}"/> 
+                        </p:selectBooleanButton> 
+                    </f:facet>
 					<h:outputText value="#{ncName.status}" />
 				</p:column>
 
