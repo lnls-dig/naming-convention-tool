@@ -410,12 +410,24 @@ public class NamingConventionEJB {
      * @return true if modification was successful.
      */
     public boolean setNameValid(Integer id, Integer modifierId) {
+        NCName dbName = findNCNameById(id);
+        dbName.setStatus(NCNameStatus.VALID);
+        setNameProcessed(dbName, modifierId);
+        
+        return true;
+    }
+    
+    public boolean setNameProcessed(NCName nameToProcess, Integer modifierId) {
+        NCName dbName;
+        
         Privilege modifier = em.find(Privilege.class, modifierId);
         Date currentDate = new Date();
-        NCName dbName = findNCNameById(id);
+        if(em.contains(nameToProcess))
+            dbName = nameToProcess;
+        else
+            dbName = findNCNameById(nameToProcess.getId());
         dbName.setProcessDate(currentDate);
         dbName.setProcessedBy(modifier);
-        dbName.setStatus(NCNameStatus.VALID);
         
         return true;
     }

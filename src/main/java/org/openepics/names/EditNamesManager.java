@@ -394,13 +394,20 @@ public class EditNamesManager implements Serializable {
             return;
         }
         
-        if(selectedNCName.getStatus() != NCNameStatus.INVALID) {
+        if(selectedNCName.getProcessDate() != null) {
             showMessage(FacesMessage.SEVERITY_FATAL, "Error", "NC Name status not appropriate for approve action.");
             return;
         }
         
         logger.info("Approve action");
-        ncEJB.setNameValid(selectedNCName.getId(), userManager.getUser().getId());
+        switch(selectedNCName.getStatus()) {
+            case INVALID:
+                ncEJB.setNameValid(selectedNCName.getId(), userManager.getUser().getId());
+                break;
+            case DELETED:
+                ncEJB.setNameProcessed(selectedNCName, userManager.getUser().getId());
+                break;
+        }
         loadAllNCNames();
     }
 
