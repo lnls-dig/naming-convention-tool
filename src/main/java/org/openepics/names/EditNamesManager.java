@@ -231,7 +231,7 @@ public class EditNamesManager implements Serializable {
 			try {
 				NameEvent discipline = namesEJB.findEventById(disciplineID);
 				categoryNames = namesEJB.findEventsByParent(discipline);
-				logger.log(Level.INFO, "Found categories. Total = "+sectionNames.size());
+				logger.log(Level.INFO, "Found categories. Total = "+categoryNames.size());
 
 				genDeviceID = null;
 				if(genDevNames != null)
@@ -506,6 +506,10 @@ public class EditNamesManager implements Serializable {
 		return sectionID != null;
 	}
 
+	public boolean isSubsectionSelected() {
+		return subsectionID != null;
+	}
+	
 	public boolean isDisciplineSelected() {
 		return disciplineID != null;
 	}
