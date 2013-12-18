@@ -49,6 +49,8 @@ public class EditNamesManager implements Serializable {
 	private List<NameEvent> categoryNames;
 	private List<NameEvent> genDevNames;
 	private List<NameEvent> specDevNames;
+	
+	private List<NCName> allNCNames;
 
 	public EditNamesManager() {
 		// EMPTY
@@ -63,6 +65,7 @@ public class EditNamesManager implements Serializable {
 		loadCategories();
 		loadGenericDevices();
 		loadSpecificDevices();
+		loadAllNCNames();
 	}
 	
 	public void onAdd() {
@@ -343,6 +346,10 @@ public class EditNamesManager implements Serializable {
 			}
 		}
 	}
+	
+	public void loadAllNCNames() {
+		setAllNCNames(ncEJB.getAllNCNames());
+	}
 
 	public List<NameEvent> getSuperSectionNames() {
 		return superSectionNames;
@@ -461,6 +468,14 @@ public class EditNamesManager implements Serializable {
 
 	public void setSelectedNCName(NCName selectedNCName) {
 		this.selectedNCName = selectedNCName;
+	}
+
+	public List<NCName> getAllNCNames() {
+		return allNCNames;
+	}
+
+	public void setAllNCNames(List<NCName> allNCNames) {
+		this.allNCNames = allNCNames;
 	}
 	
 	public boolean isSupserSectionSelected() {

@@ -64,7 +64,7 @@
 
 			<!-- ===================Data Table============================ -->
 			<p:dataTable id="ncCrTable" var="ncName"
-				value="#{nCNamesManager.allNCNames}" paginator="true" rows="50"
+				value="#{editNamesManager.allNCNames}" paginator="true" rows="50"
 				resizableColumns="true" rowKey="#{ncName.id}"
 				emptyMessage="There are no NC Names"
 				selection="#{editNamesManager.selectedNCName}" style="width: 90%">
@@ -72,7 +72,7 @@
 					<h:outputText value="Existing Naming Convention Names" />
 				</f:facet>
 
-				<p:ajax event="rowSelectRadio" update=":ManageNameForm:ncReqMenu" />
+				<p:ajax event="rowSelectRadio" update=":ManageNameForm:ncReqMenu :modNCNameForm" />
 				<p:column selectionMode="single" style="width: 5%" />
 
 				<p:column id="nameString" headerText="NC Name"
