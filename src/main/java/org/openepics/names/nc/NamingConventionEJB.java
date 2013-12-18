@@ -381,7 +381,7 @@ public class NamingConventionEJB {
 		TypedQuery<NCName> query;
         query = em.createQuery(
                 "SELECT n FROM NCName n WHERE n.requestDate = "
-                        + "(SELECT MAX(r.requestDate) FROM NCName r WHERE (r.nameId = n.nameId)) "
+                        + "(SELECT MAX(r.requestDate) FROM NCName r WHERE (r.nameId = n.nameId) AND r.processDate IS NOT NULL) "
                         + "AND (n.status = :status) "
                         + "ORDER BY n.status, n.discipline.id, n.section.id, n.name",
                 NCName.class).setParameter("status", NCNameStatus.VALID);
