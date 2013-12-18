@@ -25,7 +25,7 @@
 						action="editNamesManager.loadSelectedName()"
 						update=":delNCNameForm" oncomplete="delNCName.show()"
 						title="Delete NC Name" rendered="#{userManager.editor}"
-						disabled="#{empty editNamesManager.selectedNCName}" />
+                        disabled="#{empty editNamesManager.selectedNCName || editNamesManager.selectedNCName.status == 'DELETED'}" />
 					<p:menuitem value="Modify" icon="ui-icon-pencil"
 						update=":modNCNameForm" oncomplete="modNCName.show()"
 						title="Modify NC Name" rendered="#{userManager.editor}"
