@@ -30,6 +30,10 @@
 						update=":modNCNameForm" oncomplete="modNCName.show()"
 						title="Modify NC Name" rendered="#{userManager.editor}"
 						disabled="#{empty editNamesManager.selectedNCName}" />
+					<p:menuitem value="Approve" icon="ui-icon-star"
+						update="ncCrTable" action="#{editNamesManager.approve()}"
+						title="Approve NC Name" rendered="#{userManager.editor}"
+                        disabled="#{empty editNamesManager.selectedNCName || editNamesManager.selectedNCName.status != 'INVALID'}" />
 					<!-- 					<p:menuitem value="History" icon="ui-icon-search" -->
 					<!-- 						actionListener="#{requestManager.findHistory()}" -->
 					<!-- 						update=":ManageNameForm:historyTable" title="View History" -->
@@ -67,6 +71,7 @@
 				value="#{editNamesManager.allNCNames}" paginator="true" rows="50"
 				resizableColumns="true" rowKey="#{ncName.id}"
 				emptyMessage="There are no NC Names"
+                rowStyleClass="#{editNamesManager.nameStatus(ncName)}"
 				selection="#{editNamesManager.selectedNCName}" style="width: 90%">
 				<f:facet name="header">
 					<h:outputText value="Existing Naming Convention Names" />

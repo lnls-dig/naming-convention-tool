@@ -8,6 +8,7 @@ import org.openepics.names.model.NCName;
 import org.openepics.names.model.NCName.NCNameStatus;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
+import org.openepics.names.model.Privilege;
 
 @Local
 public interface NamingConventionEJBLocal {
@@ -57,6 +58,14 @@ public interface NamingConventionEJBLocal {
 
 	public NCName findNCNameByReference(NameEvent section, NameEvent discipline, String instanceIndex, NameEvent signal);
 
+    /**
+     * Sets the NCName indicated by the id to the valid state. The method does not check if the NCName status is correct.
+     * @param id - the id of the NCName
+     * @param modifierId - the id of the user making the change.
+     * @return true if modification was successful.
+     */
+    public boolean setNameValid(Integer id, Integer modifierId);
+    
     /**
      * Gets all NC Names regardless of status - including deleted.
      * @return 

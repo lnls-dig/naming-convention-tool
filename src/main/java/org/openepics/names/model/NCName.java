@@ -215,9 +215,8 @@ public enum NCNameStatus {
         return requestDate;
     }
 
-    // TODO: Remove ????
-    public void setRequestDate(Date requestDate) {
-        this.requestDate = requestDate;
+    public void setProcessDate(Date processDate) {
+        this.processDate = processDate;
     }
 
     public Privilege getProcessedBy() {

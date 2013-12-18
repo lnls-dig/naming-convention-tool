@@ -13,6 +13,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 
 import org.openepics.names.model.NCName;
 import org.openepics.names.model.NCName.NCNameStatus;
@@ -25,11 +26,14 @@ import org.openepics.names.nc.NamingConventionEJBLocal.ESSNameConstructionMethod
 @ViewScoped
 public class EditNamesManager implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+   	private static final long serialVersionUID = 1L;
 	@EJB
 	private NamingConventionEJBLocal ncEJB;
 	@EJB
 	private NamesEJBLocal namesEJB;
+    @Inject
+    private UserManager userManager;
+    
 	private static final Logger logger = Logger.getLogger("org.openepics.names");
 
 	private Integer superSectionID;
@@ -366,6 +370,21 @@ public class EditNamesManager implements Serializable {
 			}
 		}
 	}
+    
+    public void approve() {
+        if(selectedNCName == null) {
+            showMessage(FacesMessage.SEVERITY_FATAL, "Error", "You need to select a NC name.");
+            return;
+        }
+        
+        if(selectedNCName.getStatus() != NCNameStatus.INVALID) {
+            showMessage(FacesMessage.SEVERITY_FATAL, "Error", "NC Name status not appropriate for approve action.");
+            return;
+        }
+        
+        logger.info("Approve action");
+        ncEJB.setNameValid(selectedNCName.getId(), userManager.getUser().getId());
+    }
 
 	private void loadAllNCNames() {
 		setAllNCNames(ncEJB.getAllNCNames());
@@ -526,4 +545,17 @@ public class EditNamesManager implements Serializable {
 		FacesContext context = FacesContext.getCurrentInstance();
 		context.addMessage(null, new FacesMessage(severity, summary, message));
 	}
+    
+    public String nameStatus(NCName nreq) {
+        switch(nreq.getStatus()) {
+            case VALID:
+                 return "Published";
+            case INVALID:
+                return "In-Process";
+            case DELETED:
+                return "Deleted";
+            default:
+                return "unknown";
+        }
+    }
 }

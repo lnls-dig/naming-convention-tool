@@ -3,6 +3,7 @@ package org.openepics.names.nc;
 import java.security.AccessControlException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -23,6 +24,7 @@ import org.openepics.names.model.NCName;
 import org.openepics.names.model.NCName.NCNameStatus;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
+import org.openepics.names.model.Privilege;
 
 @Stateless
 public class NamingConventionEJB implements NamingConventionEJBLocal {
@@ -37,7 +39,6 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 
     @Inject
 	private UserManager userManager;
-
     
 	@PersistenceContext(unitName = "org.openepics.names.punit")
 	private EntityManager em;
@@ -239,6 +240,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		return ncNames;
 	}
     
+    @Override
     public List<NCName> getExistingNCNames() {
 		List<NCName> ncNames;
         
@@ -273,6 +275,18 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 	public boolean isNameValid(NCName ncName) throws NamingConventionException {
 		return ncName.getStatus() == NCNameStatus.VALID;
 	}
+    
+    @Override
+    public boolean setNameValid(Integer id, Integer modifierId) {
+        Privilege modifier = em.find(Privilege.class, modifierId);
+        Date currentDate = new Date();
+        NCName dbName = findNCNameById(id);
+        dbName.setProcessDate(currentDate);
+        dbName.setProcessedBy(modifier);
+        dbName.setStatus(NCNameStatus.VALID);
+        
+        return true;
+    }
 
 	@Override
 	public boolean isNameValid(String ncName) throws NamingConventionException {
