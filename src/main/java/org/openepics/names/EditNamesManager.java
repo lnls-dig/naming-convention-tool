@@ -20,8 +20,8 @@ import org.openepics.names.model.NCName;
 import org.openepics.names.model.NCName.NCNameStatus;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
-import org.openepics.names.nc.NamingConventionEJBLocal;
-import org.openepics.names.nc.NamingConventionEJBLocal.ESSNameConstructionMethod;
+import org.openepics.names.nc.NamingConventionEJB;
+import org.openepics.names.nc.ESSNameConstructionMethod;
 
 @ManagedBean
 @ViewScoped
@@ -29,9 +29,9 @@ public class EditNamesManager implements Serializable {
 
    	private static final long serialVersionUID = 1L;
 	@EJB
-	private NamingConventionEJBLocal ncEJB;
+	private NamingConventionEJB ncEJB;
 	@EJB
-	private NamesEJBLocal namesEJB;
+	private NamesEJB namesEJB;
     @Inject
     private UserManager userManager;
     

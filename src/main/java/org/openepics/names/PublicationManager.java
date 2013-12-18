@@ -25,7 +25,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-
 import org.openepics.names.model.NameRelease;
 
 /**
@@ -40,7 +39,7 @@ public class PublicationManager implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@EJB
-    private NamesEJBLocal namesEJB;
+    private NamesEJB namesEJB;
     private static final Logger logger = Logger.getLogger("org.openepics.names");
     private List<NameRelease> releases;
     private NameRelease selectedRelease;

@@ -17,20 +17,15 @@ package org.openepics.names;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-
 import org.openepics.names.environment.NameCategories;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
@@ -47,7 +42,7 @@ import org.openepics.names.model.NameEventType;
 public class RequestManager implements Serializable {
 
 	@EJB
-	private NamesEJBLocal namesEJB;
+	private NamesEJB namesEJB;
 	private static final Logger logger = Logger
 			.getLogger("org.openepics.names");
 	private List<NameEvent> validNames;

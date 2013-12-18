@@ -16,16 +16,12 @@
 package org.openepics.names;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
-import javax.faces.model.SelectItem;
-
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
 import org.primefaces.component.menuitem.MenuItem;
@@ -43,7 +39,7 @@ public class MenuManager implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	@EJB
-	private NamesEJBLocal namesEJB;
+	private NamesEJB namesEJB;
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger("org.openepics.names");

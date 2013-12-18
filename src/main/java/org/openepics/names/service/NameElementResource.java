@@ -10,7 +10,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import org.openepics.names.NamesEJBLocal;
+import org.openepics.names.NamesEJB;
 import org.openepics.names.model.NameEvent;
 /**
  *
@@ -20,7 +20,7 @@ import org.openepics.names.model.NameEvent;
 @Path("name")
 public class NameElementResource {
     @EJB
-    private NamesEJBLocal namesEJB;
+    private NamesEJB namesEJB;
 
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML})

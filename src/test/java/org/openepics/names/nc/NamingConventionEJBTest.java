@@ -8,13 +8,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.junit.Test;
-import org.openepics.names.NamesEJBLocal;
+import org.openepics.names.NamesEJB;
 import org.openepics.names.model.NameCategory;
 
 public class NamingConventionEJBTest {
 	
 	@EJB
-	private NamesEJBLocal namesEJB;
+	private NamesEJB namesEJB;
 	@PersistenceContext(unitName = "org.openepics.names.punit")
 	private EntityManager em;
 	

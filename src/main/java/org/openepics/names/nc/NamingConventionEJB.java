@@ -6,11 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import javax.ejb.EJB;
-
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -18,10 +15,8 @@ import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import org.openepics.names.NamesEJBLocal;
 import org.openepics.names.UserManager;
 import org.openepics.names.environment.NameCategories;
-
 import org.openepics.names.model.NCName;
 import org.openepics.names.model.NCName.NCNameStatus;
 import org.openepics.names.model.NameCategory;
@@ -30,7 +25,7 @@ import org.openepics.names.model.NameEventStatus;
 import org.openepics.names.model.Privilege;
 
 @Stateless
-public class NamingConventionEJB implements NamingConventionEJBLocal {
+public class NamingConventionEJB {
 
 	private static final Logger logger = Logger.getLogger("org.openepics.names");
 
@@ -46,7 +41,26 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 	@PersistenceContext(unitName = "org.openepics.names.punit")
 	private EntityManager em;
 
-	@Override
+	/**
+	 * @param subsection
+	 *            For accelerator and target: must be a SUBSECTION
+	 * 
+	 * @param device
+	 *            can be either GDEV or SDEV
+	 * 
+	 * @param deviceInstanceIndex
+	 *            this is selecting or determining the actual device instance
+	 *            that the signal is belonging to.
+	 * 
+	 * @param signal
+	 *            We are adding a new signal to the existing device or reserving
+	 *            a signal name for a device which does not exist yet.
+	 * 
+	 * @param method
+	 * @return - returns null if this would not construct a valid device name.
+	 *         Example incorrect entities were used for section, device or
+	 *         signal
+	 */
 	public NCName createNCNameSignal(NameEvent subsection, NameEvent device, String deviceInstanceIndex, NameEvent signal,
 			ESSNameConstructionMethod method) {
 		if (subsection == null || device == null || deviceInstanceIndex == null || signal == null)
@@ -70,7 +84,11 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		return newNCName;
 	}
 
-    @Override
+	/**
+     * Creates a new version of the existing name based on the name received as the parameter, but the new version is deleted.
+     * @param nameToDelete
+     * @return 
+     */
     public NCName deleteNCName(NCName nameToDelete) {
         if(nameToDelete == null)
             throw new InvalidParameterException("Parameter nameToDelete must not be null");
@@ -104,9 +122,19 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
         return deletedName;
     }
     
-	@Override
+	/**
+	 * @param subsection
+	 *            - For accelerator and target: must be a SUBSECTION
+	 * 
+	 * @param device
+	 *            - can be either GDEV or SDEV
+	 * @param method
+	 * @return - returns null if this would not construct a valid device name.
+	 *         Example incorrect entities were used for section, device or
+	 *         signal
+	 */
 	public NCName createNCNameDevice(NameEvent subsection, NameEvent device,
-			NamingConventionEJBLocal.ESSNameConstructionMethod method) {
+			ESSNameConstructionMethod method) {
 		if (subsection == null || device == null)
 			throw new InvalidParameterException("Subsection or device not specified.");
 
@@ -139,7 +167,6 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
                 ":" + nameSections.deviceName + "-" + deviceInstanceIndex + ":" + signal;
     }
     
-    @Override
     public NCName modifyNCName(Integer subsectionId, Integer genDeviceId, Integer selectedNCNameId) {
         NCName returnName;
         NCName selectedNCName = em.find(NCName.class, selectedNCNameId);
@@ -151,7 +178,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
             
             // TODO: Handle correct construction method
             NameSections nameSections = getNameSections(subsection, genDevice, 
-                    NamingConventionEJBLocal.ESSNameConstructionMethod.ACCELERATOR);
+                    ESSNameConstructionMethod.ACCELERATOR);
             
             long deviceInstances = countNCNamesByRef(subsection, genDevice);
             String deviceInstanceIndex = subsection.getName().substring(0, 2) + getDeviceInstanceIndex(deviceInstances);
@@ -185,7 +212,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 	}
 
 	private NameSections getNameSections(NameEvent subsection, NameEvent device,
-			NamingConventionEJBLocal.ESSNameConstructionMethod method) {
+			ESSNameConstructionMethod method) {
 
 		if (!((subsection.getStatus() == NameEventStatus.APPROVED)
 				&& subsection.getNameCategory().getName().equals(NameCategories.subsection())
@@ -274,20 +301,17 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		return signal.getName();
 	}
 
-	@Override
 	public NCName findNCNameById(Integer id) {
 		TypedQuery<NCName> query = em.createNamedQuery("NCName.findById", NCName.class).setParameter("id", id);
 		return query.getSingleResult();
 	}
 
-	@Override
 	public NCName findNCNameByName(String name) {
 		TypedQuery<NCName> query = em.createNamedQuery("NCName.findByName", NCName.class).setParameter("name", name);
 		return query.getSingleResult();
 	}
 
 	// instance index cannot be null.
-	@Override
 	public NCName findNCNameByReference(NameEvent section, NameEvent device, String instanceIndex, NameEvent signal) {
 		if (section == null)
 			throw new IllegalArgumentException("section is null");
@@ -302,7 +326,10 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		return query.getSingleResult();
 	}
 
-	@Override
+	/**
+     * Gets all NC Names regardless of status - including deleted.
+     * @return 
+     */
 	public List<NCName> getAllNCNames() {
 		List<NCName> ncNames;
 
@@ -317,11 +344,13 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		return ncNames;
 	}
     
-    @Override
+	/**
+     * Gets only the NC Names with status VALID or INVALID.
+     * @return 
+     */
     public List<NCName> getExistingNCNames() {
 		List<NCName> ncNames;
         
-		// TODO: convert to criteria query.
 		TypedQuery<NCName> query;
         query = em.createQuery(
                 "SELECT n FROM NCName n WHERE n.requestDate = "
@@ -332,11 +361,9 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
         return ncNames;
     }
 
-	@Override
 	public List<NCName> getActiveNames() {
 		List<NCName> ncNames;
         
-		// TODO: convert to criteria query.
 		TypedQuery<NCName> query;
         query = em.createQuery(
                 "SELECT n FROM NCName n WHERE n.requestDate = "
@@ -348,7 +375,6 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
         return ncNames;
 	}
 
-	@Override
 	public List<NCName> getNCNamesByStatus(NCNameStatus status) {
 		List<NCName> names;
 
@@ -359,12 +385,16 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		return names;
 	}
 
-	@Override
 	public boolean isNameValid(NCName ncName) throws NamingConventionException {
 		return ncName.getStatus() == NCNameStatus.VALID;
 	}
     
-    @Override
+	/**
+     * Sets the NCName indicated by the id to the valid state. The method does not check if the NCName status is correct.
+     * @param id - the id of the NCName
+     * @param modifierId - the id of the user making the change.
+     * @return true if modification was successful.
+     */
     public boolean setNameValid(Integer id, Integer modifierId) {
         Privilege modifier = em.find(Privilege.class, modifierId);
         Date currentDate = new Date();
@@ -376,7 +406,15 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
         return true;
     }
 
-	@Override
+	/**
+	 * Checks whether the name is composed of the actual active name parts and
+	 * this conforms to the naming convention. This can also be called for names
+	 * that have not been defined yet.
+	 * 
+	 * @param ncName
+	 * @return
+	 * @throws NamingConventionException
+	 */
 	public boolean isNameValid(String ncName) throws NamingConventionException {
 		String[] majorParts = ncName.split(":");
 
@@ -409,7 +447,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		TypedQuery<NameEvent> disciplineQ = em.createNamedQuery("NameEvent.findByName", NameEvent.class);
 		disciplineQ.setParameter("name", disciplineName);
 		NameEvent discipline = disciplineQ.getSingleResult();
-		NamingConventionEJBLocal.ESSNameConstructionMethod method;
+		ESSNameConstructionMethod method;
 		if (discipline.getStatus() != NameEventStatus.APPROVED)
 			return false;
 		else {
@@ -438,12 +476,10 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		return true;
 	}
 
-	@Override
 	public boolean isNamePartValid(NameEvent namePart) throws NamingConventionException {
 		return namePart.getStatus() == NameEventStatus.APPROVED;
 	}
 
-	@Override
 	public boolean isNamePartValid(String namePart, NameCategory category) throws NamingConventionException {
 		try {
 			TypedQuery<NameEvent> query = em.createNamedQuery("NameEvent.findByName", NameEvent.class).setParameter("name",

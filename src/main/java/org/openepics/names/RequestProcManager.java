@@ -25,7 +25,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-
 import org.openepics.names.model.NameEvent;
 import org.openepics.names.model.NameEventStatus;
 
@@ -39,7 +38,7 @@ import org.openepics.names.model.NameEventStatus;
 public class RequestProcManager implements Serializable {
 
     @EJB
-    private NamesEJBLocal namesEJB;
+    private NamesEJB namesEJB;
     private static final Logger logger = Logger.getLogger("org.openepics.names");
     private List<NameEvent> events;
     private NameEvent[] selectedEvents;

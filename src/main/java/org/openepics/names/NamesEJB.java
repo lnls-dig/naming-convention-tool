@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -28,14 +27,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
 import org.openepics.names.model.NameEventStatus;
 import org.openepics.names.model.NameEventType;
 import org.openepics.names.model.NameRelease;
 import org.openepics.names.model.Privilege;
-import org.openepics.names.nc.NamingConventionEJBLocal;
+import org.openepics.names.nc.NamingConventionEJB;
 
 // import org.openepics.auth.japi.*;
 
@@ -45,10 +43,8 @@ import org.openepics.names.nc.NamingConventionEJBLocal;
  * @author Vasu V <vuppala@frib.msu.org>
  */
 @Stateless
-public class NamesEJB implements NamesEJBLocal {
+public class NamesEJB {
 
-	// Add business logic below. (Right-click in editor and choose
-	// "Insert Code > Add Business Method")
 	private static final Logger logger = Logger.getLogger("org.openepics.names");
 	// TODO: Remove the injection. Not a good way to authorize.
 	@Inject
@@ -56,7 +52,7 @@ public class NamesEJB implements NamesEJBLocal {
 	@PersistenceContext(unitName = "org.openepics.names.punit")
 	private EntityManager em;
 	@EJB
-	private NamingConventionEJBLocal ncEJB;
+	private NamingConventionEJB ncEJB;
 
 	// private AuthServ authService = null; //* Authentication service
 
@@ -65,7 +61,6 @@ public class NamesEJB implements NamesEJBLocal {
      *
      * @author Vasu V <vuppala@frib.msu.org>
      */
-    @Override
     public NameEvent createNewEvent(String nameId, String name, String fullName, Integer nameCategoryID, Integer parentNameID, NameEventType eventType, String comment) throws Exception {
         logger.log(Level.INFO, "creating...");
         Date curdate = new Date();
@@ -112,7 +107,6 @@ public class NamesEJB implements NamesEJBLocal {
 	 * 
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
-	@Override
 	public NameRelease createNewRelease(NameRelease newRelease) throws Exception {
 		logger.log(Level.INFO, "creating release...");
 
@@ -132,13 +126,9 @@ public class NamesEJB implements NamesEJBLocal {
 	 * 
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
-	@Override
-	// @TransactionAttribute(TransactionAttributeType.SUPPORTS) // No
-	// transaction as it is read-only query
 	public List<NameEvent> getUnprocessedEvents() {
 		List<NameEvent> nameEvents;
 
-		// TODO: convert to criteria query.
 		TypedQuery<NameEvent> query = em.createQuery("SELECT n FROM NameEvent n WHERE n.status = :status", NameEvent.class).setParameter("status", NameEventStatus.PROCESSING);
 
 		nameEvents = query.getResultList();
@@ -146,20 +136,16 @@ public class NamesEJB implements NamesEJBLocal {
 		return nameEvents;
 	}
 
-	/*
+	/**
 	 * Get names that are approved, and are new or modified.
 	 */
-	@Override
 	public List<NameEvent> getValidNames() {
 		return getStandardNames("%", false);
 	}
 
-	/*
+	/**
 	 * Is name being changed?
 	 */
-	@Override
-	// @TransactionAttribute(TransactionAttributeType.SUPPORTS) // No
-	// transaction as it is read-only query
 	public boolean isUnderChange(NameEvent nevent) {
 		List<NameEvent> nameEvents;
 
@@ -172,12 +158,9 @@ public class NamesEJB implements NamesEJBLocal {
 		return !nameEvents.isEmpty();
 	}
 
-	/*
+	/**
 	 * Get all requests of the current user
 	 */
-	@Override
-	// @TransactionAttribute(TransactionAttributeType.SUPPORTS) // No
-	// transaction as it is read-only query
 	public List<NameEvent> getUserRequests() {
 		List<NameEvent> nameEvents;
 		Privilege user = userManager.getUser();
@@ -200,13 +183,9 @@ public class NamesEJB implements NamesEJBLocal {
 	 * 
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
-	@Override
-	// @TransactionAttribute(TransactionAttributeType.SUPPORTS) // No
-	// transaction as it is read-only query
 	public List<NameEvent> getAllEvents() {
 		List<NameEvent> nameEvents;
 
-		// TODO: convert to criteria query.
 		TypedQuery<NameEvent> query = em.createQuery("SELECT n FROM NameEvent n ORDER BY n.requestDate DESC", NameEvent.class);
 
 		nameEvents = query.getResultList();
@@ -219,13 +198,9 @@ public class NamesEJB implements NamesEJBLocal {
 	 * 
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
-	@Override
-	// @TransactionAttribute(TransactionAttributeType.SUPPORTS) // No
-	// transaction as it is read-only query
 	public List<NameRelease> getAllReleases() {
 		List<NameRelease> releases;
 
-		// TODO: convert to criteria query.
 		TypedQuery<NameRelease> query = em.createQuery("SELECT n FROM NameRelease n ORDER BY n.releaseDate DESC",
 				NameRelease.class);
 		releases = query.getResultList();
@@ -238,13 +213,9 @@ public class NamesEJB implements NamesEJBLocal {
 	 * 
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
-	@Override
-	// @TransactionAttribute(TransactionAttributeType.SUPPORTS) // No
-	// transaction as it is read-only query
 	public List<NameEvent> findEventsByName(String name) {
 		List<NameEvent> nameEvents;
 
-		// TODO: convert to criteria query.
 		TypedQuery<NameEvent> query = em.createQuery(
 				"SELECT n FROM NameEvent n WHERE n.name = :name ORDER BY n.requestDate DESC", NameEvent.class).setParameter(
 				"name", name);
@@ -254,11 +225,9 @@ public class NamesEJB implements NamesEJBLocal {
 		return nameEvents;
 	}
 
-	@Override
 	public List<NameEvent> findEventsByCategory(NameCategory category) {
 		List<NameEvent> nameEvents;
 
-		// TODO: convert to criteria query.
 		TypedQuery<NameEvent> query = em.createQuery(
 				"SELECT n FROM NameEvent n WHERE n.nameCategory = :nameCategory ORDER BY n.name", NameEvent.class)
 				.setParameter("nameCategory", category);
@@ -273,19 +242,14 @@ public class NamesEJB implements NamesEJBLocal {
 	 * 
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
-	@Override
-	// @TransactionAttribute(TransactionAttributeType.SUPPORTS) // No
-	// transaction as it is read-only query
 	public NameEvent findLatestEvent(String name) {
 		List<NameEvent> nameEvents;
 
-		// TODO: convert to criteria query.
 		TypedQuery<NameEvent> query = em.createQuery(
 				"SELECT n FROM NameEvent n WHERE n.name = :name  AND n.status != :status ORDER BY n.requestDate DESC",
 				NameEvent.class).setParameter("status", NameEventStatus.REJECTED).setParameter("name", name);
 
 		nameEvents = query.getResultList();
-		// logger.log(Level.INFO, "Events for " + nameId + nameEvents.size());
 		if (nameEvents.isEmpty()) {
 			return null;
 		} else {
@@ -293,11 +257,9 @@ public class NamesEJB implements NamesEJBLocal {
 		}
 	}
 
-	@Override
 	public List<NameEvent> findEventsByParent(NameEvent parent) {
 		List<NameEvent> childEvents;
 
-		// TODO: convert to criteria query.
 		TypedQuery<NameEvent> query = em.createQuery(
 				"SELECT n FROM NameEvent n WHERE n.parentName = :parentName ORDER BY n.name", NameEvent.class).setParameter(
 				"parentName", parent);
@@ -317,9 +279,6 @@ public class NamesEJB implements NamesEJBLocal {
 	 * 
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
-	@Override
-	// @TransactionAttribute(TransactionAttributeType.SUPPORTS) // No
-	// transaction as it is read-only query
 	public List<NameEvent> findEvents(char eventType, char eventStatus) {
 		List<NameEvent> nameEvents;
 
@@ -345,7 +304,6 @@ public class NamesEJB implements NamesEJBLocal {
 
 		logger.log(Level.INFO, "Search query is: " + queryStr);
 
-		// TODO: convert to criteria query.
 		TypedQuery<NameEvent> query = em.createQuery(queryStr, NameEvent.class);
 
 		nameEvents = query.getResultList();
@@ -353,16 +311,13 @@ public class NamesEJB implements NamesEJBLocal {
 		return nameEvents;
 	}
 
-	/*
+	/**
 	 * Get name elements that have been approved.
 	 * 
 	 * @param category Restrict names to the given name-element category
 	 * 
 	 * @param includeDeleted Don't discard deleted name-elements.
 	 */
-	@Override
-	// @TransactionAttribute(TransactionAttributeType.SUPPORTS) // No
-	// transaction as it is read-only query
 	public List<NameEvent> getStandardNames(String category, boolean includeDeleted) {
 		List<NameEvent> nameEvents;
 		TypedQuery<NameEvent> query;
@@ -387,7 +342,6 @@ public class NamesEJB implements NamesEJBLocal {
 	/**
 	 * Finds a {@link NameEvent} with the specified ID.
 	 */
-	@Override
 	public NameEvent findEventById(Integer id) {
 		return em.find(NameEvent.class, id);
 	}
@@ -397,7 +351,6 @@ public class NamesEJB implements NamesEJBLocal {
 	 * 
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
-	@Override
 	public void processEvents(NameEvent[] nevents, NameEventStatus status, String comment) throws Exception {
 		NameEvent mEvent;
 
@@ -408,7 +361,6 @@ public class NamesEJB implements NamesEJBLocal {
 		logger.log(Level.INFO, "Processing events " + nevents.length);
 		for (NameEvent event : nevents) {
 			logger.log(Level.INFO, "Processing  " + event.getName());
-			// TODO: better to merge or extend the persistence context?
 			mEvent = em.find(NameEvent.class, event.getId(), LockModeType.OPTIMISTIC);
 			mEvent.setStatus(status);
 			mEvent.setProcessDate(new java.util.Date());
@@ -429,7 +381,6 @@ public class NamesEJB implements NamesEJBLocal {
 	 * 
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
-	@Override
 	public void cancelRequest(int eventId, String comment) throws Exception {
 		NameEvent mEvent;
 
@@ -456,8 +407,6 @@ public class NamesEJB implements NamesEJBLocal {
 	 * 
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
-	@Override
-	// TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public boolean isEditor(Privilege user) {
 		if (user != null) {
 			return "E".equalsIgnoreCase(user.getOperation()) || "S".equalsIgnoreCase(user.getOperation());
@@ -469,8 +418,6 @@ public class NamesEJB implements NamesEJBLocal {
 	/**
 	 * Is the current user an Editor?
 	 */
-	@Override
-	// TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public boolean isSuperUser(Privilege user) {
 		if (user != null) {
 			return "S".equalsIgnoreCase(user.getOperation());
@@ -484,7 +431,6 @@ public class NamesEJB implements NamesEJBLocal {
 	 * 
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
-	@Override
 	public List<NameCategory> getCategories() {
 		List<NameCategory> cats;
 
@@ -498,7 +444,6 @@ public class NamesEJB implements NamesEJBLocal {
 	/**
 	 * Finds a {@link NameCategory} with the specified ID.
 	 */
-	@Override
 	public NameCategory findCategoryById(Integer categoryID) {
 		return em.find(NameCategory.class, categoryID);
 	}

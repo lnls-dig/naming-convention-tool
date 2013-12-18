@@ -13,11 +13,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.openepics.names.NamesEJBLocal;
+import org.openepics.names.NamesEJB;
 import org.openepics.names.model.NCName;
 import org.openepics.names.model.NameEvent;
-import org.openepics.names.nc.NamingConventionEJBLocal;
-import org.openepics.names.nc.NamingConventionEJBLocal.ESSNameConstructionMethod;
+import org.openepics.names.nc.NamingConventionEJB;
+import org.openepics.names.nc.ESSNameConstructionMethod;
 
 /**
  * @author Marko Kolar <marko.kolar@cosylab.com>
@@ -29,9 +29,9 @@ public class DefaultResource {
 	@PersistenceContext
 	EntityManager em;
 	@Inject
-	NamesEJBLocal namesEJB;
+	NamesEJB namesEJB;
 	@Inject
-	NamingConventionEJBLocal namingConventionEJB;
+	NamingConventionEJB namingConventionEJB;
 
 	@POST
 	@Path("{convention}")

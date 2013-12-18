@@ -20,11 +20,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
-
 import org.openepics.names.model.NameEvent;
 
 /**
@@ -39,7 +37,7 @@ public class ReportManager implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@EJB
-    private NamesEJBLocal namesEJB;
+    private NamesEJB namesEJB;
     private static final Logger logger = Logger.getLogger("org.openepics.names");
     private List<NameEvent> events;
     // Search Parameters
@@ -73,11 +71,11 @@ public class ReportManager implements Serializable {
         return events;
     }
 
-    public NamesEJBLocal getNamesEJB() {
+    public NamesEJB getNamesEJB() {
         return namesEJB;
     }
 
-    public void setNamesEJB(NamesEJBLocal namesEJB) {
+    public void setNamesEJB(NamesEJB namesEJB) {
         this.namesEJB = namesEJB;
     }
 

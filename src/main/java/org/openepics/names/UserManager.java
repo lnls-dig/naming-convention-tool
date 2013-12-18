@@ -19,7 +19,6 @@ import java.io.Serializable;
 import java.security.Principal;
 import java.util.List;
 import java.util.logging.Logger;
-
 import javax.ejb.EJB;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
@@ -28,7 +27,6 @@ import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-
 import org.openepics.names.model.Privilege;
 
 /**
@@ -42,7 +40,7 @@ public class UserManager implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@EJB
-	private NamesEJBLocal namesEJB;
+	private NamesEJB namesEJB;
 	@SuppressWarnings("unused")
 	private static final Logger logger = Logger
 			.getLogger("org.openepics.names");

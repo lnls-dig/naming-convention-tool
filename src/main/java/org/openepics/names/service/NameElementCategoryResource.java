@@ -13,7 +13,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.openepics.names.NamesEJBLocal;
+import org.openepics.names.NamesEJB;
 import org.openepics.names.model.NameCategory;
 
 /**
@@ -24,7 +24,7 @@ import org.openepics.names.model.NameCategory;
 @Path("category")
 public class NameElementCategoryResource {
     @EJB
-    private NamesEJBLocal namesEJB;
+    private NamesEJB namesEJB;
 
     @GET    
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML})

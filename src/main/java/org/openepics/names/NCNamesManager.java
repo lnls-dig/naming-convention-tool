@@ -11,7 +11,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
 import org.openepics.names.model.NCName;
-import org.openepics.names.nc.NamingConventionEJBLocal;
+import org.openepics.names.nc.NamingConventionEJB;
 
 @ManagedBean
 @ViewScoped
@@ -19,7 +19,7 @@ public class NCNamesManager implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	@EJB
-	private NamingConventionEJBLocal ncEJB;
+	private NamingConventionEJB ncEJB;
 	private static final Logger logger = Logger.getLogger("org.openepics.names");
 	
 	private List<NCName> allNCNames;
