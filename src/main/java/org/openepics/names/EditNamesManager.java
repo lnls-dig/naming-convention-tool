@@ -111,11 +111,10 @@ public class EditNamesManager implements Serializable {
 	}
 	
 	public void onDelete() {
-		if(selectedNCName != null)
 			selectedNCName.setStatus(NCNameStatus.DELETED);
 	}
 	
-	public void loadSuperSections() {
+	private void loadSuperSections() {
 		try {
 			List<NameCategory> categories = namesEJB.getCategories();
 			NameCategory superSectionCategory = null;
@@ -144,7 +143,7 @@ public class EditNamesManager implements Serializable {
 		}
 	}
 	
-	public void loadSections() {
+	private void loadSections() {
 		if(superSectionID != null) {
 			try {
 				NameEvent superSection = namesEJB.findEventById(superSectionID);
@@ -164,7 +163,7 @@ public class EditNamesManager implements Serializable {
 		}
 	}
 	
-	public void loadSubsections() {
+	private void loadSubsections() {
 		if(sectionID != null) {
 			try {
 				NameEvent section = namesEJB.findEventById(sectionID);
@@ -180,7 +179,7 @@ public class EditNamesManager implements Serializable {
 		}
 	}
 	
-	public void loadDisciplines() {
+	private void loadDisciplines() {
 		try {
 			List<NameCategory> categories = namesEJB.getCategories();
 			NameCategory disciplineCategory = null;
@@ -212,7 +211,7 @@ public class EditNamesManager implements Serializable {
 		}
 	}
 	
-	public void loadCategories() {
+	private void loadCategories() {
 		if(disciplineID != null) {
 			try {
 				NameEvent discipline = namesEJB.findEventById(disciplineID);
@@ -235,7 +234,7 @@ public class EditNamesManager implements Serializable {
 		}
 	}
 	
-	public void loadGenericDevices() {
+	private void loadGenericDevices() {
 		if(categoryID != null) {
 			try {
 				NameEvent category = namesEJB.findEventById(categoryID);
@@ -255,7 +254,7 @@ public class EditNamesManager implements Serializable {
 		}
 	}
 	
-	public void loadSpecificDevices() {
+	private void loadSpecificDevices() {
 		if(genDeviceID != null) {
 			try {
 				NameEvent genDevice = namesEJB.findEventById(genDeviceID);
@@ -347,7 +346,7 @@ public class EditNamesManager implements Serializable {
 		}
 	}
 	
-	public void loadAllNCNames() {
+	private void loadAllNCNames() {
 		setAllNCNames(ncEJB.getAllNCNames());
 	}
 
