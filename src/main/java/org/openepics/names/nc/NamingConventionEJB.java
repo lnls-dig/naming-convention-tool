@@ -361,6 +361,18 @@ public class NamingConventionEJB {
         return ncNames;
     }
 
+    public List<NCName> getNCNameHistory(String ncNameId) {
+		List<NCName> ncNames;
+        
+		TypedQuery<NCName> query;
+        query = em.createQuery("SELECT n FROM NCName n WHERE n.nameId = :nameId", NCName.class).
+                setParameter("nameId", ncNameId);
+		ncNames = query.getResultList();
+        return ncNames;
+        
+    }
+            
+    
 	public List<NCName> getActiveNames() {
 		List<NCName> ncNames;
         

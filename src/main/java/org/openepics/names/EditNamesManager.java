@@ -56,6 +56,7 @@ public class EditNamesManager implements Serializable {
 	private List<NameEvent> specDevNames;
 
 	private List<NCName> allNCNames;
+    private List<NCName> historyNCNames;
 
 	public EditNamesManager() {
 		// EMPTY
@@ -560,4 +561,27 @@ public class EditNamesManager implements Serializable {
                 return "unknown";
         }
     }
+    
+	public void findHistory() {
+		try {
+			if (selectedNCName == null) {
+				showMessage(FacesMessage.SEVERITY_ERROR, "Error",
+						"You must select a name first.");
+				historyNCNames = null;
+				return;
+			}
+			logger.info("history ");
+			historyNCNames = ncEJB.getNCNameHistory(selectedNCName.getNameId());
+		} catch (Exception e) {
+			showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
+					e.getMessage());
+			System.err.println(e);
+		} finally {
+		}
+	}
+    
+    public List<NCName> getHistoryEvents() {
+		return historyNCNames;
+	}    
+    
 }
