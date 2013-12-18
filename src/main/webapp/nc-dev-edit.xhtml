@@ -291,6 +291,7 @@
 								value="#{editNamesManager.superSectionID}">
 								<p:ajax listener="#{editNamesManager.loadSections()}"
 									update="misec misub mbsub" />
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
 								<f:selectItems value="#{editNamesManager.superSectionNames}"
 									var="msup" itemLabel="#{msup.fullName}" itemValue="#{msup.id}" />
 							</p:selectOneMenu>
@@ -299,6 +300,7 @@
 							<p:selectOneMenu id="misec" value="#{editNamesManager.sectionID}">
 								<p:ajax listener="#{editNamesManager.loadSubsections()}"
 									update="misub mbsub" />
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
 								<f:selectItems value="#{editNamesManager.sectionNames}"
 									var="msec" itemLabel="#{msec.fullName}" itemValue="#{msec.id}" />
 							</p:selectOneMenu>
@@ -307,6 +309,7 @@
 							<p:selectOneMenu id="misub"
 								value="#{editNamesManager.subsectionID}">
 								<p:ajax update="mbsub"/>
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
 								<f:selectItems value="#{editNamesManager.subsectionNames}"
 									var="msub" itemLabel="#{msub.fullName}" itemValue="#{msub.id}" />
 							</p:selectOneMenu>
@@ -334,6 +337,7 @@
 								value="#{editNamesManager.disciplineID}">
 								<p:ajax listener="#{editNamesManager.loadCategories()}"
 									update="micat migdv misdv mbsub" />
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
 								<f:selectItems value="#{editNamesManager.disciplineNames}"
 									var="mdsc" itemLabel="#{mdsc.fullName}" itemValue="#{mdsc.id}" />
 							</p:selectOneMenu>
@@ -343,6 +347,7 @@
 								value="#{editNamesManager.categoryID}">
 								<p:ajax listener="#{editNamesManager.loadGenericDevices()}"
 									update="migdv misdv mbsub" />
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
 								<f:selectItems value="#{editNamesManager.categoryNames}"
 									var="mcat" itemLabel="#{mcat.fullName}" itemValue="#{mcat.id}" />
 							</p:selectOneMenu>
@@ -350,6 +355,7 @@
 						<p:column style="width: 128px">
 							<p:selectOneMenu id="migdv"
 								value="#{editNamesManager.genDeviceID}">
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
 								<f:selectItems value="#{editNamesManager.genDevNames}"
 									var="mgdv" itemLabel="#{mgdv.fullName}" itemValue="#{mgdv.id}" />
 								<p:ajax listener="#{editNamesManager.loadSpecificDevices()}"
@@ -359,6 +365,7 @@
 						<p:column style="width: 128px">
 							<p:selectOneMenu id="misdv"
 								value="#{editNamesManager.specDeviceID}">
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
 								<f:selectItems value="#{editNamesManager.specDevNames}"
 									var="msdv" itemLabel="#{msdv.fullName}" itemValue="#{msdv.id}" />
 							</p:selectOneMenu>
