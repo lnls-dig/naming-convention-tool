@@ -334,7 +334,18 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 
 	@Override
 	public List<NCName> getActiveNames() {
-		return getNCNamesByStatus(NCNameStatus.VALID);
+		List<NCName> ncNames;
+        
+		// TODO: convert to criteria query.
+		TypedQuery<NCName> query;
+        query = em.createQuery(
+                "SELECT n FROM NCName n WHERE n.requestDate = "
+                        + "(SELECT MAX(r.requestDate) FROM NCName r WHERE (r.nameId = n.nameId)) "
+                        + "AND (n.status = :status) "
+                        + "ORDER BY n.status, n.discipline.id, n.section.id, n.name",
+                NCName.class).setParameter("status", NCNameStatus.VALID);
+		ncNames = query.getResultList();
+        return ncNames;
 	}
 
 	@Override
