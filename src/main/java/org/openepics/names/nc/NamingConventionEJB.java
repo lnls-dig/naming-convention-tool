@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import javax.ejb.EJB;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -17,6 +18,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import org.openepics.names.NamesEJBLocal;
 import org.openepics.names.UserManager;
 import org.openepics.names.environment.NameCategories;
 
@@ -37,7 +39,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		NameEvent disciplineOrSubsection;
 		String deviceName;
 	}
-
+    
     @Inject
 	private UserManager userManager;
     
@@ -60,9 +62,8 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		if (method == ESSNameConstructionMethod.ACCELERATOR && !isDeviceInstanceIndexValid(subsection, deviceInstanceIndex))
 			throw new InvalidParameterException("Device instance index invalid.");
 
-		NCName newNCName = new NCName(subsection, device, signal, deviceInstanceIndex, nameSections.section.getName() + "-"
-				+ nameSections.disciplineOrSubsection.getName() + ":" + nameSections.deviceName + "-" + deviceInstanceIndex
-				+ ":" + validateSignalName(signal), NCNameStatus.INVALID, 1);
+		NCName newNCName = new NCName(subsection, device, signal, deviceInstanceIndex, 
+                calcNCNameSignal(nameSections, deviceInstanceIndex, validateSignalName(signal)), NCNameStatus.INVALID);
         newNCName.setNameId(UUID.randomUUID().toString());
         newNCName.setRequestedBy(userManager.getUser());
 		em.persist(newNCName);
@@ -87,7 +88,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
         if(nameToDelete.getStatus() == NCNameStatus.VALID) {
             // make new revision
             deletedName = new NCName(nameToDelete.getSection(), nameToDelete.getDiscipline(), nameToDelete.getSignal(),
-                    nameToDelete.getInstanceIndex(), nameToDelete.getName(), NCNameStatus.DELETED, nameToDelete.getVersion());
+                    nameToDelete.getInstanceIndex(), nameToDelete.getName(), NCNameStatus.DELETED);
             deletedName.setNameId(nameToDelete.getNameId());
             deletedName.setRequestedBy(userManager.getUser());
             deletedName.setProcessedBy(userManager.getUser());
@@ -120,15 +121,56 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		String deviceInstanceIndex = subsection.getName().substring(0, 2) + getDeviceInstanceIndex(deviceInstances);
         
         logger.info("Creating NCName device");
-		NCName newNCName = new NCName(subsection, device, null, deviceInstanceIndex, nameSections.section.getName() + "-"
-				+ nameSections.disciplineOrSubsection.getName() + ":" + nameSections.deviceName + "-" + deviceInstanceIndex,
-				NCNameStatus.INVALID, 1);
+		NCName newNCName = new NCName(subsection, device, null, deviceInstanceIndex, 
+                calcNCNameDevice(nameSections, deviceInstanceIndex), NCNameStatus.INVALID);
         newNCName.setNameId(UUID.randomUUID().toString());
         newNCName.setRequestedBy(userManager.getUser());
 		em.persist(newNCName);
 		return newNCName;
 	}
 
+    private String calcNCNameDevice(NameSections nameSections, String deviceInstanceIndex) {
+        return nameSections.section.getName() + "-" + nameSections.disciplineOrSubsection.getName() +
+                ":" + nameSections.deviceName + "-" + deviceInstanceIndex;
+    }
+    
+    private String calcNCNameSignal(NameSections nameSections, String deviceInstanceIndex, String signal) {
+        return nameSections.section.getName() + "-" + nameSections.disciplineOrSubsection.getName() + 
+                ":" + nameSections.deviceName + "-" + deviceInstanceIndex + ":" + signal;
+    }
+    
+    @Override
+    public NCName modifyNCName(Integer subsectionId, Integer genDeviceId, Integer selectedNCNameId) {
+        NCName returnName;
+        NCName selectedNCName = em.find(NCName.class, selectedNCNameId);
+		NameEvent subsection = em.find(NameEvent.class, subsectionId);
+		NameEvent genDevice = em.find(NameEvent.class, genDeviceId);
+        
+        if(selectedNCName.getStatus() == NCNameStatus.INVALID) {
+            // fix this instance
+            
+            // TODO: Handle correct construction method
+            NameSections nameSections = getNameSections(subsection, genDevice, 
+                    NamingConventionEJBLocal.ESSNameConstructionMethod.ACCELERATOR);
+            
+            long deviceInstances = countNCNamesByRef(subsection, genDevice);
+            String deviceInstanceIndex = subsection.getName().substring(0, 2) + getDeviceInstanceIndex(deviceInstances);
+            
+			selectedNCName.setSection(subsection);
+			selectedNCName.setDiscipline(genDevice);
+            // TODO: take care of signal name creation
+            selectedNCName.setName(calcNCNameDevice(nameSections, deviceInstanceIndex));
+            returnName = selectedNCName;
+        } else {
+            // TODO: Handle correct construction method
+            returnName = createNCNameDevice(subsection, genDevice, ESSNameConstructionMethod.ACCELERATOR);
+            returnName.setNameId(selectedNCName.getNameId());
+            em.persist(returnName);
+        }
+        
+        return returnName;
+    }
+    
 	private String getDeviceInstanceIndex(long namesCount) {
 		if (namesCount <= 0)
 			return "A";

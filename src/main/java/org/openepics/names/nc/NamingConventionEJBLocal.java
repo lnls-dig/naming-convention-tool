@@ -64,6 +64,8 @@ public interface NamingConventionEJBLocal {
      * @return 
      */
     public NCName deleteNCName(NCName nameToDelete);
+    
+    public NCName modifyNCName(Integer subsectionID, Integer genDeviceID, Integer selectedNCNameId);
 
     /**
      * Sets the NCName indicated by the id to the valid state. The method does not check if the NCName status is correct.

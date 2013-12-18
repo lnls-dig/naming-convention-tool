@@ -125,14 +125,13 @@ public enum NCNameStatus {
 	}
 
 	public NCName(NameEvent section, NameEvent discipline, NameEvent signal, String instanceIndex, String name,
-			NCNameStatus status, Integer version) {
+			NCNameStatus status) {
 		this.section = section;
 		this.discipline = discipline;
 		this.signal = signal;
 		this.instanceIndex = instanceIndex;
 		this.name = name;
 		this.status = status;
-		this.version = version;
 	}
 
 	public NameEvent getSection() {
@@ -173,14 +172,6 @@ public enum NCNameStatus {
 
 	public void setStatus(NCNameStatus status) {
 		this.status = status;
-	}
-
-	public Integer getVersion() {
-		return version;
-	}
-
-	public void setVersion(Integer version) {
-		this.version = version;
 	}
 
 	public String getName() {

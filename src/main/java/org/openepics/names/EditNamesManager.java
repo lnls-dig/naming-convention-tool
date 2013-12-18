@@ -111,12 +111,12 @@ public class EditNamesManager implements Serializable {
 		try {
 			logger.log(Level.INFO, "Modifying NC Name");
 			if (subsectionID == null || genDeviceID == null || selectedNCName == null) {
-				showMessage(FacesMessage.SEVERITY_ERROR, "Required field missing", " ");
+				showMessage(FacesMessage.SEVERITY_ERROR, "Error", "Error in selected name.");
 			}
-			NameEvent subsection = namesEJB.findEventById(subsectionID);
-			NameEvent genDevice = namesEJB.findEventById(genDeviceID);
-			selectedNCName.setSection(subsection);
-			selectedNCName.setDiscipline(genDevice);
+            NCName modifiedName = ncEJB.modifyNCName(subsectionID, genDeviceID, selectedNCName.getId());
+			showMessage(FacesMessage.SEVERITY_INFO,
+					"NC Name modified.",
+					"Name: " + modifiedName.getName());
 		} catch (Exception e) {
 			showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
 					e.getMessage());

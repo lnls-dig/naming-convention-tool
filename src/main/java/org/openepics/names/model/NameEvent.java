@@ -134,21 +134,19 @@ public class NameEvent implements Serializable {
 	@NotNull
 	@Column(name = "version")
 	@Version
-	private int version;
+	private Integer version;
 
 	public NameEvent() {
 		// EMPTY
 	}
 
-	public NameEvent(NameEventType eventType, Privilege requestedBy, Date requestDate, NameEventStatus status, String name, String fullName,
-			int version) {
+	public NameEvent(NameEventType eventType, Privilege requestedBy, Date requestDate, NameEventStatus status, String name, String fullName) {
 		this.eventType = eventType;
 		this.requestedBy = requestedBy;
 		this.requestDate = requestDate;
 		this.status = status;
 		this.name = name;
 		this.fullName = fullName;
-		this.version = version;
 	}
 
 	public Integer getId() {
@@ -257,14 +255,6 @@ public class NameEvent implements Serializable {
 
 	public void setProcessDate(Date processDate) {
 		this.processDate = processDate;
-	}
-
-	public int getVersion() {
-		return version;
-	}
-
-	public void setVersion(int version) {
-		this.version = version;
 	}
 
 	@Override

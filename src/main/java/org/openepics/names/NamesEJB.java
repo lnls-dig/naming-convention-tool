@@ -90,7 +90,7 @@ public class NamesEJB implements NamesEJBLocal {
         if(parentNameID != null)
             parent = em.find(NameEvent.class, parentNameID);
         
-        NameEvent mEvent = new NameEvent(eventType, userManager.getUser(), curdate, NameEventStatus.PROCESSING, name, fullName, 0);
+        NameEvent mEvent = new NameEvent(eventType, userManager.getUser(), curdate, NameEventStatus.PROCESSING, name, fullName);
         logger.log(Level.INFO, "new created:" + name + ":" + fullName);
         if (eventType == NameEventType.INSERT) {
             nameId = UUID.randomUUID().toString();
