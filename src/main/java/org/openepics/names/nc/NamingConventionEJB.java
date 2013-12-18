@@ -109,8 +109,10 @@ public class NamingConventionEJB {
                     nameToDelete.getInstanceIndex(), nameToDelete.getName(), NCNameStatus.DELETED);
             deletedName.setNameId(nameToDelete.getNameId());
             deletedName.setRequestedBy(userManager.getUser());
-            deletedName.setProcessedBy(userManager.getUser());
-            deletedName.setProcessDate(new Date());
+            if(userManager.isSuperUser()) {
+                deletedName.setProcessedBy(userManager.getUser());
+                deletedName.setProcessDate(new Date());
+            }
             em.persist(deletedName);
         } else {
             // INVALID. Remove from database.
