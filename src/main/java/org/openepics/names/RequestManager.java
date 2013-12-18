@@ -63,24 +63,8 @@ public class RequestManager implements Serializable {
 	private String newCode;
 	private String newDescription;
 	private String newComment;
-	private static final Map<String, String> requestTypeNames;
 	
 	private List<NameEvent> parentCandidates;
-    
-	static {
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("i", "Add");
-		map.put("m", "Modify");
-		map.put("d", "Delete");
-		map.put("c", "Cancel");
-		requestTypeNames = Collections.unmodifiableMap(map);
-	}
-
-	/**
-	 * Creates a new instance of RequestManager
-	 */
-	public RequestManager() {
-	}
 
 	@PostConstruct
 	public void init() {
@@ -212,15 +196,13 @@ public class RequestManager implements Serializable {
 
 	}
 
-	/*
-	 * Convert a type code (p, a, r etc) to descriptive string
-	 */
-	public String requestType(char s) {
-		String tname = requestTypeNames.get(String.valueOf(s));
-		if (tname == null) {
-			tname = "Invalid Request Type";
+	public String requestType(NameEventType eventType) {
+		switch (eventType) {
+			case INSERT: return "Add";
+			case MODIFY: return "Modify";
+			case DELETE: return "Delete";
+			default: throw new IllegalStateException();
 		}
-		return tname;
 	}
 
 	// TODO: merge with same method in NamesManager
