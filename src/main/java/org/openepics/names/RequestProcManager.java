@@ -27,6 +27,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 
 import org.openepics.names.model.NameEvent;
+import org.openepics.names.model.NameEventStatus;
 
 /**
  * Manages Request Processing (backing bean for request-proc.xhtml)
@@ -66,7 +67,7 @@ public class RequestProcManager implements Serializable {
     public void onApprove() {
         try {
             logger.log(Level.INFO, "Approving ");
-            namesEJB.processEvents(selectedEvents, 'a', procComments);
+            namesEJB.processEvents(selectedEvents, NameEventStatus.APPROVED, procComments);
             showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully approved.", " ");
         } catch (Exception e) {
             showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error", e.getMessage());
@@ -79,7 +80,7 @@ public class RequestProcManager implements Serializable {
     public void onReject() {
         try {
             logger.log(Level.INFO, "Rejecting ");
-            namesEJB.processEvents(selectedEvents, 'r', procComments);
+            namesEJB.processEvents(selectedEvents, NameEventStatus.REJECTED, procComments);
             showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully rejected.", " ");
         } catch (Exception e) {
             showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error", e.getMessage());

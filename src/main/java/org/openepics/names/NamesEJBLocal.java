@@ -21,6 +21,8 @@ import javax.ejb.Local;
 
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
+import org.openepics.names.model.NameEventStatus;
+import org.openepics.names.model.NameEventType;
 import org.openepics.names.model.NameRelease;
 import org.openepics.names.model.Privilege;
 
@@ -38,11 +40,11 @@ public interface NamesEJBLocal {
 
 	public List<NameEvent> getAllEvents();
 
-	public void processEvents(NameEvent[] nevents, char status, String comment)
+	public void processEvents(NameEvent[] nevents, NameEventStatus status, String comment)
 			throws Exception;
 
 	public NameEvent createNewEvent(String nameId, String name, String fullName,
-			Integer nameCategoryID, Integer parentNameID, char eventType,
+			Integer nameCategoryID, Integer parentNameID, NameEventType eventType,
 			String comment) throws Exception;
 
 	public List<NameEvent> getUnprocessedEvents();

@@ -31,6 +31,8 @@ import javax.persistence.TypedQuery;
 
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
+import org.openepics.names.model.NameEventStatus;
+import org.openepics.names.model.NameEventType;
 import org.openepics.names.model.NameRelease;
 import org.openepics.names.model.Privilege;
 import org.openepics.names.nc.NamingConventionEJBLocal;
@@ -64,7 +66,7 @@ public class NamesEJB implements NamesEJBLocal {
      * @author Vasu V <vuppala@frib.msu.org>
      */
     @Override
-    public NameEvent createNewEvent(String nameId, String name, String fullName, Integer nameCategoryID, Integer parentNameID, char eventType, String comment) throws Exception {
+    public NameEvent createNewEvent(String nameId, String name, String fullName, Integer nameCategoryID, Integer parentNameID, NameEventType eventType, String comment) throws Exception {
         logger.log(Level.INFO, "creating...");
         Date curdate = new Date();
 
@@ -88,9 +90,9 @@ public class NamesEJB implements NamesEJBLocal {
         if(parentNameID != null)
             parent = em.find(NameEvent.class, parentNameID);
         
-        NameEvent mEvent = new NameEvent(eventType, userManager.getUser(), curdate, 'p', name, fullName, 0);
+        NameEvent mEvent = new NameEvent(eventType, userManager.getUser(), curdate, NameEventStatus.PROCESSING, name, fullName, 0);
         logger.log(Level.INFO, "new created:" + name + ":" + fullName);
-        if (eventType == 'i') { // initiation/insert. 
+        if (eventType == NameEventType.INSERT) {
             nameId = UUID.randomUUID().toString();
         }
 
@@ -137,7 +139,7 @@ public class NamesEJB implements NamesEJBLocal {
 		List<NameEvent> nameEvents;
 
 		// TODO: convert to criteria query.
-		TypedQuery<NameEvent> query = em.createQuery("SELECT n FROM NameEvent n WHERE n.status = 'p'", NameEvent.class);
+		TypedQuery<NameEvent> query = em.createQuery("SELECT n FROM NameEvent n WHERE n.status = :status", NameEvent.class).setParameter("status", NameEventStatus.PROCESSING);
 
 		nameEvents = query.getResultList();
 		logger.log(Level.INFO, "retreived pending requests: " + nameEvents.size());
@@ -145,7 +147,7 @@ public class NamesEJB implements NamesEJBLocal {
 	}
 
 	/*
-	 * Get names that are approved, and are new ('i') or modified ('m').
+	 * Get names that are approved, and are new or modified.
 	 */
 	@Override
 	public List<NameEvent> getValidNames() {
@@ -163,8 +165,8 @@ public class NamesEJB implements NamesEJBLocal {
 
 		TypedQuery<NameEvent> query = em
 				.createQuery(
-						"SELECT n FROM NameEvent n WHERE n.name = :name AND n.status != 'r' AND  n.requestDate > (SELECT MAX(r.releaseDate) FROM NameRelease r)",
-						NameEvent.class).setParameter("name", nevent.getName());
+						"SELECT n FROM NameEvent n WHERE n.name = :name AND n.status != :status AND  n.requestDate > (SELECT MAX(r.releaseDate) FROM NameRelease r)",
+						NameEvent.class).setParameter("status", NameEventStatus.REJECTED).setParameter("name", nevent.getName());
 		nameEvents = query.getResultList();
 		logger.log(Level.INFO, "change requests: " + nameEvents.size());
 		return !nameEvents.isEmpty();
@@ -279,8 +281,8 @@ public class NamesEJB implements NamesEJBLocal {
 
 		// TODO: convert to criteria query.
 		TypedQuery<NameEvent> query = em.createQuery(
-				"SELECT n FROM NameEvent n WHERE n.name = :name  AND n.status != 'r' ORDER BY n.requestDate DESC",
-				NameEvent.class).setParameter("name", name);
+				"SELECT n FROM NameEvent n WHERE n.name = :name  AND n.status != :status ORDER BY n.requestDate DESC",
+				NameEvent.class).setParameter("status", NameEventStatus.REJECTED).setParameter("name", name);
 
 		nameEvents = query.getResultList();
 		// logger.log(Level.INFO, "Events for " + nameId + nameEvents.size());
@@ -365,21 +367,16 @@ public class NamesEJB implements NamesEJBLocal {
 		List<NameEvent> nameEvents;
 		TypedQuery<NameEvent> query;
 
-		// TypedQuery<NameEvent> query =
-		// em.createQuery("SELECT n FROM NameEvent n WHERE n.status = 'a' AND n.eventType IN (?1, ?2) AND n.nameCategoryId.id LIKE ?3 AND n.processDate <= (SELECT MAX(r.releaseDate) FROM NameRelease r) ORDER BY n.nameCategoryId.id, n.nameCode",
-		// NameEvent.class)
 		if (includeDeleted) {
-			// TODO: convert to criteria query.
 			query = em
 					.createQuery(
-							"SELECT n FROM NameEvent n WHERE n.nameCategory.name LIKE :categ AND n.requestDate = (SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name AND (r.status = 'a' OR r.status = 'p')) ORDER BY n.nameCategory.id, n.name",
-							NameEvent.class).setParameter("categ", category);
+							"SELECT n FROM NameEvent n WHERE n.nameCategory.name LIKE :categ AND n.requestDate = (SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name AND (r.status = :status1 OR r.status = :status2)) ORDER BY n.nameCategory.id, n.name",
+							NameEvent.class).setParameter("status1", NameEventStatus.APPROVED).setParameter("status2", NameEventStatus.PROCESSING).setParameter("categ", category);
 		} else {
-			// TODO: convert to criteria query.
 			query = em
 					.createQuery(
-							"SELECT n FROM NameEvent n WHERE n.nameCategory.name LIKE :categ AND n.requestDate = (SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name AND (r.status = 'a' OR r.status = 'p')) AND NOT (n.eventType = 'd' AND n.status = 'a') ORDER BY n.nameCategory.id, n.name",
-							NameEvent.class).setParameter("categ", category);
+							"SELECT n FROM NameEvent n WHERE n.nameCategory.name LIKE :categ AND n.requestDate = (SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name AND (r.status = :status1 OR r.status = :status2)) AND NOT (n.eventType = :type AND n.status = :status1) ORDER BY n.nameCategory.id, n.name",
+							NameEvent.class).setParameter("status1", NameEventStatus.APPROVED).setParameter("status2", NameEventStatus.PROCESSING).setParameter("type", NameEventType.DELETE).setParameter("categ", category);
 		}
 		// TODO: check category values
 		nameEvents = query.getResultList();
@@ -401,7 +398,7 @@ public class NamesEJB implements NamesEJBLocal {
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
 	@Override
-	public void processEvents(NameEvent[] nevents, char status, String comment) throws Exception {
+	public void processEvents(NameEvent[] nevents, NameEventStatus status, String comment) throws Exception {
 		NameEvent mEvent;
 
 		// TODO; check if user has privs to processEvents.
@@ -417,7 +414,7 @@ public class NamesEJB implements NamesEJBLocal {
 			mEvent.setProcessDate(new java.util.Date());
 			mEvent.setProcessorComment(comment);
 			mEvent.setProcessedBy(userManager.getUser());
-			if (status == 'r') { // rejected. ToDO: use enums.
+			if (status == NameEventStatus.REJECTED) {
 				continue;
 			}
 			// TODO what's up with this?
@@ -447,7 +444,7 @@ public class NamesEJB implements NamesEJBLocal {
 			throw new Exception("Unauthorized access");
 		}
 		logger.log(Level.INFO, "Processing  " + mEvent.getName());
-		mEvent.setStatus('c'); // cancelled
+		mEvent.setStatus(NameEventStatus.CANCELLED);
 		mEvent.setProcessDate(new java.util.Date());
 		mEvent.setProcessorComment(comment);
 		mEvent.setProcessedBy(userManager.getUser());

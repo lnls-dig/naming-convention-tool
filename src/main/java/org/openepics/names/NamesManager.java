@@ -29,6 +29,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 
 import org.openepics.names.model.NameEvent;
+import org.openepics.names.model.NameEventStatus;
 import org.openepics.names.model.NameRelease;
 
 /**
@@ -105,16 +106,16 @@ public class NamesManager implements Serializable {
 
 	public String nameStatus(NameEvent nreq) {
 		switch (nreq.getStatus()) {
-			case 'p': return "In-Process";
-			case 'c': return "Cancelled";
-			case 'r': return "Rejected";
-			case 'a': // approved
+			case PROCESSING : return "In-Process";
+			case CANCELLED: return "Cancelled";
+			case REJECTED: return "Rejected";
+			case APPROVED:
 				final NameRelease latestRelease = pubManager.getLatestRelease();
 				final boolean processedBeforeLatestRelease = latestRelease != null && nreq.getProcessDate() != null && nreq.getProcessDate().before(latestRelease.getReleaseDate());
 				switch (nreq.getEventType()) {
-				case 'i': return processedBeforeLatestRelease ? "Published" : "Added";
-				case 'm': return processedBeforeLatestRelease ? "Publisher" : "Modified";
-				case 'd': return "Deleted";
+					case INSERT: return processedBeforeLatestRelease ? "Published" : "Added";
+					case MODIFY: return processedBeforeLatestRelease ? "Publisher" : "Modified";
+					case DELETE: return "Deleted";
 				default:
 					return "unknown";
 				}

@@ -34,6 +34,8 @@ import javax.faces.context.FacesContext;
 import org.openepics.names.environment.NameCategories;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
+import org.openepics.names.model.NameEventStatus;
+import org.openepics.names.model.NameEventType;
 
 /**
  * Manages Change Requests (backing bean for request-sub.xhtml)
@@ -110,8 +112,7 @@ public class RequestManager implements Serializable {
 
         try {
             logger.log(Level.INFO, "Modifying ");
-            newRequest = namesEJB.createNewEvent(selectedName.getNameId(), newCode, newDescription, newCategoryID, newParentID, 'm', newComment);
-//			newRequest = namesEJB.createNewEvent('m', selectedName.getName(), newCategoryID, newCode, newDescription, newComment);
+            newRequest = namesEJB.createNewEvent(selectedName.getNameId(), newCode, newDescription, newCategoryID, newParentID, NameEventType.MODIFY, newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } catch (Exception e) {
             showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error", e.getMessage());
@@ -135,7 +136,7 @@ public class RequestManager implements Serializable {
                     newCategoryName.equals(NameCategories.signalType())) {
                 newParentID = null;
             }
-			newRequest = namesEJB.createNewEvent("", newCode, newDescription, newCategoryID, newParentID, 'i', newComment);
+			newRequest = namesEJB.createNewEvent("", newCode, newDescription, newCategoryID, newParentID, NameEventType.INSERT, newComment);
 			showMessage(FacesMessage.SEVERITY_INFO,
 					"Your request was successfully submitted.",
 					"Request Number: " + newRequest.getId());
@@ -152,7 +153,7 @@ public class RequestManager implements Serializable {
 	 * Has the selectedName been processed?
 	 */
 	public boolean selectedEventProcessed() {
-		return selectedName == null ? false : selectedName.getStatus() != 'p';
+		return selectedName == null ? false : selectedName.getStatus() != NameEventStatus.PROCESSING;
 	}
 
 	public void onDelete() {
@@ -168,7 +169,7 @@ public class RequestManager implements Serializable {
 			logger.log(Level.INFO, "Deleting ");
 			Integer categoryID = selectedName.getNameCategory() == null ? null : selectedName.getNameCategory().getId(); 
 			Integer parentID = selectedName.getParentName() == null ? null : selectedName.getParentName().getId(); 
-			newRequest = namesEJB.createNewEvent(selectedName.getNameId(), selectedName.getName(), selectedName.getFullName(), categoryID, parentID, 'd', newComment);
+			newRequest = namesEJB.createNewEvent(selectedName.getNameId(), selectedName.getName(), selectedName.getFullName(), categoryID, parentID, NameEventType.DELETE, newComment);
 			showMessage(FacesMessage.SEVERITY_INFO,
 					"Your request was successfully submitted.",
 					"Request Number: " + newRequest.getId());

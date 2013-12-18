@@ -24,6 +24,7 @@ import org.openepics.names.model.NCName;
 import org.openepics.names.model.NCName.NCNameStatus;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
+import org.openepics.names.model.NameEventStatus;
 import org.openepics.names.model.Privilege;
 
 @Stateless
@@ -110,9 +111,9 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 	private NameSections getNameSections(NameEvent subsection, NameEvent device,
 			NamingConventionEJBLocal.ESSNameConstructionMethod method) {
 
-		if (!((subsection.getStatus() == 'a')
+		if (!((subsection.getStatus() == NameEventStatus.APPROVED)
 				&& subsection.getNameCategory().getName().equals(NameCategories.subsection())
-				&& (device.getStatus() == 'a') && (device.getNameCategory().getName()
+				&& (device.getStatus() == NameEventStatus.APPROVED) && (device.getNameCategory().getName()
 				.equals(NameCategories.genericDevice()) || device.getNameCategory().getName()
 				.equals(NameCategories.specificDevice()))))
 			return null;
@@ -313,7 +314,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		TypedQuery<NameEvent> sectionQ = em.createNamedQuery("NameEvent.findByName", NameEvent.class);
 		sectionQ.setParameter("name", sectionName);
 		NameEvent section = sectionQ.getSingleResult();
-		if ((section.getStatus() != 'a') || !section.getNameCategory().getName().equals(NameCategories.section()))
+		if ((section.getStatus() != NameEventStatus.APPROVED) || !section.getNameCategory().getName().equals(NameCategories.section()))
 			return false;
 
 		// checking whether discipline exists, is it approved and does its
@@ -322,7 +323,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		disciplineQ.setParameter("name", disciplineName);
 		NameEvent discipline = disciplineQ.getSingleResult();
 		NamingConventionEJBLocal.ESSNameConstructionMethod method;
-		if (discipline.getStatus() != 'a')
+		if (discipline.getStatus() != NameEventStatus.APPROVED)
 			return false;
 		else {
 			if (discipline.getNameCategory().getName().equals(NameCategories.discipline()))
@@ -338,7 +339,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		TypedQuery<NameEvent> deviceQ = em.createNamedQuery("NameEvent.findByName", NameEvent.class);
 		deviceQ.setParameter("name", deviceName);
 		NameEvent genDevice = deviceQ.getSingleResult();
-		if ((genDevice.getStatus() != 'a')
+		if ((genDevice.getStatus() != NameEventStatus.APPROVED)
 				|| !genDevice.getNameCategory().getName().equals(NameCategories.genericDevice()))
 			return false;
 
@@ -352,7 +353,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 
 	@Override
 	public boolean isNamePartValid(NameEvent namePart) throws NamingConventionException {
-		return namePart.getStatus() == 'a';
+		return namePart.getStatus() == NameEventStatus.APPROVED;
 	}
 
 	@Override
@@ -361,7 +362,7 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 			TypedQuery<NameEvent> query = em.createNamedQuery("NameEvent.findByName", NameEvent.class).setParameter("name",
 					namePart);
 			NameEvent nameEvent = query.getSingleResult();
-			return (nameEvent.getStatus() == 'a') && (nameEvent.getNameCategory().equals(category));
+			return (nameEvent.getStatus() == NameEventStatus.APPROVED) && (nameEvent.getNameCategory().equals(category));
 		} catch (NoResultException e) {
 			// if the names does not exist, check whether similar names exist
 			// according to business logic

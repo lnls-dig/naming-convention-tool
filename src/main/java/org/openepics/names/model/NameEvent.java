@@ -21,6 +21,8 @@ import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -92,10 +94,10 @@ public class NameEvent implements Serializable {
 	@ManyToOne(optional = true)
 	private NameEvent parentName;
 
-	@Basic(optional = false)
+	@Enumerated(EnumType.STRING)
 	@NotNull
 	@Column(name = "event_type")
-	private char eventType;
+	private NameEventType eventType;
 
 	@JoinColumn(name = "requested_by", referencedColumnName = "id")
 	@ManyToOne(optional = false)
@@ -111,11 +113,10 @@ public class NameEvent implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date requestDate;
 
-	@Basic(optional = false)
+	@Enumerated(EnumType.STRING)
 	@NotNull
-	@Size(max = 32)
 	@Column(name = "status")
-	private char status;
+	private NameEventStatus status;
 
 	@JoinColumn(name = "processed_by", referencedColumnName = "id")
 	@ManyToOne(optional = true)
@@ -139,7 +140,7 @@ public class NameEvent implements Serializable {
 		// EMPTY
 	}
 
-	public NameEvent(char eventType, Privilege requestedBy, Date requestDate, char status, String name, String fullName,
+	public NameEvent(NameEventType eventType, Privilege requestedBy, Date requestDate, NameEventStatus status, String name, String fullName,
 			int version) {
 		this.eventType = eventType;
 		this.requestedBy = requestedBy;
@@ -194,11 +195,11 @@ public class NameEvent implements Serializable {
 		this.parentName = parentName;
 	}
 
-	public char getEventType() {
+	public NameEventType getEventType() {
 		return eventType;
 	}
 
-	public void setEventType(char eventType) {
+	public void setEventType(NameEventType eventType) {
 		this.eventType = eventType;
 	}
 
@@ -226,11 +227,11 @@ public class NameEvent implements Serializable {
 		this.requestDate = requestDate;
 	}
 
-	public char getStatus() {
+	public NameEventStatus getStatus() {
 		return status;
 	}
 
-	public void setStatus(char status) {
+	public void setStatus(NameEventStatus status) {
 		this.status = status;
 	}
 
