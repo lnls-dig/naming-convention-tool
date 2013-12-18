@@ -141,6 +141,7 @@ public class EditNamesManager implements Serializable {
 			System.err.println(e);
 		} finally {
 			init();
+			selectedNCName = null;
 		}
 	}
 
