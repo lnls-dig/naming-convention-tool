@@ -31,7 +31,7 @@ public class EditNamesManager implements Serializable {
 	@EJB
 	private NamesEJBLocal namesEJB;
 	private static final Logger logger = Logger.getLogger("org.openepics.names");
-	
+
 	private Integer superSectionID;
 	private Integer sectionID;
 	private Integer subsectionID;
@@ -39,9 +39,9 @@ public class EditNamesManager implements Serializable {
 	private Integer categoryID;
 	private Integer genDeviceID;
 	private Integer specDeviceID;
-	
+
 	private NCName selectedNCName;
-	
+
 	private List<NameEvent> superSectionNames;
 	private List<NameEvent> sectionNames;
 	private List<NameEvent> subsectionNames;
@@ -49,7 +49,7 @@ public class EditNamesManager implements Serializable {
 	private List<NameEvent> categoryNames;
 	private List<NameEvent> genDevNames;
 	private List<NameEvent> specDevNames;
-	
+
 	private List<NCName> allNCNames;
 
 	public EditNamesManager() {
@@ -67,7 +67,7 @@ public class EditNamesManager implements Serializable {
 		loadSpecificDevices();
 		loadAllNCNames();
 	}
-	
+
 	public void onAdd() {
 		NCName newNCName;
 
@@ -90,7 +90,7 @@ public class EditNamesManager implements Serializable {
 			init();
 		}
 	}
-	
+
 	public void onModify() {
 		try {
 			logger.log(Level.INFO, "Modifying NC Name");
@@ -109,12 +109,15 @@ public class EditNamesManager implements Serializable {
 			init();
 		}
 	}
-	
+
 	public void onDelete() {
 			selectedNCName.setStatus(NCNameStatus.DELETED);
 	}
-	
-	private void loadSuperSections() {
+
+    /*
+     * Used in xhtml.
+     */
+	public void loadSuperSections() {
 		try {
 			List<NameCategory> categories = namesEJB.getCategories();
 			NameCategory superSectionCategory = null;
@@ -127,14 +130,14 @@ public class EditNamesManager implements Serializable {
 			logger.log(Level.INFO, "Found Super Section category: "+superSectionCategory+" "+superSectionCategory.getId());
 			superSectionNames = superSectionCategory == null ? null : namesEJB.findEventsByCategory(superSectionCategory);
 			logger.log(Level.INFO, "Found supersections. Total = "+superSectionNames.size());
-			
+
 			sectionID = null;
 			if(sectionNames != null)
 				sectionNames.clear();
 			subsectionID = null;
 			if(subsectionNames != null)
 				subsectionNames.clear();
-			
+
 			if(superSectionNames.size() == 1)
 				superSectionID = superSectionNames.get(0).getId();
 		} catch (Exception e) {
@@ -142,18 +145,21 @@ public class EditNamesManager implements Serializable {
 			System.err.println(e);
 		}
 	}
-	
-	private void loadSections() {
+
+    /*
+     * Used in XHTML.
+     */
+	public void loadSections() {
 		if(superSectionID != null) {
 			try {
 				NameEvent superSection = namesEJB.findEventById(superSectionID);
 				sectionNames = namesEJB.findEventsByParent(superSection);
 				logger.log(Level.INFO, "Found sections. Total = "+sectionNames.size());
-				
+
 				subsectionID = null;
 				if(subsectionNames != null)
 					subsectionNames.clear();
-				
+
 				if(sectionNames.size() == 1)
 					sectionID = sectionNames.get(0).getId();
 			} catch (Exception e) {
@@ -162,14 +168,17 @@ public class EditNamesManager implements Serializable {
 			}
 		}
 	}
-	
-	private void loadSubsections() {
+
+    /*
+    * Used in xhtml.
+    */
+	public void loadSubsections() {
 		if(sectionID != null) {
 			try {
 				NameEvent section = namesEJB.findEventById(sectionID);
 				subsectionNames = namesEJB.findEventsByParent(section);
 				logger.log(Level.INFO, "Found subsections. Total = "+sectionNames.size());
-				
+
 				if(subsectionNames.size() == 1)
 					subsectionID = subsectionNames.get(0).getId();
 			} catch (Exception e) {
@@ -178,8 +187,11 @@ public class EditNamesManager implements Serializable {
 			}
 		}
 	}
-	
-	private void loadDisciplines() {
+
+    /*
+    * used in xhtml.
+    */
+	public void loadDisciplines() {
 		try {
 			List<NameCategory> categories = namesEJB.getCategories();
 			NameCategory disciplineCategory = null;
@@ -192,7 +204,7 @@ public class EditNamesManager implements Serializable {
 			logger.log(Level.INFO, "Found Discipline category: "+disciplineCategory+" "+disciplineCategory.getId());
 			disciplineNames = disciplineCategory == null ? null : namesEJB.findEventsByCategory(disciplineCategory);
 			logger.log(Level.INFO, "Found disciplines. Total = "+disciplineNames.size());
-			
+
 			categoryID = null;
 			if(categoryNames != null)
 				categoryNames.clear();
@@ -202,7 +214,7 @@ public class EditNamesManager implements Serializable {
 			specDeviceID = null;
 			if(specDevNames != null)
 				specDevNames.clear();
-			
+
 			if(disciplineNames.size() == 1)
 				disciplineID = disciplineNames.get(0).getId();
 		} catch (Exception e) {
@@ -210,21 +222,24 @@ public class EditNamesManager implements Serializable {
 			System.err.println(e);
 		}
 	}
-	
-	private void loadCategories() {
+
+    /*
+    * Used in xhtml.
+    */
+	public void loadCategories() {
 		if(disciplineID != null) {
 			try {
 				NameEvent discipline = namesEJB.findEventById(disciplineID);
 				categoryNames = namesEJB.findEventsByParent(discipline);
 				logger.log(Level.INFO, "Found categories. Total = "+sectionNames.size());
-				
+
 				genDeviceID = null;
 				if(genDevNames != null)
 					genDevNames.clear();
 				specDeviceID = null;
 				if(specDevNames != null)
 					specDevNames.clear();
-				
+
 				if(categoryNames.size() == 1)
 					categoryID = categoryNames.get(0).getId();
 			} catch (Exception e) {
@@ -233,18 +248,21 @@ public class EditNamesManager implements Serializable {
 			}
 		}
 	}
-	
-	private void loadGenericDevices() {
+
+    /*
+    * Used in xhtml.
+    */
+	public void loadGenericDevices() {
 		if(categoryID != null) {
 			try {
 				NameEvent category = namesEJB.findEventById(categoryID);
 				genDevNames = namesEJB.findEventsByParent(category);
 				logger.log(Level.INFO, "Found generic devices. Total = "+genDevNames.size());
-				
+
 				specDeviceID = null;
 				if(specDevNames != null)
 					specDevNames.clear();
-				
+
 				if(genDevNames.size() == 1)
 					genDeviceID = genDevNames.get(0).getId();
 			} catch (Exception e) {
@@ -253,14 +271,17 @@ public class EditNamesManager implements Serializable {
 			}
 		}
 	}
-	
-	private void loadSpecificDevices() {
+
+    /*
+    * Used in xhtml.
+    */
+	public void loadSpecificDevices() {
 		if(genDeviceID != null) {
 			try {
 				NameEvent genDevice = namesEJB.findEventById(genDeviceID);
 				specDevNames = namesEJB.findEventsByParent(genDevice);
 				logger.log(Level.INFO, "Found specific devices. Total = "+specDevNames.size());
-				
+
 				if(specDevNames.size() == 1)
 					specDeviceID = specDevNames.get(0).getId();
 			} catch (Exception e) {
@@ -269,7 +290,7 @@ public class EditNamesManager implements Serializable {
 			}
 		}
 	}
-	
+
 	public String getSelectedNCNameSectionString() {
 		if(selectedNCName != null) {
 			NameEvent bottomName = selectedNCName.getSection();
@@ -287,7 +308,7 @@ public class EditNamesManager implements Serializable {
 		}
 		return "No selection!";
 	}
-	
+
 	public String getSelectedNCNameDisciplineString() {
 		if(selectedNCName != null) {
 			NameEvent bottomName = selectedNCName.getDiscipline();
@@ -305,27 +326,27 @@ public class EditNamesManager implements Serializable {
 		}
 		return "No selection!";
 	}
-	
+
 	public void loadSelectedName() {
 		if(selectedNCName != null) {
 			Map<String, Integer> namePartMap = new HashMap<String, Integer>();
-			
+
 			NameEvent sectionNode = selectedNCName.getSection();
 			while(sectionNode.getParentName() != null) {
 				namePartMap.put(sectionNode.getNameCategory().getName(), sectionNode.getId());
 				sectionNode = sectionNode.getParentName();
 			}
 			namePartMap.put(sectionNode.getNameCategory().getName(), sectionNode.getId());
-			
+
 			NameEvent disciplineNode = selectedNCName.getDiscipline();
 			while(disciplineNode.getParentName() != null) {
 				namePartMap.put(disciplineNode.getNameCategory().getName(), sectionNode.getId());
 				sectionNode = disciplineNode.getParentName();
 			}
 			namePartMap.put(disciplineNode.getNameCategory().getName(), sectionNode.getId());
-			
+
 			init();
-			
+
 			for(String categoryName : namePartMap.keySet()) {
 				if(categoryName.equalsIgnoreCase("SUP")) {
 					superSectionID = namePartMap.get(categoryName);
@@ -345,7 +366,7 @@ public class EditNamesManager implements Serializable {
 			}
 		}
 	}
-	
+
 	private void loadAllNCNames() {
 		setAllNCNames(ncEJB.getAllNCNames());
 	}
@@ -476,23 +497,23 @@ public class EditNamesManager implements Serializable {
 	public void setAllNCNames(List<NCName> allNCNames) {
 		this.allNCNames = allNCNames;
 	}
-	
+
 	public boolean isSupserSectionSelected() {
 		return superSectionID != null;
 	}
-	
+
 	public boolean isSectionSelected() {
 		return sectionID != null;
 	}
-	
+
 	public boolean isDisciplineSelected() {
 		return disciplineID != null;
 	}
-	
+
 	public boolean isCategorySelected() {
 		return categoryID != null;
 	}
-	
+
 	public boolean isGenDeviceSelected() {
 		return genDeviceID != null;
 	}

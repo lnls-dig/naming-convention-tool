@@ -1,6 +1,7 @@
 package org.openepics.names.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -15,6 +16,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
@@ -61,6 +64,10 @@ public enum NCNameStatus {
 	@Column(name = "id")
 	private Integer id;
 
+	@Size(max = 64)
+    @Column(name = "name_id")
+    private String nameId;
+    
 	@JoinColumn(name = "section_id", referencedColumnName = "id")
 	@ManyToOne(optional = false)
 	private NameEvent section;
@@ -88,6 +95,25 @@ public enum NCNameStatus {
 //	@Convert("ncStatusConverter")
 	private NCNameStatus status;
 
+	@JoinColumn(name = "requested_by", referencedColumnName = "id")
+	@ManyToOne(optional = false)
+	private Privilege requestedBy;
+
+	@Basic(optional = false)
+	@NotNull
+	@Column(name = "request_date")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date requestDate;
+
+	@JoinColumn(name = "processed_by", referencedColumnName = "id")
+	@ManyToOne(optional = true)
+	private Privilege processedBy;
+
+	@Column(name = "process_date")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date processDate;
+    
+    
 	@Basic(optional = false)
 	@NotNull
 	@Column(name = "version")
@@ -168,10 +194,45 @@ public enum NCNameStatus {
 	public Integer getId() {
 		return id;
 	}
+    
+    public String getNameId() {
+        return nameId;
+    }
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public void setNameId(String nameId) {
+        this.nameId = nameId;
+    }
+
+    public Privilege getRequestedBy() {
+        return requestedBy;
+    }
+
+    public void setRequestedBy(Privilege requestedBy) {
+        this.requestedBy = requestedBy;
+    }
+
+    public Date getRequestDate() {
+        return requestDate;
+    }
+
+    // TODO: Remove ????
+    public void setRequestDate(Date requestDate) {
+        this.requestDate = requestDate;
+    }
+
+    public Privilege getProcessedBy() {
+        return processedBy;
+    }
+
+    public void setProcessedBy(Privilege processedBy) {
+        this.processedBy = processedBy;
+    }
+    
+    public Date getProcessDate() {
+        return processDate;
+    }
+
+    
 }
 
 

@@ -143,12 +143,17 @@ CREATE TABLE IF NOT EXISTS `name_release` (
 DROP TABLE IF EXISTS `NC_name`;
 CREATE TABLE IF NOT EXISTS `NC_name` (
   `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
+  `name_id` varchar(64) NOT NULL,
   `section_id` int(10) unsigned NOT NULL,
   `discipline_id` int(10) unsigned NOT NULL,
   `signal_id` int(10) unsigned DEFAULT NULL,
   `instance_index` varchar(10) DEFAULT NULL,
   `name` varchar(32) NOT NULL,
   `status` varchar(16) NOT NULL DEFAULT 'invalid',
+  `requested_by` int(10) unsigned NOT NULL,
+  `request_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `processed_by` int(10) unsigned DEFAULT NULL,
+  `process_date` timestamp NULL DEFAULT NULL,
   `version` int(10) unsigned zerofill NOT NULL DEFAULT '0000000001',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),

@@ -35,7 +35,7 @@ public interface NamingConventionEJBLocal {
 	 *         Example incorrect entities were used for section, device or
 	 *         signal
 	 */
-	NCName createNCNameSignal(NameEvent subsection, NameEvent device, String deviceInstanceIndex, NameEvent signal,
+	public NCName createNCNameSignal(NameEvent subsection, NameEvent device, String deviceInstanceIndex, NameEvent signal,
 			ESSNameConstructionMethod method);
 
 	/**
@@ -49,21 +49,31 @@ public interface NamingConventionEJBLocal {
 	 *         Example incorrect entities were used for section, device or
 	 *         signal
 	 */
-	NCName createNCNameDevice(NameEvent subsection, NameEvent device, ESSNameConstructionMethod method);
+	public NCName createNCNameDevice(NameEvent subsection, NameEvent device, ESSNameConstructionMethod method);
 
-	NCName findNCNameById(Integer id);
+	public NCName findNCNameById(Integer id);
 
-	NCName findNCNameByName(String name);
+	public NCName findNCNameByName(String name);
 
-	NCName findNCNameByReference(NameEvent section, NameEvent discipline, String instanceIndex, NameEvent signal);
+	public NCName findNCNameByReference(NameEvent section, NameEvent discipline, String instanceIndex, NameEvent signal);
 
-	List<NCName> getAllNCNames();
+    /**
+     * Gets all NC Names regardless of status - including deleted.
+     * @return 
+     */
+	public List<NCName> getAllNCNames();
+    
+    /**
+     * Gets only the NC Names with status VALID or INVALID.
+     * @return 
+     */
+    public List<NCName> getExistingNCNames();
 
-	List<NCName> getActiveNames();
+	public List<NCName> getActiveNames();
 
-	List<NCName> getNCNamesByStatus(NCNameStatus status);
+	public List<NCName> getNCNamesByStatus(NCNameStatus status);
 
-	boolean isNameValid(NCName ncName) throws NamingConventionException;
+	public boolean isNameValid(NCName ncName) throws NamingConventionException;
 
 	/**
 	 * Checks whether the name is composed of the actual active name parts and
@@ -74,9 +84,9 @@ public interface NamingConventionEJBLocal {
 	 * @return
 	 * @throws NamingConventionException
 	 */
-	boolean isNameValid(String ncName) throws NamingConventionException;
+	public boolean isNameValid(String ncName) throws NamingConventionException;
 
-	boolean isNamePartValid(NameEvent namePart) throws NamingConventionException;
+	public boolean isNamePartValid(NameEvent namePart) throws NamingConventionException;
 
-	boolean isNamePartValid(String namePart, NameCategory category) throws NamingConventionException;
+	public boolean isNamePartValid(String namePart, NameCategory category) throws NamingConventionException;
 }

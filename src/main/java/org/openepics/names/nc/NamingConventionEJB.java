@@ -1,17 +1,22 @@
 package org.openepics.names.nc;
 
+import java.security.AccessControlException;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import org.openepics.names.UserManager;
 import org.openepics.names.environment.NameCategories;
 
 import org.openepics.names.model.NCName;
@@ -30,6 +35,10 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		String deviceName;
 	}
 
+    @Inject
+	private UserManager userManager;
+
+    
 	@PersistenceContext(unitName = "org.openepics.names.punit")
 	private EntityManager em;
 
@@ -37,18 +46,23 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 	public NCName createNCNameSignal(NameEvent subsection, NameEvent device, String deviceInstanceIndex, NameEvent signal,
 			ESSNameConstructionMethod method) {
 		if (subsection == null || device == null || deviceInstanceIndex == null || signal == null)
-			return null;
+			throw new InvalidParameterException("Subsection or device not specified.");
 
+        if (!userManager.isLoggedIn()) 
+            throw new AccessControlException("You must be logged in to perform the operation.");
+        
 		NameSections nameSections = getNameSections(subsection, device, method);
 		if (nameSections == null)
-			return null;
+			throw new InvalidParameterException("Unable to find section.");
 
 		if (method == ESSNameConstructionMethod.ACCELERATOR && !isDeviceInstanceIndexValid(subsection, deviceInstanceIndex))
-			return null;
+			throw new InvalidParameterException("Device instance index invalid.");
 
 		NCName newNCName = new NCName(subsection, device, signal, deviceInstanceIndex, nameSections.section.getName() + "-"
 				+ nameSections.disciplineOrSubsection.getName() + ":" + nameSections.deviceName + "-" + deviceInstanceIndex
 				+ ":" + validateSignalName(signal), NCNameStatus.INVALID, 1);
+        newNCName.setNameId(UUID.randomUUID().toString());
+        newNCName.setRequestedBy(userManager.getUser());
 		em.persist(newNCName);
 		return newNCName;
 	}
@@ -57,18 +71,24 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 	public NCName createNCNameDevice(NameEvent subsection, NameEvent device,
 			NamingConventionEJBLocal.ESSNameConstructionMethod method) {
 		if (subsection == null || device == null)
-			return null;
+			throw new InvalidParameterException("Subsection or device not specified.");
 
+        if (!userManager.isLoggedIn()) 
+            throw new AccessControlException("You must be logged in to perform the operation.");
+        
 		NameSections nameSections = getNameSections(subsection, device, method);
 		if (nameSections == null)
-			return null;
+			throw new InvalidParameterException("Unable to find section.");
 
 		long deviceInstances = countNCNamesByRef(subsection, device);
 		String deviceInstanceIndex = subsection.getName().substring(0, 2) + getDeviceInstanceIndex(deviceInstances);
-
+        
+        logger.info("Creating NCName device");
 		NCName newNCName = new NCName(subsection, device, null, deviceInstanceIndex, nameSections.section.getName() + "-"
 				+ nameSections.disciplineOrSubsection.getName() + ":" + nameSections.deviceName + "-" + deviceInstanceIndex,
 				NCNameStatus.INVALID, 1);
+        newNCName.setNameId(UUID.randomUUID().toString());
+        newNCName.setRequestedBy(userManager.getUser());
 		em.persist(newNCName);
 		return newNCName;
 	}
@@ -208,12 +228,30 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 	public List<NCName> getAllNCNames() {
 		List<NCName> ncNames;
 
-		TypedQuery<NCName> query = em.createNamedQuery("NCName.findAll", NCName.class);
+		TypedQuery<NCName> query = em.createQuery(
+							"SELECT n FROM NCName n WHERE n.requestDate = "
+                                    + "(SELECT MAX(r.requestDate) FROM NCName r WHERE r.nameId = n.nameId) "
+                                    + "ORDER BY n.status, n.discipline.id, n.section.id, n.name",
+							NCName.class);
 		ncNames = query.getResultList();
-		logger.log(Level.INFO, "Total number of NCNames: " + ncNames.size());
+		logger.info("Total number of unique NCNames: " + ncNames.size());
 
 		return ncNames;
 	}
+    
+    public List<NCName> getExistingNCNames() {
+		List<NCName> ncNames;
+        
+		// TODO: convert to criteria query.
+		TypedQuery<NCName> query;
+        query = em.createQuery(
+                "SELECT n FROM NCName n WHERE n.requestDate = "
+                        + "(SELECT MAX(r.requestDate) FROM NCName r WHERE (r.nameId = n.nameId) AND (r.status <> :status)) "
+                        + "ORDER BY n.status, n.discipline.id, n.section.id, n.name",
+                NCName.class).setParameter("status", NCNameStatus.DELETED);
+		ncNames = query.getResultList();
+        return ncNames;
+    }
 
 	@Override
 	public List<NCName> getActiveNames() {
