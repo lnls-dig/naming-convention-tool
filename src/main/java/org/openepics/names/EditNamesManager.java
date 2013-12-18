@@ -556,6 +556,8 @@ public class EditNamesManager implements Serializable {
             case INVALID:
                 return "In-Process";
             case DELETED:
+                if(nreq.getProcessDate() == null) 
+                    return "In-Process";
                 return "Deleted";
             default:
                 return "unknown";
