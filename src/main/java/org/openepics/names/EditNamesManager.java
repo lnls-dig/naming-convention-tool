@@ -394,6 +394,11 @@ public class EditNamesManager implements Serializable {
             return;
         }
         
+        if(!userManager.isSuperUser()) {
+            showMessage(FacesMessage.SEVERITY_FATAL, "Error", "Only superuser can approve status change.");
+            return;
+        }
+        
         if(selectedNCName.getProcessDate() != null) {
             showMessage(FacesMessage.SEVERITY_FATAL, "Error", "NC Name status not appropriate for approve action.");
             return;
@@ -591,6 +596,10 @@ public class EditNamesManager implements Serializable {
     
     public List<NCName> getHistoryEvents() {
 		return historyNCNames;
-	}    
+	} 
+    
+    public boolean isSuperUser() {
+        return userManager.isSuperUser();
+    }
     
 }

@@ -33,7 +33,7 @@
 					<p:menuitem value="Approve" icon="ui-icon-star"
 						update="ncCrTable" action="#{editNamesManager.approve()}"
 						title="Approve NC Name" rendered="#{userManager.editor}"
-                        disabled="#{empty editNamesManager.selectedNCName || editNamesManager.selectedNCName.processDate != null}" />
+                        disabled="#{empty editNamesManager.selectedNCName || editNamesManager.selectedNCName.processDate != null || !editNamesManager.superUser}" />
 					<p:menuitem value="History" icon="ui-icon-search"
                         actionListener="#{editNamesManager.findHistory()}"
                         update=":ManageNameForm:historyTable" title="View History"
