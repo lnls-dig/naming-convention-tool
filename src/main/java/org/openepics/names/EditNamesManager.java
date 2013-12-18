@@ -374,6 +374,7 @@ public class EditNamesManager implements Serializable {
         
         logger.info("Approve action");
         ncEJB.setNameValid(selectedNCName.getId(), userManager.getUser().getId());
+        loadAllNCNames();
     }
 
 	private void loadAllNCNames() {
