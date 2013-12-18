@@ -71,7 +71,18 @@ public class EditNamesManager implements Serializable {
 		loadGenericDevices();
 		loadSpecificDevices();
 		loadAllNCNames();
+        clearSelectionIds();
 	}
+    
+    private void clearSelectionIds() {
+        superSectionID = null;
+        sectionID = null;
+        subsectionID = null;
+        disciplineID = null;
+        categoryID = null;
+        genDeviceID = null;
+        specDeviceID = null;
+    }
 
 	public void onAdd() {
 		NCName newNCName;
@@ -116,7 +127,21 @@ public class EditNamesManager implements Serializable {
 	}
 
 	public void onDelete() {
-			selectedNCName.setStatus(NCNameStatus.DELETED);
+		NCName newNCName;
+
+		try {
+			logger.log(Level.INFO, "Deleting NC Name");
+			newNCName = ncEJB.deleteNCName(selectedNCName);
+			showMessage(FacesMessage.SEVERITY_INFO,
+					"NC Name successfully deleted.",
+					"Name: " + newNCName.getName());
+		} catch (Exception e) {
+			showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
+					e.getMessage());
+			System.err.println(e);
+		} finally {
+			init();
+		}
 	}
 
     /*

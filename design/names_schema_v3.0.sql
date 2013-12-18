@@ -156,7 +156,6 @@ CREATE TABLE IF NOT EXISTS `NC_name` (
   `process_date` timestamp NULL DEFAULT NULL,
   `version` int(10) unsigned zerofill NOT NULL DEFAULT '0000000001',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`),
   UNIQUE KEY `section_id` (`section_id`,`discipline_id`,`signal_id`,`instance_index`),
   KEY `FK_NC_name_discipline_id` (`discipline_id`),
   KEY `FK_NC_name_signal_id` (`signal_id`),

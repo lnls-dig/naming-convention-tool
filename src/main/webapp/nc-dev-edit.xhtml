@@ -18,7 +18,7 @@
 			<p:menu id="ncReqMenu" styleClass="fixedPosition box"
 				style="width: 8%">
 				<p:submenu label="NC Names">
-					<p:menuitem value="Add" icon="ui-icon-plus"
+					<p:menuitem value="Add" icon="ui-icon-plus" update=":AddNCNameForm"
 						oncomplete="addNCName.show()" title="Add Name"
 						rendered="#{userManager.editor}" />
 					<p:menuitem value="Delete" icon="ui-icon-trash"

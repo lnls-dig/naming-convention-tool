@@ -69,6 +69,40 @@ public class NamingConventionEJB implements NamingConventionEJBLocal {
 		return newNCName;
 	}
 
+    @Override
+    public NCName deleteNCName(NCName nameToDelete) {
+        if(nameToDelete == null)
+            throw new InvalidParameterException("Parameter nameToDelete must not be null");
+        if(nameToDelete.getSection() == null || nameToDelete.getDiscipline() == null)
+            throw new InvalidParameterException("The Entity NCName has invalid menmonic references.");
+        if(nameToDelete.getInstanceIndex() == null || nameToDelete.getInstanceIndex().isEmpty())
+            throw new InvalidParameterException("Invalid instance index.");
+        if(nameToDelete.getName() == null || nameToDelete.getName().isEmpty())
+            throw new InvalidParameterException("No NC name specified.");
+        
+        if(nameToDelete.getStatus() == NCNameStatus.DELETED)
+            return nameToDelete;
+        
+        NCName deletedName = null;
+        if(nameToDelete.getStatus() == NCNameStatus.VALID) {
+            // make new revision
+            deletedName = new NCName(nameToDelete.getSection(), nameToDelete.getDiscipline(), nameToDelete.getSignal(),
+                    nameToDelete.getInstanceIndex(), nameToDelete.getName(), NCNameStatus.DELETED, nameToDelete.getVersion());
+            deletedName.setNameId(nameToDelete.getNameId());
+            deletedName.setRequestedBy(userManager.getUser());
+            deletedName.setProcessedBy(userManager.getUser());
+            deletedName.setProcessDate(new Date());
+            em.persist(deletedName);
+        } else {
+            // INVALID. Remove from database.
+            deletedName = em.find(NCName.class, nameToDelete.getId());
+            em.remove(deletedName);
+        }
+        
+        
+        return deletedName;
+    }
+    
 	@Override
 	public NCName createNCNameDevice(NameEvent subsection, NameEvent device,
 			NamingConventionEJBLocal.ESSNameConstructionMethod method) {

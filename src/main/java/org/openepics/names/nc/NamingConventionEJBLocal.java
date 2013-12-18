@@ -57,6 +57,13 @@ public interface NamingConventionEJBLocal {
 	public NCName findNCNameByName(String name);
 
 	public NCName findNCNameByReference(NameEvent section, NameEvent discipline, String instanceIndex, NameEvent signal);
+    
+    /**
+     * Creates a new version of the existing name based on the name received as the parameter, but the new version is deleted.
+     * @param nameToDelete
+     * @return 
+     */
+    public NCName deleteNCName(NCName nameToDelete);
 
     /**
      * Sets the NCName indicated by the id to the valid state. The method does not check if the NCName status is correct.
