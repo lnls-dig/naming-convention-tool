@@ -18,23 +18,23 @@
 			<p:menu id="ncReqMenu" styleClass="fixedPosition box"
 				style="width: 8%">
 				<p:submenu label="NC Names">
-					<p:menuitem value="Add" icon="ui-icon-plus" update=":AddNCNameForm"
-						oncomplete="addNCName.show()" title="Add Name"
+					<p:menuitem value="Add" icon="ui-icon-plus" update=":AddNcNameForm"
+						oncomplete="addNcName.show()" title="Add Name"
 						rendered="#{userManager.editor}" />
 					<p:menuitem value="Delete" icon="ui-icon-trash"
-						update=":delNCNameForm" oncomplete="delNCName.show()"
+						update=":delNcNameForm" oncomplete="delNcName.show()"
 						title="Delete Device Name" rendered="#{userManager.editor}"
-                        disabled="#{empty editNamesManager.selectedNCName || editNamesManager.selectedNCName.status == 'DELETED' || editNamesManager.selectedNCName.requestedBy.username != userManager.user.username}" />
+                        disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.status == 'DELETED' || editNamesManager.selectedNcName.requestedBy.username != userManager.user.username}" />
 					<p:menuitem value="Modify" icon="ui-icon-pencil"
-						update=":modNCNameForm" oncomplete="modNCName.show()"
+						update=":modNcNameForm" oncomplete="modNcName.show()"
 						action="#{editNamesManager.loadSelectedName()}"
 						title="Modify NC Name" rendered="#{userManager.editor}"
-                        disabled="#{empty editNamesManager.selectedNCName || editNamesManager.selectedNCName.requestedBy.username != userManager.user.username}" />
+                        disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.requestedBy.username != userManager.user.username}" />
 					<p:menuitem value="History" icon="ui-icon-search"
                         actionListener="#{editNamesManager.findHistory()}"
                         update=":ManageNameForm:historyTable" title="View History"
                         oncomplete="nameDetail.show()"
-                        disabled="#{empty editNamesManager.selectedNCName}" />
+                        disabled="#{empty editNamesManager.selectedNcName}" />
 					<!-- 					<p:menuitem value="Cancel" icon="ui-icon-close" -->
 					<!-- 						update=":CancelReqForm" oncomplete="cancelReq.show()" -->
 					<!-- 						title="Cancel Request" rendered="#{requestManager.myRequest}" -->
@@ -44,25 +44,25 @@
 
 						<p:contextMenu id="ncCntxtMenu" for="ncCrTable">
 							<p:menuitem value="Add" icon="ui-icon-plus"
-								oncomplete="addNCName.show()"
+								oncomplete="addNcName.show()"
 								rendered="#{userManager.editor}" />
-							<p:menuitem value="Delete" update=":delNCNameForm"
-								icon="ui-icon-trash" oncomplete="delNCName.show()"
+							<p:menuitem value="Delete" update=":delNcNameForm"
+								icon="ui-icon-trash" oncomplete="delNcName.show()"
 								rendered="#{userManager.editor}"
-								disabled="#{empty editNamesManager.selectedNCName || editNamesManager.selectedNCName.status == 'DELETED'}" />
-							<p:menuitem value="Modify" update=":modNCNameForm"
+								disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.status == 'DELETED'}" />
+							<p:menuitem value="Modify" update=":modNcNameForm"
 								action="#{editNamesManager.loadSelectedName()}"
-								icon="ui-icon-pencil" oncomplete="modNCName.show()"
+								icon="ui-icon-pencil" oncomplete="modNcName.show()"
 								rendered="#{userManager.editor}"
-								disabled="#{empty editNamesManager.selectedNCName}" />
+								disabled="#{empty editNamesManager.selectedNcName}" />
 							<p:menuitem value="Approve" icon="ui-icon-star"
 								update="ncCrTable" action="#{editNamesManager.approve()}"
 								rendered="#{userManager.editor}"
-		                        disabled="#{empty editNamesManager.selectedNCName || editNamesManager.selectedNCName.processDate != null || !editNamesManager.superUser}" />
+		                        disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.processDate != null || !editNamesManager.superUser}" />
 							<p:menuitem value="History" icon="ui-icon-search"
 								actionListener="#{requestManager.findHistory()}"
 								update=":ManageNameForm:historyTable" oncomplete="nameDetail.show()"
-                        		disabled="#{empty editNamesManager.selectedNCName}" />
+                        		disabled="#{empty editNamesManager.selectedNcName}" />
 <!-- 							<p:menuitem value="Cancel Request" icon="ui-icon-close" -->
 <!-- 								update=":CancelReqForm" oncomplete="cancelReq.show()" -->
 <!-- 								title="Cancel Request" rendered="#{requestManager.myRequest}" -->
@@ -71,16 +71,16 @@
 
 			<!-- ===================Data Table============================ -->
 			<p:dataTable id="ncCrTable" var="ncName"
-				value="#{editNamesManager.allNCNames}" paginator="true" rows="50"
+				value="#{editNamesManager.allNcNames}" paginator="true" rows="50"
 				resizableColumns="true" rowKey="#{ncName.id}"
 				emptyMessage="There are no NC Names"
                 rowStyleClass="#{editNamesManager.nameStatus(ncName)}"
-				selection="#{editNamesManager.selectedNCName}" style="width: 90%">
+				selection="#{editNamesManager.selectedNcName}" style="width: 90%">
 				<f:facet name="header">
 					<h:outputText value="Existing Device Names" />
 				</f:facet>
 
-				<p:ajax event="rowSelectRadio" update=":ManageNameForm:ncReqMenu :modNCNameForm" />
+				<p:ajax event="rowSelectRadio" update=":ManageNameForm:ncReqMenu :modNcNameForm" />
 				<p:column selectionMode="single" style="width: 5%" />
 
 				<p:column id="nameString" headerText="NC Name"
@@ -105,7 +105,7 @@
                         <p:selectBooleanButton value="#{editNamesManager.showDeletedNames}" 
                                                onLabel="Deleted" offLabel="Deleted" 
                                                onIcon="ui-icon-check" offIcon="ui-icon-close">  
-                            <p:ajax update="ncCrTable"  listener="#{editNamesManager.refreshNCNames}"/> 
+                            <p:ajax update="ncCrTable"  listener="#{editNamesManager.refreshNcNames}"/> 
                         </p:selectBooleanButton> 
                     </f:facet>
 					<h:outputText value="#{ncName.status}" />
@@ -151,8 +151,8 @@
 		</h:form>
 
 		<!-- ===================Add Form================================= -->
-		<h:form id="AddNCNameForm">
-			<p:dialog id="addNCName" widgetVar="addNCName">
+		<h:form id="AddNcNameForm">
+			<p:dialog id="addNcName" widgetVar="addNcName">
 				<f:facet name="header">
 					<h:outputText value="Add Naming Convention Name" />
 				</f:facet>
@@ -246,17 +246,17 @@
 				<p:separator />
 
 				<p:commandButton id="ibsub" value="Submit" style="float: left"
-					update=":ManageNameForm" oncomplete="addNCName.hide()"
+					update=":ManageNameForm" oncomplete="addNcName.hide()"
 					action="#{editNamesManager.onAdd()}"
 					disabled="#{!editNamesManager.isFormFilled()}"/>
 				<p:commandButton value="Cancel" style="float: right"
-					onclick="addNCName.hide()" />
+					onclick="addNcName.hide()" />
 			</p:dialog>
 		</h:form>
 
 		<!-- ===================Modify Form================================= -->
-		<h:form id="modNCNameForm">
-			<p:dialog widgetVar="modNCName">
+		<h:form id="modNcNameForm">
+			<p:dialog widgetVar="modNcName">
 				<f:facet name="header">
 					<h:outputText value="Request to Change Name" />
 				</f:facet>
@@ -271,7 +271,7 @@
 							Current values:
 						</p:column>
 						<p:column colspan="3">
-							<h:outputText value="#{editNamesManager.getSelectedNCNameSectionString()}" />
+							<h:outputText value="#{editNamesManager.getSelectedNcNameSectionString()}" />
 						</p:column>
 					</p:row>
 					<p:row>
@@ -317,7 +317,7 @@
 							Current values:
 						</p:column>
 						<p:column colspan="3">
-							<h:outputText value="#{editNamesManager.getSelectedNCNameDisciplineString()}" />
+							<h:outputText value="#{editNamesManager.getSelectedNcNameDisciplineString()}" />
 						</p:column>
 					</p:row>
 					<p:row>
@@ -364,17 +364,17 @@
 				<p:separator />
 
 				<p:commandButton id="mbsub" value="Submit" style="float: left"
-					update=":ManageNameForm" oncomplete="modNCName.hide()"
+					update=":ManageNameForm" oncomplete="modNcName.hide()"
 					action="#{editNamesManager.onModify()}"
 					disabled="#{!editNamesManager.isFormFilled()}"/>
 				<p:commandButton value="Cancel" style="float: right"
-					onclick="modNCName.hide()" />
+					onclick="modNcName.hide()" />
 			</p:dialog>
 		</h:form>
 
 		<!-- ===================Delete Form================================= -->
-		<h:form id="delNCNameForm">
-			<p:dialog id="delNCName" widgetVar="delNCName">
+		<h:form id="delNcNameForm">
+			<p:dialog id="delNcName" widgetVar="delNcName">
 				<f:facet name="header">
 					<h:outputText value="Delete/Retire Naming Convention Name" />
 				</f:facet>
@@ -382,27 +382,27 @@
 					<p:row>
 						<p:column style="width: 128px">
 							<h:outputText
-								value="#{editNamesManager.selectedNCName.section.fullName}" />
+								value="#{editNamesManager.selectedNcName.section.fullName}" />
 						</p:column>
 						<p:column style="width: 128px">
 							<h:outputText
-								value="#{editNamesManager.selectedNCName.discipline.fullName}" />
+								value="#{editNamesManager.selectedNcName.discipline.fullName}" />
 						</p:column>
 					</p:row>
 
 					<p:row>
 						<p:column colspan="4">
-							<h:outputText value="#{editNamesManager.selectedNCName.name}" />
+							<h:outputText value="#{editNamesManager.selectedNcName.name}" />
 						</p:column>
 					</p:row>
 				</p:panelGrid>
 				<p:separator />
 
 				<p:commandButton value="Submit" style="float: left"
-					update=":ManageNameForm" oncomplete="delNCName.hide()"
+					update=":ManageNameForm" oncomplete="delNcName.hide()"
 					action="#{editNamesManager.onDelete()}" />
 				<p:commandButton value="Cancel" style="float: right"
-					onclick="delNCName.hide()" />
+					onclick="delNcName.hide()" />
 			</p:dialog>
 		</h:form>
 
@@ -440,7 +440,7 @@
 		<!-- 					update=":ManageNameForm" oncomplete="cancelReq.hide()" -->
 		<!-- 					action="#{requestManager.onCancel()}" /> -->
 		<!-- 				<p:commandButton value="Cancel" style="float: right" -->
-		<!-- 					onclick="delNCName.hide()" /> -->
+		<!-- 					onclick="delNcName.hide()" /> -->
 		<!-- 			</p:dialog> -->
 		<!-- 		</h:form> -->
 	</ui:define>
