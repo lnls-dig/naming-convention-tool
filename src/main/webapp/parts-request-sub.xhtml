@@ -16,8 +16,9 @@
             <!-- =================== Menus      ============================ -->
             <p:menu id="reqMenu" styleClass="fixedPosition box" style="width: 8%">
                 <p:submenu label="Requests">                                          
-                    <p:menuitem value="Add" icon="ui-icon-plus" oncomplete="addName.show()" update=":addNameForm"
-                                title="Add Name"  rendered="#{not requestManager.myRequest}" />                                                         
+                    <p:menuitem value="Add" icon="ui-icon-plus" oncomplete="addName.show()" 
+                                update=":addNameForm :ReqSubForm:crTable" title="Add Name" 
+                                rendered="#{not requestManager.myRequest}" />                                                         
                     <p:menuitem value="Delete" icon="ui-icon-trash" update=":DelNameForm:delName" 
                                 oncomplete="delName.show()" title="Delete Name" rendered="#{not requestManager.myRequest}" 
                                 disabled="#{empty requestManager.selectedName}" />                      
