@@ -351,6 +351,7 @@ public class EditNamesManager implements Serializable {
 
 	public void loadSelectedName() {
 		if(selectedNCName != null) {
+			logger.log(Level.INFO, "Loading fields for name "+selectedNCName.getName());
 			Map<String, Integer> namePartMap = new HashMap<String, Integer>();
 
 			NameEvent sectionNode = selectedNCName.getSection();
@@ -362,29 +363,29 @@ public class EditNamesManager implements Serializable {
 
 			NameEvent disciplineNode = selectedNCName.getDiscipline();
 			while(disciplineNode.getParentName() != null) {
-				namePartMap.put(disciplineNode.getNameCategory().getName(), sectionNode.getId());
-				sectionNode = disciplineNode.getParentName();
+				namePartMap.put(disciplineNode.getNameCategory().getName(), disciplineNode.getId());
+				disciplineNode = disciplineNode.getParentName();
 			}
-			namePartMap.put(disciplineNode.getNameCategory().getName(), sectionNode.getId());
-
-			init();
-
-			for(String categoryName : namePartMap.keySet()) {
-				if(categoryName.equalsIgnoreCase("SUP")) {
-					superSectionID = namePartMap.get(categoryName);
-				} else if(categoryName.equalsIgnoreCase("SECT")) {
-					sectionID = namePartMap.get(categoryName);
-				} else if(categoryName.equalsIgnoreCase("SUB")) {
-					subsectionID = namePartMap.get(categoryName);
-				} else if(categoryName.equalsIgnoreCase("DSCP")) {
-					disciplineID = namePartMap.get(categoryName);
-				} else if(categoryName.equalsIgnoreCase("CAT")) {
-					categoryID = namePartMap.get(categoryName);
-				} else if(categoryName.equalsIgnoreCase("GDEV")) {
-					genDeviceID = namePartMap.get(categoryName);
-				} else if(categoryName.equalsIgnoreCase("SDEV")) {
-					specDeviceID = namePartMap.get(categoryName);
-				}
+			namePartMap.put(disciplineNode.getNameCategory().getName(), disciplineNode.getId());
+			
+			//Load section selections.
+			loadSuperSections();
+			setSuperSectionID(namePartMap.get(NameCategories.supersection()));
+			loadSections();
+			setSectionID(namePartMap.get(NameCategories.section()));
+			loadSubsections();
+			setSubsectionID(namePartMap.get(NameCategories.subsection()));
+			
+			//Load Discipline selections.
+			loadDisciplines();
+			setDisciplineID(namePartMap.get(NameCategories.discipline()));
+			loadCategories();
+			setCategoryID(namePartMap.get(NameCategories.category()));
+			loadGenericDevices();
+			setGenDeviceID(namePartMap.get(NameCategories.genericDevice()));
+			if(namePartMap.containsKey(NameCategories.specificDevice())) {
+				loadSpecificDevices();
+				setSpecDeviceID(namePartMap.get(NameCategories.specificDevice()));
 			}
 		}
 	}
@@ -587,6 +588,7 @@ public class EditNamesManager implements Serializable {
 					e.getMessage());
 			System.err.println(e);
 		} finally {
+			//EMPTY
 		}
 	}
     

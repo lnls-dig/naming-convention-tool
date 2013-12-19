@@ -22,12 +22,12 @@
 						oncomplete="addNCName.show()" title="Add Name"
 						rendered="#{userManager.editor}" />
 					<p:menuitem value="Delete" icon="ui-icon-trash"
-						action="editNamesManager.loadSelectedName()"
 						update=":delNCNameForm" oncomplete="delNCName.show()"
 						title="Delete NC Name" rendered="#{userManager.editor}"
                         disabled="#{empty editNamesManager.selectedNCName || editNamesManager.selectedNCName.status == 'DELETED'}" />
 					<p:menuitem value="Modify" icon="ui-icon-pencil"
 						update=":modNCNameForm" oncomplete="modNCName.show()"
+						action="#{editNamesManager.loadSelectedName()}"
 						title="Modify NC Name" rendered="#{userManager.editor}"
 						disabled="#{empty editNamesManager.selectedNCName}" />
 					<p:menuitem value="Approve" icon="ui-icon-star"
@@ -46,26 +46,32 @@
 				</p:submenu>
 			</p:menu>
 
-			<!-- 			<p:contextMenu id="ncCntxtMenu" for="crTable"> -->
-			<!-- 				<p:menuitem value="Add" icon="ui-icon-plus" -->
-			<!-- 					oncomplete="addNCName.show()" -->
-			<!-- 					rendered="#{not requestManager.myRequest}" /> -->
-			<!-- 				<p:menuitem value="Delete" update=":delNCNameForm" -->
-			<!-- 					icon="ui-icon-trash" oncomplete="delNCName.show()" -->
-			<!-- 					rendered="#{not requestManager.myRequest}" -->
-			<!-- 					disabled="#{empty requestManager.selectedName}" /> -->
-			<!-- 				<p:menuitem value="Modify" update=":modNCNameForm" -->
-			<!-- 					icon="ui-icon-pencil" oncomplete="modNCName.show()" -->
-			<!-- 					rendered="#{not requestManager.myRequest}" -->
-			<!-- 					disabled="#{empty requestManager.selectedName}" /> -->
-			<!-- 				<p:menuitem value="History" icon="ui-icon-search" -->
-			<!-- 					actionListener="#{requestManager.findHistory()}" -->
-			<!-- 					update=":ManageNameForm:historyTable" oncomplete="nameDetail.show()" /> -->
-			<!-- 				<p:menuitem value="Cancel Request" icon="ui-icon-close" -->
-			<!-- 					update=":CancelReqForm" oncomplete="cancelReq.show()" -->
-			<!-- 					title="Cancel Request" rendered="#{requestManager.myRequest}" -->
-			<!-- 					disabled="#{requestManager.selectedEventProcessed()}" /> -->
-			<!-- 			</p:contextMenu> -->
+						<p:contextMenu id="ncCntxtMenu" for="ncCrTable">
+							<p:menuitem value="Add" icon="ui-icon-plus"
+								oncomplete="addNCName.show()"
+								rendered="#{userManager.editor}" />
+							<p:menuitem value="Delete" update=":delNCNameForm"
+								icon="ui-icon-trash" oncomplete="delNCName.show()"
+								rendered="#{userManager.editor}"
+								disabled="#{empty editNamesManager.selectedNCName || editNamesManager.selectedNCName.status == 'DELETED'}" />
+							<p:menuitem value="Modify" update=":modNCNameForm"
+								action="#{editNamesManager.loadSelectedName()}"
+								icon="ui-icon-pencil" oncomplete="modNCName.show()"
+								rendered="#{userManager.editor}"
+								disabled="#{empty editNamesManager.selectedNCName}" />
+							<p:menuitem value="Approve" icon="ui-icon-star"
+								update="ncCrTable" action="#{editNamesManager.approve()}"
+								rendered="#{userManager.editor}"
+		                        disabled="#{empty editNamesManager.selectedNCName || editNamesManager.selectedNCName.processDate != null || !editNamesManager.superUser}" />
+							<p:menuitem value="History" icon="ui-icon-search"
+								actionListener="#{requestManager.findHistory()}"
+								update=":ManageNameForm:historyTable" oncomplete="nameDetail.show()"
+                        		disabled="#{empty editNamesManager.selectedNCName}" />
+<!-- 							<p:menuitem value="Cancel Request" icon="ui-icon-close" -->
+<!-- 								update=":CancelReqForm" oncomplete="cancelReq.show()" -->
+<!-- 								title="Cancel Request" rendered="#{requestManager.myRequest}" -->
+<!-- 								disabled="#{requestManager.selectedEventProcessed()}" /> -->
+						</p:contextMenu>
 
 			<!-- ===================Data Table============================ -->
 			<p:dataTable id="ncCrTable" var="ncName"
