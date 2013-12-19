@@ -13,8 +13,9 @@
  *   http://frib.msu.edu
  * 
  */
-package org.openepics.names;
+package org.openepics.names.services;
 
+import org.openepics.names.ui.UserManager;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -33,7 +34,6 @@ import org.openepics.names.model.NameEventStatus;
 import org.openepics.names.model.NameEventType;
 import org.openepics.names.model.NameRelease;
 import org.openepics.names.model.Privilege;
-import org.openepics.names.nc.NamingConventionEJB;
 
 // import org.openepics.auth.japi.*;
 

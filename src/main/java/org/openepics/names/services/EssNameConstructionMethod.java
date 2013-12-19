@@ -1,9 +1,9 @@
-package org.openepics.names.nc;
+package org.openepics.names.services;
 
 /**
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
-public enum ESSNameConstructionMethod {
+public enum EssNameConstructionMethod {
 	ACCELERATOR, TARGET 
 }

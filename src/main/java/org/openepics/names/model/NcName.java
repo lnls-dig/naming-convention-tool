@@ -35,28 +35,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 		"instance_index" }) })
 @XmlRootElement
 @NamedQueries({
-		@NamedQuery(name = "NCName.findAll", query = "SELECT n FROM NCName n"),
-		@NamedQuery(name = "NCName.findById", query = "SELECT n FROM NCName n WHERE n.id = :id"),
-		@NamedQuery(name = "NCName.findBySection", query = "SELECT n FROM NCName n WHERE n.section = :section"),
-		@NamedQuery(name = "NCName.findByDiscipline", query = "SELECT n FROM NCName n WHERE n.discipline = :discipline"),
-		@NamedQuery(name = "NCName.findBySignal", query = "SELECT n FROM NCName n WHERE n.signal = :signal"),
-		@NamedQuery(name = "NCName.findByName", query = "SELECT n FROM NCName n WHERE n.name = :name"),
-		@NamedQuery(name = "NCName.findByStatus", query = "SELECT n FROM NCName n WHERE n.status = :status"),
-		@NamedQuery(name = "NCName.findByParts", query = "SELECT n FROM NCName n WHERE n.section = :section AND n.discipline = :device AND n.signal = :signal AND n.instanceIndex = :instanceIndex") })
-public class NCName implements Serializable {
+		@NamedQuery(name = "NcName.findAll", query = "SELECT n FROM NcName n"),
+		@NamedQuery(name = "NcName.findById", query = "SELECT n FROM NcName n WHERE n.id = :id"),
+		@NamedQuery(name = "NcName.findBySection", query = "SELECT n FROM NcName n WHERE n.section = :section"),
+		@NamedQuery(name = "NcName.findByDiscipline", query = "SELECT n FROM NcName n WHERE n.discipline = :discipline"),
+		@NamedQuery(name = "NcName.findBySignal", query = "SELECT n FROM NcName n WHERE n.signal = :signal"),
+		@NamedQuery(name = "NcName.findByName", query = "SELECT n FROM NcName n WHERE n.name = :name"),
+		@NamedQuery(name = "NcName.findByStatus", query = "SELECT n FROM NcName n WHERE n.status = :status"),
+		@NamedQuery(name = "NcName.findByParts", query = "SELECT n FROM NcName n WHERE n.section = :section AND n.discipline = :device AND n.signal = :signal AND n.instanceIndex = :instanceIndex") })
+public class NcName implements Serializable {
 	private static final long serialVersionUID = 3745635930595784338L;
-	
-//TODO EcliseLink specific mapping implementation. Fix to be JPA only, when possible.
-//@ObjectTypeConverter(	name = "ncStatusConverter",
-//						objectType = NCNameStatus.class,
-//						dataType = String.class,
-//						conversionValues = {
-//							@ConversionValue(objectValue = "INVALID", dataValue = "invalid"),
-//							@ConversionValue(objectValue = "VALID", dataValue = "valid"),
-//							@ConversionValue(objectValue = "DELETED", dataValue = "deleted")})
-public enum NCNameStatus {
-	INVALID, VALID, DELETED;
-}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -93,7 +81,7 @@ public enum NCNameStatus {
 	@Column(name = "status")
 	@Enumerated(EnumType.STRING)
 //	@Convert("ncStatusConverter")
-	private NCNameStatus status;
+	private NcNameStatus status;
 
 	@JoinColumn(name = "requested_by", referencedColumnName = "id")
 	@ManyToOne(optional = false)
@@ -120,12 +108,12 @@ public enum NCNameStatus {
 	@Version
 	private Integer version;
 
-	public NCName() {
+	public NcName() {
 		// EMPTY
 	}
 
-	public NCName(NameEvent section, NameEvent discipline, NameEvent signal, String instanceIndex, String name,
-			NCNameStatus status) {
+	public NcName(NameEvent section, NameEvent discipline, NameEvent signal, String instanceIndex, String name,
+			NcNameStatus status) {
 		this.section = section;
 		this.discipline = discipline;
 		this.signal = signal;
@@ -166,11 +154,11 @@ public enum NCNameStatus {
 		this.instanceIndex = instanceIndex;
 	}
 
-	public NCNameStatus getStatus() {
+	public NcNameStatus getStatus() {
 		return status;
 	}
 
-	public void setStatus(NCNameStatus status) {
+	public void setStatus(NcNameStatus status) {
 		this.status = status;
 	}
 

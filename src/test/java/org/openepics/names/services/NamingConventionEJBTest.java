@@ -1,5 +1,7 @@
-package org.openepics.names.nc;
+package org.openepics.names.services;
 
+import org.openepics.names.services.NamingConventionEJB;
+import org.openepics.names.services.NamingConventionException;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -8,7 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.junit.Test;
-import org.openepics.names.NamesEJB;
+import org.openepics.names.services.NamesEJB;
 import org.openepics.names.model.NameCategory;
 
 public class NamingConventionEJBTest {
@@ -21,7 +23,7 @@ public class NamingConventionEJBTest {
 	private NamingConventionEJB ncEJB = new NamingConventionEJB();
 	
 	@Test
-	public void testCreateNCName() {
+	public void testCreateNcName() {
 		fail("Not yet implemented");
 	}
 

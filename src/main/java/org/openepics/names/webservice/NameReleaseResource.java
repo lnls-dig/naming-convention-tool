@@ -2,77 +2,74 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.openepics.names.service;
+package org.openepics.names.webservice;
 
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import org.openepics.names.NamesEJB;
-import org.openepics.names.model.NameEvent;
+import org.openepics.names.services.NamesEJB;
+import org.openepics.names.model.NameRelease;
 
 /**
  *
  * @author Vasu V <vuppala@frib.msu.org>
  */
 @Stateless
-@Path("event")
-public class NameEventResource  {
+@Path("release")
+public class NameReleaseResource {
     @EJB
     private NamesEJB namesEJB;
 
-    @GET
+    @GET   
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
-    public List<NameEvent> getNameElements(@DefaultValue("%") @QueryParam("category") String categoty,
-        @DefaultValue("false") @QueryParam("deleted") Boolean deleted) {
-       
-        return namesEJB.getStandardNames(categoty, deleted);
+    public List<NameRelease> findAll() {
+        return namesEJB.getAllReleases();
     }
-    
     /*
-    public NameEventResource() {
-        super(NameEvent.class);
+    public NameReleaseResource() {
+        super(NameRelease.class);
     }
 
     @POST
     @Override
     @Consumes({"application/xml", "application/json"})
-    public void create(NameEvent entity) {
+    public void create(NameRelease entity) {
         super.create(entity);
     }
 
     @PUT
     @Override
     @Consumes({"application/xml", "application/json"})
-    public void edit(NameEvent entity) {
+    public void edit(NameRelease entity) {
         super.edit(entity);
     }
 
     @DELETE
     @Path("{id}")
-    public void remove(@PathParam("id") Integer id) {
+    public void remove(@PathParam("id") String id) {
         super.remove(super.find(id));
     }
 
     @GET
     @Path("{id}")
     @Produces({"application/xml", "application/json"})
-    public NameEvent find(@PathParam("id") Integer id) {
+    public NameRelease find(@PathParam("id") String id) {
         return super.find(id);
     }
 
     @GET
     @Override
     @Produces({"application/xml", "application/json"})
-    public List<NameEvent> findAll() {
+    public List<NameRelease> findAll() {
         return super.findAll();
     }
 
     @GET
     @Path("{from}/{to}")
     @Produces({"application/xml", "application/json"})
-    public List<NameEvent> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
+    public List<NameRelease> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
         return super.findRange(new int[]{from, to});
     }
 

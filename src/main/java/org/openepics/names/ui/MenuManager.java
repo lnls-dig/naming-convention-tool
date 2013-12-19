@@ -13,7 +13,7 @@
  *   http://frib.msu.edu
  * 
  */
-package org.openepics.names;
+package org.openepics.names.ui;
 
 import java.io.Serializable;
 import java.util.List;
@@ -22,6 +22,7 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import org.openepics.names.services.NamesEJB;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
 import org.primefaces.component.menuitem.MenuItem;

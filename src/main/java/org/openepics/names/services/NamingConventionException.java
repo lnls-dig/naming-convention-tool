@@ -1,4 +1,4 @@
-package org.openepics.names.nc;
+package org.openepics.names.services;
 
 public class NamingConventionException extends Exception {
 	

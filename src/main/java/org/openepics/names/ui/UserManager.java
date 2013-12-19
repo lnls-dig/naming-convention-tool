@@ -13,7 +13,7 @@
  *   http://frib.msu.edu
  * 
  */
-package org.openepics.names;
+package org.openepics.names.ui;
 
 import java.io.Serializable;
 import java.security.Principal;
@@ -27,6 +27,7 @@ import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import org.openepics.names.services.NamesEJB;
 import org.openepics.names.model.Privilege;
 
 /**

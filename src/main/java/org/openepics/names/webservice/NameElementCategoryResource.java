@@ -2,47 +2,52 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.openepics.names.service;
+package org.openepics.names.webservice;
 
 import java.util.List;
+
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import org.openepics.names.NamesEJB;
-import org.openepics.names.model.NameRelease;
+
+import org.openepics.names.services.NamesEJB;
+import org.openepics.names.model.NameCategory;
 
 /**
  *
  * @author Vasu V <vuppala@frib.msu.org>
  */
 @Stateless
-@Path("release")
-public class NameReleaseResource {
+@Path("category")
+public class NameElementCategoryResource {
     @EJB
     private NamesEJB namesEJB;
 
-    @GET   
+    @GET    
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
-    public List<NameRelease> findAll() {
-        return namesEJB.getAllReleases();
+    public List<NameCategory> findAll() {
+        return namesEJB.getCategories();
     }
+    
     /*
-    public NameReleaseResource() {
-        super(NameRelease.class);
+    public NameElementCategoryResource() {
+        super(NameCategory.class);
     }
 
     @POST
     @Override
     @Consumes({"application/xml", "application/json"})
-    public void create(NameRelease entity) {
+    public void create(NameCategory entity) {
         super.create(entity);
     }
 
     @PUT
     @Override
     @Consumes({"application/xml", "application/json"})
-    public void edit(NameRelease entity) {
+    public void edit(NameCategory entity) {
         super.edit(entity);
     }
 
@@ -55,21 +60,21 @@ public class NameReleaseResource {
     @GET
     @Path("{id}")
     @Produces({"application/xml", "application/json"})
-    public NameRelease find(@PathParam("id") String id) {
+    public NameCategory find(@PathParam("id") String id) {
         return super.find(id);
     }
 
     @GET
     @Override
     @Produces({"application/xml", "application/json"})
-    public List<NameRelease> findAll() {
+    public List<NameCategory> findAll() {
         return super.findAll();
     }
 
     @GET
     @Path("{from}/{to}")
     @Produces({"application/xml", "application/json"})
-    public List<NameRelease> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
+    public List<NameCategory> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
         return super.findRange(new int[]{from, to});
     }
 

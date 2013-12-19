@@ -2,79 +2,77 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.openepics.names.service;
+package org.openepics.names.webservice;
 
 import java.util.List;
-
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-
-import org.openepics.names.NamesEJB;
-import org.openepics.names.model.NameCategory;
+import org.openepics.names.services.NamesEJB;
+import org.openepics.names.model.NameEvent;
 
 /**
  *
  * @author Vasu V <vuppala@frib.msu.org>
  */
 @Stateless
-@Path("category")
-public class NameElementCategoryResource {
+@Path("event")
+public class NameEventResource  {
     @EJB
     private NamesEJB namesEJB;
 
-    @GET    
+    @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
-    public List<NameCategory> findAll() {
-        return namesEJB.getCategories();
+    public List<NameEvent> getNameElements(@DefaultValue("%") @QueryParam("category") String categoty,
+        @DefaultValue("false") @QueryParam("deleted") Boolean deleted) {
+       
+        return namesEJB.getStandardNames(categoty, deleted);
     }
     
     /*
-    public NameElementCategoryResource() {
-        super(NameCategory.class);
+    public NameEventResource() {
+        super(NameEvent.class);
     }
 
     @POST
     @Override
     @Consumes({"application/xml", "application/json"})
-    public void create(NameCategory entity) {
+    public void create(NameEvent entity) {
         super.create(entity);
     }
 
     @PUT
     @Override
     @Consumes({"application/xml", "application/json"})
-    public void edit(NameCategory entity) {
+    public void edit(NameEvent entity) {
         super.edit(entity);
     }
 
     @DELETE
     @Path("{id}")
-    public void remove(@PathParam("id") String id) {
+    public void remove(@PathParam("id") Integer id) {
         super.remove(super.find(id));
     }
 
     @GET
     @Path("{id}")
     @Produces({"application/xml", "application/json"})
-    public NameCategory find(@PathParam("id") String id) {
+    public NameEvent find(@PathParam("id") Integer id) {
         return super.find(id);
     }
 
     @GET
     @Override
     @Produces({"application/xml", "application/json"})
-    public List<NameCategory> findAll() {
+    public List<NameEvent> findAll() {
         return super.findAll();
     }
 
     @GET
     @Path("{from}/{to}")
     @Produces({"application/xml", "application/json"})
-    public List<NameCategory> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
+    public List<NameEvent> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
         return super.findRange(new int[]{from, to});
     }
 

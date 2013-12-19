@@ -1,4 +1,4 @@
-package org.openepics.names;
+package org.openepics.names.ui;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -14,13 +14,13 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import org.openepics.names.services.NamesEJB;
 
-import org.openepics.names.environment.NameCategories;
-import org.openepics.names.model.NCName;
+import org.openepics.names.model.NcName;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
-import org.openepics.names.nc.NamingConventionEJB;
-import org.openepics.names.nc.ESSNameConstructionMethod;
+import org.openepics.names.services.NamingConventionEJB;
+import org.openepics.names.services.EssNameConstructionMethod;
 
 @ManagedBean
 @ViewScoped
@@ -44,7 +44,7 @@ public class EditNamesManager implements Serializable {
 	private Integer genDeviceID;
 	private Integer specDeviceID;
 
-	private NCName selectedNCName;
+	private NcName selectedNcName;
 
 	private List<NameEvent> superSectionNames;
 	private List<NameEvent> sectionNames;
@@ -54,8 +54,8 @@ public class EditNamesManager implements Serializable {
 	private List<NameEvent> genDevNames;
 	private List<NameEvent> specDevNames;
 
-	private List<NCName> allNCNames;
-    private List<NCName> historyNCNames;
+	private List<NcName> allNcNames;
+    private List<NcName> historyNcNames;
     
     private boolean showDeletedNames = true;
 
@@ -72,7 +72,7 @@ public class EditNamesManager implements Serializable {
 		loadCategories();
 		loadGenericDevices();
 		loadSpecificDevices();
-		refreshNCNames();
+		refreshNcNames();
         clearSelectionIds();
 	}
     
@@ -87,7 +87,7 @@ public class EditNamesManager implements Serializable {
     }
 
 	public void onAdd() {
-		NCName newNCName;
+		NcName newNcName;
 
 		try {
 			logger.log(Level.INFO, "Adding NC Name");
@@ -96,10 +96,10 @@ public class EditNamesManager implements Serializable {
 			}
 			NameEvent subsection = namesEJB.findEventById(subsectionID);
 			NameEvent genDevice = namesEJB.findEventById(genDeviceID);
-			newNCName = ncEJB.createNCNameDevice(subsection, genDevice, ESSNameConstructionMethod.ACCELERATOR);
+			newNcName = ncEJB.createNcNameDevice(subsection, genDevice, EssNameConstructionMethod.ACCELERATOR);
 			showMessage(FacesMessage.SEVERITY_INFO,
 					"NC Name successfully added.",
-					"Name: " + newNCName.getName());
+					"Name: " + newNcName.getName());
 		} catch (Exception e) {
 			showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
 					e.getMessage());
@@ -112,7 +112,7 @@ public class EditNamesManager implements Serializable {
 	public void onModify() {
 		try {
 			logger.log(Level.INFO, "Modifying NC Name");
-            NCName modifiedName = ncEJB.modifyNCName(subsectionID, genDeviceID, selectedNCName.getId());
+            NcName modifiedName = ncEJB.modifyNcName(subsectionID, genDeviceID, selectedNcName.getId());
 			showMessage(FacesMessage.SEVERITY_INFO,
 					"NC Name modified.",
 					"Name: " + modifiedName.getName());
@@ -126,21 +126,21 @@ public class EditNamesManager implements Serializable {
 	}
 
 	public void onDelete() {
-		NCName newNCName;
+		NcName newNcName;
 
 		try {
 			logger.log(Level.INFO, "Deleting NC Name");
-			newNCName = ncEJB.deleteNCName(selectedNCName);
+			newNcName = ncEJB.deleteNcName(selectedNcName);
 			showMessage(FacesMessage.SEVERITY_INFO,
 					"NC Name successfully deleted.",
-					"Name: " + newNCName.getName());
+					"Name: " + newNcName.getName());
 		} catch (Exception e) {
 			showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
 					e.getMessage());
 			System.err.println(e);
 		} finally {
 			init();
-			selectedNCName = null;
+			selectedNcName = null;
 		}
 	}
 
@@ -310,9 +310,9 @@ public class EditNamesManager implements Serializable {
 		}
 	}
 
-	public String getSelectedNCNameSectionString() {
-		if(selectedNCName != null) {
-			NameEvent bottomName = selectedNCName.getSection();
+	public String getSelectedNcNameSectionString() {
+		if(selectedNcName != null) {
+			NameEvent bottomName = selectedNcName.getSection();
 			String sectionString = "";
 			boolean firstTime = true;
 			while(bottomName != null) {
@@ -328,9 +328,9 @@ public class EditNamesManager implements Serializable {
 		return "No selection!";
 	}
 
-	public String getSelectedNCNameDisciplineString() {
-		if(selectedNCName != null) {
-			NameEvent bottomName = selectedNCName.getDiscipline();
+	public String getSelectedNcNameDisciplineString() {
+		if(selectedNcName != null) {
+			NameEvent bottomName = selectedNcName.getDiscipline();
 			String disciplineString = "";
 			boolean firstTime = true;
 			while(bottomName != null) {
@@ -347,18 +347,18 @@ public class EditNamesManager implements Serializable {
 	}
 
 	public void loadSelectedName() {
-		if(selectedNCName != null) {
-			logger.log(Level.INFO, "Loading fields for name "+selectedNCName.getName());
+		if(selectedNcName != null) {
+			logger.log(Level.INFO, "Loading fields for name "+selectedNcName.getName());
 			Map<String, Integer> namePartMap = new HashMap<String, Integer>();
 
-			NameEvent sectionNode = selectedNCName.getSection();
+			NameEvent sectionNode = selectedNcName.getSection();
 			while(sectionNode.getParentName() != null) {
 				namePartMap.put(sectionNode.getNameCategory().getName(), sectionNode.getId());
 				sectionNode = sectionNode.getParentName();
 			}
 			namePartMap.put(sectionNode.getNameCategory().getName(), sectionNode.getId());
 
-			NameEvent disciplineNode = selectedNCName.getDiscipline();
+			NameEvent disciplineNode = selectedNcName.getDiscipline();
 			while(disciplineNode.getParentName() != null) {
 				namePartMap.put(disciplineNode.getNameCategory().getName(), disciplineNode.getId());
 				disciplineNode = disciplineNode.getParentName();
@@ -498,20 +498,20 @@ public class EditNamesManager implements Serializable {
 	public void setSpecDeviceID(Integer specDeviceID) {
 		this.specDeviceID = specDeviceID;
 	}
-	public NCName getSelectedNCName() {
-		return selectedNCName;
+	public NcName getSelectedNcName() {
+		return selectedNcName;
 	}
 
-	public void setSelectedNCName(NCName selectedNCName) {
-		this.selectedNCName = selectedNCName;
+	public void setSelectedNcName(NcName selectedNcName) {
+		this.selectedNcName = selectedNcName;
 	}
 
-	public List<NCName> getAllNCNames() {
-		return allNCNames;
+	public List<NcName> getAllNcNames() {
+		return allNcNames;
 	}
 
-	public void setAllNCNames(List<NCName> allNCNames) {
-		this.allNCNames = allNCNames;
+	public void setAllNcNames(List<NcName> allNcNames) {
+		this.allNcNames = allNcNames;
 	}
 	
 	public boolean isFormFilled() {
@@ -528,7 +528,7 @@ public class EditNamesManager implements Serializable {
 		context.addMessage(null, new FacesMessage(severity, summary, message));
 	}
     
-    public String nameStatus(NCName nreq) {
+    public String nameStatus(NcName nreq) {
         switch(nreq.getStatus()) {
             case VALID:
                  return "Published";
@@ -543,13 +543,13 @@ public class EditNamesManager implements Serializable {
     
 	public void findHistory() {
 		try {
-			if (selectedNCName == null) {
+			if (selectedNcName == null) {
 				showMessage(FacesMessage.SEVERITY_ERROR, "Error",
 						"You must select a name first.");
-				historyNCNames = null;
+				historyNcNames = null;
 				return;
 			}
-			historyNCNames = ncEJB.getNCNameHistory(selectedNCName.getNameId());
+			historyNcNames = ncEJB.getNcNameHistory(selectedNcName.getNameId());
 		} catch (Exception e) {
 			showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
 					e.getMessage());
@@ -559,8 +559,8 @@ public class EditNamesManager implements Serializable {
 		}
 	}
     
-    public List<NCName> getHistoryEvents() {
-		return historyNCNames;
+    public List<NcName> getHistoryEvents() {
+		return historyNcNames;
 	} 
     
     public boolean isSuperUser() {
@@ -575,10 +575,10 @@ public class EditNamesManager implements Serializable {
 		this.showDeletedNames = showDeletedNames;
 	}
 
-    public void refreshNCNames() {
+    public void refreshNcNames() {
         if(showDeletedNames)
-            allNCNames = ncEJB.getAllNCNames();
+            allNcNames = ncEJB.getAllNcNames();
         else
-            allNCNames = ncEJB.getExistingNCNames();
+            allNcNames = ncEJB.getExistingNcNames();
     }
 }

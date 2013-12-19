@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package org.openepics.names.environment;
+package org.openepics.names.ui;
 
 /**
  *

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.openepics.names.service;
+package org.openepics.names.webservice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import org.openepics.names.NamesEJB;
+import org.openepics.names.services.NamesEJB;
 import org.openepics.names.model.NameEvent;
 /**
  *

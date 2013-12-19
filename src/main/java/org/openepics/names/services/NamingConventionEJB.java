@@ -1,4 +1,4 @@
-package org.openepics.names.nc;
+package org.openepics.names.services;
 
 import java.security.AccessControlException;
 import java.security.InvalidParameterException;
@@ -15,10 +15,10 @@ import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import org.openepics.names.UserManager;
-import org.openepics.names.environment.NameCategories;
-import org.openepics.names.model.NCName;
-import org.openepics.names.model.NCName.NCNameStatus;
+import org.openepics.names.ui.UserManager;
+import org.openepics.names.ui.NameCategories;
+import org.openepics.names.model.NcName;
+import org.openepics.names.model.NcNameStatus;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
 import org.openepics.names.model.NameEventStatus;
@@ -61,8 +61,8 @@ public class NamingConventionEJB {
 	 *         Example incorrect entities were used for section, device or
 	 *         signal
 	 */
-	public NCName createNCNameSignal(NameEvent subsection, NameEvent device, String deviceInstanceIndex, NameEvent signal,
-			ESSNameConstructionMethod method) {
+	public NcName createNcNameSignal(NameEvent subsection, NameEvent device, String deviceInstanceIndex, NameEvent signal,
+			EssNameConstructionMethod method) {
 		if (subsection == null || device == null || deviceInstanceIndex == null || signal == null)
 			throw new InvalidParameterException("Subsection or device not specified.");
 
@@ -73,17 +73,17 @@ public class NamingConventionEJB {
 		if (nameSections == null)
 			throw new InvalidParameterException("Unable to find section.");
 
-		if (method == ESSNameConstructionMethod.ACCELERATOR && !isDeviceInstanceIndexValid(subsection, deviceInstanceIndex))
+		if (method == EssNameConstructionMethod.ACCELERATOR && !isDeviceInstanceIndexValid(subsection, deviceInstanceIndex))
 			throw new InvalidParameterException("Device instance index invalid.");
 
-		NCName newNCName = new NCName(subsection, device, signal, deviceInstanceIndex, 
-                calcNCNameSignal(nameSections, deviceInstanceIndex, validateSignalName(signal)), NCNameStatus.VALID);
-        newNCName.setNameId(UUID.randomUUID().toString());
-        newNCName.setRequestedBy(userManager.getUser());
-        newNCName.setProcessedBy(userManager.getUser());
-        newNCName.setProcessDate(new Date());
-		em.persist(newNCName);
-		return newNCName;
+		NcName newNcName = new NcName(subsection, device, signal, deviceInstanceIndex, 
+                calcNcNameSignal(nameSections, deviceInstanceIndex, validateSignalName(signal)), NcNameStatus.VALID);
+        newNcName.setNameId(UUID.randomUUID().toString());
+        newNcName.setRequestedBy(userManager.getUser());
+        newNcName.setProcessedBy(userManager.getUser());
+        newNcName.setProcessDate(new Date());
+		em.persist(newNcName);
+		return newNcName;
 	}
 
 	/**
@@ -91,19 +91,19 @@ public class NamingConventionEJB {
      * @param nameToDelete
      * @return 
      */
-    public NCName deleteNCName(NCName nameToDelete) {
+    public NcName deleteNcName(NcName nameToDelete) {
         if(!userManager.isLoggedIn())
             throw new AccessControlException("You must be logged in to perform this action.");
         if(nameToDelete == null)
             throw new InvalidParameterException("Parameter nameToDelete must not be null");
         if(nameToDelete.getSection() == null || nameToDelete.getDiscipline() == null)
-            throw new InvalidParameterException("The Entity NCName has invalid menmonic references.");
+            throw new InvalidParameterException("The Entity NcName has invalid menmonic references.");
         if(nameToDelete.getInstanceIndex() == null || nameToDelete.getInstanceIndex().isEmpty())
             throw new InvalidParameterException("Invalid instance index.");
         if(nameToDelete.getName() == null || nameToDelete.getName().isEmpty())
             throw new InvalidParameterException("No NC name specified.");
         
-        if(nameToDelete.getStatus() == NCNameStatus.DELETED)
+        if(nameToDelete.getStatus() == NcNameStatus.DELETED)
             return nameToDelete;
         
         // Superuser can delete anything. Editors only their own NC names
@@ -111,11 +111,11 @@ public class NamingConventionEJB {
                 nameToDelete.getRequestedBy().getId().intValue() != userManager.getUser().getId().intValue())
             throw new AccessControlException("You are not authorized to ");
         
-        NCName deletedName = null;
-        if(nameToDelete.getStatus() == NCNameStatus.VALID) {
+        NcName deletedName = null;
+        if(nameToDelete.getStatus() == NcNameStatus.VALID) {
             // make new revision
-            deletedName = new NCName(nameToDelete.getSection(), nameToDelete.getDiscipline(), nameToDelete.getSignal(),
-                    nameToDelete.getInstanceIndex(), nameToDelete.getName(), NCNameStatus.DELETED);
+            deletedName = new NcName(nameToDelete.getSection(), nameToDelete.getDiscipline(), nameToDelete.getSignal(),
+                    nameToDelete.getInstanceIndex(), nameToDelete.getName(), NcNameStatus.DELETED);
             deletedName.setNameId(nameToDelete.getNameId());
             deletedName.setRequestedBy(userManager.getUser());
             deletedName.setProcessedBy(userManager.getUser());
@@ -123,7 +123,7 @@ public class NamingConventionEJB {
             em.persist(deletedName);
         } else {
             // INVALID. Remove from database.
-            deletedName = em.find(NCName.class, nameToDelete.getId());
+            deletedName = em.find(NcName.class, nameToDelete.getId());
             em.remove(deletedName);
         }
         
@@ -141,8 +141,8 @@ public class NamingConventionEJB {
 	 *         Example incorrect entities were used for section, device or
 	 *         signal
 	 */
-	public NCName createNCNameDevice(NameEvent subsection, NameEvent device,
-			ESSNameConstructionMethod method) {
+	public NcName createNcNameDevice(NameEvent subsection, NameEvent device,
+			EssNameConstructionMethod method) {
 		if (subsection == null || device == null)
 			throw new InvalidParameterException("Subsection or device not specified.");
 
@@ -153,44 +153,44 @@ public class NamingConventionEJB {
 		if (nameSections == null)
 			throw new InvalidParameterException("Unable to find section.");
 
-		long deviceInstances = countNCNamesByRef(subsection, device);
+		long deviceInstances = countNcNamesByRef(subsection, device);
 		String deviceInstanceIndex = subsection.getName().substring(0, 2) + getDeviceInstanceIndex(deviceInstances);
         
-        logger.info("Creating NCName device");
-		NCName newNCName = new NCName(subsection, device, null, deviceInstanceIndex, 
-                calcNCNameDevice(nameSections, deviceInstanceIndex), NCNameStatus.VALID);
-        newNCName.setNameId(UUID.randomUUID().toString());
-        newNCName.setRequestedBy(userManager.getUser());
-        newNCName.setProcessedBy(userManager.getUser());
-        newNCName.setProcessDate(new Date());
-		em.persist(newNCName);
-		return newNCName;
+        logger.info("Creating NcName device");
+		NcName newNcName = new NcName(subsection, device, null, deviceInstanceIndex, 
+                calcNcNameDevice(nameSections, deviceInstanceIndex), NcNameStatus.VALID);
+        newNcName.setNameId(UUID.randomUUID().toString());
+        newNcName.setRequestedBy(userManager.getUser());
+        newNcName.setProcessedBy(userManager.getUser());
+        newNcName.setProcessDate(new Date());
+		em.persist(newNcName);
+		return newNcName;
 	}
 
-    private String calcNCNameDevice(NameSections nameSections, String deviceInstanceIndex) {
+    private String calcNcNameDevice(NameSections nameSections, String deviceInstanceIndex) {
         return nameSections.section.getName() + "-" + nameSections.disciplineOrSubsection.getName() +
                 ":" + nameSections.deviceName + "-" + deviceInstanceIndex;
     }
     
-    private String calcNCNameSignal(NameSections nameSections, String deviceInstanceIndex, String signal) {
+    private String calcNcNameSignal(NameSections nameSections, String deviceInstanceIndex, String signal) {
         return nameSections.section.getName() + "-" + nameSections.disciplineOrSubsection.getName() + 
                 ":" + nameSections.deviceName + "-" + deviceInstanceIndex + ":" + signal;
     }
     
-    public NCName modifyNCName(Integer subsectionId, Integer genDeviceId, Integer selectedNCNameId) {
-		if (subsectionId == null || genDeviceId == null || selectedNCNameId == null) 
+    public NcName modifyNcName(Integer subsectionId, Integer genDeviceId, Integer selectedNcNameId) {
+		if (subsectionId == null || genDeviceId == null || selectedNcNameId == null) 
             throw new InvalidParameterException("Error in selected name.");
         
-        NCName returnName;
-        NCName selectedNCName = em.find(NCName.class, selectedNCNameId);
+        NcName returnName;
+        NcName selectedNcName = em.find(NcName.class, selectedNcNameId);
 		NameEvent subsection = em.find(NameEvent.class, subsectionId);
 		NameEvent genDevice = em.find(NameEvent.class, genDeviceId);
         
         // TODO: fill drop-down menus with correct values.
         
         // TODO: Handle correct construction method
-        returnName = createNCNameDevice(subsection, genDevice, ESSNameConstructionMethod.ACCELERATOR);
-        returnName.setNameId(selectedNCName.getNameId());
+        returnName = createNcNameDevice(subsection, genDevice, EssNameConstructionMethod.ACCELERATOR);
+        returnName.setNameId(selectedNcName.getNameId());
         em.persist(returnName);
         
         return returnName;
@@ -210,7 +210,7 @@ public class NamingConventionEJB {
 	}
 
 	private NameSections getNameSections(NameEvent subsection, NameEvent device,
-			ESSNameConstructionMethod method) {
+			EssNameConstructionMethod method) {
 
 		if (!((subsection.getStatus() == NameEventStatus.APPROVED)
 				&& subsection.getNameCategory().getName().equals(NameCategories.subsection())
@@ -282,9 +282,9 @@ public class NamingConventionEJB {
 		return nameSections;
 	}
 
-	private long countNCNamesByRef(NameEvent subsection, NameEvent device) {
+	private long countNcNamesByRef(NameEvent subsection, NameEvent device) {
 		//@formatter:off
-		TypedQuery<Long> query = em.createQuery("SELECT COUNT(n) FROM NCName n " + 
+		TypedQuery<Long> query = em.createQuery("SELECT COUNT(n) FROM NcName n " + 
 														"WHERE n.section = :section " +
 														"AND n.discipline = :device ", 
 														Long.class);
@@ -299,18 +299,18 @@ public class NamingConventionEJB {
 		return signal.getName();
 	}
 
-	public NCName findNCNameById(Integer id) {
-		TypedQuery<NCName> query = em.createNamedQuery("NCName.findById", NCName.class).setParameter("id", id);
+	public NcName findNcNameById(Integer id) {
+		TypedQuery<NcName> query = em.createNamedQuery("NcName.findById", NcName.class).setParameter("id", id);
 		return query.getSingleResult();
 	}
 
-	public NCName findNCNameByName(String name) {
-		TypedQuery<NCName> query = em.createNamedQuery("NCName.findByName", NCName.class).setParameter("name", name);
+	public NcName findNcNameByName(String name) {
+		TypedQuery<NcName> query = em.createNamedQuery("NcName.findByName", NcName.class).setParameter("name", name);
 		return query.getSingleResult();
 	}
 
 	// instance index cannot be null.
-	public NCName findNCNameByReference(NameEvent section, NameEvent device, String instanceIndex, NameEvent signal) {
+	public NcName findNcNameByReference(NameEvent section, NameEvent device, String instanceIndex, NameEvent signal) {
 		if (section == null)
 			throw new IllegalArgumentException("section is null");
 		if (device == null)
@@ -318,7 +318,7 @@ public class NamingConventionEJB {
 		if (instanceIndex == null)
 			throw new IllegalArgumentException("device quantifier is null");
 
-		TypedQuery<NCName> query = em.createNamedQuery("NCName.findByParts", NCName.class).setParameter("section", section)
+		TypedQuery<NcName> query = em.createNamedQuery("NcName.findByParts", NcName.class).setParameter("section", section)
 				.setParameter("device", device).setParameter("signal", signal).setParameter("instanceIndex", instanceIndex);
 
 		return query.getSingleResult();
@@ -328,16 +328,16 @@ public class NamingConventionEJB {
      * Gets all NC Names regardless of status - including deleted.
      * @return 
      */
-	public List<NCName> getAllNCNames() {
-		List<NCName> ncNames;
+	public List<NcName> getAllNcNames() {
+		List<NcName> ncNames;
 
-		TypedQuery<NCName> query = em.createQuery(
-							"SELECT n FROM NCName n WHERE n.requestDate = "
-                                    + "(SELECT MAX(r.requestDate) FROM NCName r WHERE r.nameId = n.nameId) "
+		TypedQuery<NcName> query = em.createQuery(
+							"SELECT n FROM NcName n WHERE n.requestDate = "
+                                    + "(SELECT MAX(r.requestDate) FROM NcName r WHERE r.nameId = n.nameId) "
                                     + "ORDER BY n.status, n.discipline.id, n.section.id, n.name",
-							NCName.class);
+							NcName.class);
 		ncNames = query.getResultList();
-		logger.info("Total number of unique NCNames: " + ncNames.size());
+		logger.info("Total number of unique NcNames: " + ncNames.size());
 
 		return ncNames;
 	}
@@ -346,82 +346,82 @@ public class NamingConventionEJB {
      * Gets only the NC Names with status VALID or INVALID
      * @return 
      */
-    public List<NCName> getExistingNCNames() {
-		List<NCName> ncNames;
+    public List<NcName> getExistingNcNames() {
+		List<NcName> ncNames;
         
-		TypedQuery<NCName> query;
+		TypedQuery<NcName> query;
         query = em.createQuery(
-                "SELECT n FROM NCName n WHERE n.requestDate = "
-                        + "(SELECT MAX(r.requestDate) FROM NCName r WHERE (r.nameId = n.nameId))"
+                "SELECT n FROM NcName n WHERE n.requestDate = "
+                        + "(SELECT MAX(r.requestDate) FROM NcName r WHERE (r.nameId = n.nameId))"
                         + " AND n.status != :status "
                         + "ORDER BY n.status, n.discipline.id, n.section.id, n.name",
-                NCName.class).setParameter("status", NCNameStatus.DELETED);
+                NcName.class).setParameter("status", NcNameStatus.DELETED);
 		ncNames = query.getResultList();
         return ncNames;
     }
 
-    public List<NCName> getNCNameHistory(String ncNameId) {
-		List<NCName> ncNames;
+    public List<NcName> getNcNameHistory(String ncNameId) {
+		List<NcName> ncNames;
         
-		TypedQuery<NCName> query;
-        query = em.createQuery("SELECT n FROM NCName n WHERE n.nameId = :nameId", NCName.class).
+		TypedQuery<NcName> query;
+        query = em.createQuery("SELECT n FROM NcName n WHERE n.nameId = :nameId", NcName.class).
                 setParameter("nameId", ncNameId);
 		ncNames = query.getResultList();
         return ncNames;
         
     }
     
-	public List<NCName> getActiveNames() {
-		List<NCName> ncNames;
+	public List<NcName> getActiveNames() {
+		List<NcName> ncNames;
         
-		TypedQuery<NCName> query;
+		TypedQuery<NcName> query;
         query = em.createQuery(
-                "SELECT n FROM NCName n WHERE n.requestDate = "
-                        + "(SELECT MAX(r.requestDate) FROM NCName r WHERE (r.nameId = n.nameId) AND r.processDate IS NOT NULL) "
+                "SELECT n FROM NcName n WHERE n.requestDate = "
+                        + "(SELECT MAX(r.requestDate) FROM NcName r WHERE (r.nameId = n.nameId) AND r.processDate IS NOT NULL) "
                         + "AND (n.status = :status) "
                         + "ORDER BY n.status, n.discipline.id, n.section.id, n.name",
-                NCName.class).setParameter("status", NCNameStatus.VALID);
+                NcName.class).setParameter("status", NcNameStatus.VALID);
 		ncNames = query.getResultList();
         return ncNames;
 	}
 
-	public List<NCName> getNCNamesByStatus(NCNameStatus status) {
-		List<NCName> names;
+	public List<NcName> getNcNamesByStatus(NcNameStatus status) {
+		List<NcName> names;
 
-		TypedQuery<NCName> query = em.createNamedQuery("NCName.findByStatus", NCName.class).setParameter("status", status);
+		TypedQuery<NcName> query = em.createNamedQuery("NcName.findByStatus", NcName.class).setParameter("status", status);
 		names = query.getResultList();
 		// logger.log(Level.INFO, "Total number of categories: " + cats.size());
 
 		return names;
 	}
 
-	public boolean isNameValid(NCName ncName) throws NamingConventionException {
-		return ncName.getStatus() == NCNameStatus.VALID;
+	public boolean isNameValid(NcName ncName) throws NamingConventionException {
+		return ncName.getStatus() == NcNameStatus.VALID;
 	}
     
 	/**
-     * Sets the NCName indicated by the id to the valid state. The method does not check if the NCName status is correct.
-     * @param id - the id of the NCName
+     * Sets the NcName indicated by the id to the valid state. The method does not check if the NcName status is correct.
+     * @param id - the id of the NcName
      * @param modifierId - the id of the user making the change.
      * @return true if modification was successful.
      */
     public boolean setNameValid(Integer id, Integer modifierId) {
-        NCName dbName = findNCNameById(id);
-        dbName.setStatus(NCNameStatus.VALID);
+        NcName dbName = findNcNameById(id);
+        dbName.setStatus(NcNameStatus.VALID);
         setNameProcessed(dbName, modifierId);
         
         return true;
     }
     
-    public boolean setNameProcessed(NCName nameToProcess, Integer modifierId) {
-        NCName dbName;
+    public boolean setNameProcessed(NcName nameToProcess, Integer modifierId) {
+        NcName dbName;
         
         Privilege modifier = em.find(Privilege.class, modifierId);
         Date currentDate = new Date();
         if(em.contains(nameToProcess))
             dbName = nameToProcess;
         else
-            dbName = findNCNameById(nameToProcess.getId());
+            dbName = findNcNameById(nameToProcess.getId());
         dbName.setProcessDate(currentDate);
         dbName.setProcessedBy(modifier);
         
@@ -469,14 +469,14 @@ public class NamingConventionEJB {
 		TypedQuery<NameEvent> disciplineQ = em.createNamedQuery("NameEvent.findByName", NameEvent.class);
 		disciplineQ.setParameter("name", disciplineName);
 		NameEvent discipline = disciplineQ.getSingleResult();
-		ESSNameConstructionMethod method;
+		EssNameConstructionMethod method;
 		if (discipline.getStatus() != NameEventStatus.APPROVED)
 			return false;
 		else {
 			if (discipline.getNameCategory().getName().equals(NameCategories.discipline()))
-				method = ESSNameConstructionMethod.ACCELERATOR;
+				method = EssNameConstructionMethod.ACCELERATOR;
 			else if (discipline.getNameCategory().getName().equals(NameCategories.subsection()))
-				method = ESSNameConstructionMethod.TARGET;
+				method = EssNameConstructionMethod.TARGET;
 			else
 				return false;
 		}
@@ -490,7 +490,7 @@ public class NamingConventionEJB {
 				|| !genDevice.getNameCategory().getName().equals(NameCategories.genericDevice()))
 			return false;
 
-		if (method == ESSNameConstructionMethod.ACCELERATOR && !isDeviceInstanceIndexValid(discipline, deviceQntf))
+		if (method == EssNameConstructionMethod.ACCELERATOR && !isDeviceInstanceIndexValid(discipline, deviceQntf))
 			return false;
 
 		// TODO insert signal verification here once it is defined. For now
