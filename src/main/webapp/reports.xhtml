@@ -84,49 +84,87 @@
                              emptyMessage="There are no naming events matching your criteria."                         
                              style="width: 100%">                 
 
-                    <p:column id="id" headerText="Id" sortBy="#{nevent.id}" style="width: 5%" rendered="false" >                  
+                    <p:column id="id" sortBy="#{nevent.id}" style="width: 5%" rendered="false" >
+                    	<f:facet name="header">
+                    		<h:outputText value="Id" /> 
+                    	</f:facet>                  
                         <h:outputText value="#{nevent.id}" />                              
                     </p:column>
 
-                    <p:column id="nameCat" headerText="Category"  >                  
+                    <p:column id="nameCat" >      
+                    	<f:facet name="header">
+                    		<h:outputText value="Category" /> 
+                    	</f:facet>               
                         <h:outputText value="#{nevent.nameCategory.name}" />                              
                     </p:column>
-                    <p:column id="nameCode" headerText="Name"   >                  
+                    <p:column id="nameCode" >                  
+                    	<f:facet name="header">
+                    		<h:outputText value="Name" /> 
+                    	</f:facet>   
                         <h:outputText value="#{nevent.name}" />                              
                     </p:column>              
-                    <p:column id="fullName" headerText="Full Name" >                  
+                    <p:column id="fullName" >                  
+                    	<f:facet name="header">
+                    		<h:outputText value="Full Name" /> 
+                    	</f:facet>   
                         <h:outputText value="#{nevent.fullName}" />                              
                     </p:column>
-                    <p:column id="type" headerText="Type"   >                  
+                    <p:column id="type" >                  
+                    	<f:facet name="header">
+                    		<h:outputText value="Type" /> 
+                    	</f:facet>   
                         <h:outputText value="#{requestManager.requestType(nevent.eventType)}" />                              
                     </p:column>
-                    <p:column id="reqBy" headerText="By"  >                  
+                    <p:column id="reqBy" >                  
+                    	<f:facet name="header">
+                    		<h:outputText value="By" /> 
+                    	</f:facet>   
                         <h:outputText value="#{nevent.requestedBy.username}" />                              
                     </p:column>
-                    <p:column id="reqDate" headerText="Date" >                  
+                    <p:column id="reqDate" >                  
+                    	<f:facet name="header">
+                    		<h:outputText value="Date" /> 
+                    	</f:facet>   
                         <h:outputText value="#{nevent.requestDate}" >
                             <f:convertDateTime pattern="yyyy-MM-dd" />
                         </h:outputText>
                     </p:column>            
-                    <p:column id="reqComment" headerText="Comment" >                  
+                    <p:column id="reqComment" >                  
+                    	<f:facet name="header">
+                    		<h:outputText value="Comment" /> 
+                    	</f:facet>   
                         <h:outputText value="#{nevent.requestorComment}" />                              
                     </p:column> 
-                    <p:column id="status" headerText="Status"    >                  
+                    <p:column id="status" >                  
+                    	<f:facet name="header">
+                    		<h:outputText value="Status" /> 
+                    	</f:facet>   
                         <h:outputText value="#{namesManager.nameStatus(nevent)}" title="status"/>                              
                     </p:column>
-                    <p:column id="By" headerText="Proc By" >                  
+                    <p:column id="By" >                  
+                    	<f:facet name="header">
+                    		<h:outputText value="Proc By" /> 
+                    	</f:facet>   
                         <h:outputText value="#{nevent.processedBy}" />                              
                     </p:column>
-                    <p:column id="procDate" headerText="Proc Date" >                  
+                    <p:column id="procDate" >                  
+                    	<f:facet name="header">
+                    		<h:outputText value="Proc Date" /> 
+                    	</f:facet>   
                         <h:outputText value="#{nevent.processDate}" >
                             <f:convertDateTime pattern="yyyy-MM-dd" />
                         </h:outputText>
                     </p:column>            
-                    <p:column id="procComment" headerText="Proc Comment" >                  
+                    <p:column id="procComment" >                  
+                    	<f:facet name="header">
+                    		<h:outputText value="Proc Comment" /> 
+                    	</f:facet>   
                         <h:outputText value="#{nevent.processorComment}" />                              
                     </p:column>
-                    <p:column id="nameId" headerText="Name ID" sortBy="#{nevent.id}" 
-                              style="width: 7%"  rendered="false" >                  
+                    <p:column id="nameId" sortBy="#{nevent.id}" style="width: 7%" rendered="false" >                  
+                    	<f:facet name="header">
+                    		<h:outputText value="Name ID" /> 
+                    	</f:facet>   
                         <h:outputText value="#{nevent.nameId}" />                              
                     </p:column>
                 </p:dataTable>
