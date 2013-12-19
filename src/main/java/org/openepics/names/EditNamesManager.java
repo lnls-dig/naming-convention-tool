@@ -112,15 +112,12 @@ public class EditNamesManager implements Serializable {
 	public void onModify() {
 		try {
 			logger.log(Level.INFO, "Modifying NC Name");
-			if (subsectionID == null || genDeviceID == null || selectedNCName == null) {
-				showMessage(FacesMessage.SEVERITY_ERROR, "Error", "Error in selected name.");
-			}
             NCName modifiedName = ncEJB.modifyNCName(subsectionID, genDeviceID, selectedNCName.getId());
 			showMessage(FacesMessage.SEVERITY_INFO,
 					"NC Name modified.",
 					"Name: " + modifiedName.getName());
 		} catch (Exception e) {
-			showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
+			showMessage(FacesMessage.SEVERITY_ERROR, "Error",
 					e.getMessage());
 			System.err.println(e);
 		} finally {
@@ -390,34 +387,6 @@ public class EditNamesManager implements Serializable {
 		}
 	}
     
-    public void approve() {
-        if(selectedNCName == null) {
-            showMessage(FacesMessage.SEVERITY_FATAL, "Error", "You need to select a NC name.");
-            return;
-        }
-        
-        if(!userManager.isSuperUser()) {
-            showMessage(FacesMessage.SEVERITY_FATAL, "Error", "Only superuser can approve status change.");
-            return;
-        }
-        
-        if(selectedNCName.getProcessDate() != null) {
-            showMessage(FacesMessage.SEVERITY_FATAL, "Error", "NC Name status not appropriate for approve action.");
-            return;
-        }
-        
-        logger.info("Approve action");
-        switch(selectedNCName.getStatus()) {
-            case INVALID:
-                ncEJB.setNameValid(selectedNCName.getId(), userManager.getUser().getId());
-                break;
-            case DELETED:
-                ncEJB.setNameProcessed(selectedNCName, userManager.getUser().getId());
-                break;
-        }
-        refreshNCNames();
-    }
-
 	public List<NameEvent> getSuperSectionNames() {
 		return superSectionNames;
 	}
@@ -566,8 +535,6 @@ public class EditNamesManager implements Serializable {
             case INVALID:
                 return "In-Process";
             case DELETED:
-                if(nreq.getProcessDate() == null) 
-                    return "In-Process";
                 return "Deleted";
             default:
                 return "unknown";

@@ -23,17 +23,13 @@
 						rendered="#{userManager.editor}" />
 					<p:menuitem value="Delete" icon="ui-icon-trash"
 						update=":delNCNameForm" oncomplete="delNCName.show()"
-						title="Delete NC Name" rendered="#{userManager.editor}"
-                        disabled="#{empty editNamesManager.selectedNCName || editNamesManager.selectedNCName.status == 'DELETED'}" />
+						title="Delete Device Name" rendered="#{userManager.editor}"
+                        disabled="#{empty editNamesManager.selectedNCName || editNamesManager.selectedNCName.status == 'DELETED' || editNamesManager.selectedNCName.requestedBy.username != userManager.user.username}" />
 					<p:menuitem value="Modify" icon="ui-icon-pencil"
 						update=":modNCNameForm" oncomplete="modNCName.show()"
 						action="#{editNamesManager.loadSelectedName()}"
 						title="Modify NC Name" rendered="#{userManager.editor}"
-						disabled="#{empty editNamesManager.selectedNCName}" />
-					<p:menuitem value="Approve" icon="ui-icon-star"
-						update="ncCrTable" action="#{editNamesManager.approve()}"
-						title="Approve NC Name" rendered="#{userManager.editor}"
-                        disabled="#{empty editNamesManager.selectedNCName || editNamesManager.selectedNCName.processDate != null || !editNamesManager.superUser}" />
+                        disabled="#{empty editNamesManager.selectedNCName || editNamesManager.selectedNCName.requestedBy.username != userManager.user.username}" />
 					<p:menuitem value="History" icon="ui-icon-search"
                         actionListener="#{editNamesManager.findHistory()}"
                         update=":ManageNameForm:historyTable" title="View History"
@@ -81,7 +77,7 @@
                 rowStyleClass="#{editNamesManager.nameStatus(ncName)}"
 				selection="#{editNamesManager.selectedNCName}" style="width: 90%">
 				<f:facet name="header">
-					<h:outputText value="Existing Naming Convention Names" />
+					<h:outputText value="Existing Device Names" />
 				</f:facet>
 
 				<p:ajax event="rowSelectRadio" update=":ManageNameForm:ncReqMenu :modNCNameForm" />
@@ -147,14 +143,6 @@
                     </p:column>
                     <p:column id="histReqDate" headerText="Date" sortBy="#{ncname.requestDate}"> 
                         <h:outputText value="#{ncname.requestDate}">
-                            <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" />
-                        </h:outputText>
-                    </p:column>
-                    <p:column id="histProcBy" headerText="Proc By">
-                        <h:outputText value="#{ncname.processedBy.username}" />
-                    </p:column>
-                    <p:column id="histProcDate" headerText="Proc Date" sortBy="#{ncname.processDate}"> 
-                        <h:outputText value="#{ncname.processDate}">
                             <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" />
                         </h:outputText>
                     </p:column>
