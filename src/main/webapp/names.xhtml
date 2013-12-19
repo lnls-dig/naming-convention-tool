@@ -112,7 +112,7 @@
                         <h:outputText value="#{namesManager.nameStatus(nevent)}" title="status"/>                              
                     </p:column>
                     <p:column id="By" headerText="Proc By"  >                  
-                        <h:outputText value="#{nevent.processedBy}" />                              
+                        <h:outputText value="#{nevent.processedBy.username}" />                              
                     </p:column>
                     <p:column id="procDate" headerText="Proc Date" sortBy="#{nevent.processDate}">                  
                         <h:outputText value="#{nevent.processDate}" >

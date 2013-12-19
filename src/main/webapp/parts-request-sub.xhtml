@@ -16,19 +16,19 @@
             <!-- =================== Menus      ============================ -->
             <p:menu id="reqMenu" styleClass="fixedPosition box" style="width: 8%">
                 <p:submenu label="Requests">                                          
-                    <p:menuitem value="Add" icon="ui-icon-plus" oncomplete="addName.show()" 
-                                title="Add Name"  rendered="#{not requestManager.myRequest}"/>                                                         
+                    <p:menuitem value="Add" icon="ui-icon-plus" oncomplete="addName.show()" update=":addNameForm"
+                                title="Add Name"  rendered="#{not requestManager.myRequest}" />                                                         
                     <p:menuitem value="Delete" icon="ui-icon-trash" update=":DelNameForm:delName" 
                                 oncomplete="delName.show()" title="Delete Name" rendered="#{not requestManager.myRequest}" 
-                                disabled="#{empty requestManager.selectedName}"/>                      
+                                disabled="#{empty requestManager.selectedName}" />                      
                     <p:menuitem value="Modify" icon="ui-icon-pencil" update=":ModNameForm:modName" 
                                 oncomplete="modName.show()" title="Modify Name" rendered="#{not requestManager.myRequest}" 
-                                disabled="#{empty requestManager.selectedName}"/>  
+                                disabled="#{empty requestManager.selectedName}" />  
                     <p:menuitem value="History" icon="ui-icon-search"  actionListener="#{requestManager.findHistory()}" 
                                 update=":ReqSubForm:historyTable" title="View History" oncomplete="nameDetail.show()" />  
                     <p:menuitem value="Cancel" icon="ui-icon-close" update=":CancelReqForm:cancelReq" 
                                 oncomplete="cancelReq.show()" title="Cancel Request" rendered="#{requestManager.myRequest}" 
-                                disabled="#{requestManager.selectedEventProcessed()}"/>                                          
+                                disabled="#{requestManager.selectedEventProcessed()}" />                                          
                 </p:submenu>
             </p:menu>
 
