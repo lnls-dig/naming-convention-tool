@@ -61,8 +61,9 @@ public class NamesEJB {
      *
      * @author Vasu V <vuppala@frib.msu.org>
      */
-    public NameEvent createNewEvent(String nameId, String name, String fullName, Integer nameCategoryID, Integer parentNameID, NameEventType eventType, String comment) throws Exception {
-        logger.log(Level.INFO, "creating...");
+    public NameEvent createNewEvent(String nameId, String name, String fullName, Integer nameCategoryID, 
+		Integer parentNameID, NameEventType eventType, String comment) throws Exception {
+        logger.log(Level.FINER, "creating...");
         Date curdate = new Date();
 
         if (userManager == null) {
@@ -86,7 +87,7 @@ public class NamesEJB {
             parent = em.find(NameEvent.class, parentNameID);
         
         NameEvent mEvent = new NameEvent(eventType, userManager.getUser(), curdate, NameEventStatus.PROCESSING, name, fullName);
-        logger.log(Level.INFO, "new created:" + name + ":" + fullName);
+        logger.log(Level.FINE, "new created:" + name + ":" + fullName);
         if (eventType == NameEventType.INSERT) {
             nameId = UUID.randomUUID().toString();
         }
@@ -96,9 +97,27 @@ public class NamesEJB {
         mEvent.setNameId(nameId);
         if(parent != null)
             mEvent.setParentName(parent);
-        logger.log(Level.INFO, "set properties...");
+
+		/* No approval needed for:
+		* NameEventType.INSERT - any Editor can create new instance
+		* NameEventType.MODIFY - only if user is original creator
+		* NameEventType.DELETE - only if user is original creator
+		*/
+		if(userManager.isEditor() && !ncat.isApprovalNeeded()) {
+			List<NameEvent> connectedEvents = findEventsByNameId(nameId);
+			if(eventType == NameEventType.INSERT || 
+				connectedEvents.get(0).getRequestedBy().equals(userManager.getUser())) {
+				mEvent.setStatus(NameEventStatus.APPROVED);
+				mEvent.setProcessDate(new Date());
+				mEvent.setProcessorComment("AUTOMATIC APPROVAL BASED ON CATEGORY SETTING");
+				mEvent.setProcessedBy(userManager.getUser());
+			} else
+				throw new Exception("You are not authorized to perform this operation.");
+		}
+		
+        logger.log(Level.FINEST, "set properties...");
         em.persist(mEvent);
-        logger.log(Level.INFO, "persisted...");
+        logger.log(Level.FINER, "persisted...");
         return mEvent;
     }
 
@@ -108,7 +127,7 @@ public class NamesEJB {
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
 	public NameRelease createNewRelease(NameRelease newRelease) throws Exception {
-		logger.log(Level.INFO, "creating release...");
+		logger.log(Level.FINER, "creating release...");
 
 		if (!userManager.isEditor()) {
 			throw new Exception("You are not authorized to perform this operation.");
@@ -117,7 +136,7 @@ public class NamesEJB {
 		newRelease.setReleasedBy(userManager.getUser());
 		// logger.log(Level.INFO, "set properties...");
 		em.persist(newRelease);
-		logger.log(Level.INFO, "published new release ...");
+		logger.log(Level.FINE, "published new release ...");
 		return newRelease;
 	}
 
@@ -151,10 +170,11 @@ public class NamesEJB {
 
 		TypedQuery<NameEvent> query = em
 				.createQuery(
-						"SELECT n FROM NameEvent n WHERE n.name = :name AND n.status != :status AND  n.requestDate > (SELECT MAX(r.releaseDate) FROM NameRelease r)",
+						"SELECT n FROM NameEvent n WHERE n.name = :name AND n.status != :status "
+							+ "AND  n.requestDate > (SELECT MAX(r.releaseDate) FROM NameRelease r)",
 						NameEvent.class).setParameter("status", NameEventStatus.REJECTED).setParameter("name", nevent.getName());
 		nameEvents = query.getResultList();
-		logger.log(Level.INFO, "change requests: " + nameEvents.size());
+		logger.log(Level.FINE, "change requests: " + nameEvents.size());
 		return !nameEvents.isEmpty();
 	}
 
@@ -170,11 +190,12 @@ public class NamesEJB {
 			return null;
 		}
 
-		TypedQuery<NameEvent> query = em.createQuery("SELECT n FROM NameEvent n WHERE n.requestedBy = :user", NameEvent.class)
-				.setParameter("user", user);
+		TypedQuery<NameEvent> query = em.
+			createNamedQuery("NameEvent.findByRequestedBy", NameEvent.class);
+		query.setParameter("requestedBy", user);
 
 		nameEvents = query.getResultList();
-		logger.log(Level.INFO, "Results for requests: " + nameEvents.size());
+		logger.log(Level.FINE, "Results for requests: " + nameEvents.size());
 		return nameEvents;
 	}
 
@@ -189,7 +210,7 @@ public class NamesEJB {
 		TypedQuery<NameEvent> query = em.createQuery("SELECT n FROM NameEvent n ORDER BY n.requestDate DESC", NameEvent.class);
 
 		nameEvents = query.getResultList();
-		logger.log(Level.INFO, "Results for all events: " + nameEvents.size());
+		logger.log(Level.FINE, "Results for all events: " + nameEvents.size());
 		return nameEvents;
 	}
 
@@ -216,12 +237,12 @@ public class NamesEJB {
 	public List<NameEvent> findEventsByName(String name) {
 		List<NameEvent> nameEvents;
 
-		TypedQuery<NameEvent> query = em.createQuery(
-				"SELECT n FROM NameEvent n WHERE n.name = :name ORDER BY n.requestDate DESC", NameEvent.class).setParameter(
-				"name", name);
+		TypedQuery<NameEvent> query = em.
+			createNamedQuery("NameEvent.findByName", NameEvent.class);
+		query.setParameter("name", name);
 
 		nameEvents = query.getResultList();
-		logger.log(Level.INFO, "Events for " + name + nameEvents.size());
+		logger.log(Level.FINE, "Events for " + name + nameEvents.size());
 		return nameEvents;
 	}
 
@@ -233,7 +254,7 @@ public class NamesEJB {
 				.setParameter("nameCategory", category);
 
 		nameEvents = query.getResultList();
-		logger.log(Level.INFO, "Events for category " + category.getName() + nameEvents.size());
+		logger.log(Level.FINE, "Events for category " + category.getName() + nameEvents.size());
 		return nameEvents;
 	}
 
@@ -257,15 +278,31 @@ public class NamesEJB {
 		}
 	}
 
+	/**
+	 * Finds all name events for a given name ID (the events that belong to the same
+	 * name), and returns them regardless of status and in chronological order.
+	 * 
+	 * @param nameId the ID if the name.
+	 * 
+	 * @return The list of name events in chronological order
+	 */
+	public List<NameEvent> findEventsByNameId(String nameId) {
+		TypedQuery<NameEvent> query = em.createQuery(
+				"SELECT n FROM NameEvent n WHERE n.nameId = :nameId ORDER BY n.id ASC",
+				NameEvent.class).setParameter("nameId", nameId);
+
+		return query.getResultList();
+	}
+	
 	public List<NameEvent> findEventsByParent(NameEvent parent) {
 		List<NameEvent> childEvents;
 
 		TypedQuery<NameEvent> query = em.createQuery(
-				"SELECT n FROM NameEvent n WHERE n.parentName = :parentName ORDER BY n.name", NameEvent.class).setParameter(
-				"parentName", parent);
+				"SELECT n FROM NameEvent n WHERE n.parentName = :parentName ORDER BY n.name", NameEvent.class);
+		query.setParameter("parentName", parent);
 
 		childEvents = query.getResultList();
-		logger.log(Level.INFO, "Child events for " + parent.getName() + childEvents.size());
+		logger.log(Level.FINE, "Child events for " + parent.getName() + childEvents.size());
 		return childEvents;
 	}
 
@@ -325,17 +362,33 @@ public class NamesEJB {
 		if (includeDeleted) {
 			query = em
 					.createQuery(
-							"SELECT n FROM NameEvent n WHERE n.nameCategory.name LIKE :categ AND n.requestDate = (SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name AND (r.status = :status1 OR r.status = :status2)) ORDER BY n.nameCategory.id, n.name",
-							NameEvent.class).setParameter("status1", NameEventStatus.APPROVED).setParameter("status2", NameEventStatus.PROCESSING).setParameter("categ", category);
+							"SELECT n FROM NameEvent n WHERE n.nameCategory.name LIKE :categ "
+								+ "AND n.requestDate = ("
+									+ "SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name "
+										+ "AND (r.status = :status1 OR r.status = :status2)) "
+								+ "ORDER BY n.nameCategory.id, n.name",
+							NameEvent.class);
+			query.setParameter("status1", NameEventStatus.APPROVED);
+			query.setParameter("status2", NameEventStatus.PROCESSING);
+			query.setParameter("categ", category);
 		} else {
 			query = em
 					.createQuery(
-							"SELECT n FROM NameEvent n WHERE n.nameCategory.name LIKE :categ AND n.requestDate = (SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name AND (r.status = :status1 OR r.status = :status2)) AND NOT (n.eventType = :type AND n.status = :status1) ORDER BY n.nameCategory.id, n.name",
-							NameEvent.class).setParameter("status1", NameEventStatus.APPROVED).setParameter("status2", NameEventStatus.PROCESSING).setParameter("type", NameEventType.DELETE).setParameter("categ", category);
+							"SELECT n FROM NameEvent n WHERE n.nameCategory.name LIKE :categ "
+								+ "AND n.requestDate = ("
+									+ "SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name "
+										+ "AND (r.status = :status1 OR r.status = :status2)) "
+								+ "AND NOT (n.eventType = :type AND n.status = :status1) "
+								+ "ORDER BY n.nameCategory.id, n.name",
+							NameEvent.class);
+			query.setParameter("status1", NameEventStatus.APPROVED);
+			query.setParameter("status2", NameEventStatus.PROCESSING);
+			query.setParameter("type", NameEventType.DELETE);
+			query.setParameter("categ", category);
 		}
 		// TODO: check category values
 		nameEvents = query.getResultList();
-		logger.log(Level.INFO, "Results for category " + category + ":" + nameEvents.size());
+		logger.log(Level.FINE, "Results for category " + category + ":" + nameEvents.size());
 		return nameEvents;
 	}
 
@@ -358,9 +411,9 @@ public class NamesEJB {
 		if (!userManager.isEditor()) {
 			throw new Exception("You are not authorized to perform this operation.");
 		}
-		logger.log(Level.INFO, "Processing events " + nevents.length);
+		logger.log(Level.FINE, "Processing events " + nevents.length);
 		for (NameEvent event : nevents) {
-			logger.log(Level.INFO, "Processing  " + event.getName());
+			logger.log(Level.FINER, "Processing  " + event.getName());
 			mEvent = em.find(NameEvent.class, event.getId(), LockModeType.OPTIMISTIC);
 			mEvent.setStatus(status);
 			mEvent.setProcessDate(new java.util.Date());
@@ -394,7 +447,7 @@ public class NamesEJB {
 		if (!userManager.isEditor() && !mEvent.getRequestedBy().equals(userManager.getUser())) {
 			throw new Exception("Unauthorized access");
 		}
-		logger.log(Level.INFO, "Processing  " + mEvent.getName());
+		logger.log(Level.FINE, "Processing  " + mEvent.getName());
 		mEvent.setStatus(NameEventStatus.CANCELLED);
 		mEvent.setProcessDate(new java.util.Date());
 		mEvent.setProcessorComment(comment);
@@ -416,7 +469,7 @@ public class NamesEJB {
 	}
 	
 	/**
-	 * Is the current user an Editor?
+	 * Is the current user a SuperUser?
 	 */
 	public boolean isSuperUser(Privilege user) {
 		if (user != null) {
@@ -436,7 +489,7 @@ public class NamesEJB {
 
 		TypedQuery<NameCategory> query = em.createNamedQuery("NameCategory.findAll", NameCategory.class);
 		cats = query.getResultList();
-		logger.log(Level.INFO, "Total number of categories: " + cats.size());
+		logger.log(Level.FINE, "Total number of categories: " + cats.size());
 
 		return cats;
 	}

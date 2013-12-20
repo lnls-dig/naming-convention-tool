@@ -48,7 +48,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NamedQueries({
 		@NamedQuery(name = "NameEvent.findAll", query = "SELECT n FROM NameEvent n"),
 		@NamedQuery(name = "NameEvent.findById", query = "SELECT n FROM NameEvent n WHERE n.id = :id"),
-		@NamedQuery(name = "NameEvent.findByName", query = "SELECT n FROM NameEvent n WHERE n.name = :name"),
+		@NamedQuery(name = "NameEvent.findByName", query = "SELECT n FROM NameEvent n WHERE n.name = :name ORDER BY n.id DESC"),
 		@NamedQuery(name = "NameEvent.findByFullName", query = "SELECT n FROM NameEvent n WHERE n.fullName = :fullName"),
 		@NamedQuery(name = "NameEvent.findByCategory", query = "SELECT n FROM NameEvent n WHERE n.nameCategory = :nameCategory"),
 		@NamedQuery(name = "NameEvent.findByParentName", query = "SELECT n FROM NameEvent n WHERE n.parentName = :parentName"),
