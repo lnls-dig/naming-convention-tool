@@ -35,7 +35,7 @@ import javax.faces.bean.SessionScoped;
 public class PreferencesManager implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger logger = Logger.getLogger("org.openepics.names");
+	private static final Logger logger = Logger.getLogger("org.openepics.names.ui.PreferencesManager");
     private String currentTheme;
     private Map<String, String> themes;
 

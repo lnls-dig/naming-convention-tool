@@ -44,7 +44,7 @@ public class NamesManager implements Serializable {
 	private NamesEJB namesEJB;
 	@ManagedProperty(value = "#{publicationManager}")
 	private PublicationManager pubManager;
-	private static final Logger logger = Logger.getLogger("org.openepics.names");
+	private static final Logger logger = Logger.getLogger("org.openepics.names.ui.NamesManager");
 	private List<NameEvent> standardNames;
 	private NameEvent selectedName;
 	private List<NameEvent> filteredNames;

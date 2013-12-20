@@ -39,7 +39,7 @@ public class ReportManager implements Serializable {
 	
 	@EJB
     private NamesEJB namesEJB;
-    private static final Logger logger = Logger.getLogger("org.openepics.names");
+    private static final Logger logger = Logger.getLogger("org.openepics.names.ui.ReportManager");
     private List<NameEvent> events;
     // Search Parameters
     private String eventType;

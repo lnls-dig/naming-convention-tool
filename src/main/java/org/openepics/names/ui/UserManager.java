@@ -43,8 +43,7 @@ public class UserManager implements Serializable {
 	@EJB
 	private NamesEJB namesEJB;
 	@SuppressWarnings("unused")
-	private static final Logger logger = Logger
-			.getLogger("org.openepics.names");
+	private static final Logger logger = Logger.getLogger("org.openepics.names.ui.UserManager");
 	private Privilege user;
 	private boolean loggedIn = false;
 	private boolean editor = false;

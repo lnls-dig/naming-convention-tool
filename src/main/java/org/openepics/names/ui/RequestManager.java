@@ -43,8 +43,7 @@ public class RequestManager implements Serializable {
 
 	@EJB
 	private NamesEJB namesEJB;
-	private static final Logger logger = Logger
-			.getLogger("org.openepics.names");
+	private static final Logger logger = Logger.getLogger("org.openepics.names.ui.RequestManager");
 	private List<NameEvent> validNames;
 	private NameEvent selectedName;
 	private List<NameEvent> filteredNames;

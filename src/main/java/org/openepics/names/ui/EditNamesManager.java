@@ -34,7 +34,7 @@ public class EditNamesManager implements Serializable {
     @Inject
     private UserManager userManager;
     
-	private static final Logger logger = Logger.getLogger("org.openepics.names");
+	private static final Logger logger = Logger.getLogger("org.openepics.names.ui.EditNamesManager");
 
 	private Integer superSectionID;
 	private Integer sectionID;

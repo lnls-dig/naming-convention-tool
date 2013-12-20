@@ -20,7 +20,7 @@ public class NcNamesManager implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@EJB
 	private NamingConventionEJB ncEJB;
-	private static final Logger logger = Logger.getLogger("org.openepics.names");
+	private static final Logger logger = Logger.getLogger("org.openepics.names.ui.NcNamesManager");
 	
 	private List<NcName> allNcNames;
 	private List<NcName> activeNcNames;

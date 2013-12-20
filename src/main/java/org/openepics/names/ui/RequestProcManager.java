@@ -40,7 +40,7 @@ public class RequestProcManager implements Serializable {
 
     @EJB
     private NamesEJB namesEJB;
-    private static final Logger logger = Logger.getLogger("org.openepics.names");
+    private static final Logger logger = Logger.getLogger("org.openepics.names.ui.RequestProcManager");
     private List<NameEvent> events;
     private NameEvent[] selectedEvents;
     private List<NameEvent> filteredEvents;

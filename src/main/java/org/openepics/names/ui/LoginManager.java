@@ -34,7 +34,7 @@ public class LoginManager implements Serializable {
 
 	@Inject private UserManager userManager;
     
-    private static final Logger logger = Logger.getLogger("org.openepics.names");
+    private static final Logger logger = Logger.getLogger("org.openepics.names.ui.LoginManager");
     private String inputUsername;
     private String inputPassword;
     private String originalURL;

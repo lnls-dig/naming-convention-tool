@@ -43,7 +43,7 @@ public class MenuManager implements Serializable {
 	private NamesEJB namesEJB;
 
 	@SuppressWarnings("unused")
-	private static final Logger logger = Logger.getLogger("org.openepics.names");
+	private static final Logger logger = Logger.getLogger("org.openepics.names.ui.MenuManager");
 
 	private List<NameCategory> categories;
 
