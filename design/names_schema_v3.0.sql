@@ -11,7 +11,7 @@
 /*!40014 SET FOREIGN_KEY_CHECKS=0 */;
 
 -- Dumping database structure for discs_names
-DROP DATABASE IF EXISTS `discs_names`;
+-- DROP DATABASE IF EXISTS `discs_names`;
 CREATE DATABASE IF NOT EXISTS `discs_names` /*!40100 DEFAULT CHARACTER SET cp1250 */;
 USE `discs_names`;
 
@@ -39,23 +39,24 @@ CREATE TABLE IF NOT EXISTS `name_category` (
   `name` varchar(50) NOT NULL,
   `description` varchar(50) DEFAULT NULL,
   `version` int(10) unsigned zerofill NOT NULL DEFAULT '0000000001',
+  `approval_needed` bit(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=cp1250;
 
 -- Dumping data for table discs_names.name_category: ~10 rows (approximately)
 -- DELETE FROM `name_category`;
 /*!40000 ALTER TABLE `name_category` DISABLE KEYS */;
-INSERT INTO `name_category` (`id`, `name`, `description`, `version`) VALUES
-	(0000000001, 'SUP', 'Super section', 0000000001),
-	(0000000002, 'SECT', 'Section', 0000000001),
-	(0000000003, 'SUB', 'Subsection', 0000000001),
-	(0000000004, 'DSCP', 'Discipline', 0000000001),
-	(0000000005, 'CAT', 'Category', 0000000001),
-	(0000000006, 'GDEV', 'Generic device', 0000000001),
-	(0000000007, 'SDEV', 'Specific device', 0000000001),
-	(0000000008, 'STYP', 'Signal type', 0000000001),
-	(0000000009, 'SINS', 'Signal instance', 0000000001),
-	(0000000010, 'ADS', 'Additional signal description', 0000000001);
+INSERT INTO `name_category` (`id`, `name`, `description`, `version`, `approval_needed`) VALUES
+	(0000000001, 'SUP', 'Super section', 0000000001, 1),
+	(0000000002, 'SECT', 'Section', 0000000001, 1),
+	(0000000003, 'SUB', 'Subsection', 0000000001, 1),
+	(0000000004, 'DSCP', 'Discipline', 0000000001, 1),
+	(0000000005, 'CAT', 'Category', 0000000001, 1),
+	(0000000006, 'GDEV', 'Generic device', 0000000001, 1),
+	(0000000007, 'SDEV', 'Specific device', 0000000001, 0),
+	(0000000008, 'STYP', 'Signal type', 0000000001, 1),
+	(0000000009, 'SINS', 'Signal instance', 0000000001, 1),
+	(0000000010, 'ADS', 'Additional signal description', 0000000001, 1);
 /*!40000 ALTER TABLE `name_category` ENABLE KEYS */;
 
 

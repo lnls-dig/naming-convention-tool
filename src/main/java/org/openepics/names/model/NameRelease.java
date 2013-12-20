@@ -45,8 +45,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "NameRelease.findById", query = "SELECT n FROM NameRelease n WHERE n.id = :id"),
     @NamedQuery(name = "NameRelease.findByDescription", query = "SELECT n FROM NameRelease n WHERE n.description = :description"),
     @NamedQuery(name = "NameRelease.findByDocUrl", query = "SELECT n FROM NameRelease n WHERE n.docUrl = :docUrl"),
-    @NamedQuery(name = "NameRelease.findByReleaseDate", query = "SELECT n FROM NameRelease n WHERE n.releaseDate = :releaseDate"),
-    @NamedQuery(name = "NameRelease.findByVersion", query = "SELECT n FROM NameRelease n WHERE n.version = :version")})
+    @NamedQuery(name = "NameRelease.findByReleaseDate", query = "SELECT n FROM NameRelease n WHERE n.releaseDate = :releaseDate") })
 public class NameRelease implements Serializable {
     private static final long serialVersionUID = 1L;
     
@@ -83,11 +82,6 @@ public class NameRelease implements Serializable {
 
     public NameRelease(String id) {
         this.id = id;
-    }
-
-    public NameRelease(String id, int version) {
-        this.id = id;
-        this.version = version;
     }
 
     public String getId() {
@@ -132,10 +126,6 @@ public class NameRelease implements Serializable {
 
     public int getVersion() {
         return version;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
     }
 
     @Override

@@ -210,6 +210,9 @@ public class NcName implements Serializable {
         return processDate;
     }
 
+	public Integer getVersion() {
+		return version;
+	}
     
 }
 

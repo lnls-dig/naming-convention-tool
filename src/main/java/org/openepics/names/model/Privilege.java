@@ -27,8 +27,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NamedQueries({
     @NamedQuery(name = "Privilege.findAll", query = "SELECT p FROM Privilege p"),
     @NamedQuery(name = "Privilege.findByUsername", query = "SELECT p FROM Privilege p WHERE p.username = :username"),
-    @NamedQuery(name = "Privilege.findByOperation", query = "SELECT p FROM Privilege p WHERE p.operation = :operation"),
-    @NamedQuery(name = "Privilege.findByVersion", query = "SELECT p FROM Privilege p WHERE p.version = :version")})
+    @NamedQuery(name = "Privilege.findByOperation", query = "SELECT p FROM Privilege p WHERE p.operation = :operation") })
 public class Privilege implements Serializable {
     private static final long serialVersionUID = 1L;
     
@@ -62,10 +61,9 @@ public class Privilege implements Serializable {
         this.username = username;
     }
 
-    public Privilege(String username, String operation, int version) {
+    public Privilege(String username, String operation) {
         this.username = username;
         this.operation = operation;
-        this.version = version;
     }
     
     public Integer getId() {
@@ -90,10 +88,6 @@ public class Privilege implements Serializable {
 
     public int getVersion() {
         return version;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
     }
 
     @Override

@@ -45,8 +45,7 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "NameCategory.findAll", query = "SELECT n FROM NameCategory n"),
     @NamedQuery(name = "NameCategory.findById", query = "SELECT n FROM NameCategory n WHERE n.id = :id"),
     @NamedQuery(name = "NameCategory.findByName", query = "SELECT n FROM NameCategory n WHERE n.name = :name"),
-    @NamedQuery(name = "NameCategory.findByDescription", query = "SELECT n FROM NameCategory n WHERE n.description = :description"),
-    @NamedQuery(name = "NameCategory.findByVersion", query = "SELECT n FROM NameCategory n WHERE n.version = :version")})
+    @NamedQuery(name = "NameCategory.findByDescription", query = "SELECT n FROM NameCategory n WHERE n.description = :description") })
 public class NameCategory implements Serializable {
     private static final long serialVersionUID = 1L;
     
@@ -61,6 +60,9 @@ public class NameCategory implements Serializable {
     @Size(min = 1, max = 32)
     @Column(name = "name")
     private String name;
+	
+	@Column(name="approval_needed")
+	private boolean approvalNeeded;
     
     @Size(max = 255)
     @Column(name = "description")
@@ -82,10 +84,9 @@ public class NameCategory implements Serializable {
         this.id = id;
     }
 
-    public NameCategory(Integer id, String name, int version) {
+    public NameCategory(Integer id, String name) {
         this.id = id;
         this.name = name;
-        this.version = version;
     }
 
     public Integer getId() {
@@ -116,9 +117,23 @@ public class NameCategory implements Serializable {
         return version;
     }
 
-    public void setVersion(int version) {
-        this.version = version;
-    }
+	/**
+	 * Indicates whether name parts of this category need superuser approval.
+	 * Default value is <code>true</code> meaning approval is need.
+	 * If approval is not needed, editors can create such parts and they 
+	 * are automatically approved.
+	 * Editors can also delete name parts of this type, if they have created them.
+	 * Deletion can also happen without approval.
+	 * @return <code>true</code> if name part needs superuser approval, 
+	 *  <code>false</code> otherwise.
+	 */
+	public boolean isApprovalNeeded() {
+		return approvalNeeded;
+	}
+
+	public void setApprovalNeeded(boolean approvalNeeded) {
+		this.approvalNeeded = approvalNeeded;
+	}
 
     @XmlTransient
     public List<NameEvent> getNameEventList() {

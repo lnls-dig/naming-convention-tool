@@ -59,8 +59,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 		@NamedQuery(name = "NameEvent.findByStatus", query = "SELECT n FROM NameEvent n WHERE n.status = :status"),
 		@NamedQuery(name = "NameEvent.findByProcessedBy", query = "SELECT n FROM NameEvent n WHERE n.processedBy = :processedBy"),
 		@NamedQuery(name = "NameEvent.findByProcessorComment", query = "SELECT n FROM NameEvent n WHERE n.processorComment = :processorComment"),
-		@NamedQuery(name = "NameEvent.findByProcessDate", query = "SELECT n FROM NameEvent n WHERE n.processDate = :processDate"),
-		@NamedQuery(name = "NameEvent.findByVersion", query = "SELECT n FROM NameEvent n WHERE n.version = :version") })
+		@NamedQuery(name = "NameEvent.findByProcessDate", query = "SELECT n FROM NameEvent n WHERE n.processDate = :processDate") })
 public class NameEvent implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -257,6 +256,10 @@ public class NameEvent implements Serializable {
 		this.processDate = processDate;
 	}
 
+	public Integer getVersion() {
+		return version;
+	}
+	
 	@Override
 	public int hashCode() {
 		int hash = 0;
