@@ -208,8 +208,8 @@ public class RequestManager implements Serializable {
 				historyEvents = null;
 				return;
 			}
-			logger.log(Level.INFO, "history ");
-			historyEvents = namesEJB.findEventsByName(selectedName.getName());
+			logger.log(Level.FINE, "history ");
+			historyEvents = namesEJB.findEventsByName(selectedName.getNameId());
 			// showMessage(FacesMessage.SEVERITY_INFO,
 			// "Your request was successfully submitted.", "Request Number: " +
 			// newRequest.getId());

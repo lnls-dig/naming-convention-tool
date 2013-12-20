@@ -104,7 +104,7 @@ public class NamesEJB {
 		* NameEventType.DELETE - only if user is original creator
 		*/
 		if(userManager.isEditor() && !ncat.isApprovalNeeded()) {
-			List<NameEvent> connectedEvents = findEventsByNameId(nameId);
+			List<NameEvent> connectedEvents = findEventsByName(nameId);
 			if(eventType == NameEventType.INSERT || 
 				connectedEvents.get(0).getRequestedBy().equals(userManager.getUser())) {
 				mEvent.setStatus(NameEventStatus.APPROVED);
@@ -232,19 +232,21 @@ public class NamesEJB {
 	/**
 	 * Retrieve all events of a given name.
 	 * 
+	 * @param nameId - the name ID of the name
+	 * @return a list of name events in the descending order
 	 * @author Vasu V <vuppala@frib.msu.org>
 	 */
-	public List<NameEvent> findEventsByName(String name) {
-		List<NameEvent> nameEvents;
+    public List<NameEvent> findEventsByName(String nameId) {
+        List<NameEvent> nameEvents;
 
-		TypedQuery<NameEvent> query = em.
-			createNamedQuery("NameEvent.findByName", NameEvent.class);
-		query.setParameter("name", name);
-
-		nameEvents = query.getResultList();
-		logger.log(Level.FINE, "Events for " + name + nameEvents.size());
-		return nameEvents;
-	}
+        TypedQuery<NameEvent> query = em.createQuery(
+				"SELECT n FROM NameEvent n WHERE n.nameId = :nameid "
+					+ "ORDER BY n.requestDate DESC", NameEvent.class)
+                .setParameter("nameid", nameId); // ToDo: convert to criteria query.      
+        nameEvents = query.getResultList();
+        logger.log(Level.FINE, "Events for " + nameId + nameEvents.size());
+        return nameEvents;
+    }
 
 	public List<NameEvent> findEventsByCategory(NameCategory category) {
 		List<NameEvent> nameEvents;
@@ -278,22 +280,6 @@ public class NamesEJB {
 		}
 	}
 
-	/**
-	 * Finds all name events for a given name ID (the events that belong to the same
-	 * name), and returns them regardless of status and in chronological order.
-	 * 
-	 * @param nameId the ID if the name.
-	 * 
-	 * @return The list of name events in chronological order
-	 */
-	public List<NameEvent> findEventsByNameId(String nameId) {
-		TypedQuery<NameEvent> query = em.createQuery(
-				"SELECT n FROM NameEvent n WHERE n.nameId = :nameId ORDER BY n.id ASC",
-				NameEvent.class).setParameter("nameId", nameId);
-
-		return query.getResultList();
-	}
-	
 	public List<NameEvent> findEventsByParent(NameEvent parent) {
 		List<NameEvent> childEvents;
 
