@@ -40,22 +40,22 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "NameCategory.findAll", query = "SELECT n FROM NameCategory n"),
     @NamedQuery(name = "NameCategory.findById", query = "SELECT n FROM NameCategory n WHERE n.id = :id"),
     @NamedQuery(name = "NameCategory.findByName", query = "SELECT n FROM NameCategory n WHERE n.name = :name"),
-    @NamedQuery(name = "NameCategory.findByDescription", query = "SELECT n FROM NameCategory n WHERE n.description = :description") })
+    @NamedQuery(name = "NameCategory.findByDescription", query = "SELECT n FROM NameCategory n WHERE n.description = :description")})
 public class NameCategory extends Persistable {
-    
+
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 32)
     @Column(name = "name")
     private String name;
-	
-	@Column(name="approval_needed")
-	private boolean approvalNeeded;
-    
+
+    @Column(name = "approval_needed")
+    private boolean approvalNeeded;
+
     @Size(max = 255)
     @Column(name = "description")
     private String description;
-    
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "nameCategory")
     private List<NameEvent> nameEventList;
 
@@ -75,23 +75,23 @@ public class NameCategory extends Persistable {
         this.description = description;
     }
 
-	/**
-	 * Indicates whether name parts of this category need superuser approval.
-	 * Default value is <code>true</code> meaning approval is need.
-	 * If approval is not needed, editors can create such parts and they 
-	 * are automatically approved.
-	 * Editors can also delete name parts of this type, if they have created them.
-	 * Deletion can also happen without approval.
-	 * @return <code>true</code> if name part needs superuser approval, 
-	 *  <code>false</code> otherwise.
-	 */
-	public boolean isApprovalNeeded() {
-		return approvalNeeded;
-	}
+    /**
+     * Indicates whether name parts of this category need superuser approval.
+     * Default value is <code>true</code> meaning approval is need. If approval
+     * is not needed, editors can create such parts and they are automatically
+     * approved. Editors can also delete name parts of this type, if they have
+     * created them. Deletion can also happen without approval.
+     *
+     * @return <code>true</code> if name part needs superuser approval,
+     * <code>false</code> otherwise.
+     */
+    public boolean isApprovalNeeded() {
+        return approvalNeeded;
+    }
 
-	public void setApprovalNeeded(boolean approvalNeeded) {
-		this.approvalNeeded = approvalNeeded;
-	}
+    public void setApprovalNeeded(boolean approvalNeeded) {
+        this.approvalNeeded = approvalNeeded;
+    }
 
     @XmlTransient
     public List<NameEvent> getNameEventList() {
@@ -126,5 +126,5 @@ public class NameCategory extends Persistable {
     public String toString() {
         return "org.openepics.names.NameCategory[ id=" + id + " ]";
     }
-    
+
 }

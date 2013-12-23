@@ -19,23 +19,23 @@
             <p:menu id="ncReqMenu" styleClass="fixedPosition box"
                     style="width: 8%">
                 <p:submenu label="NC Names">
-                    <p:menuitem value="Add" icon="ui-icon-plus" update=":AddNcNameForm"
-                            oncomplete="addNcName.show()" title="Add Name"
+                    <p:menuitem value="Add" icon="ui-icon-plus" update=":AddDeviceNameForm"
+                            oncomplete="addDeviceName.show()" title="Add Name"
                             rendered="#{userManager.editor}" />
                     <p:menuitem value="Delete" icon="ui-icon-trash"
-                            update=":delNcNameForm" oncomplete="delNcName.show()"
+                            update=":delDeviceNameForm" oncomplete="delDeviceName.show()"
                             title="Delete Device Name" rendered="#{userManager.editor}"
-                disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.status == 'DELETED' || editNamesManager.selectedNcName.requestedBy.username != userManager.user.username}" />
+                disabled="#{empty editNamesManager.selectedDeviceName || editNamesManager.selectedDeviceName.status == 'DELETED' || editNamesManager.selectedDeviceName.requestedBy.username != userManager.user.username}" />
                     <p:menuitem value="Modify" icon="ui-icon-pencil"
-                            update=":modNcNameForm" oncomplete="modNcName.show()"
+                            update=":modDeviceNameForm" oncomplete="modDeviceName.show()"
                             action="#{editNamesManager.loadSelectedName()}"
                             title="Modify NC Name" rendered="#{userManager.editor}"
-                disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.requestedBy.username != userManager.user.username}" />
+                disabled="#{empty editNamesManager.selectedDeviceName || editNamesManager.selectedDeviceName.requestedBy.username != userManager.user.username}" />
                     <p:menuitem value="History" icon="ui-icon-search"
                             actionListener="#{editNamesManager.findHistory()}"
                             update=":ManageNameForm:historyTable" title="View History"
                             oncomplete="nameDetail.show()"
-                            disabled="#{empty editNamesManager.selectedNcName}" />
+                            disabled="#{empty editNamesManager.selectedDeviceName}" />
                     <!-- 	<p:menuitem value="Cancel" icon="ui-icon-close" -->
                     <!-- 		update=":CancelReqForm" oncomplete="cancelReq.show()" -->
                     <!-- 		title="Cancel Request" rendered="#{requestManager.myRequest}" -->
@@ -45,25 +45,25 @@
 
             <p:contextMenu id="ncCntxtMenu" for="ncCrTable">
                 <p:menuitem value="Add" icon="ui-icon-plus"
-                        oncomplete="addNcName.show()"
+                        oncomplete="addDeviceName.show()"
                         rendered="#{userManager.editor}" />
-                <p:menuitem value="Delete" update=":delNcNameForm"
-                        icon="ui-icon-trash" oncomplete="delNcName.show()"
+                <p:menuitem value="Delete" update=":delDeviceNameForm"
+                        icon="ui-icon-trash" oncomplete="delDeviceName.show()"
                         rendered="#{userManager.editor}"
-                        disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.status == 'DELETED'}" />
-                <p:menuitem value="Modify" update=":modNcNameForm"
+                        disabled="#{empty editNamesManager.selectedDeviceName || editNamesManager.selectedDeviceName.status == 'DELETED'}" />
+                <p:menuitem value="Modify" update=":modDeviceNameForm"
                         action="#{editNamesManager.loadSelectedName()}"
-                        icon="ui-icon-pencil" oncomplete="modNcName.show()"
+                        icon="ui-icon-pencil" oncomplete="modDeviceName.show()"
                         rendered="#{userManager.editor}"
-                        disabled="#{empty editNamesManager.selectedNcName}" />
+                        disabled="#{empty editNamesManager.selectedDeviceName}" />
                 <p:menuitem value="Approve" icon="ui-icon-star"
                         update="ncCrTable" action="#{editNamesManager.approve()}"
                         rendered="#{userManager.editor}"
-                disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.processDate != null || !editNamesManager.superUser}" />
+                disabled="#{empty editNamesManager.selectedDeviceName || editNamesManager.selectedDeviceName.processDate != null || !editNamesManager.superUser}" />
                 <p:menuitem value="History" icon="ui-icon-search"
                         actionListener="#{requestManager.findHistory()}"
                         update=":ManageNameForm:historyTable" oncomplete="nameDetail.show()"
-                        disabled="#{empty editNamesManager.selectedNcName}" />
+                        disabled="#{empty editNamesManager.selectedDeviceName}" />
 <!-- 		<p:menuitem value="Cancel Request" icon="ui-icon-close" -->
 <!-- 			update=":CancelReqForm" oncomplete="cancelReq.show()" -->
 <!-- 			title="Cancel Request" rendered="#{requestManager.myRequest}" -->
@@ -71,33 +71,33 @@
             </p:contextMenu>
 
             <!-- ===================Data Table============================ -->
-            <p:dataTable id="ncCrTable" var="ncName"
-                    value="#{editNamesManager.allNcNames}" paginator="true" rows="50"
-                    resizableColumns="true" rowKey="#{ncName.id}"
+            <p:dataTable id="ncCrTable" var="deviceName"
+                    value="#{editNamesManager.allDeviceNames}" paginator="true" rows="50"
+                    resizableColumns="true" rowKey="#{deviceName.id}"
                     emptyMessage="There are no NC Names"
-                    rowStyleClass="#{editNamesManager.nameStatus(ncName)}"
-                    selection="#{editNamesManager.selectedNcName}" style="width: 90%">
+                    rowStyleClass="#{editNamesManager.nameStatus(deviceName)}"
+                    selection="#{editNamesManager.selectedDeviceName}" style="width: 90%">
                 <f:facet name="header">
                     <h:outputText value="Existing Device Names" />
                 </f:facet>
 
-                <p:ajax event="rowSelectRadio" update=":ManageNameForm:ncReqMenu :modNcNameForm" />
+                <p:ajax event="rowSelectRadio" update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />
                 <p:column selectionMode="single" style="width: 5%" />
 
                 <p:column id="nameString" headerText="NC Name"
-                filterBy="#{ncName.name}" filterMatchMode="contains"
+                filterBy="#{deviceName.name}" filterMatchMode="contains"
                 style="width: 20%">
-                    <h:outputText value="#{ncName.name}" />
+                    <h:outputText value="#{deviceName.name}" />
                 </p:column>
                 <p:column id="nameSection" headerText="Section"
-                        filterBy="#{ncName.section.fullName}" filterMatchMode="contains"
+                        filterBy="#{deviceName.section.fullName}" filterMatchMode="contains"
                         style="width: 15%">
-                    <h:outputText value="#{ncName.section.fullName}" />
+                    <h:outputText value="#{deviceName.section.fullName}" />
                 </p:column>
                 <p:column id="nameDiscipline" headerText="Discipline"
-                        filterBy="#{ncName.discipline.fullName}"
+                        filterBy="#{deviceName.discipline.fullName}"
                         filterMatchMode="contains" style="width: 15%">
-                    <h:outputText value="#{ncName.discipline.fullName}" />
+                    <h:outputText value="#{deviceName.discipline.fullName}" />
                 </p:column>
                 <p:column id="nameStatus">
                     <f:facet name="header">
@@ -106,10 +106,10 @@
                         <p:selectBooleanButton value="#{editNamesManager.showDeletedNames}"
                                                onLabel="Deleted" offLabel="Deleted"
                                                onIcon="ui-icon-check" offIcon="ui-icon-close">
-                            <p:ajax update="ncCrTable"  listener="#{editNamesManager.refreshNcNames}"/>
+                            <p:ajax update="ncCrTable"  listener="#{editNamesManager.refreshDeviceNames}"/>
                         </p:selectBooleanButton>
                     </f:facet>
-                    <h:outputText value="#{ncName.status}" />
+                    <h:outputText value="#{deviceName.status}" />
                 </p:column>
 
             </p:dataTable>
@@ -119,31 +119,31 @@
             <p:dialog id="nameDetail" widgetVar="nameDetail" width="900"
                     dynamic="true" maximizable="true" minimizable="true"
                     header="Name Details" footer="Event History">
-                <p:dataTable id="historyTable" var="ncname"
+                <p:dataTable id="historyTable" var="deviceName"
                     value="#{editNamesManager.historyEvents}" paginator="false" rows="50"
-                    resizableColumns="true" rowKey="#{ncname.id}"
+                    resizableColumns="true" rowKey="#{deviceName.id}"
                     emptyMessage="There are no events for this name.">
 
                     <p:column id="id" headerText="Id" rendered="false">
-                        <h:outputText value="#{ncname.id}" />
+                        <h:outputText value="#{deviceName.id}" />
                     </p:column>
                     <p:column id="histName" headerText="Name">
-                        <h:outputText value="#{ncname.name}" />
+                        <h:outputText value="#{deviceName.name}" />
                     </p:column>
                     <p:column id="histNameSect" headerText="Section">
-                        <h:outputText value="#{ncname.section.name}" />
+                        <h:outputText value="#{deviceName.section.name}" />
                     </p:column>
                     <p:column id="histNameDscp" headerText="Discipline">
-                        <h:outputText value="#{ncname.discipline.name}" />
+                        <h:outputText value="#{deviceName.discipline.name}" />
                     </p:column>
                     <p:column id="histStatus" headerText="Status">
-                        <h:outputText value="#{ncname.status}" />
+                        <h:outputText value="#{deviceName.status}" />
                     </p:column>
-                    <p:column id="histReqBy" headerText="By" sortBy="#{ncname.requestedBy}">
-                        <h:outputText value="#{ncname.requestedBy.username}" />
+                    <p:column id="histReqBy" headerText="By" sortBy="#{deviceName.requestedBy}">
+                        <h:outputText value="#{deviceName.requestedBy.username}" />
                     </p:column>
-                    <p:column id="histReqDate" headerText="Date" sortBy="#{ncname.requestDate}">
-                        <h:outputText value="#{ncname.requestDate}">
+                    <p:column id="histReqDate" headerText="Date" sortBy="#{deviceName.requestDate}">
+                        <h:outputText value="#{deviceName.requestDate}">
                             <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" />
                         </h:outputText>
                     </p:column>
@@ -152,8 +152,8 @@
         </h:form>
 
         <!-- ===================Add Form================================= -->
-        <h:form id="AddNcNameForm">
-            <p:dialog id="addNcName" widgetVar="addNcName">
+        <h:form id="AddDeviceNameForm">
+            <p:dialog id="addDeviceName" widgetVar="addDeviceName">
                 <f:facet name="header">
                         <h:outputText value="Add Naming Convention Name" />
                 </f:facet>
@@ -247,17 +247,17 @@
                     <p:separator />
 
                     <p:commandButton id="ibsub" value="Submit" style="float: left"
-                            update=":ManageNameForm" oncomplete="addNcName.hide()"
+                            update=":ManageNameForm" oncomplete="addDeviceName.hide()"
                             action="#{editNamesManager.onAdd()}"
                             disabled="#{!editNamesManager.isFormFilled()}"/>
                     <p:commandButton value="Cancel" style="float: right"
-                            onclick="addNcName.hide()" />
+                            onclick="addDeviceName.hide()" />
             </p:dialog>
         </h:form>
 
         <!-- ===================Modify Form================================= -->
-        <h:form id="modNcNameForm">
-            <p:dialog widgetVar="modNcName">
+        <h:form id="modDeviceNameForm">
+            <p:dialog widgetVar="modDeviceName">
                 <f:facet name="header">
                     <h:outputText value="Request to Change Name" />
                 </f:facet>
@@ -272,7 +272,7 @@
                             Current values:
                         </p:column>
                         <p:column colspan="3">
-                            <h:outputText value="#{editNamesManager.getSelectedNcNameSectionString()}" />
+                            <h:outputText value="#{editNamesManager.getSelectedDeviceNameSectionString()}" />
                         </p:column>
                     </p:row>
                     <p:row>
@@ -318,7 +318,7 @@
                             Current values:
                         </p:column>
                         <p:column colspan="3">
-                            <h:outputText value="#{editNamesManager.getSelectedNcNameDisciplineString()}" />
+                            <h:outputText value="#{editNamesManager.getSelectedDeviceNameDisciplineString()}" />
                         </p:column>
                     </p:row>
                     <p:row>
@@ -365,17 +365,17 @@
                 <p:separator />
 
                 <p:commandButton id="mbsub" value="Submit" style="float: left"
-                        update=":ManageNameForm" oncomplete="modNcName.hide()"
+                        update=":ManageNameForm" oncomplete="modDeviceName.hide()"
                         action="#{editNamesManager.onModify()}"
                         disabled="#{!editNamesManager.isFormFilled()}"/>
                 <p:commandButton value="Cancel" style="float: right"
-                        onclick="modNcName.hide()" />
+                        onclick="modDeviceName.hide()" />
             </p:dialog>
         </h:form>
 
         <!-- ===================Delete Form================================= -->
-        <h:form id="delNcNameForm">
-            <p:dialog id="delNcName" widgetVar="delNcName">
+        <h:form id="delDeviceNameForm">
+            <p:dialog id="delDeviceName" widgetVar="delDeviceName">
                 <f:facet name="header">
                     <h:outputText value="Delete/Retire Naming Convention Name" />
                 </f:facet>
@@ -383,27 +383,27 @@
                     <p:row>
                         <p:column style="width: 128px">
                             <h:outputText
-                                    value="#{editNamesManager.selectedNcName.section.fullName}" />
+                                    value="#{editNamesManager.selectedDeviceName.section.fullName}" />
                         </p:column>
                         <p:column style="width: 128px">
                             <h:outputText
-                                    value="#{editNamesManager.selectedNcName.discipline.fullName}" />
+                                    value="#{editNamesManager.selectedDeviceName.discipline.fullName}" />
                         </p:column>
                     </p:row>
 
                     <p:row>
                         <p:column colspan="4">
-                            <h:outputText value="#{editNamesManager.selectedNcName.name}" />
+                            <h:outputText value="#{editNamesManager.selectedDeviceName.name}" />
                         </p:column>
                     </p:row>
                 </p:panelGrid>
                 <p:separator />
 
                 <p:commandButton value="Submit" style="float: left"
-                        update=":ManageNameForm" oncomplete="delNcName.hide()"
+                        update=":ManageNameForm" oncomplete="delDeviceName.hide()"
                         action="#{editNamesManager.onDelete()}" />
                 <p:commandButton value="Cancel" style="float: right"
-                        onclick="delNcName.hide()" />
+                        onclick="delDeviceName.hide()" />
             </p:dialog>
         </h:form>
 
@@ -441,7 +441,7 @@
         <!-- 					update=":ManageNameForm" oncomplete="cancelReq.hide()" -->
         <!-- 					action="#{requestManager.onCancel()}" /> -->
         <!-- 				<p:commandButton value="Cancel" style="float: right" -->
-        <!-- 					onclick="delNcName.hide()" /> -->
+        <!-- 					onclick="delDeviceName.hide()" /> -->
         <!-- 			</p:dialog> -->
         <!-- 		</h:form> -->
     </ui:define>

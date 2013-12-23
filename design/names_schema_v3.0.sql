@@ -53,10 +53,7 @@ INSERT INTO `name_category` (`id`, `name`, `description`, `version`, `approval_n
 	(0000000004, 'DSCP', 'Discipline', 0000000001, 1),
 	(0000000005, 'CAT', 'Category', 0000000001, 1),
 	(0000000006, 'GDEV', 'Generic device', 0000000001, 1),
-	(0000000007, 'SDEV', 'Specific device', 0000000001, 0),
-	(0000000008, 'STYP', 'Signal type', 0000000001, 1),
-	(0000000009, 'SINS', 'Signal instance', 0000000001, 1),
-	(0000000010, 'ADS', 'Additional signal description', 0000000001, 1);
+	(0000000007, 'SDEV', 'Specific device', 0000000001, 0);
 /*!40000 ALTER TABLE `name_category` ENABLE KEYS */;
 
 
@@ -113,10 +110,7 @@ INSERT INTO `name_event` (`id`, `name_id`, `name`, `full_name`, `name_category_i
 	(0000000018, 'r', 'GDv3', 'Generic Device 3', 6, 13, 'INSERT', 2, '2013-12-09 10:20:42', 'APPROVED', NULL, NULL, NULL, NULL, 0000000001),
 	(0000000019, 's', 'SDv1', 'Specific Device 1', 7, 16, 'INSERT', 2, '2013-12-09 10:20:42', 'APPROVED', NULL, NULL, NULL, NULL, 0000000001),
 	(0000000020, 't', 'SDv2', 'Specific Device 2', 7, 17, 'INSERT', 2, '2013-12-09 10:20:42', 'APPROVED', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000021, 'u', 'SDv3', 'Specific Device 3', 7, 18, 'INSERT', 2, '2013-12-09 10:20:42', 'APPROVED', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000022, 'v', 'S001', 'Signal (Type) 1', 8, NULL, 'INSERT', 2, '2013-12-09 10:20:42', 'APPROVED', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000023, 'w', 'S002', 'Signal (Type) 2', 8, NULL, 'INSERT', 2, '2013-12-09 10:20:42', 'APPROVED', NULL, NULL, NULL, NULL, 0000000001),
-	(0000000024, 'x', 'S003', 'Signal (Type) 3', 8, NULL, 'INSERT', 2, '2013-12-09 10:20:42', 'APPROVED', NULL, NULL, NULL, NULL, 0000000001);
+	(0000000021, 'u', 'SDv3', 'Specific Device 3', 7, 18, 'INSERT', 2, '2013-12-09 10:20:42', 'APPROVED', NULL, NULL, NULL, NULL, 0000000001);
 /*!40000 ALTER TABLE `name_event` ENABLE KEYS */;
 
 
@@ -140,14 +134,13 @@ CREATE TABLE IF NOT EXISTS `name_release` (
 /*!40000 ALTER TABLE `name_release` ENABLE KEYS */;
 
 
--- Dumping structure for table discs_names.NC_name
-DROP TABLE IF EXISTS `NC_name`;
-CREATE TABLE IF NOT EXISTS `NC_name` (
+-- Dumping structure for table discs_names.device_name
+DROP TABLE IF EXISTS `device_name`;
+CREATE TABLE IF NOT EXISTS `device_name` (
   `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
   `name_id` varchar(64) NOT NULL,
   `section_id` int(10) unsigned NOT NULL,
-  `discipline_id` int(10) unsigned NOT NULL,
-  `signal_id` int(10) unsigned DEFAULT NULL,
+  `device_type_id` int(10) unsigned NOT NULL,
   `instance_index` varchar(10) DEFAULT NULL,
   `name` varchar(32) NOT NULL,
   `status` varchar(16) NOT NULL DEFAULT 'invalid',
@@ -157,18 +150,16 @@ CREATE TABLE IF NOT EXISTS `NC_name` (
   `process_date` timestamp NULL DEFAULT NULL,
   `version` int(10) unsigned zerofill NOT NULL DEFAULT '0000000001',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `section_id` (`section_id`,`discipline_id`,`signal_id`,`instance_index`),
-  KEY `FK_NC_name_discipline_id` (`discipline_id`),
-  KEY `FK_NC_name_signal_id` (`signal_id`),
-  CONSTRAINT `FK_NC_name_discipline_id` FOREIGN KEY (`discipline_id`) REFERENCES `name_event` (`id`),
-  CONSTRAINT `FK_NC_name_section_id` FOREIGN KEY (`section_id`) REFERENCES `name_event` (`id`),
-  CONSTRAINT `FK_NC_name_signal_id` FOREIGN KEY (`signal_id`) REFERENCES `name_event` (`id`)
+  UNIQUE KEY `section_id` (`section_id`,`device_type_id`,`instance_index`),
+  KEY `FK_device_name_device_type_id` (`device_type_id`),
+  CONSTRAINT `FK_device_name_discipline_device_type_id` FOREIGN KEY (`device_type_id`) REFERENCES `name_event` (`id`),
+  CONSTRAINT `FK_device_name_section_id` FOREIGN KEY (`section_id`) REFERENCES `name_event` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=cp1250;
 
--- Dumping data for table discs_names.NC_name: ~0 rows (approximately)
--- DELETE FROM `NC_name`;
-/*!40000 ALTER TABLE `NC_name` DISABLE KEYS */;
-/*!40000 ALTER TABLE `NC_name` ENABLE KEYS */;
+-- Dumping data for table discs_names.device_name: ~0 rows (approximately)
+-- DELETE FROM `device_name`;
+/*!40000 ALTER TABLE `device_name` DISABLE KEYS */;
+/*!40000 ALTER TABLE `device_name` ENABLE KEYS */;
 
 
 -- Dumping structure for table discs_names.privilege

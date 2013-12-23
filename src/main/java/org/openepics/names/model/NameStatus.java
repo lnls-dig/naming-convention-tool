@@ -1,5 +1,5 @@
 package org.openepics.names.model;
 
-public enum NcNameStatus {
+public enum NameStatus {
     INVALID, VALID, DELETED
 }

@@ -11,9 +11,9 @@
 	<ui:define name="content">
 
             <!-- ===================Data Table============================ -->
-            <p:dataTable id="ncCrTable" var="ncName"
-                    value="#{ncNamesManager.activeNcNames}" paginator="true" rows="50"
-                    resizableColumns="true" rowKey="#{ncName.id}"
+            <p:dataTable id="ncCrTable" var="deviceName"
+                    value="#{deviceNamesManager.activeDeviceNames}" paginator="true" rows="50"
+                    resizableColumns="true" rowKey="#{deviceName.id}"
                     emptyMessage="There are no active NC Names"
                     style="width: 90%">
                 <f:facet name="header">
@@ -21,23 +21,23 @@
                 </f:facet>
 
                 <p:column id="nameString" headerText="NC Name"
-                        filterBy="#{ncName.name}" filterMatchMode="contains"
+                        filterBy="#{deviceName.name}" filterMatchMode="contains"
                         style="width: 20%">
-                    <h:outputText value="#{ncName.name}" />
+                    <h:outputText value="#{deviceName.name}" />
                 </p:column>
                 <p:column id="nameSection" headerText="Section"
-                        filterBy="#{ncName.section.fullName}" filterMatchMode="contains"
+                        filterBy="#{deviceName.section.fullName}" filterMatchMode="contains"
                         style="width: 15%">
-                    <h:outputText value="#{ncName.section.fullName}" />
+                    <h:outputText value="#{deviceName.section.fullName}" />
                 </p:column>
                 <p:column id="nameDiscipline" headerText="Discipline"
-                        filterBy="#{ncName.discipline.fullName}"
+                        filterBy="#{deviceName.discipline.fullName}"
                         filterMatchMode="startsWith" style="width: 15%">
-                    <h:outputText value="#{ncName.discipline.fullName}" />
+                    <h:outputText value="#{deviceName.discipline.fullName}" />
                 </p:column>
                 <p:column id="nameStatus" headerText="Status"
-                        filterBy="#{ncName.status}" filterMatchMode="contains">
-                    <h:outputText value="#{ncName.status}" />
+                        filterBy="#{deviceName.status}" filterMatchMode="contains">
+                    <h:outputText value="#{deviceName.status}" />
                 </p:column>
 
             </p:dataTable>
