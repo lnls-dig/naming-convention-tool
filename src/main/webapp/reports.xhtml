@@ -1,44 +1,44 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
-                template="./namesTemplate.xhtml"
+                template="/WEB-INF/namesTemplate.xhtml"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:h="http://java.sun.com/jsf/html"
                 >
 
     <ui:define name="content">
-        
-        <h:form id="RepParamForm"> 
-            <p:growl id="requestMsgs" showDetail="true" life="5000" /> 
+
+        <h:form id="RepParamForm">
+            <p:growl id="requestMsgs" showDetail="true" life="5000" />
             <p:panelGrid >
                 <f:facet name="header">
                     <p:row>
                         <p:column colspan="3">
-                            Query Options   
+                            Query Options
                         </p:column>
                     </p:row>
                 </f:facet>
                 <p:row>
                     <p:column><h:outputLabel for="status" value="Request Status" /></p:column>
-                    <p:column>                        
+                    <p:column>
                         <p:selectOneMenu id="status" value="#{reportManager.eventStatus}"  >
-                            <f:selectItem itemLabel="Any" itemValue="%" />  
-                            <f:selectItem itemLabel="Approved" itemValue="a" />  
-                            <f:selectItem itemLabel="Being Processed" itemValue="p" />  
-                            <f:selectItem itemLabel="Cancelled" itemValue="c" />  
-                            <f:selectItem itemLabel="Rejected" itemValue="r" />                          
+                            <f:selectItem itemLabel="Any" itemValue="%" />
+                            <f:selectItem itemLabel="Approved" itemValue="a" />
+                            <f:selectItem itemLabel="Being Processed" itemValue="p" />
+                            <f:selectItem itemLabel="Cancelled" itemValue="c" />
+                            <f:selectItem itemLabel="Rejected" itemValue="r" />
                         </p:selectOneMenu>
                     </p:column>
                 </p:row>
                 <p:row>
-                    <p:column><h:outputLabel for="etype" value="Request Type" /></p:column>               
-                    <p:column>                        
+                    <p:column><h:outputLabel for="etype" value="Request Type" /></p:column>
+                    <p:column>
                         <p:selectOneMenu id="etype" value="#{reportManager.eventType}">
-                            <f:selectItem itemLabel="Any" itemValue="%" />  
-                            <f:selectItem itemLabel="Add Name" itemValue="i" />  
-                            <f:selectItem itemLabel="Delete Name" itemValue="d" />  
-                            <f:selectItem itemLabel="Modify Name" itemValue="m" />                                                 
+                            <f:selectItem itemLabel="Any" itemValue="%" />
+                            <f:selectItem itemLabel="Add Name" itemValue="i" />
+                            <f:selectItem itemLabel="Delete Name" itemValue="d" />
+                            <f:selectItem itemLabel="Modify Name" itemValue="m" />
                         </p:selectOneMenu>
                     </p:column>
                 </p:row>
@@ -49,148 +49,148 @@
                 </p:row>
                 <p:row rendered="false">
                     <p:column>Revision Period</p:column>
-                    <p:column> 
+                    <p:column>
                         <p:selectOneMenu id="srev" value="#{reportManager.startRev}"  >
-                            <f:selectItem itemLabel="Any" itemValue="%" />  
-                            <f:selectItem itemLabel="R003" itemValue="a" />                                                      
+                            <f:selectItem itemLabel="Any" itemValue="%" />
+                            <f:selectItem itemLabel="R003" itemValue="a" />
                         </p:selectOneMenu>
                     </p:column>
-                    <p:column> 
+                    <p:column>
                         <p:selectOneMenu id="erev" value="#{reportManager.endRev}"  >
-                            <f:selectItem itemLabel="Any" itemValue="%" />  
-                            <f:selectItem itemLabel="R003" itemValue="a" />                                                      
+                            <f:selectItem itemLabel="Any" itemValue="%" />
+                            <f:selectItem itemLabel="R003" itemValue="a" />
                         </p:selectOneMenu>
                     </p:column>
                 </p:row>
             </p:panelGrid>
             <p:commandButton id="repButton" value="Generate"  action="#{reportManager.onGenReport}"
                              update=":RepDataForm:reportTable" onclick="reportPnl.show()" />
-            <p:blockUI block=":RepDataForm:reportPnl" trigger="repButton" >          
-                <p:graphicImage value="/resources/images/ajax-loader.gif" style="background-color: transparent" />  
+            <p:blockUI block=":RepDataForm:reportPnl" trigger="repButton" >
+                <p:graphicImage value="/resources/images/ajax-loader.gif" style="background-color: transparent" />
             </p:blockUI>
         </h:form>
-        
+
         <h:form id="RepDataForm">
             <p:dialog id="reportPnl" widgetVar="reportPnl" width="900"  dynamic="true"
                       maximizable="true" minimizable="true"  >
                 <f:facet name="header">
-                    <h:outputText value="Report" />                    
+                    <h:outputText value="Report" />
                 </f:facet>
-                <f:facet name="footer">                   
+                <f:facet name="footer">
                 </f:facet>
-                <p:dataTable id="reportTable" var="nevent" value="#{reportManager.events}" 
-                             paginator="false"  resizableColumns="true"                                   
-                             rowKey="#{nevent.id}"  scrollable="true"  scrollHeight="600"                       
-                             emptyMessage="There are no naming events matching your criteria."                         
-                             style="width: 100%">                 
+                <p:dataTable id="reportTable" var="nevent" value="#{reportManager.events}"
+                             paginator="false"  resizableColumns="true"
+                             rowKey="#{nevent.id}"  scrollable="true"  scrollHeight="600"
+                             emptyMessage="There are no naming events matching your criteria."
+                             style="width: 100%">
 
                     <p:column id="id" sortBy="#{nevent.id}" style="width: 5%" rendered="false" >
                     	<f:facet name="header">
-                    		<h:outputText value="Id" /> 
-                    	</f:facet>                  
-                        <h:outputText value="#{nevent.id}" />                              
+                    		<h:outputText value="Id" />
+                    	</f:facet>
+                        <h:outputText value="#{nevent.id}" />
                     </p:column>
 
-                    <p:column id="nameCat" >      
+                    <p:column id="nameCat" >
                     	<f:facet name="header">
-                    		<h:outputText value="Category" /> 
-                    	</f:facet>               
-                        <h:outputText value="#{nevent.nameCategory.name}" />                              
+                    		<h:outputText value="Category" />
+                    	</f:facet>
+                        <h:outputText value="#{nevent.nameCategory.name}" />
                     </p:column>
-                    <p:column id="nameCode" >                  
+                    <p:column id="nameCode" >
                     	<f:facet name="header">
-                    		<h:outputText value="Name" /> 
-                    	</f:facet>   
-                        <h:outputText value="#{nevent.name}" />                              
-                    </p:column>              
-                    <p:column id="fullName" >                  
-                    	<f:facet name="header">
-                    		<h:outputText value="Full Name" /> 
-                    	</f:facet>   
-                        <h:outputText value="#{nevent.fullName}" />                              
+                    		<h:outputText value="Name" />
+                    	</f:facet>
+                        <h:outputText value="#{nevent.name}" />
                     </p:column>
-                    <p:column id="type" >                  
+                    <p:column id="fullName" >
                     	<f:facet name="header">
-                    		<h:outputText value="Type" /> 
-                    	</f:facet>   
-                        <h:outputText value="#{requestManager.requestType(nevent.eventType)}" />                              
+                    		<h:outputText value="Full Name" />
+                    	</f:facet>
+                        <h:outputText value="#{nevent.fullName}" />
                     </p:column>
-                    <p:column id="reqBy" >                  
+                    <p:column id="type" >
                     	<f:facet name="header">
-                    		<h:outputText value="By" /> 
-                    	</f:facet>   
-                        <h:outputText value="#{nevent.requestedBy.username}" />                              
+                    		<h:outputText value="Type" />
+                    	</f:facet>
+                        <h:outputText value="#{requestManager.requestType(nevent.eventType)}" />
                     </p:column>
-                    <p:column id="reqDate" >                  
+                    <p:column id="reqBy" >
                     	<f:facet name="header">
-                    		<h:outputText value="Date" /> 
-                    	</f:facet>   
+                    		<h:outputText value="By" />
+                    	</f:facet>
+                        <h:outputText value="#{nevent.requestedBy.username}" />
+                    </p:column>
+                    <p:column id="reqDate" >
+                    	<f:facet name="header">
+                    		<h:outputText value="Date" />
+                    	</f:facet>
                         <h:outputText value="#{nevent.requestDate}" >
                             <f:convertDateTime pattern="yyyy-MM-dd" />
                         </h:outputText>
-                    </p:column>            
-                    <p:column id="reqComment" >                  
-                    	<f:facet name="header">
-                    		<h:outputText value="Comment" /> 
-                    	</f:facet>   
-                        <h:outputText value="#{nevent.requestorComment}" />                              
-                    </p:column> 
-                    <p:column id="status" >                  
-                    	<f:facet name="header">
-                    		<h:outputText value="Status" /> 
-                    	</f:facet>   
-                        <h:outputText value="#{namesManager.nameStatus(nevent)}" title="status"/>                              
                     </p:column>
-                    <p:column id="By" >                  
+                    <p:column id="reqComment" >
                     	<f:facet name="header">
-                    		<h:outputText value="Proc By" /> 
-                    	</f:facet>   
-                        <h:outputText value="#{nevent.processedBy}" />                              
+                    		<h:outputText value="Comment" />
+                    	</f:facet>
+                        <h:outputText value="#{nevent.requestorComment}" />
                     </p:column>
-                    <p:column id="procDate" >                  
+                    <p:column id="status" >
                     	<f:facet name="header">
-                    		<h:outputText value="Proc Date" /> 
-                    	</f:facet>   
+                    		<h:outputText value="Status" />
+                    	</f:facet>
+                        <h:outputText value="#{namesManager.nameStatus(nevent)}" title="status"/>
+                    </p:column>
+                    <p:column id="By" >
+                    	<f:facet name="header">
+                    		<h:outputText value="Proc By" />
+                    	</f:facet>
+                        <h:outputText value="#{nevent.processedBy}" />
+                    </p:column>
+                    <p:column id="procDate" >
+                    	<f:facet name="header">
+                    		<h:outputText value="Proc Date" />
+                    	</f:facet>
                         <h:outputText value="#{nevent.processDate}" >
                             <f:convertDateTime pattern="yyyy-MM-dd" />
                         </h:outputText>
-                    </p:column>            
-                    <p:column id="procComment" >                  
-                    	<f:facet name="header">
-                    		<h:outputText value="Proc Comment" /> 
-                    	</f:facet>   
-                        <h:outputText value="#{nevent.processorComment}" />                              
                     </p:column>
-                    <p:column id="nameId" sortBy="#{nevent.id}" style="width: 7%" rendered="false" >                  
+                    <p:column id="procComment" >
                     	<f:facet name="header">
-                    		<h:outputText value="Name ID" /> 
-                    	</f:facet>   
-                        <h:outputText value="#{nevent.nameId}" />                              
+                    		<h:outputText value="Proc Comment" />
+                    	</f:facet>
+                        <h:outputText value="#{nevent.processorComment}" />
+                    </p:column>
+                    <p:column id="nameId" sortBy="#{nevent.id}" style="width: 7%" rendered="false" >
+                    	<f:facet name="header">
+                    		<h:outputText value="Name ID" />
+                    	</f:facet>
+                        <h:outputText value="#{nevent.nameId}" />
                     </p:column>
                 </p:dataTable>
-                <p:panel rendered="true">  
-                    <h:commandLink >  
-                        <p:graphicImage value="resources/images/excel.png" />                      
-                        <p:dataExporter type="xls"  target="reportTable" fileName="nctool-report" />  
-                    </h:commandLink>  
+                <p:panel rendered="true">
+                    <h:commandLink >
+                        <p:graphicImage value="resources/images/excel.png" />
+                        <p:dataExporter type="xls"  target="reportTable" fileName="nctool-report" />
+                    </h:commandLink>
 
-                    <h:commandLink>  
-                        <p:graphicImage value="resources/images/pdf.png" />  
-                        <p:dataExporter type="pdf" target="reportTable" fileName="nctool-report" />  
-                    </h:commandLink>  
+                    <h:commandLink>
+                        <p:graphicImage value="resources/images/pdf.png" />
+                        <p:dataExporter type="pdf" target="reportTable" fileName="nctool-report" />
+                    </h:commandLink>
 
-                    <h:commandLink>  
-                        <p:graphicImage value="resources/images/csv.png" />  
-                        <p:dataExporter type="csv" target="reportTable" fileName="nctool-report"  /> 
-                    </h:commandLink>  
+                    <h:commandLink>
+                        <p:graphicImage value="resources/images/csv.png" />
+                        <p:dataExporter type="csv" target="reportTable" fileName="nctool-report"  />
+                    </h:commandLink>
 
-                    <h:commandLink>  
-                        <p:graphicImage value="resources/images/xml.png" />  
-                        <p:dataExporter type="xml" target="reportTable" fileName="nctool-report" />  
-                    </h:commandLink>  
+                    <h:commandLink>
+                        <p:graphicImage value="resources/images/xml.png" />
+                        <p:dataExporter type="xml" target="reportTable" fileName="nctool-report" />
+                    </h:commandLink>
                 </p:panel>
             </p:dialog>
         </h:form>
-        
+
     </ui:define>
 </ui:composition>

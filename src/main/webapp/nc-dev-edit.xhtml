@@ -3,9 +3,10 @@
 <!-- ToDo: split this one into MyRequests and RequestSub -->
 
 <ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
-	template="./namesTemplate.xhtml" xmlns:p="http://primefaces.org/ui"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html">
+                template="/WEB-INF/namesTemplate.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html">
 
 	<ui:define name="content">
 		<h:outputText value="You must be a device editor to perform this action."
@@ -102,11 +103,11 @@
                     <f:facet name="header">
                         <h:outputText value="Status" />
                         <br />
-                        <p:selectBooleanButton value="#{editNamesManager.showDeletedNames}" 
-                                               onLabel="Deleted" offLabel="Deleted" 
-                                               onIcon="ui-icon-check" offIcon="ui-icon-close">  
-                            <p:ajax update="ncCrTable"  listener="#{editNamesManager.refreshNcNames}"/> 
-                        </p:selectBooleanButton> 
+                        <p:selectBooleanButton value="#{editNamesManager.showDeletedNames}"
+                                               onLabel="Deleted" offLabel="Deleted"
+                                               onIcon="ui-icon-check" offIcon="ui-icon-close">
+                            <p:ajax update="ncCrTable"  listener="#{editNamesManager.refreshNcNames}"/>
+                        </p:selectBooleanButton>
                     </f:facet>
 					<h:outputText value="#{ncName.status}" />
 				</p:column>
@@ -141,7 +142,7 @@
                     <p:column id="histReqBy" headerText="By" sortBy="#{ncname.requestedBy}">
                         <h:outputText value="#{ncname.requestedBy.username}" />
                     </p:column>
-                    <p:column id="histReqDate" headerText="Date" sortBy="#{ncname.requestDate}"> 
+                    <p:column id="histReqDate" headerText="Date" sortBy="#{ncname.requestDate}">
                         <h:outputText value="#{ncname.requestDate}">
                             <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" />
                         </h:outputText>
