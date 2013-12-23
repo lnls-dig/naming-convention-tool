@@ -8,98 +8,98 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:h="http://java.sun.com/jsf/html">
 
-	<ui:define name="content">
-		<h:outputText value="You must be a device editor to perform this action."
-			rendered="#{not userManager.editor}" />
-		<h:form id="ManageNameForm" rendered="#{userManager.editor}">
-			<p:growl id="ncRequestMsgs" showDetail="true" sticky="false"
-				life="30000" />
+    <ui:define name="content">
+        <h:outputText value="You must be a device editor to perform this action."
+                rendered="#{not userManager.editor}" />
+        <h:form id="ManageNameForm" rendered="#{userManager.editor}">
+            <p:growl id="ncRequestMsgs" showDetail="true" sticky="false"
+                    life="30000" />
 
-			<!-- =================== Menus ============================ -->
-			<p:menu id="ncReqMenu" styleClass="fixedPosition box"
-				style="width: 8%">
-				<p:submenu label="NC Names">
-					<p:menuitem value="Add" icon="ui-icon-plus" update=":AddNcNameForm"
-						oncomplete="addNcName.show()" title="Add Name"
-						rendered="#{userManager.editor}" />
-					<p:menuitem value="Delete" icon="ui-icon-trash"
-						update=":delNcNameForm" oncomplete="delNcName.show()"
-						title="Delete Device Name" rendered="#{userManager.editor}"
-                        disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.status == 'DELETED' || editNamesManager.selectedNcName.requestedBy.username != userManager.user.username}" />
-					<p:menuitem value="Modify" icon="ui-icon-pencil"
-						update=":modNcNameForm" oncomplete="modNcName.show()"
-						action="#{editNamesManager.loadSelectedName()}"
-						title="Modify NC Name" rendered="#{userManager.editor}"
-                        disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.requestedBy.username != userManager.user.username}" />
-					<p:menuitem value="History" icon="ui-icon-search"
-                        actionListener="#{editNamesManager.findHistory()}"
-                        update=":ManageNameForm:historyTable" title="View History"
-                        oncomplete="nameDetail.show()"
+            <!-- =================== Menus ============================ -->
+            <p:menu id="ncReqMenu" styleClass="fixedPosition box"
+                    style="width: 8%">
+                <p:submenu label="NC Names">
+                    <p:menuitem value="Add" icon="ui-icon-plus" update=":AddNcNameForm"
+                            oncomplete="addNcName.show()" title="Add Name"
+                            rendered="#{userManager.editor}" />
+                    <p:menuitem value="Delete" icon="ui-icon-trash"
+                            update=":delNcNameForm" oncomplete="delNcName.show()"
+                            title="Delete Device Name" rendered="#{userManager.editor}"
+                disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.status == 'DELETED' || editNamesManager.selectedNcName.requestedBy.username != userManager.user.username}" />
+                    <p:menuitem value="Modify" icon="ui-icon-pencil"
+                            update=":modNcNameForm" oncomplete="modNcName.show()"
+                            action="#{editNamesManager.loadSelectedName()}"
+                            title="Modify NC Name" rendered="#{userManager.editor}"
+                disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.requestedBy.username != userManager.user.username}" />
+                    <p:menuitem value="History" icon="ui-icon-search"
+                            actionListener="#{editNamesManager.findHistory()}"
+                            update=":ManageNameForm:historyTable" title="View History"
+                            oncomplete="nameDetail.show()"
+                            disabled="#{empty editNamesManager.selectedNcName}" />
+                    <!-- 	<p:menuitem value="Cancel" icon="ui-icon-close" -->
+                    <!-- 		update=":CancelReqForm" oncomplete="cancelReq.show()" -->
+                    <!-- 		title="Cancel Request" rendered="#{requestManager.myRequest}" -->
+                    <!-- 		disabled="#{requestManager.selectedEventProcessed()}" /> -->
+                </p:submenu>
+            </p:menu>
+
+            <p:contextMenu id="ncCntxtMenu" for="ncCrTable">
+                <p:menuitem value="Add" icon="ui-icon-plus"
+                        oncomplete="addNcName.show()"
+                        rendered="#{userManager.editor}" />
+                <p:menuitem value="Delete" update=":delNcNameForm"
+                        icon="ui-icon-trash" oncomplete="delNcName.show()"
+                        rendered="#{userManager.editor}"
+                        disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.status == 'DELETED'}" />
+                <p:menuitem value="Modify" update=":modNcNameForm"
+                        action="#{editNamesManager.loadSelectedName()}"
+                        icon="ui-icon-pencil" oncomplete="modNcName.show()"
+                        rendered="#{userManager.editor}"
                         disabled="#{empty editNamesManager.selectedNcName}" />
-					<!-- 					<p:menuitem value="Cancel" icon="ui-icon-close" -->
-					<!-- 						update=":CancelReqForm" oncomplete="cancelReq.show()" -->
-					<!-- 						title="Cancel Request" rendered="#{requestManager.myRequest}" -->
-					<!-- 						disabled="#{requestManager.selectedEventProcessed()}" /> -->
-				</p:submenu>
-			</p:menu>
+                <p:menuitem value="Approve" icon="ui-icon-star"
+                        update="ncCrTable" action="#{editNamesManager.approve()}"
+                        rendered="#{userManager.editor}"
+                disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.processDate != null || !editNamesManager.superUser}" />
+                <p:menuitem value="History" icon="ui-icon-search"
+                        actionListener="#{requestManager.findHistory()}"
+                        update=":ManageNameForm:historyTable" oncomplete="nameDetail.show()"
+                        disabled="#{empty editNamesManager.selectedNcName}" />
+<!-- 		<p:menuitem value="Cancel Request" icon="ui-icon-close" -->
+<!-- 			update=":CancelReqForm" oncomplete="cancelReq.show()" -->
+<!-- 			title="Cancel Request" rendered="#{requestManager.myRequest}" -->
+<!-- 			disabled="#{requestManager.selectedEventProcessed()}" /> -->
+            </p:contextMenu>
 
-						<p:contextMenu id="ncCntxtMenu" for="ncCrTable">
-							<p:menuitem value="Add" icon="ui-icon-plus"
-								oncomplete="addNcName.show()"
-								rendered="#{userManager.editor}" />
-							<p:menuitem value="Delete" update=":delNcNameForm"
-								icon="ui-icon-trash" oncomplete="delNcName.show()"
-								rendered="#{userManager.editor}"
-								disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.status == 'DELETED'}" />
-							<p:menuitem value="Modify" update=":modNcNameForm"
-								action="#{editNamesManager.loadSelectedName()}"
-								icon="ui-icon-pencil" oncomplete="modNcName.show()"
-								rendered="#{userManager.editor}"
-								disabled="#{empty editNamesManager.selectedNcName}" />
-							<p:menuitem value="Approve" icon="ui-icon-star"
-								update="ncCrTable" action="#{editNamesManager.approve()}"
-								rendered="#{userManager.editor}"
-		                        disabled="#{empty editNamesManager.selectedNcName || editNamesManager.selectedNcName.processDate != null || !editNamesManager.superUser}" />
-							<p:menuitem value="History" icon="ui-icon-search"
-								actionListener="#{requestManager.findHistory()}"
-								update=":ManageNameForm:historyTable" oncomplete="nameDetail.show()"
-                        		disabled="#{empty editNamesManager.selectedNcName}" />
-<!-- 							<p:menuitem value="Cancel Request" icon="ui-icon-close" -->
-<!-- 								update=":CancelReqForm" oncomplete="cancelReq.show()" -->
-<!-- 								title="Cancel Request" rendered="#{requestManager.myRequest}" -->
-<!-- 								disabled="#{requestManager.selectedEventProcessed()}" /> -->
-						</p:contextMenu>
+            <!-- ===================Data Table============================ -->
+            <p:dataTable id="ncCrTable" var="ncName"
+                    value="#{editNamesManager.allNcNames}" paginator="true" rows="50"
+                    resizableColumns="true" rowKey="#{ncName.id}"
+                    emptyMessage="There are no NC Names"
+                    rowStyleClass="#{editNamesManager.nameStatus(ncName)}"
+                    selection="#{editNamesManager.selectedNcName}" style="width: 90%">
+                <f:facet name="header">
+                    <h:outputText value="Existing Device Names" />
+                </f:facet>
 
-			<!-- ===================Data Table============================ -->
-			<p:dataTable id="ncCrTable" var="ncName"
-				value="#{editNamesManager.allNcNames}" paginator="true" rows="50"
-				resizableColumns="true" rowKey="#{ncName.id}"
-				emptyMessage="There are no NC Names"
-                rowStyleClass="#{editNamesManager.nameStatus(ncName)}"
-				selection="#{editNamesManager.selectedNcName}" style="width: 90%">
-				<f:facet name="header">
-					<h:outputText value="Existing Device Names" />
-				</f:facet>
+                <p:ajax event="rowSelectRadio" update=":ManageNameForm:ncReqMenu :modNcNameForm" />
+                <p:column selectionMode="single" style="width: 5%" />
 
-				<p:ajax event="rowSelectRadio" update=":ManageNameForm:ncReqMenu :modNcNameForm" />
-				<p:column selectionMode="single" style="width: 5%" />
-
-				<p:column id="nameString" headerText="NC Name"
-				filterBy="#{ncName.name}" filterMatchMode="contains"
-				style="width: 20%">
-					<h:outputText value="#{ncName.name}" />
-				</p:column>
-				<p:column id="nameSection" headerText="Section"
-					filterBy="#{ncName.section.fullName}" filterMatchMode="contains"
-					style="width: 15%">
-					<h:outputText value="#{ncName.section.fullName}" />
-				</p:column>
-				<p:column id="nameDiscipline" headerText="Discipline"
-					filterBy="#{ncName.discipline.fullName}"
-					filterMatchMode="contains" style="width: 15%">
-					<h:outputText value="#{ncName.discipline.fullName}" />
-				</p:column>
-				<p:column id="nameStatus">
+                <p:column id="nameString" headerText="NC Name"
+                filterBy="#{ncName.name}" filterMatchMode="contains"
+                style="width: 20%">
+                    <h:outputText value="#{ncName.name}" />
+                </p:column>
+                <p:column id="nameSection" headerText="Section"
+                        filterBy="#{ncName.section.fullName}" filterMatchMode="contains"
+                        style="width: 15%">
+                    <h:outputText value="#{ncName.section.fullName}" />
+                </p:column>
+                <p:column id="nameDiscipline" headerText="Discipline"
+                        filterBy="#{ncName.discipline.fullName}"
+                        filterMatchMode="contains" style="width: 15%">
+                    <h:outputText value="#{ncName.discipline.fullName}" />
+                </p:column>
+                <p:column id="nameStatus">
                     <f:facet name="header">
                         <h:outputText value="Status" />
                         <br />
@@ -109,16 +109,16 @@
                             <p:ajax update="ncCrTable"  listener="#{editNamesManager.refreshNcNames}"/>
                         </p:selectBooleanButton>
                     </f:facet>
-					<h:outputText value="#{ncName.status}" />
-				</p:column>
+                    <h:outputText value="#{ncName.status}" />
+                </p:column>
 
-			</p:dataTable>
+            </p:dataTable>
 
-			<!-- ===================Name History============================ -->
-			<!-- TODO: find better way to adjust width of the panel -->
-			<p:dialog id="nameDetail" widgetVar="nameDetail" width="900"
-                dynamic="true" maximizable="true" minimizable="true"
-                header="Name Details" footer="Event History">
+                <!-- ===================Name History============================ -->
+                <!-- TODO: find better way to adjust width of the panel -->
+            <p:dialog id="nameDetail" widgetVar="nameDetail" width="900"
+                    dynamic="true" maximizable="true" minimizable="true"
+                    header="Name Details" footer="Event History">
                 <p:dataTable id="historyTable" var="ncname"
                     value="#{editNamesManager.historyEvents}" paginator="false" rows="50"
                     resizableColumns="true" rowKey="#{ncname.id}"
@@ -148,301 +148,301 @@
                         </h:outputText>
                     </p:column>
                 </p:dataTable>
-			</p:dialog>
-		</h:form>
+            </p:dialog>
+        </h:form>
 
-		<!-- ===================Add Form================================= -->
-		<h:form id="AddNcNameForm">
-			<p:dialog id="addNcName" widgetVar="addNcName">
-				<f:facet name="header">
-					<h:outputText value="Add Naming Convention Name" />
-				</f:facet>
-				<p:panelGrid style="text-align: left">
-					<p:row>
-						<p:column colspan="4">
-							Which facility does the device provide service to?
-						</p:column>
-					</p:row>
-					<p:row>
-						<p:column style="width: 128px">
-							<p:selectOneMenu id="aisup"
-								value="#{editNamesManager.superSectionID}">
-								<p:ajax listener="#{editNamesManager.loadSections()}"
-									update="aisec aisub ibsub" />
-                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
-								<f:selectItems value="#{editNamesManager.superSectionNames}"
-									var="asup" itemLabel="#{asup.fullName}" itemValue="#{asup.id}" />
-							</p:selectOneMenu>
-						</p:column>
-						<p:column style="width: 128px">
-							<p:selectOneMenu id="aisec"
-								value="#{editNamesManager.sectionID}">
-								<p:ajax listener="#{editNamesManager.loadSubsections()}"
-									update="aisub ibsub" />
-                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
-								<f:selectItems value="#{editNamesManager.sectionNames}"
-									var="asec" itemLabel="#{asec.fullName}" itemValue="#{asec.id}" />
-							</p:selectOneMenu>
-						</p:column>
-						<p:column style="width: 128px">
-							<p:selectOneMenu id="aisub"
-								value="#{editNamesManager.subsectionID}">
-								<p:ajax process="@this" update="ibsub"/>
-                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
-								<f:selectItems value="#{editNamesManager.subsectionNames}"
-									var="asub" itemLabel="#{asub.fullName}" itemValue="#{asub.id}" />
-							</p:selectOneMenu>
-						</p:column>
-						<p:column style="width: 128px">
-						</p:column>
-					</p:row>
+        <!-- ===================Add Form================================= -->
+        <h:form id="AddNcNameForm">
+            <p:dialog id="addNcName" widgetVar="addNcName">
+                <f:facet name="header">
+                        <h:outputText value="Add Naming Convention Name" />
+                </f:facet>
+                    <p:panelGrid style="text-align: left">
+                        <p:row>
+                            <p:column colspan="4">
+                                Which part of the facility does the device provide service to?
+                            </p:column>
+                        </p:row>
+                        <p:row>
+                            <p:column style="width: 128px">
+                                <p:selectOneMenu id="aisup"
+                                        value="#{editNamesManager.superSectionID}">
+                                    <p:ajax listener="#{editNamesManager.loadSections()}"
+                                            update="aisec aisub ibsub" />
+                                    <f:selectItem itemLabel="Select..." noSelectionOption="true" />
+                                    <f:selectItems value="#{editNamesManager.superSectionNames}"
+                                            var="asup" itemLabel="#{asup.fullName}" itemValue="#{asup.id}" />
+                                </p:selectOneMenu>
+                            </p:column>
+                                <p:column style="width: 128px">
+                                    <p:selectOneMenu id="aisec"
+                                            value="#{editNamesManager.sectionID}">
+                                        <p:ajax listener="#{editNamesManager.loadSubsections()}"
+                                                update="aisub ibsub" />
+                                        <f:selectItem itemLabel="Select..." noSelectionOption="true" />
+                                        <f:selectItems value="#{editNamesManager.sectionNames}"
+                                                var="asec" itemLabel="#{asec.fullName}" itemValue="#{asec.id}" />
+                                    </p:selectOneMenu>
+                                </p:column>
+                                <p:column style="width: 128px">
+                                    <p:selectOneMenu id="aisub"
+                                            value="#{editNamesManager.subsectionID}">
+                                        <p:ajax process="@this" update="ibsub"/>
+                                        <f:selectItem itemLabel="Select..." noSelectionOption="true" />
+                                        <f:selectItems value="#{editNamesManager.subsectionNames}"
+                                                var="asub" itemLabel="#{asub.fullName}" itemValue="#{asub.id}" />
+                                    </p:selectOneMenu>
+                                </p:column>
+                                <p:column style="width: 128px">
+                                </p:column>
+                        </p:row>
 
-					<p:row>
-						<p:column colspan="4">
-							What is this device?
-						</p:column>
-					</p:row>
-					<p:row>
-						<p:column style="width: 128px">
-							<p:selectOneMenu id="aidsc"
-								value="#{editNamesManager.disciplineID}">
-								<p:ajax listener="#{editNamesManager.loadCategories()}"
-									update="aicat aigdv aisdv ibsub" />
+                        <p:row>
+                            <p:column colspan="4">
+                                What kind of device is it?
+                            </p:column>
+                        </p:row>
+                        <p:row>
+                            <p:column style="width: 128px">
+                                <p:selectOneMenu id="aidsc"
+                                        value="#{editNamesManager.disciplineID}">
+                                    <p:ajax listener="#{editNamesManager.loadCategories()}"
+                                            update="aicat aigdv aisdv ibsub" />
+                                    <f:selectItem itemLabel="Select..." noSelectionOption="true" />
+                                    <f:selectItems value="#{editNamesManager.disciplineNames}"
+                                            var="adsc" itemLabel="#{adsc.fullName}" itemValue="#{adsc.id}" />
+                                </p:selectOneMenu>
+                            </p:column>
+                            <p:column style="width: 128px">
+                                <p:selectOneMenu id="aicat"
+                                        value="#{editNamesManager.categoryID}">
+                                    <p:ajax listener="#{editNamesManager.loadGenericDevices()}"
+                                            update="aigdv aisdv ibsub" />
+                                    <f:selectItem itemLabel="Select..." noSelectionOption="true" />
+                                    <f:selectItems value="#{editNamesManager.categoryNames}"
+                                            var="acat" itemLabel="#{acat.fullName}" itemValue="#{acat.id}" />
+                                </p:selectOneMenu>
+                            </p:column>
+                            <p:column style="width: 128px">
+                                <p:selectOneMenu id="aigdv"
+                                        value="#{editNamesManager.genDeviceID}">
+                                    <p:ajax listener="#{editNamesManager.loadSpecificDevices()}"
+                                            update="aisdv ibsub" />
+                                    <f:selectItem itemLabel="Select..." noSelectionOption="true" />
+                                    <f:selectItems value="#{editNamesManager.genDevNames}"
+                                            var="agdv" itemLabel="#{agdv.fullName}" itemValue="#{agdv.id}" />
+                                </p:selectOneMenu>
+                            </p:column>
+                            <p:column style="width: 128px">
+                                <p:selectOneMenu id="aisdv"
+                                        value="#{editNamesManager.specDeviceID}">
+                                    <f:selectItem itemLabel="Select..." noSelectionOption="true" />
+                                    <f:selectItems value="#{editNamesManager.specDevNames}"
+                                            var="asdv" itemLabel="#{asdv.fullName}" itemValue="#{asdv.id}" />
+                                </p:selectOneMenu>
+                            </p:column>
+                        </p:row>
+                    </p:panelGrid>
+                    <h:outputText id="icounter" />
+                    <p:separator />
+
+                    <p:commandButton id="ibsub" value="Submit" style="float: left"
+                            update=":ManageNameForm" oncomplete="addNcName.hide()"
+                            action="#{editNamesManager.onAdd()}"
+                            disabled="#{!editNamesManager.isFormFilled()}"/>
+                    <p:commandButton value="Cancel" style="float: right"
+                            onclick="addNcName.hide()" />
+            </p:dialog>
+        </h:form>
+
+        <!-- ===================Modify Form================================= -->
+        <h:form id="modNcNameForm">
+            <p:dialog widgetVar="modNcName">
+                <f:facet name="header">
+                    <h:outputText value="Request to Change Name" />
+                </f:facet>
+                <p:panelGrid style="text-align: left">
+                    <p:row>
+                        <p:column colspan="4">
+                            Which part of the facility does the device provide service to?
+                        </p:column>
+                    </p:row>
+                    <p:row>
+                        <p:column colspan="1">
+                            Current values:
+                        </p:column>
+                        <p:column colspan="3">
+                            <h:outputText value="#{editNamesManager.getSelectedNcNameSectionString()}" />
+                        </p:column>
+                    </p:row>
+                    <p:row>
+                        <p:column style="width: 128px">
+                            <p:selectOneMenu id="misup"
+                                    value="#{editNamesManager.superSectionID}">
+                                <p:ajax listener="#{editNamesManager.loadSections()}"
+                                        update="misec misub mbsub" />
                                 <f:selectItem itemLabel="Select..." noSelectionOption="true" />
-								<f:selectItems value="#{editNamesManager.disciplineNames}"
-									var="adsc" itemLabel="#{adsc.fullName}" itemValue="#{adsc.id}" />
-							</p:selectOneMenu>
-						</p:column>
-						<p:column style="width: 128px">
-							<p:selectOneMenu id="aicat"
-								value="#{editNamesManager.categoryID}">
-								<p:ajax listener="#{editNamesManager.loadGenericDevices()}"
-									update="aigdv aisdv ibsub" />
+                                <f:selectItems value="#{editNamesManager.superSectionNames}"
+                                        var="msup" itemLabel="#{msup.fullName}" itemValue="#{msup.id}" />
+                            </p:selectOneMenu>
+                        </p:column>
+                        <p:column style="width: 128px">
+                            <p:selectOneMenu id="misec" value="#{editNamesManager.sectionID}">
+                                <p:ajax listener="#{editNamesManager.loadSubsections()}"
+                                        update="misub mbsub" />
                                 <f:selectItem itemLabel="Select..." noSelectionOption="true" />
-								<f:selectItems value="#{editNamesManager.categoryNames}"
-									var="acat" itemLabel="#{acat.fullName}" itemValue="#{acat.id}" />
-							</p:selectOneMenu>
-						</p:column>
-						<p:column style="width: 128px">
-							<p:selectOneMenu id="aigdv"
-								value="#{editNamesManager.genDeviceID}">
-								<p:ajax listener="#{editNamesManager.loadSpecificDevices()}"
-									update="aisdv ibsub" />
+                                <f:selectItems value="#{editNamesManager.sectionNames}"
+                                        var="msec" itemLabel="#{msec.fullName}" itemValue="#{msec.id}" />
+                            </p:selectOneMenu>
+                    </p:column>
+                    <p:column style="width: 128px">
+                        <p:selectOneMenu id="misub"
+                                value="#{editNamesManager.subsectionID}">
+                            <p:ajax update="mbsub"/>
+                            <f:selectItem itemLabel="Select..." noSelectionOption="true" />
+                            <f:selectItems value="#{editNamesManager.subsectionNames}"
+                                    var="msub" itemLabel="#{msub.fullName}" itemValue="#{msub.id}" />
+                        </p:selectOneMenu>
+                    </p:column>
+                    <p:column style="width: 128px">
+                    </p:column>
+                    </p:row>
+
+                    <p:row>
+                        <p:column colspan="4">
+                            What kind of device is it?
+                        </p:column>
+                    </p:row>
+                    <p:row>
+                        <p:column colspan="1">
+                            Current values:
+                        </p:column>
+                        <p:column colspan="3">
+                            <h:outputText value="#{editNamesManager.getSelectedNcNameDisciplineString()}" />
+                        </p:column>
+                    </p:row>
+                    <p:row>
+                        <p:column style="width: 128px">
+                            <p:selectOneMenu id="midsc"
+                                    value="#{editNamesManager.disciplineID}">
+                                <p:ajax listener="#{editNamesManager.loadCategories()}"
+                                        update="micat migdv misdv mbsub" />
                                 <f:selectItem itemLabel="Select..." noSelectionOption="true" />
-								<f:selectItems value="#{editNamesManager.genDevNames}"
-									var="agdv" itemLabel="#{agdv.fullName}" itemValue="#{agdv.id}" />
-							</p:selectOneMenu>
-						</p:column>
-						<p:column style="width: 128px">
-							<p:selectOneMenu id="aisdv"
-								value="#{editNamesManager.specDeviceID}">
+                                <f:selectItems value="#{editNamesManager.disciplineNames}"
+                                        var="mdsc" itemLabel="#{mdsc.fullName}" itemValue="#{mdsc.id}" />
+                            </p:selectOneMenu>
+                        </p:column>
+                        <p:column style="width: 128px">
+                            <p:selectOneMenu id="micat"
+                                    value="#{editNamesManager.categoryID}">
+                                <p:ajax listener="#{editNamesManager.loadGenericDevices()}"
+                                        update="migdv misdv mbsub" />
                                 <f:selectItem itemLabel="Select..." noSelectionOption="true" />
-								<f:selectItems value="#{editNamesManager.specDevNames}"
-									var="asdv" itemLabel="#{asdv.fullName}" itemValue="#{asdv.id}" />
-							</p:selectOneMenu>
-						</p:column>
-					</p:row>
-				</p:panelGrid>
-				<h:outputText id="icounter" />
-				<p:separator />
-
-				<p:commandButton id="ibsub" value="Submit" style="float: left"
-					update=":ManageNameForm" oncomplete="addNcName.hide()"
-					action="#{editNamesManager.onAdd()}"
-					disabled="#{!editNamesManager.isFormFilled()}"/>
-				<p:commandButton value="Cancel" style="float: right"
-					onclick="addNcName.hide()" />
-			</p:dialog>
-		</h:form>
-
-		<!-- ===================Modify Form================================= -->
-		<h:form id="modNcNameForm">
-			<p:dialog widgetVar="modNcName">
-				<f:facet name="header">
-					<h:outputText value="Request to Change Name" />
-				</f:facet>
-				<p:panelGrid style="text-align: left">
-					<p:row>
-						<p:column colspan="4">
-							Which facility does the device provide sevice to?
-						</p:column>
-					</p:row>
-					<p:row>
-						<p:column colspan="1">
-							Current values:
-						</p:column>
-						<p:column colspan="3">
-							<h:outputText value="#{editNamesManager.getSelectedNcNameSectionString()}" />
-						</p:column>
-					</p:row>
-					<p:row>
-						<p:column style="width: 128px">
-							<p:selectOneMenu id="misup"
-								value="#{editNamesManager.superSectionID}">
-								<p:ajax listener="#{editNamesManager.loadSections()}"
-									update="misec misub mbsub" />
+                                <f:selectItems value="#{editNamesManager.categoryNames}"
+                                        var="mcat" itemLabel="#{mcat.fullName}" itemValue="#{mcat.id}" />
+                            </p:selectOneMenu>
+                        </p:column>
+                        <p:column style="width: 128px">
+                            <p:selectOneMenu id="migdv"
+                                    value="#{editNamesManager.genDeviceID}">
                                 <f:selectItem itemLabel="Select..." noSelectionOption="true" />
-								<f:selectItems value="#{editNamesManager.superSectionNames}"
-									var="msup" itemLabel="#{msup.fullName}" itemValue="#{msup.id}" />
-							</p:selectOneMenu>
-						</p:column>
-						<p:column style="width: 128px">
-							<p:selectOneMenu id="misec" value="#{editNamesManager.sectionID}">
-								<p:ajax listener="#{editNamesManager.loadSubsections()}"
-									update="misub mbsub" />
+                                <f:selectItems value="#{editNamesManager.genDevNames}"
+                                        var="mgdv" itemLabel="#{mgdv.fullName}" itemValue="#{mgdv.id}" />
+                                <p:ajax listener="#{editNamesManager.loadSpecificDevices()}"
+                                        update="misdv mbsub" />
+                            </p:selectOneMenu>
+                        </p:column>
+                        <p:column style="width: 128px">
+                            <p:selectOneMenu id="misdv"
+                                    value="#{editNamesManager.specDeviceID}">
                                 <f:selectItem itemLabel="Select..." noSelectionOption="true" />
-								<f:selectItems value="#{editNamesManager.sectionNames}"
-									var="msec" itemLabel="#{msec.fullName}" itemValue="#{msec.id}" />
-							</p:selectOneMenu>
-						</p:column>
-						<p:column style="width: 128px">
-							<p:selectOneMenu id="misub"
-								value="#{editNamesManager.subsectionID}">
-								<p:ajax update="mbsub"/>
-                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
-								<f:selectItems value="#{editNamesManager.subsectionNames}"
-									var="msub" itemLabel="#{msub.fullName}" itemValue="#{msub.id}" />
-							</p:selectOneMenu>
-						</p:column>
-						<p:column style="width: 128px">
-						</p:column>
-					</p:row>
+                                <f:selectItems value="#{editNamesManager.specDevNames}"
+                                        var="msdv" itemLabel="#{msdv.fullName}" itemValue="#{msdv.id}" />
+                            </p:selectOneMenu>
+                        </p:column>
+                    </p:row>
+                </p:panelGrid>
+                <p:separator />
 
-					<p:row>
-						<p:column colspan="4">
-							What is this device?
-						</p:column>
-					</p:row>
-					<p:row>
-						<p:column colspan="1">
-							Current values:
-						</p:column>
-						<p:column colspan="3">
-							<h:outputText value="#{editNamesManager.getSelectedNcNameDisciplineString()}" />
-						</p:column>
-					</p:row>
-					<p:row>
-						<p:column style="width: 128px">
-							<p:selectOneMenu id="midsc"
-								value="#{editNamesManager.disciplineID}">
-								<p:ajax listener="#{editNamesManager.loadCategories()}"
-									update="micat migdv misdv mbsub" />
-                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
-								<f:selectItems value="#{editNamesManager.disciplineNames}"
-									var="mdsc" itemLabel="#{mdsc.fullName}" itemValue="#{mdsc.id}" />
-							</p:selectOneMenu>
-						</p:column>
-						<p:column style="width: 128px">
-							<p:selectOneMenu id="micat"
-								value="#{editNamesManager.categoryID}">
-								<p:ajax listener="#{editNamesManager.loadGenericDevices()}"
-									update="migdv misdv mbsub" />
-                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
-								<f:selectItems value="#{editNamesManager.categoryNames}"
-									var="mcat" itemLabel="#{mcat.fullName}" itemValue="#{mcat.id}" />
-							</p:selectOneMenu>
-						</p:column>
-						<p:column style="width: 128px">
-							<p:selectOneMenu id="migdv"
-								value="#{editNamesManager.genDeviceID}">
-                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
-								<f:selectItems value="#{editNamesManager.genDevNames}"
-									var="mgdv" itemLabel="#{mgdv.fullName}" itemValue="#{mgdv.id}" />
-								<p:ajax listener="#{editNamesManager.loadSpecificDevices()}"
-									update="misdv mbsub" />
-							</p:selectOneMenu>
-						</p:column>
-						<p:column style="width: 128px">
-							<p:selectOneMenu id="misdv"
-								value="#{editNamesManager.specDeviceID}">
-                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
-								<f:selectItems value="#{editNamesManager.specDevNames}"
-									var="msdv" itemLabel="#{msdv.fullName}" itemValue="#{msdv.id}" />
-							</p:selectOneMenu>
-						</p:column>
-					</p:row>
-				</p:panelGrid>
-				<p:separator />
+                <p:commandButton id="mbsub" value="Submit" style="float: left"
+                        update=":ManageNameForm" oncomplete="modNcName.hide()"
+                        action="#{editNamesManager.onModify()}"
+                        disabled="#{!editNamesManager.isFormFilled()}"/>
+                <p:commandButton value="Cancel" style="float: right"
+                        onclick="modNcName.hide()" />
+            </p:dialog>
+        </h:form>
 
-				<p:commandButton id="mbsub" value="Submit" style="float: left"
-					update=":ManageNameForm" oncomplete="modNcName.hide()"
-					action="#{editNamesManager.onModify()}"
-					disabled="#{!editNamesManager.isFormFilled()}"/>
-				<p:commandButton value="Cancel" style="float: right"
-					onclick="modNcName.hide()" />
-			</p:dialog>
-		</h:form>
+        <!-- ===================Delete Form================================= -->
+        <h:form id="delNcNameForm">
+            <p:dialog id="delNcName" widgetVar="delNcName">
+                <f:facet name="header">
+                    <h:outputText value="Delete/Retire Naming Convention Name" />
+                </f:facet>
+                <p:panelGrid id="pgrid" style="text-align: left">
+                    <p:row>
+                        <p:column style="width: 128px">
+                            <h:outputText
+                                    value="#{editNamesManager.selectedNcName.section.fullName}" />
+                        </p:column>
+                        <p:column style="width: 128px">
+                            <h:outputText
+                                    value="#{editNamesManager.selectedNcName.discipline.fullName}" />
+                        </p:column>
+                    </p:row>
 
-		<!-- ===================Delete Form================================= -->
-		<h:form id="delNcNameForm">
-			<p:dialog id="delNcName" widgetVar="delNcName">
-				<f:facet name="header">
-					<h:outputText value="Delete/Retire Naming Convention Name" />
-				</f:facet>
-				<p:panelGrid id="pgrid" style="text-align: left">
-					<p:row>
-						<p:column style="width: 128px">
-							<h:outputText
-								value="#{editNamesManager.selectedNcName.section.fullName}" />
-						</p:column>
-						<p:column style="width: 128px">
-							<h:outputText
-								value="#{editNamesManager.selectedNcName.discipline.fullName}" />
-						</p:column>
-					</p:row>
+                    <p:row>
+                        <p:column colspan="4">
+                            <h:outputText value="#{editNamesManager.selectedNcName.name}" />
+                        </p:column>
+                    </p:row>
+                </p:panelGrid>
+                <p:separator />
 
-					<p:row>
-						<p:column colspan="4">
-							<h:outputText value="#{editNamesManager.selectedNcName.name}" />
-						</p:column>
-					</p:row>
-				</p:panelGrid>
-				<p:separator />
+                <p:commandButton value="Submit" style="float: left"
+                        update=":ManageNameForm" oncomplete="delNcName.hide()"
+                        action="#{editNamesManager.onDelete()}" />
+                <p:commandButton value="Cancel" style="float: right"
+                        onclick="delNcName.hide()" />
+            </p:dialog>
+        </h:form>
 
-				<p:commandButton value="Submit" style="float: left"
-					update=":ManageNameForm" oncomplete="delNcName.hide()"
-					action="#{editNamesManager.onDelete()}" />
-				<p:commandButton value="Cancel" style="float: right"
-					onclick="delNcName.hide()" />
-			</p:dialog>
-		</h:form>
+        <!-- ===================Cancel Form    ============================ -->
+        <!-- 		<h:form id="CancelReqForm"> -->
+        <!-- 			<p:dialog id="cancelReq" widgetVar="cancelReq"> -->
+        <!-- 				<f:facet name="header"> -->
+        <!-- 					<h:outputText value="Cancel Request" /> -->
+        <!-- 				</f:facet> -->
+        <!-- 				<p:panelGrid id="pgrid" columns="2" style="text-align: left"> -->
+        <!-- 					<h:outputText value="Category:" /> -->
+        <!-- 					<h:outputText -->
+        <!-- 						value="#{requestManager.selectedName.nameCategory.name}" /> -->
 
-		<!-- ===================Cancel Form    ============================ -->
-		<!-- 		<h:form id="CancelReqForm"> -->
-		<!-- 			<p:dialog id="cancelReq" widgetVar="cancelReq"> -->
-		<!-- 				<f:facet name="header"> -->
-		<!-- 					<h:outputText value="Cancel Request" /> -->
-		<!-- 				</f:facet> -->
-		<!-- 				<p:panelGrid id="pgrid" columns="2" style="text-align: left"> -->
-		<!-- 					<h:outputText value="Category:" /> -->
-		<!-- 					<h:outputText -->
-		<!-- 						value="#{requestManager.selectedName.nameCategory.name}" /> -->
+        <!-- 					<h:outputText value="Code:" /> -->
+        <!-- 					<h:outputText value="#{requestManager.selectedName.nameCode}" /> -->
 
-		<!-- 					<h:outputText value="Code:" /> -->
-		<!-- 					<h:outputText value="#{requestManager.selectedName.nameCode}" /> -->
+        <!-- 					<h:outputText value="Description:" /> -->
+        <!-- 					<h:outputText -->
+        <!-- 						value="#{requestManager.selectedName.nameDescription}" /> -->
 
-		<!-- 					<h:outputText value="Description:" /> -->
-		<!-- 					<h:outputText -->
-		<!-- 						value="#{requestManager.selectedName.nameDescription}" /> -->
+        <!-- 					<h:outputLabel for="ccomm" value="Comment:" /> -->
+        <!-- 					<p:inputTextarea id="ccomm" rows="5" cols="40" counter="ccounter" -->
+        <!-- 						maxlength="254" value="#{requestManager.newComment}" -->
+        <!-- 						counterTemplate="{0} characters remaining." required="true" -->
+        <!-- 						label="Please justify why you want to cancel this request." -->
+        <!-- 						autoResize="false" /> -->
+        <!-- 					<h:outputText id="ccounter" /> -->
+        <!-- 					<p:watermark for="ccomm" -->
+        <!-- 						value="Why do you want to cancel this request?" /> -->
+        <!-- 				</p:panelGrid> -->
+        <!-- 				<p:separator /> -->
 
-		<!-- 					<h:outputLabel for="ccomm" value="Comment:" /> -->
-		<!-- 					<p:inputTextarea id="ccomm" rows="5" cols="40" counter="ccounter" -->
-		<!-- 						maxlength="254" value="#{requestManager.newComment}" -->
-		<!-- 						counterTemplate="{0} characters remaining." required="true" -->
-		<!-- 						label="Please justify why you want to cancel this request." -->
-		<!-- 						autoResize="false" /> -->
-		<!-- 					<h:outputText id="ccounter" /> -->
-		<!-- 					<p:watermark for="ccomm" -->
-		<!-- 						value="Why do you want to cancel this request?" /> -->
-		<!-- 				</p:panelGrid> -->
-		<!-- 				<p:separator /> -->
-
-		<!-- 				<p:commandButton value="Submit" style="float: left" -->
-		<!-- 					update=":ManageNameForm" oncomplete="cancelReq.hide()" -->
-		<!-- 					action="#{requestManager.onCancel()}" /> -->
-		<!-- 				<p:commandButton value="Cancel" style="float: right" -->
-		<!-- 					onclick="delNcName.hide()" /> -->
-		<!-- 			</p:dialog> -->
-		<!-- 		</h:form> -->
-	</ui:define>
+        <!-- 				<p:commandButton value="Submit" style="float: left" -->
+        <!-- 					update=":ManageNameForm" oncomplete="cancelReq.hide()" -->
+        <!-- 					action="#{requestManager.onCancel()}" /> -->
+        <!-- 				<p:commandButton value="Cancel" style="float: right" -->
+        <!-- 					onclick="delNcName.hide()" /> -->
+        <!-- 			</p:dialog> -->
+        <!-- 		</h:form> -->
+    </ui:define>
 </ui:composition>

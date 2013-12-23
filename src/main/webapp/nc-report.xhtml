@@ -10,37 +10,37 @@
 
 	<ui:define name="content">
 
-		<!-- ===================Data Table============================ -->
-		<p:dataTable id="ncCrTable" var="ncName"
-			value="#{ncNamesManager.activeNcNames}" paginator="true" rows="50"
-			resizableColumns="true" rowKey="#{ncName.id}"
-			emptyMessage="There are no active NC Names"
-			style="width: 90%">
-			<f:facet name="header">
-				<h:outputText value="Active Naming Convention Names" />
-			</f:facet>
+            <!-- ===================Data Table============================ -->
+            <p:dataTable id="ncCrTable" var="ncName"
+                    value="#{ncNamesManager.activeNcNames}" paginator="true" rows="50"
+                    resizableColumns="true" rowKey="#{ncName.id}"
+                    emptyMessage="There are no active NC Names"
+                    style="width: 90%">
+                <f:facet name="header">
+                    <h:outputText value="Active Naming Convention Names" />
+                </f:facet>
 
-			<p:column id="nameString" headerText="NC Name"
-				filterBy="#{ncName.name}" filterMatchMode="contains"
-				style="width: 20%">
-				<h:outputText value="#{ncName.name}" />
-			</p:column>
-			<p:column id="nameSection" headerText="Section"
-				filterBy="#{ncName.section.fullName}" filterMatchMode="contains"
-				style="width: 15%">
-				<h:outputText value="#{ncName.section.fullName}" />
-			</p:column>
-			<p:column id="nameDiscipline" headerText="Discipline"
-				filterBy="#{ncName.discipline.fullName}"
-				filterMatchMode="startsWith" style="width: 15%">
-				<h:outputText value="#{ncName.discipline.fullName}" />
-			</p:column>
-			<p:column id="nameStatus" headerText="Status"
-				filterBy="#{ncName.status}" filterMatchMode="contains">
-				<h:outputText value="#{ncName.status}" />
-			</p:column>
+                <p:column id="nameString" headerText="NC Name"
+                        filterBy="#{ncName.name}" filterMatchMode="contains"
+                        style="width: 20%">
+                    <h:outputText value="#{ncName.name}" />
+                </p:column>
+                <p:column id="nameSection" headerText="Section"
+                        filterBy="#{ncName.section.fullName}" filterMatchMode="contains"
+                        style="width: 15%">
+                    <h:outputText value="#{ncName.section.fullName}" />
+                </p:column>
+                <p:column id="nameDiscipline" headerText="Discipline"
+                        filterBy="#{ncName.discipline.fullName}"
+                        filterMatchMode="startsWith" style="width: 15%">
+                    <h:outputText value="#{ncName.discipline.fullName}" />
+                </p:column>
+                <p:column id="nameStatus" headerText="Status"
+                        filterBy="#{ncName.status}" filterMatchMode="contains">
+                    <h:outputText value="#{ncName.status}" />
+                </p:column>
 
-		</p:dataTable>
+            </p:dataTable>
 
 	</ui:define>
 </ui:composition>
