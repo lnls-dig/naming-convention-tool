@@ -20,7 +20,6 @@ import org.openepics.names.model.DeviceName;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
 import org.openepics.names.services.NamingConventionEJB;
-import org.openepics.names.services.EssNameConstructionMethod;
 
 @ManagedBean
 @ViewScoped
@@ -94,7 +93,7 @@ public class EditNamesManager implements Serializable {
             }
             NameEvent subsection = namesEJB.findEventById(subsectionID);
             NameEvent genDevice = namesEJB.findEventById(genDeviceID);
-            newDeviceName = ncEJB.createDeviceName(subsection, genDevice, EssNameConstructionMethod.ACCELERATOR);
+            newDeviceName = ncEJB.createDeviceName(subsection, genDevice);
             showMessage(FacesMessage.SEVERITY_INFO, "NC Name successfully added.", "Name: " + "[TODO]");
         } catch (Exception e) {
             showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",

@@ -29,28 +29,19 @@ public class NamingConventionEJB {
 
     private static final Logger logger = Logger.getLogger("org.openepics.names");
 
-    private class NameSections {
-        NameEvent section;
-        NameEvent disciplineOrSubsection;
-        String deviceName;
-    }
-
     @Inject
     private UserManager userManager;
 
     @PersistenceContext(unitName = "org.openepics.names.punit")
     private EntityManager em;
     
-    public DeviceName createDeviceName(NameEvent section, NameEvent deviceType, EssNameConstructionMethod method) {
+    public DeviceName createDeviceName(NameEvent section, NameEvent deviceType) {
         Preconditions.checkNotNull(section);
         Preconditions.checkNotNull(deviceType);
 
         if (!userManager.isLoggedIn()) {
             throw new AccessControlException("You must be logged in to perform the operation.");
         }
-
-        final NameSections nameSections = getNameSections(section, deviceType, method);
-        Preconditions.checkArgument(nameSections != null, "Unable to find section.");
 
         final long deviceInstances = countDeviceNamesByRef(section, deviceType);
         final String deviceInstanceIndex = section.getName().substring(0, 2) + getDeviceInstanceIndex(deviceInstances);
@@ -105,10 +96,6 @@ public class NamingConventionEJB {
         return deletedName;
     }
 
-    private String calcDeviceNameString(NameSections nameSections, String deviceInstanceIndex) {
-        return nameSections.section.getName() + "-" + nameSections.disciplineOrSubsection.getName() + ":" + nameSections.deviceName + "-" + deviceInstanceIndex;
-    }
-
     public DeviceName modifyDeviceName(Integer sectionId, Integer deviceTypeId, Integer selectedDeviceNameId) {
         Preconditions.checkNotNull(sectionId);
         Preconditions.checkNotNull(deviceTypeId);
@@ -118,7 +105,7 @@ public class NamingConventionEJB {
         final NameEvent deviceType = em.find(NameEvent.class, deviceTypeId);
         final DeviceName selectedDeviceName = em.find(DeviceName.class, selectedDeviceNameId);
 
-        final DeviceName returnName = createDeviceName(section, deviceType, EssNameConstructionMethod.ACCELERATOR);
+        final DeviceName returnName = createDeviceName(section, deviceType);
         returnName.setNameId(selectedDeviceName.getNameId());
         em.persist(returnName);
 
@@ -135,83 +122,6 @@ public class NamingConventionEJB {
         } else {
             return Pattern.matches("[A-Za-z]\\d{0,4}", deviceInstanceIndex.substring(2));
         }
-    }
-
-    private NameSections getNameSections(NameEvent subsection, NameEvent device, EssNameConstructionMethod method) {
-        if (!((subsection.getStatus() == NameEventStatus.APPROVED)
-                && subsection.getNameCategory().getName().equals(NameCategories.subsection())
-                && (device.getStatus() == NameEventStatus.APPROVED) && (device.getNameCategory().getName()
-                .equals(NameCategories.genericDevice()) || device.getNameCategory().getName()
-                .equals(NameCategories.specificDevice())))) {
-            return null;
-        }
-
-        NameSections nameSections = new NameSections();
-
-        NameEvent section;
-        NameEvent genDevice;
-
-        switch (method) {
-            case ACCELERATOR:
-                // find the correct section name
-                section = subsection;
-                while (!section.getNameCategory().getName().equals(NameCategories.section())) {
-                    if (section.getParentName() == null) {
-                        return null; // validation failed
-                    }
-                    section = section.getParentName();
-                }
-                nameSections.section = section;
-
-                // find the correct discipline based on the device
-                NameEvent discipline = device;
-                while (!discipline.getNameCategory().getName().equals(NameCategories.discipline())) {
-                    if (discipline.getParentName() == null) {
-                        return null; // validation failed
-                    }
-                    discipline = discipline.getParentName();
-                }
-                nameSections.disciplineOrSubsection = discipline;
-
-                // find the appropriate generic device name
-                genDevice = device;
-                while (!genDevice.getNameCategory().getName().equals(NameCategories.genericDevice())) {
-                    if (genDevice.getParentName() == null) {
-                        return null; // validation failed
-                    }
-                    genDevice = genDevice.getParentName();
-                }
-                nameSections.deviceName = genDevice.getName();
-                break;
-            case TARGET:
-                section = subsection;
-                while (!section.getNameCategory().getName().equals(NameCategories.section())) {
-                    if (section.getParentName() == null) {
-                        return null; // validation failed
-                    }
-                    section = section.getParentName();
-                }
-                nameSections.section = section;
-
-                nameSections.disciplineOrSubsection = subsection;
-
-                // find the appropriate generic device name
-                genDevice = device;
-                while (!genDevice.getNameCategory().getName().equals(NameCategories.genericDevice())) {
-                    if (genDevice.getParentName() == null) {
-                        return null; // validation failed
-                    }
-                    genDevice = genDevice.getParentName();
-                }
-                nameSections.deviceName = genDevice.getName();
-                break;
-            default:
-                // all possible enum values taken care off
-                return null;
-
-        }
-
-        return nameSections;
     }
 
     private long countDeviceNamesByRef(NameEvent section, NameEvent deviceType) {
@@ -345,15 +255,12 @@ public class NamingConventionEJB {
         TypedQuery<NameEvent> disciplineQ = em.createNamedQuery("NameEvent.findByName", NameEvent.class);
         disciplineQ.setParameter("name", disciplineName);
         NameEvent discipline = disciplineQ.getSingleResult();
-        EssNameConstructionMethod method;
         if (discipline.getStatus() != NameEventStatus.APPROVED) {
             return false;
         } else {
             if (discipline.getNameCategory().getName().equals(NameCategories.discipline())) {
-                method = EssNameConstructionMethod.ACCELERATOR;
-            } else if (discipline.getNameCategory().getName().equals(NameCategories.subsection())) {
-                method = EssNameConstructionMethod.TARGET;
-            } else {
+                if (!isDeviceInstanceIndexValid(discipline, deviceQntf)) return false;
+            } else if (!discipline.getNameCategory().getName().equals(NameCategories.subsection())) {
                 return false;
             }
         }
@@ -363,15 +270,10 @@ public class NamingConventionEJB {
         TypedQuery<NameEvent> deviceQ = em.createNamedQuery("NameEvent.findByName", NameEvent.class);
         deviceQ.setParameter("name", deviceTypeName);
         NameEvent genDevice = deviceQ.getSingleResult();
-        if ((genDevice.getStatus() != NameEventStatus.APPROVED)
-                || !genDevice.getNameCategory().getName().equals(NameCategories.genericDevice())) {
+        if ((genDevice.getStatus() != NameEventStatus.APPROVED) || !genDevice.getNameCategory().getName().equals(NameCategories.genericDevice())) {
             return false;
         }
-
-        if (method == EssNameConstructionMethod.ACCELERATOR && !isDeviceInstanceIndexValid(discipline, deviceQntf)) {
-            return false;
-        }
-
+        
         return true;
     }
 
@@ -410,7 +312,7 @@ public class NamingConventionEJB {
             // checked
             TypedQuery<NameCategory> catQuery = em.createNamedQuery("NameCategory.findByName", NameCategory.class);
 
-            List<NameCategory> categories = new ArrayList<NameCategory>();
+            List<NameCategory> categories = new ArrayList<>();
             if (category.getName().equals(NameCategories.section())
                     || category.getName().equals(NameCategories.discipline())
                     || category.getName().equals(NameCategories.specificDevice())) {
@@ -455,7 +357,7 @@ public class NamingConventionEJB {
      * @return
      */
     private List<String> generateNameAlternatives(String name) {
-        List<String> results = new ArrayList<String>();
+        List<String> results = new ArrayList<>();
         if (name == null || name.isEmpty()) {
             return null;
         }
@@ -470,7 +372,7 @@ public class NamingConventionEJB {
         addAlternatives(results, "", upName.charAt(0));
 
         for (int i = 1; i < upName.length(); i++) {
-            List<String> newResults = new ArrayList<String>();
+            List<String> newResults = new ArrayList<>();
             c = upName.charAt(i);
             if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z'))) {
                 return null;

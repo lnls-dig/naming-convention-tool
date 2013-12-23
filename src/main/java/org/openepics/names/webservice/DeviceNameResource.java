@@ -17,7 +17,6 @@ import org.openepics.names.services.NamesEJB;
 import org.openepics.names.model.DeviceName;
 import org.openepics.names.model.NameEvent;
 import org.openepics.names.services.NamingConventionEJB;
-import org.openepics.names.services.EssNameConstructionMethod;
 
 /**
  * @author Marko Kolar <marko.kolar@cosylab.com>
@@ -34,43 +33,22 @@ public class DeviceNameResource {
     NamingConventionEJB namingConventionEJB;
 
     @POST
-    @Path("{convention}")
-    public Response create(@PathParam("convention") String convention, @QueryParam("section_id") Integer sectionId, @QueryParam("device_type_id") Integer deviceTypeId) {
-        final EssNameConstructionMethod constructionMethod = constructionMethod(convention);
-        if (constructionMethod == null) {
-            return Response.status(Status.NOT_FOUND).build();
-        } else {
-            final NameEvent section = namesEJB.findEventById(sectionId);
-            final NameEvent deviceType = namesEJB.findEventById(deviceTypeId);
-            namingConventionEJB.createDeviceName(section, deviceType, constructionMethod);
-            return Response.ok().build();
-        }
+    public Response create(@QueryParam("section_id") Integer sectionId, @QueryParam("device_type_id") Integer deviceTypeId) {
+        final NameEvent section = namesEJB.findEventById(sectionId);
+        final NameEvent deviceType = namesEJB.findEventById(deviceTypeId);
+        namingConventionEJB.createDeviceName(section, deviceType);
+        return Response.ok().build();
     }
 
     @DELETE
-    @Path("{convention}/{id}")
-    public Response remove(@PathParam("convention") String convention, @PathParam("id") Integer id) {
-        final EssNameConstructionMethod constructionMethod = constructionMethod(convention);
-        if (constructionMethod == null) {
+    @Path("{id}")
+    public Response remove(@PathParam("id") Integer id) {
+        try {
+            final DeviceName deviceName = namingConventionEJB.findDeviceNameById(id);
+            em.remove(deviceName);
+            return Response.ok().build();
+        } catch (NoResultException e) {
             return Response.status(Status.NOT_FOUND).build();
-        } else {
-            try {
-                final DeviceName deviceName = namingConventionEJB.findDeviceNameById(id);
-                em.remove(deviceName);
-                return Response.ok().build();
-            } catch (NoResultException e) {
-                return Response.status(Status.NOT_FOUND).build();
-            }
-        }
-    }
-
-    private EssNameConstructionMethod constructionMethod(String conventionId) {
-        if (conventionId.equals("acc")) {
-            return EssNameConstructionMethod.ACCELERATOR;
-        } else if (conventionId.equals("target")) {
-            return EssNameConstructionMethod.TARGET;
-        } else {
-            return null;
         }
     }
 }
