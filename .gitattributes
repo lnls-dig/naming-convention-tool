@@ -67,6 +67,7 @@ src/main/webapp/WEB-INF/beans.xml -text
 src/main/webapp/WEB-INF/faces-config.xml -text
 src/main/webapp/WEB-INF/glassfish-resources.xml -text
 src/main/webapp/WEB-INF/glassfish-web.xml -text
+src/main/webapp/WEB-INF/includes/part-history.xhtml -text
 src/main/webapp/WEB-INF/web.xml -text
 src/main/webapp/about.xhtml -text
 src/main/webapp/api-manual.xhtml -text

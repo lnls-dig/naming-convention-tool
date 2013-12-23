@@ -68,62 +68,9 @@
 
             </p:dataTable>
 
-            <!-- ToDo: find better way to adjust width of the panel -->
-            <p:dialog id="nameDetail"  widgetVar="nameDetail" width="900" dynamic="true"
-                      maximizable="true" minimizable="true" header="Name Details"
-                      footer="Event History">
-                <p:dataTable id="historyTable" var="nevent" value="#{namesManager.historyEvents}"
-                             paginator="false" rows="50" resizableColumns="true"
-                             rowKey="#{nevent.id}"
-                             emptyMessage="There are no events for this name."
-                             >
-
-                    <p:column id="id" headerText="Id"  rendered="false" >
-                        <h:outputText value="#{nevent.nameId}" />
-                    </p:column>
-                    <p:column id="nameCat" headerText="Category"   >
-                        <h:outputText value="#{nevent.nameCategory.name}" />
-                    </p:column>
-                    <p:column id="nameCode" headerText="Code" >
-                        <h:outputText value="#{nevent.name}" />
-                    </p:column>
-                    <p:column id="fullName" headerText="Full Name">
-                        <h:outputText value="#{nevent.fullName}" />
-                    </p:column>
-                    <p:column id="parentName" headerText="Parent Name">
-                        <h:outputText value="#{nevent.parentName != null ? nevent.parentName.name : '-' }" />
-                    </p:column>
-                    <p:column id="type" headerText="Type" >
-                        <h:outputText value="#{requestManager.requestType(nevent.eventType) }" />
-                    </p:column>
-                    <p:column id="reqBy" headerText="By" sortBy="#{nevent.requestedBy.username}" >
-                        <h:outputText value="#{nevent.requestedBy.username}" />
-                    </p:column>
-                    <p:column id="reqDate" headerText="Date" sortBy="#{nevent.requestDate}">
-                        <h:outputText value="#{nevent.requestDate}" >
-                            <f:convertDateTime pattern="yyyy-MM-dd" />
-                        </h:outputText>
-                    </p:column>
-                    <p:column id="reqComment" headerText="Comment" >
-                        <h:outputText value="#{nevent.requestorComment}" />
-                    </p:column>
-
-                    <p:column id="status" headerText="Status"    >
-                        <h:outputText value="#{namesManager.nameStatus(nevent)}" title="status"/>
-                    </p:column>
-                    <p:column id="By" headerText="Proc By"  >
-                        <h:outputText value="#{nevent.processedBy.username}" />
-                    </p:column>
-                    <p:column id="procDate" headerText="Proc Date" sortBy="#{nevent.processDate}">
-                        <h:outputText value="#{nevent.processDate}" >
-                            <f:convertDateTime pattern="yyyy-MM-dd" />
-                        </h:outputText>
-                    </p:column>
-                    <p:column id="procComment" headerText="Proc Comment" >
-                        <h:outputText value="#{nevent.processorComment}" />
-                    </p:column>
-                </p:dataTable>
-            </p:dialog>
+            <ui:include src="/WEB-INF/includes/part-history.xhtml" >
+                <ui:param name="historyHandler" value="#{namesManager.historyEvents}" />
+            </ui:include>
 
         </h:form>
     </ui:define>
