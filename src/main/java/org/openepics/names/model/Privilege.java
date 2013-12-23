@@ -4,15 +4,12 @@
  */
 package org.openepics.names.model;
 
-import java.io.Serializable;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -28,14 +25,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Privilege.findAll", query = "SELECT p FROM Privilege p"),
     @NamedQuery(name = "Privilege.findByUsername", query = "SELECT p FROM Privilege p WHERE p.username = :username"),
     @NamedQuery(name = "Privilege.findByOperation", query = "SELECT p FROM Privilege p WHERE p.operation = :operation") })
-public class Privilege implements Serializable {
+public class Privilege extends Persistable {
     private static final long serialVersionUID = 1L;
-    
-    @Id
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "id")
-    private Integer id;
     
     @Basic(optional = false)
     @NotNull
@@ -48,14 +39,8 @@ public class Privilege implements Serializable {
     @Size(min = 1, max = 1)
     @Column(name = "operation")
     private String operation;
-    
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "version")
-    @Version private int version;
 
-    public Privilege() {
-    }
+    public Privilege() {}
 
     public Privilege(String username) {
         this.username = username;
@@ -64,10 +49,6 @@ public class Privilege implements Serializable {
     public Privilege(String username, String operation) {
         this.username = username;
         this.operation = operation;
-    }
-    
-    public Integer getId() {
-    	return id;
     }
 
     public String getUsername() {
@@ -84,10 +65,6 @@ public class Privilege implements Serializable {
 
     public void setOperation(String operation) {
         this.operation = operation;
-    }
-
-    public int getVersion() {
-        return version;
     }
 
     @Override

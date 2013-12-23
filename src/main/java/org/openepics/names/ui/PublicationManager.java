@@ -72,7 +72,7 @@ public class PublicationManager implements Serializable {
     public void onAdd() {
         try {
             logger.log(Level.INFO, "Adding a new Release");
-            if (inputRelease.getId() == null || inputRelease.getId().isEmpty()) {
+            if (inputRelease.getId() == null) {
                 showMessage(FacesMessage.SEVERITY_ERROR, "Release ID is empty", " ");
             }
             inputRelease = namesEJB.createNewRelease(inputRelease);

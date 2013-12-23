@@ -15,12 +15,10 @@
  */
 package org.openepics.names.model;
 
-import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
@@ -46,15 +44,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "NameRelease.findByDescription", query = "SELECT n FROM NameRelease n WHERE n.description = :description"),
     @NamedQuery(name = "NameRelease.findByDocUrl", query = "SELECT n FROM NameRelease n WHERE n.docUrl = :docUrl"),
     @NamedQuery(name = "NameRelease.findByReleaseDate", query = "SELECT n FROM NameRelease n WHERE n.releaseDate = :releaseDate") })
-public class NameRelease implements Serializable {
-    private static final long serialVersionUID = 1L;
-    
-    @Id
-    @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 16)
-    @Column(name = "id")
-    private String id;
+public class NameRelease extends Persistable {
     
     @Size(max = 255)
     @Column(name = "description")
@@ -76,21 +66,6 @@ public class NameRelease implements Serializable {
     @NotNull
     @Column(name = "version")
     @Version private int version;
-
-    public NameRelease() {
-    }
-
-    public NameRelease(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getDescription() {
         return description;
@@ -122,10 +97,6 @@ public class NameRelease implements Serializable {
     
     public void setReleasedBy(Privilege releasedBy) {
     	this.releasedBy = releasedBy;
-    }
-
-    public int getVersion() {
-        return version;
     }
 
     @Override

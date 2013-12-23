@@ -112,7 +112,7 @@ public class NamesManager implements Serializable {
 				final boolean processedBeforeLatestRelease = latestRelease != null && nreq.getProcessDate() != null && nreq.getProcessDate().before(latestRelease.getReleaseDate());
 				switch (nreq.getEventType()) {
 					case INSERT: return processedBeforeLatestRelease ? "Published" : "Added";
-					case MODIFY: return processedBeforeLatestRelease ? "Publisher" : "Modified";
+					case MODIFY: return processedBeforeLatestRelease ? "Published" : "Modified";
 					case DELETE: return "Deleted";
 				default:
 					return "unknown";

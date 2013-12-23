@@ -15,20 +15,15 @@
  */
 package org.openepics.names.model;
 
-import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -46,14 +41,7 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "NameCategory.findById", query = "SELECT n FROM NameCategory n WHERE n.id = :id"),
     @NamedQuery(name = "NameCategory.findByName", query = "SELECT n FROM NameCategory n WHERE n.name = :name"),
     @NamedQuery(name = "NameCategory.findByDescription", query = "SELECT n FROM NameCategory n WHERE n.description = :description") })
-public class NameCategory implements Serializable {
-    private static final long serialVersionUID = 1L;
-    
-    @Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-    @Basic(optional = false)
-    @Column(name = "id")
-    private Integer id;
+public class NameCategory extends Persistable {
     
     @Basic(optional = false)
     @NotNull
@@ -68,34 +56,8 @@ public class NameCategory implements Serializable {
     @Column(name = "description")
     private String description;
     
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "version")
-    @Version
-    private int version;
-    
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "nameCategory")
     private List<NameEvent> nameEventList;
-
-    public NameCategory() {
-    }
-
-    public NameCategory(Integer id) {
-        this.id = id;
-    }
-
-    public NameCategory(Integer id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -111,10 +73,6 @@ public class NameCategory implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public int getVersion() {
-        return version;
     }
 
 	/**

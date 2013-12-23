@@ -36,6 +36,7 @@ src/main/java/org/openepics/names/model/NameEventType.java -text
 src/main/java/org/openepics/names/model/NameRelease.java -text
 src/main/java/org/openepics/names/model/NcName.java -text
 src/main/java/org/openepics/names/model/NcNameStatus.java -text
+src/main/java/org/openepics/names/model/Persistable.java -text
 src/main/java/org/openepics/names/model/Privilege.java -text
 src/main/java/org/openepics/names/services/EssNameConstructionMethod.java -text
 src/main/java/org/openepics/names/services/NamesEJB.java -text
