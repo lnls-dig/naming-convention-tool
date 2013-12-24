@@ -1,22 +1,21 @@
 /*
  * This software is Copyright by the Board of Trustees of Michigan
  * State University (c) Copyright 2012.
- * 
+ *
  * You may use this software under the terms of the GNU public license
  *  (GPL). The terms of this license are described at:
  *       http://www.gnu.org/licenses/gpl.txt
- * 
+ *
  * Contact Information:
  *   Facilitty for Rare Isotope Beam
  *   Michigan State University
  *   East Lansing, MI 48824-1321
  *   http://frib.msu.edu
- * 
+ *
  */
 package org.openepics.names.model;
 
 import java.util.Date;
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -26,8 +25,6 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Version;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -45,27 +42,22 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "NameRelease.findByDocUrl", query = "SELECT n FROM NameRelease n WHERE n.docUrl = :docUrl"),
     @NamedQuery(name = "NameRelease.findByReleaseDate", query = "SELECT n FROM NameRelease n WHERE n.releaseDate = :releaseDate") })
 public class NameRelease extends Persistable {
-    
+
     @Size(max = 255)
     @Column(name = "description")
     private String description;
-    
+
     @Size(max = 255)
     @Column(name = "doc_url")
     private String docUrl;
-    
+
     @Column(name = "release_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date releaseDate;
-    
+
     @JoinColumn(name = "released_by", referencedColumnName = "id")
 	@ManyToOne(optional = false)
     private Privilege releasedBy;
-    
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "version")
-    @Version private int version;
 
     public String getDescription() {
         return description;
@@ -90,11 +82,11 @@ public class NameRelease extends Persistable {
     public void setReleaseDate(Date releaseDate) {
         this.releaseDate = releaseDate;
     }
-    
+
     public Privilege getReleasedBy() {
     	return releasedBy;
     }
-    
+
     public void setReleasedBy(Privilege releasedBy) {
     	this.releasedBy = releasedBy;
     }
@@ -123,5 +115,5 @@ public class NameRelease extends Persistable {
     public String toString() {
         return "org.openepics.names.NameRelease[ id=" + id + " ]";
     }
-    
+
 }
