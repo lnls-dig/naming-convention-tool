@@ -142,7 +142,6 @@ CREATE TABLE IF NOT EXISTS `device_name` (
   `section_id` int(10) unsigned NOT NULL,
   `device_type_id` int(10) unsigned NOT NULL,
   `instance_index` varchar(10) DEFAULT NULL,
-  `name` varchar(32) NOT NULL,
   `status` varchar(16) NOT NULL DEFAULT 'invalid',
   `requested_by` int(10) unsigned NOT NULL,
   `request_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
