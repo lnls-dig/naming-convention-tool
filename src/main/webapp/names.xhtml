@@ -27,7 +27,7 @@
                 <p:column id="nstatus" style="width: 15%" sortBy="#{namesManager.nameStatus(stdname)}" >
                     <f:facet name="header">
                         <h:outputText value="Status" />
-                        <br></br>
+                        <br />
 
                         <p:selectBooleanButton value="#{namesManager.showDeletedNames}" onLabel="Deleted" offLabel="Deleted" onIcon="ui-icon-check" offIcon="ui-icon-close">
                             <p:ajax update="nameTable"  listener="#{namesManager.refreshNames}"/>
