@@ -35,6 +35,7 @@ src/main/java/org/openepics/names/model/NameCategory.java -text
 src/main/java/org/openepics/names/model/NameEvent.java -text
 src/main/java/org/openepics/names/model/NameEventStatus.java -text
 src/main/java/org/openepics/names/model/NameEventType.java -text
+src/main/java/org/openepics/names/model/NameHierarchy.java -text
 src/main/java/org/openepics/names/model/NameRelease.java -text
 src/main/java/org/openepics/names/model/NameStatus.java -text
 src/main/java/org/openepics/names/model/Persistable.java -text

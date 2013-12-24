@@ -114,6 +114,83 @@ INSERT INTO `name_event` (`id`, `name_id`, `name`, `full_name`, `name_category_i
 /*!40000 ALTER TABLE `name_event` ENABLE KEYS */;
 
 
+--
+-- Table structure for table `name_hierarchy`
+--
+
+DROP TABLE IF EXISTS `name_hierarchy`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `name_hierarchy` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `version` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `name_hierarchy`
+--
+
+LOCK TABLES `name_hierarchy` WRITE;
+/*!40000 ALTER TABLE `name_hierarchy` DISABLE KEYS */;
+INSERT INTO `name_hierarchy` VALUES (1,NULL);
+/*!40000 ALTER TABLE `name_hierarchy` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `name_hierarchy_device_type_levels`
+--
+
+DROP TABLE IF EXISTS `name_hierarchy_device_type_levels`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `name_hierarchy_device_type_levels` (
+  `name_hierarchy_id` int(11) NOT NULL,
+  `name_category_id` int(11) NOT NULL,
+  `pos` int(11) DEFAULT NULL,
+  PRIMARY KEY (`name_hierarchy_id`,`name_category_id`),
+  CONSTRAINT `name_hierarchy_device_type_levelsname_hierarchy_id` FOREIGN KEY (`name_hierarchy_id`) REFERENCES `name_hierarchy` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `name_hierarchy_device_type_levels`
+--
+
+LOCK TABLES `name_hierarchy_device_type_levels` WRITE;
+/*!40000 ALTER TABLE `name_hierarchy_device_type_levels` DISABLE KEYS */;
+INSERT INTO `name_hierarchy_device_type_levels` VALUES (1,4,0),(1,5,1),(1,6,2),(1,7,3);
+/*!40000 ALTER TABLE `name_hierarchy_device_type_levels` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `name_hierarchy_section_levels`
+--
+
+DROP TABLE IF EXISTS `name_hierarchy_section_levels`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `name_hierarchy_section_levels` (
+  `name_hierarchy_id` int(11) NOT NULL,
+  `name_category_id` int(11) NOT NULL,
+  `pos` int(11) DEFAULT NULL,
+  PRIMARY KEY (`name_hierarchy_id`,`name_category_id`),
+  CONSTRAINT `FK_name_hierarchy_section_levels_name_hierarchy_id` FOREIGN KEY (`name_hierarchy_id`) REFERENCES `name_hierarchy` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `name_hierarchy_section_levels`
+--
+
+LOCK TABLES `name_hierarchy_section_levels` WRITE;
+/*!40000 ALTER TABLE `name_hierarchy_section_levels` DISABLE KEYS */;
+INSERT INTO `name_hierarchy_section_levels` VALUES (1,1,0),(1,2,1),(1,3,2);
+/*!40000 ALTER TABLE `name_hierarchy_section_levels` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
 -- Dumping structure for table discs_names.name_release
 DROP TABLE IF EXISTS `name_release`;
 CREATE TABLE IF NOT EXISTS `name_release` (
