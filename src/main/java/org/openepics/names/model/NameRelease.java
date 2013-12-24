@@ -37,11 +37,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "NameRelease.findAll", query = "SELECT n FROM NameRelease n"),
-    @NamedQuery(name = "NameRelease.findById", query = "SELECT n FROM NameRelease n WHERE n.id = :id"),
+    @NamedQuery(name = "NameRelease.findByReleaseId", query = "SELECT n FROM NameRelease n WHERE n.releaseId = :releaseId"),
     @NamedQuery(name = "NameRelease.findByDescription", query = "SELECT n FROM NameRelease n WHERE n.description = :description"),
     @NamedQuery(name = "NameRelease.findByDocUrl", query = "SELECT n FROM NameRelease n WHERE n.docUrl = :docUrl"),
     @NamedQuery(name = "NameRelease.findByReleaseDate", query = "SELECT n FROM NameRelease n WHERE n.releaseDate = :releaseDate") })
 public class NameRelease extends Persistable {
+
+    @Size(max = 16)
+    @Column(name = "rel_id")
+    private String releaseId;
 
     @Size(max = 255)
     @Column(name = "description")
@@ -114,6 +118,14 @@ public class NameRelease extends Persistable {
     @Override
     public String toString() {
         return "org.openepics.names.NameRelease[ id=" + id + " ]";
+    }
+
+    public String getReleaseId() {
+        return releaseId;
+    }
+
+    public void setReleaseId(String releaseId) {
+        this.releaseId = releaseId;
     }
 
 }

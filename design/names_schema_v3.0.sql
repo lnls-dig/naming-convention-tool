@@ -117,7 +117,8 @@ INSERT INTO `name_event` (`id`, `name_id`, `name`, `full_name`, `name_category_i
 -- Dumping structure for table discs_names.name_release
 DROP TABLE IF EXISTS `name_release`;
 CREATE TABLE IF NOT EXISTS `name_release` (
-  `id` varchar(16) NOT NULL,
+  `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
+  `rel_id` varchar(16) NOT NULL UNIQUE,
   `description` varchar(255) NOT NULL,
   `doc_url` varchar(255) DEFAULT NULL,
   `release_date` datetime NOT NULL,

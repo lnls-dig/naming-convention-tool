@@ -26,16 +26,16 @@
             </p:contextMenu>
             <p:dataTable id="releaseTable" var="release" value="#{publicationManager.releases}"
                          paginator="true" rows="25" resizableColumns="true"
-                         rowKey="#{release.id}"
-                         emptyMessage="There are no pending requests."
+                         rowKey="#{release.releaseId}"
+                         emptyMessage="There are no releases."
                          selection="#{publicationManager.selectedRelease}"
                          style="width: 90%">
                 <f:facet name="header">
                     <h:outputText value="Releases" />
                 </f:facet>
 
-                <p:column id="id" headerText="Id" sortBy="#{release.id}" >
-                    <h:outputText value="#{release.id}" />
+                <p:column id="id" headerText="Id" sortBy="#{release.releaseId}" >
+                    <h:outputText value="#{release.releaseId}" />
                 </p:column>
                 <p:column id="nameDesc" headerText="Description"
                           filterMatchMode="contains"  >
@@ -65,8 +65,8 @@
                 <p:panelGrid columns="2" style="text-align: left">
 
                     <h:outputLabel for="relid" value="Release ID:" />
-                    <h:inputText id="relid" value="#{publicationManager.inputRelease.id}"
-                                 required="true"  label="Release's unique name" />
+                    <h:inputText id="relid" value="#{publicationManager.inputRelease.releaseId}"
+                                 required="true" label="Release's unique name" />
 
                     <h:outputLabel for="relurl" value="Document URL:" />
                     <p:inputTextarea id="relurl" value="#{publicationManager.inputRelease.docUrl}"
