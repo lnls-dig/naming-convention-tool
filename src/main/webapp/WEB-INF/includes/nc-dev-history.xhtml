@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- ToDo: split this one into MyRequests and RequestSub -->
+
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html">
+
+    <!-- ===================Name History============================ -->
+    <!-- TODO: find better way to adjust width of the panel -->
+    <p:dialog id="nameDetail" widgetVar="nameDetail" width="900"
+            dynamic="true" maximizable="true" minimizable="true"
+            header="Name Details" footer="Event History">
+        <p:dataTable id="historyTable" var="ncname"
+            value="#{historyHandler}" paginator="false" rows="50"
+            resizableColumns="true" rowKey="#{ncname.id}"
+            emptyMessage="There are no events for this name.">
+
+            <p:column id="id" headerText="Id" rendered="false">
+                <h:outputText value="#{ncname.id}" />
+            </p:column>
+            <p:column id="histName" headerText="Name">
+                <h:outputText value="#{ncname.name}" />
+            </p:column>
+            <p:column id="histNameSect" headerText="Section">
+                <h:outputText value="#{ncname.section.name}" />
+            </p:column>
+            <p:column id="histNameDscp" headerText="Discipline">
+                <h:outputText value="#{ncname.discipline.name}" />
+            </p:column>
+            <p:column id="histStatus" headerText="Status">
+                <h:outputText value="#{ncname.status}" />
+            </p:column>
+            <p:column id="histReqBy" headerText="By" sortBy="#{ncname.requestedBy}">
+                <h:outputText value="#{ncname.requestedBy.username}" />
+            </p:column>
+            <p:column id="histReqDate" headerText="Date" sortBy="#{ncname.requestDate}">
+                <h:outputText value="#{ncname.requestDate}">
+                    <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" />
+                </h:outputText>
+            </p:column>
+        </p:dataTable>
+    </p:dialog>
+
+</ui:composition>

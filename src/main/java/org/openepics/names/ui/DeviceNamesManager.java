@@ -7,8 +7,10 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
 
 import org.openepics.names.model.DeviceName;
 import org.openepics.names.services.NamingConventionEJB;
@@ -24,6 +26,7 @@ public class DeviceNamesManager implements Serializable {
 
     private List<DeviceName> allDeviceNames;
     private List<DeviceName> activeDeviceNames;
+    private List<DeviceName> historyNcNames;
 
     public DeviceNamesManager() {
         // EMPTY
@@ -70,5 +73,25 @@ public class DeviceNamesManager implements Serializable {
     public void setActiveDeviceNames(List<DeviceName> activeDeviceNames) {
         this.activeDeviceNames = activeDeviceNames;
     }
+
+	public void findHistory(String nameId) {
+		try {
+			historyNcNames = ncEJB.getDeviceNameHistory(nameId);
+		} catch (Exception e) {
+			showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
+					e.getMessage());
+			System.err.println(e);
+		}
+	}
+
+    public List<DeviceName> getHistoryEvents() {
+		return historyNcNames;
+	}
+
+	private void showMessage(FacesMessage.Severity severity, String summary, String message) {
+		FacesContext context = FacesContext.getCurrentInstance();
+		context.addMessage(null, new FacesMessage(severity, summary, message));
+	}
+
 
 }

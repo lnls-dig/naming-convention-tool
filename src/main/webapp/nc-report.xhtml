@@ -8,19 +8,24 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:h="http://java.sun.com/jsf/html">
 
-	<ui:define name="content">
+    <ui:define name="content">
+        <h:form id="listNcNameForm">
 
             <!-- ===================Data Table============================ -->
             <p:dataTable id="ncCrTable" var="deviceName"
                     value="#{deviceNamesManager.activeDeviceNames}" paginator="true" rows="50"
                     resizableColumns="true" rowKey="#{deviceName.id}"
                     emptyMessage="There are no active NC Names"
-                    style="width: 90%">
+                    selectionMode="single" style="width: 90%">
                 <f:facet name="header">
                     <h:outputText value="Active Naming Convention Names" />
                 </f:facet>
 
-                <p:column id="nameString" headerText="NC Name"
+                <p:ajax event="rowSelect" update=":listNcNameForm:historyTable"
+                         listener="#{deviceNamesManager.findHistory(deviceName.nameId)}"
+                         oncomplete="nameDetail.show()" />
+
+                <p:column id="nameString" headerText="Device Name"
                         filterBy="#{deviceName.name}" filterMatchMode="contains"
                         style="width: 20%">
                     <h:outputText value="#{deviceName.name}" />
@@ -42,5 +47,11 @@
 
             </p:dataTable>
 
-	</ui:define>
+            <ui:include src="/WEB-INF/includes/nc-dev-history.xhtml" >
+                <ui:param name="historyHandler" value="#{deviceNamesManager.historyEvents}" />
+            </ui:include>
+
+        </h:form>
+
+    </ui:define>
 </ui:composition>

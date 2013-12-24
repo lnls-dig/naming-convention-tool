@@ -34,7 +34,7 @@ public class NamingConventionEJB {
 
     @PersistenceContext(unitName = "org.openepics.names.punit")
     private EntityManager em;
-    
+
     public DeviceName createDeviceName(NameEvent section, NameEvent deviceType) {
         Preconditions.checkNotNull(section);
         Preconditions.checkNotNull(deviceType);
@@ -138,7 +138,9 @@ public class NamingConventionEJB {
         Preconditions.checkNotNull(deviceTypeEvent);
         Preconditions.checkNotNull(instanceIndex);
 
-        return em.createNamedQuery("DeviceName.findByParts", DeviceName.class).setParameter("section", section).setParameter("deviceType", deviceTypeEvent).setParameter("instanceIndex", instanceIndex).getSingleResult();
+        return em.createNamedQuery("DeviceName.findByParts", DeviceName.class).setParameter("section", section).
+                setParameter("deviceType", deviceTypeEvent).setParameter("instanceIndex", instanceIndex).
+                getSingleResult();
     }
 
     /**
@@ -273,7 +275,7 @@ public class NamingConventionEJB {
         if ((genDevice.getStatus() != NameEventStatus.APPROVED) || !genDevice.getNameCategory().getName().equals(NameCategories.genericDevice())) {
             return false;
         }
-        
+
         return true;
     }
 

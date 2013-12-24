@@ -27,6 +27,7 @@ docs/Names-Installation-v2.4.docx -text
 docs/Names-devenv-instructions.odt -text
 docs/Names-devenv-instructions.pdf -text
 /faces-config.NavData -text
+/nb-configuration.xml -text
 /pom.xml -text
 src/main/java/org/openepics/names/model/Configuration.java -text
 src/main/java/org/openepics/names/model/DeviceName.java -text
@@ -69,6 +70,7 @@ src/main/webapp/WEB-INF/glassfish-resources.xml -text
 src/main/webapp/WEB-INF/glassfish-web.xml -text
 src/main/webapp/WEB-INF/includes/about.xhtml -text
 src/main/webapp/WEB-INF/includes/menubar.xhtml -text
+src/main/webapp/WEB-INF/includes/nc-dev-history.xhtml -text
 src/main/webapp/WEB-INF/includes/part-history.xhtml -text
 src/main/webapp/WEB-INF/namesTemplate.xhtml -text
 src/main/webapp/WEB-INF/web.xml -text
@@ -81,7 +83,6 @@ src/main/webapp/login.xhtml -text
 src/main/webapp/names.xhtml -text
 src/main/webapp/nc-dev-edit.xhtml -text
 src/main/webapp/nc-report.xhtml -text
-src/main/webapp/nc-request-proc.xhtml -text
 src/main/webapp/nc-sig-edit.xhtml -text
 src/main/webapp/parts-request-proc.xhtml -text
 src/main/webapp/parts-request-sub.xhtml -text

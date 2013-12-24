@@ -111,44 +111,12 @@
                     </f:facet>
                     <h:outputText value="#{deviceName.status}" />
                 </p:column>
-
             </p:dataTable>
 
-                <!-- ===================Name History============================ -->
-                <!-- TODO: find better way to adjust width of the panel -->
-            <p:dialog id="nameDetail" widgetVar="nameDetail" width="900"
-                    dynamic="true" maximizable="true" minimizable="true"
-                    header="Name Details" footer="Event History">
-                <p:dataTable id="historyTable" var="deviceName"
-                    value="#{editNamesManager.historyEvents}" paginator="false" rows="50"
-                    resizableColumns="true" rowKey="#{deviceName.id}"
-                    emptyMessage="There are no events for this name.">
+            <ui:include src="/WEB-INF/includes/nc-dev-history.xhtml" >
+                <ui:param name="historyHandler" value="#{editNamesManager.historyEvents}" />
+            </ui:include>
 
-                    <p:column id="id" headerText="Id" rendered="false">
-                        <h:outputText value="#{deviceName.id}" />
-                    </p:column>
-                    <p:column id="histName" headerText="Name">
-                        <h:outputText value="#{deviceName.name}" />
-                    </p:column>
-                    <p:column id="histNameSect" headerText="Section">
-                        <h:outputText value="#{deviceName.section.name}" />
-                    </p:column>
-                    <p:column id="histNameDscp" headerText="Discipline">
-                        <h:outputText value="#{deviceName.discipline.name}" />
-                    </p:column>
-                    <p:column id="histStatus" headerText="Status">
-                        <h:outputText value="#{deviceName.status}" />
-                    </p:column>
-                    <p:column id="histReqBy" headerText="By" sortBy="#{deviceName.requestedBy}">
-                        <h:outputText value="#{deviceName.requestedBy.username}" />
-                    </p:column>
-                    <p:column id="histReqDate" headerText="Date" sortBy="#{deviceName.requestDate}">
-                        <h:outputText value="#{deviceName.requestDate}">
-                            <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" />
-                        </h:outputText>
-                    </p:column>
-                </p:dataTable>
-            </p:dialog>
         </h:form>
 
         <!-- ===================Add Form================================= -->
