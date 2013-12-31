@@ -40,9 +40,9 @@ src/main/java/org/openepics/names/model/NameRelease.java -text
 src/main/java/org/openepics/names/model/NameStatus.java -text
 src/main/java/org/openepics/names/model/Persistable.java -text
 src/main/java/org/openepics/names/model/Privilege.java -text
+src/main/java/org/openepics/names/services/EssNamingConvention.java -text
 src/main/java/org/openepics/names/services/NamesEJB.java -text
 src/main/java/org/openepics/names/services/NamingConventionEJB.java -text
-src/main/java/org/openepics/names/services/NamingConventionException.java -text
 src/main/java/org/openepics/names/ui/DeviceNamesManager.java -text
 src/main/java/org/openepics/names/ui/EditNamesManager.java -text
 src/main/java/org/openepics/names/ui/LoginManager.java -text
@@ -103,6 +103,3 @@ src/main/webapp/resources/images/pdf.png -text
 src/main/webapp/resources/images/proteus.ico -text
 src/main/webapp/resources/images/proteus.png -text
 src/main/webapp/resources/images/xml.png -text
-src/test/java/org/openepics/names/AllTests.java -text
-src/test/java/org/openepics/names/services/NamingConventionEJBTest.java -text
-src/test/java/org/openepics/names/services/NcTestSuite.java -text
