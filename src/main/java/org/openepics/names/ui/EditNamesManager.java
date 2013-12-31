@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -32,8 +30,6 @@ public class EditNamesManager implements Serializable {
     private NamesEJB namesEJB;
     @Inject
     private UserManager userManager;
-
-    private static final Logger logger = Logger.getLogger("org.openepics.names.ui.EditNamesManager");
 
     private Integer superSectionID;
     private Integer sectionID;
@@ -69,7 +65,7 @@ public class EditNamesManager implements Serializable {
         loadCategories();
         loadGenericDevices();
         loadSpecificDevices();
-        refreshDeviceNames();
+        loadDeviceNames();
         clearSelectionIds();
     }
 
@@ -84,21 +80,15 @@ public class EditNamesManager implements Serializable {
     }
 
     public void onAdd() {
-        DeviceName newDeviceName;
-
         try {
-            logger.log(Level.INFO, "Adding NC Name");
             if (subsectionID == null || genDeviceID == null) {
                 showMessage(FacesMessage.SEVERITY_ERROR, "Required field missing", " ");
+                return;
             }
-            NameEvent subsection = namesEJB.findEventById(subsectionID);
-            NameEvent genDevice = namesEJB.findEventById(genDeviceID);
-            newDeviceName = ncEJB.createDeviceName(subsection, genDevice);
+            final NameEvent subsection = namesEJB.findEventById(subsectionID);
+            final NameEvent genDevice = namesEJB.findEventById(genDeviceID);
+            final DeviceName newDeviceName = ncEJB.createDeviceName(subsection, genDevice);
             showMessage(FacesMessage.SEVERITY_INFO, "NC Name successfully added.", "Name: " + "[TODO]");
-        } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
-                    e.getMessage());
-            System.err.println(e);
         } finally {
             init();
         }
@@ -106,128 +96,97 @@ public class EditNamesManager implements Serializable {
 
     public void onModify() {
         try {
-            logger.log(Level.INFO, "Modifying NC Name");
-            DeviceName modifiedName = ncEJB.modifyDeviceName(subsectionID, genDeviceID, selectedDeviceName.getId());
+            final DeviceName modifiedName = ncEJB.modifyDeviceName(subsectionID, genDeviceID, selectedDeviceName.getId());
             showMessage(FacesMessage.SEVERITY_INFO, "NC Name modified.", "Name: " + "[TODO]");
-        } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Error",
-                    e.getMessage());
-            System.err.println(e);
         } finally {
             init();
         }
     }
 
     public void onDelete() {
-        DeviceName newDeviceName;
-
         try {
-            logger.log(Level.INFO, "Deleting NC Name");
-            newDeviceName = ncEJB.deleteDeviceName(selectedDeviceName);
+            final DeviceName newDeviceName = ncEJB.deleteDeviceName(selectedDeviceName);
             showMessage(FacesMessage.SEVERITY_INFO, "NC Name successfully deleted.", "Name: " + "[TODO]");
-        } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
-                    e.getMessage());
-            System.err.println(e);
         } finally {
             init();
             selectedDeviceName = null;
         }
     }
 
-    /*
-     * Used in xhtml.
-     */
     public void loadSuperSections() {
-        try {
-            List<NameCategory> categories = namesEJB.getCategories();
-            NameCategory superSectionCategory = null;
-            for (NameCategory category : categories) {
-                if (category.getName().equalsIgnoreCase(NameCategories.supersection())) {
-                    superSectionCategory = category;
-                    break;
-                }
+        List<NameCategory> categories = namesEJB.getCategories();
+        NameCategory superSectionCategory = null;
+        for (NameCategory category : categories) {
+            if (category.getName().equalsIgnoreCase(NameCategories.supersection())) {
+                superSectionCategory = category;
+                break;
             }
-            logger.log(Level.INFO, "Found Super Section category: " + superSectionCategory + " " + superSectionCategory.getId());
-            superSectionNames = superSectionCategory == null ? null : namesEJB.findEventsByCategory(superSectionCategory);
-            logger.log(Level.INFO, "Found supersections. Total = " + superSectionNames.size());
+        }
+        superSectionNames = superSectionCategory == null ? null : namesEJB.findEventsByCategory(superSectionCategory);
 
-            sectionID = null;
-            if (sectionNames != null) {
-                sectionNames.clear();
-            }
-            subsectionID = null;
-            if (subsectionNames != null) {
-                subsectionNames.clear();
-            }
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Could not load supersections.");
-            System.err.println(e);
+        sectionID = null;
+        if (sectionNames != null) {
+            sectionNames.clear();
+        }
+        subsectionID = null;
+        if (subsectionNames != null) {
+            subsectionNames.clear();
         }
     }
 
-    /*
-     * Used in XHTML.
-     */
     public void loadSections() {
         if (superSectionID != null) {
-            try {
-                NameEvent superSection = namesEJB.findEventById(superSectionID);
-                sectionNames = namesEJB.findEventsByParent(superSection);
-                logger.log(Level.INFO, "Found sections. Total = " + sectionNames.size());
+            NameEvent superSection = namesEJB.findEventById(superSectionID);
+            sectionNames = namesEJB.findEventsByParent(superSection);
 
-                subsectionID = null;
-                if (subsectionNames != null) {
-                    subsectionNames.clear();
-                }
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "Could not load sections.");
-                System.err.println(e);
+            subsectionID = null;
+            if (subsectionNames != null) {
+                subsectionNames.clear();
             }
         } else {
             sectionNames = null;
         }
     }
 
-    /*
-     * Used in xhtml.
-     */
     public void loadSubsections() {
         if (sectionID != null) {
-            try {
-                NameEvent section = namesEJB.findEventById(sectionID);
-                subsectionNames = namesEJB.findEventsByParent(section);
-                logger.log(Level.INFO, "Found subsections. Total = " + sectionNames.size());
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "Could not load subsections.");
-                System.err.println(e);
-            }
+            NameEvent section = namesEJB.findEventById(sectionID);
+            subsectionNames = namesEJB.findEventsByParent(section);
         } else {
             subsectionNames = null;
         }
     }
 
-    /*
-     * used in xhtml.
-     */
     public void loadDisciplines() {
-        try {
-            List<NameCategory> categories = namesEJB.getCategories();
-            NameCategory disciplineCategory = null;
-            for (NameCategory category : categories) {
-                if (category.getName().equalsIgnoreCase("DSCP")) {
-                    disciplineCategory = category;
-                    break;
-                }
+        List<NameCategory> categories = namesEJB.getCategories();
+        NameCategory disciplineCategory = null;
+        for (NameCategory category : categories) {
+            if (category.getName().equalsIgnoreCase("DSCP")) {
+                disciplineCategory = category;
+                break;
             }
-            logger.log(Level.INFO, "Found Discipline category: " + disciplineCategory + " " + disciplineCategory.getId());
-            disciplineNames = disciplineCategory == null ? null : namesEJB.findEventsByCategory(disciplineCategory);
-            logger.log(Level.INFO, "Found disciplines. Total = " + disciplineNames.size());
+        }
+        disciplineNames = disciplineCategory == null ? null : namesEJB.findEventsByCategory(disciplineCategory);
 
-            categoryID = null;
-            if (categoryNames != null) {
-                categoryNames.clear();
-            }
+        categoryID = null;
+        if (categoryNames != null) {
+            categoryNames.clear();
+        }
+        genDeviceID = null;
+        if (genDevNames != null) {
+            genDevNames.clear();
+        }
+        specDeviceID = null;
+        if (specDevNames != null) {
+            specDevNames.clear();
+        }
+    }
+
+    public void loadCategories() {
+        if (disciplineID != null) {
+            NameEvent discipline = namesEJB.findEventById(disciplineID);
+            categoryNames = namesEJB.findEventsByParent(discipline);
+
             genDeviceID = null;
             if (genDevNames != null) {
                 genDevNames.clear();
@@ -236,121 +195,54 @@ public class EditNamesManager implements Serializable {
             if (specDevNames != null) {
                 specDevNames.clear();
             }
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Could not load disciplines.");
-            System.err.println(e);
-        }
-    }
-
-    /*
-     * Used in xhtml.
-     */
-    public void loadCategories() {
-        if (disciplineID != null) {
-            try {
-                NameEvent discipline = namesEJB.findEventById(disciplineID);
-                categoryNames = namesEJB.findEventsByParent(discipline);
-                logger.log(Level.INFO, "Found categories. Total = " + categoryNames.size());
-
-                genDeviceID = null;
-                if (genDevNames != null) {
-                    genDevNames.clear();
-                }
-                specDeviceID = null;
-                if (specDevNames != null) {
-                    specDevNames.clear();
-                }
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "Could not load categories.");
-                System.err.println(e);
-            }
         } else {
             categoryNames = null;
         }
     }
 
-    /*
-     * Used in xhtml.
-     */
     public void loadGenericDevices() {
         if (categoryID != null) {
-            try {
-                NameEvent category = namesEJB.findEventById(categoryID);
-                genDevNames = namesEJB.findEventsByParent(category);
-                logger.log(Level.INFO, "Found generic devices. Total = " + genDevNames.size());
+            NameEvent category = namesEJB.findEventById(categoryID);
+            genDevNames = namesEJB.findEventsByParent(category);
 
-                specDeviceID = null;
-                if (specDevNames != null) {
-                    specDevNames.clear();
-                }
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "Could not load generic devices.");
-                System.err.println(e);
+            specDeviceID = null;
+            if (specDevNames != null) {
+                specDevNames.clear();
             }
         } else {
             genDevNames = null;
         }
     }
 
-    /*
-     * Used in xhtml.
-     */
     public void loadSpecificDevices() {
         if (genDeviceID != null) {
-            try {
-                NameEvent genDevice = namesEJB.findEventById(genDeviceID);
-                specDevNames = namesEJB.findEventsByParent(genDevice);
-                logger.log(Level.INFO, "Found specific devices. Total = " + specDevNames.size());
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "Could not load specific devices.");
-                System.err.println(e);
-            }
+            NameEvent genDevice = namesEJB.findEventById(genDeviceID);
+            specDevNames = namesEJB.findEventsByParent(genDevice);
         } else {
             specDevNames = null;
         }
     }
-
-    public String getSelectedDeviceNameSectionString() {
-        if (selectedDeviceName != null) {
-            NameEvent bottomName = selectedDeviceName.getSection();
-            String sectionString = "";
-            boolean firstTime = true;
-            while (bottomName != null) {
-                if (firstTime) {
-                    firstTime = false;
-                } else {
-                    sectionString = " - " + sectionString;
-                }
-                sectionString = bottomName.getFullName() + sectionString;
-                bottomName = bottomName.getParentName();
-            }
-            return sectionString.trim();
+    
+    public void loadDeviceNames() {
+        if (showDeletedNames) {
+            allDeviceNames = ncEJB.getAllDeviceNames();
+        } else {
+            allDeviceNames = ncEJB.getExistingDeviceNames();
         }
-        return "No selection!";
     }
-
-    public String getSelectedDeviceNameDisciplineString() {
-        if (selectedDeviceName != null) {
-            NameEvent bottomName = selectedDeviceName.getDeviceType();
-            String disciplineString = "";
-            boolean firstTime = true;
-            while (bottomName != null) {
-                if (firstTime) {
-                    firstTime = false;
-                } else {
-                    disciplineString = " - " + disciplineString;
-                }
-                disciplineString = bottomName.getFullName() + disciplineString;
-                bottomName = bottomName.getParentName();
-            }
-            return disciplineString.trim();
+    
+    public void loadHistory() {
+        if (selectedDeviceName == null) {
+            showMessage(FacesMessage.SEVERITY_ERROR, "Error", "You must select a name first.");
+            historyDeviceNames = null;
+            return;
         }
-        return "No selection!";
+        historyDeviceNames = ncEJB.getDeviceNameHistory(selectedDeviceName.getNameId());
     }
 
     public void loadSelectedName() {
         if (selectedDeviceName != null) {
-            Map<String, Integer> namePartMap = new HashMap<String, Integer>();
+            Map<String, Integer> namePartMap = new HashMap<>();
 
             NameEvent sectionNode = selectedDeviceName.getSection();
             while (sectionNode.getParentName() != null) {
@@ -366,222 +258,88 @@ public class EditNamesManager implements Serializable {
             }
             namePartMap.put(disciplineNode.getNameCategory().getName(), disciplineNode.getId());
 
-            //Load section selections.
             loadSuperSections();
-            setSuperSectionID(namePartMap.get(NameCategories.supersection()));
+            this.superSectionID = namePartMap.get(NameCategories.supersection());
             loadSections();
-            setSectionID(namePartMap.get(NameCategories.section()));
+            this.sectionID = namePartMap.get(NameCategories.section());
             loadSubsections();
-            setSubsectionID(namePartMap.get(NameCategories.subsection()));
+            this.subsectionID = namePartMap.get(NameCategories.subsection());
 
-            //Load Discipline selections.
             loadDisciplines();
-            setDisciplineID(namePartMap.get(NameCategories.discipline()));
+            this.disciplineID = namePartMap.get(NameCategories.discipline());
             loadCategories();
-            setCategoryID(namePartMap.get(NameCategories.category()));
+            this.categoryID = namePartMap.get(NameCategories.category());
             loadGenericDevices();
-            setGenDeviceID(namePartMap.get(NameCategories.genericDevice()));
+            this.genDeviceID = namePartMap.get(NameCategories.genericDevice());
             if (namePartMap.containsKey(NameCategories.specificDevice())) {
                 loadSpecificDevices();
-                setSpecDeviceID(namePartMap.get(NameCategories.specificDevice()));
+                this.specDeviceID = namePartMap.get(NameCategories.specificDevice());
             }
         }
     }
 
-    public List<NameEvent> getSuperSectionNames() {
-        return superSectionNames;
-    }
+    public List<NameEvent> getSuperSectionNames() { return superSectionNames; }
 
-    public void setSuperSectionNames(List<NameEvent> superSectionNames) {
-        this.superSectionNames = superSectionNames;
-    }
+    public List<NameEvent> getSectionNames() { return sectionNames; }
 
-    public List<NameEvent> getSectionNames() {
-        return sectionNames;
-    }
+    public List<NameEvent> getSubsectionNames() { return subsectionNames; }
 
-    public void setSectionNames(List<NameEvent> sectionNames) {
-        this.sectionNames = sectionNames;
-    }
+    public List<NameEvent> getDisciplineNames() { return disciplineNames; }
 
-    public List<NameEvent> getSubsectionNames() {
-        return subsectionNames;
-    }
+    public List<NameEvent> getCategoryNames() { return categoryNames; }
 
-    public void setSubsectionNames(List<NameEvent> subsectionNames) {
-        this.subsectionNames = subsectionNames;
-    }
+    public List<NameEvent> getGenDevNames() { return genDevNames; }
 
-    public List<NameEvent> getDisciplineNames() {
-        return disciplineNames;
-    }
+    public List<NameEvent> getSpecDevNames() { return specDevNames; }
 
-    public void setDisciplineNames(List<NameEvent> disciplineNames) {
-        this.disciplineNames = disciplineNames;
-    }
+    public Integer getSuperSectionID() { return superSectionID; }
+    public void setSuperSectionID(Integer superSectionID) { this.superSectionID = superSectionID; }
 
-    public List<NameEvent> getCategoryNames() {
-        return categoryNames;
-    }
+    public Integer getSectionID() { return sectionID; }
+    public void setSectionID(Integer sectionID) { this.sectionID = sectionID; }
 
-    public void setCategoryNames(List<NameEvent> categoryNames) {
-        this.categoryNames = categoryNames;
-    }
+    public Integer getSubsectionID() { return subsectionID; }
+    public void setSubsectionID(Integer subsectionID) { this.subsectionID = subsectionID; }
 
-    public List<NameEvent> getGenDevNames() {
-        return genDevNames;
-    }
+    public Integer getDisciplineID() { return disciplineID; }
+    public void setDisciplineID(Integer disciplineID) { this.disciplineID = disciplineID; }
 
-    public void setGenDevNames(List<NameEvent> genDevNames) {
-        this.genDevNames = genDevNames;
-    }
+    public Integer getCategoryID() { return categoryID; }
+    public void setCategoryID(Integer categoryID) { this.categoryID = categoryID; }
 
-    public List<NameEvent> getSpecDevNames() {
-        return specDevNames;
-    }
+    public Integer getGenDeviceID() { return genDeviceID; }
+    public void setGenDeviceID(Integer genDeviceID) { this.genDeviceID = genDeviceID; }
 
-    public void setSpecDevNames(List<NameEvent> specDevNames) {
-        this.specDevNames = specDevNames;
-    }
+    public Integer getSpecDeviceID() { return specDeviceID; }
+    public void setSpecDeviceID(Integer specDeviceID) { this.specDeviceID = specDeviceID; }
 
-    public Integer getSuperSectionID() {
-        return superSectionID;
-    }
+    public DeviceName getSelectedDeviceName() { return selectedDeviceName; }
+    public void setSelectedDeviceName(DeviceName selectedDeviceName) { this.selectedDeviceName = selectedDeviceName; }
+    
+    public List<DeviceName> getAllDeviceNames() { return allDeviceNames; }
+    
+    public List<DeviceName> getHistoryEvents() { return historyDeviceNames; }
 
-    public void setSuperSectionID(Integer superSectionID) {
-        this.superSectionID = superSectionID;
-    }
+    public boolean isSuperUser() { return userManager.isSuperUser(); }
 
-    public Integer getSectionID() {
-        return sectionID;
-    }
-
-    public void setSectionID(Integer sectionID) {
-        this.sectionID = sectionID;
-    }
-
-    public Integer getSubsectionID() {
-        return subsectionID;
-    }
-
-    public void setSubsectionID(Integer subsectionID) {
-        this.subsectionID = subsectionID;
-    }
-
-    public Integer getDisciplineID() {
-        return disciplineID;
-    }
-
-    public void setDisciplineID(Integer disciplineID) {
-        this.disciplineID = disciplineID;
-    }
-
-    public Integer getCategoryID() {
-        return categoryID;
-    }
-
-    public void setCategoryID(Integer categoryID) {
-        this.categoryID = categoryID;
-    }
-
-    public Integer getGenDeviceID() {
-        return genDeviceID;
-    }
-
-    public void setGenDeviceID(Integer genDeviceID) {
-        this.genDeviceID = genDeviceID;
-    }
-
-    public Integer getSpecDeviceID() {
-        return specDeviceID;
-    }
-
-    public void setSpecDeviceID(Integer specDeviceID) {
-        this.specDeviceID = specDeviceID;
-    }
-
-    public DeviceName getSelectedDeviceName() {
-        return selectedDeviceName;
-    }
-
-    public void setSelectedDeviceName(DeviceName selectedDeviceName) {
-        this.selectedDeviceName = selectedDeviceName;
-    }
-
-    public List<DeviceName> getAllDeviceNames() {
-        return allDeviceNames;
-    }
-
-    public void setAllDeviceNames(List<DeviceName> allDeviceNames) {
-        this.allDeviceNames = allDeviceNames;
-    }
+    public boolean isShowDeletedNames() { return showDeletedNames; }
+    public void setShowDeletedNames(boolean showDeletedNames) { this.showDeletedNames = showDeletedNames; }
 
     public boolean isFormFilled() {
-        return superSectionID != null
-                && sectionID != null
-                && subsectionID != null
-                && disciplineID != null
-                && categoryID != null
-                && genDeviceID != null;
-    }
-
-    private void showMessage(FacesMessage.Severity severity, String summary, String message) {
-        FacesContext context = FacesContext.getCurrentInstance();
-        context.addMessage(null, new FacesMessage(severity, summary, message));
+        return superSectionID != null && sectionID != null && subsectionID != null && disciplineID != null && categoryID != null && genDeviceID != null;
     }
 
     public String nameStatus(DeviceName nreq) {
         switch (nreq.getStatus()) {
-            case VALID:
-                return "Published";
-            case INVALID:
-                return "In-Process";
-            case DELETED:
-                return "Deleted";
-            default:
-                return "unknown";
+            case VALID: return "Published";
+            case INVALID: return "In-Process";
+            case DELETED: return "Deleted";
+            default: return "unknown";
         }
     }
-
-    public void findHistory() {
-        try {
-            if (selectedDeviceName == null) {
-                showMessage(FacesMessage.SEVERITY_ERROR, "Error",
-                        "You must select a name first.");
-                historyDeviceNames = null;
-                return;
-            }
-            historyDeviceNames = ncEJB.getDeviceNameHistory(selectedDeviceName.getNameId());
-        } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
-                    e.getMessage());
-            System.err.println(e);
-        } finally {
-            //EMPTY
-        }
-    }
-
-    public List<DeviceName> getHistoryEvents() {
-        return historyDeviceNames;
-    }
-
-    public boolean isSuperUser() {
-        return userManager.isSuperUser();
-    }
-
-    public boolean isShowDeletedNames() {
-        return showDeletedNames;
-    }
-
-    public void setShowDeletedNames(boolean showDeletedNames) {
-        this.showDeletedNames = showDeletedNames;
-    }
-
-    public void refreshDeviceNames() {
-        if (showDeletedNames) {
-            allDeviceNames = ncEJB.getAllDeviceNames();
-        } else {
-            allDeviceNames = ncEJB.getExistingDeviceNames();
-        }
+    
+    private void showMessage(FacesMessage.Severity severity, String summary, String message) {
+        FacesContext context = FacesContext.getCurrentInstance();
+        context.addMessage(null, new FacesMessage(severity, summary, message));
     }
 }

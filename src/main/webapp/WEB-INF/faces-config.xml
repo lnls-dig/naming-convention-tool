@@ -8,7 +8,7 @@
               xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd">
 
     <factory>
-        <exception-handler-factory>org.omnifaces.exceptionhandler.FullAjaxExceptionHandlerFactory</exception-handler-factory>
+        <exception-handler-factory>org.openepics.names.ui.CustomExceptionHandlerFactory</exception-handler-factory>
     </factory>
     <navigation-rule>
         <navigation-case>

@@ -32,7 +32,7 @@
                             title="Modify NC Name" rendered="#{userManager.editor}"
                 disabled="#{empty editNamesManager.selectedDeviceName || editNamesManager.selectedDeviceName.requestedBy.username != userManager.user.username}" />
                     <p:menuitem value="History" icon="ui-icon-search"
-                            actionListener="#{editNamesManager.findHistory()}"
+                            actionListener="#{editNamesManager.loadHistory()}"
                             update=":ManageNameForm:historyTable" title="View History"
                             oncomplete="nameDetail.show()"
                             disabled="#{empty editNamesManager.selectedDeviceName}" />
@@ -94,10 +94,10 @@
                         style="width: 15%">
                     <h:outputText value="#{deviceName.section.fullName}" />
                 </p:column>
-                <p:column id="nameDiscipline" headerText="Discipline"
-                        filterBy="#{deviceName.discipline.fullName}"
+                <p:column id="nameDiscipline" headerText="Device type"
+                        filterBy="#{deviceName.deviceType.fullName}"
                         filterMatchMode="contains" style="width: 15%">
-                    <h:outputText value="#{deviceName.discipline.fullName}" />
+                    <h:outputText value="#{deviceName.deviceType.fullName}" />
                 </p:column>
                 <p:column id="nameStatus">
                     <f:facet name="header">
