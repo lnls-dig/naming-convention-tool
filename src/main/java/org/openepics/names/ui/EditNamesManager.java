@@ -15,8 +15,8 @@ import javax.inject.Inject;
 import org.openepics.names.model.DeviceName;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
-import org.openepics.names.services.EssNamingConvention;
 import org.openepics.names.services.NamesEJB;
+import org.openepics.names.services.NamingConvention;
 import org.openepics.names.services.NamingConventionEJB;
 
 @ManagedBean
@@ -26,7 +26,7 @@ public class EditNamesManager implements Serializable {
     @Inject private NamingConventionEJB ncEJB;
     @Inject private NamesEJB namesEJB;
     @Inject private UserManager userManager;
-    @Inject private EssNamingConvention namingConvention;
+    @Inject private NamingConvention namingConvention;
 
     private Integer superSectionID;
     private Integer sectionID;
@@ -219,7 +219,7 @@ public class EditNamesManager implements Serializable {
             specDevNames = null;
         }
     }
-    
+
     public void loadDeviceNames() {
         if (showDeletedNames) {
             allDeviceNames = ncEJB.getAllDeviceNames();
@@ -227,7 +227,7 @@ public class EditNamesManager implements Serializable {
             allDeviceNames = ncEJB.getExistingDeviceNames();
         }
     }
-    
+
     public void loadHistory() {
         if (selectedDeviceName == null) {
             showMessage(FacesMessage.SEVERITY_ERROR, "Error", "You must select a name first.");
@@ -312,7 +312,7 @@ public class EditNamesManager implements Serializable {
 
     public DeviceNameView getSelectedDeviceName() { return selectedDeviceName; }
     public void setSelectedDeviceName(DeviceNameView selectedDeviceName) { this.selectedDeviceName = selectedDeviceName; }
-    
+
     public List<DeviceNameView> getAllDeviceNames() {
         return Lists.transform(allDeviceNames, new Function<DeviceName, DeviceNameView>() {
             @Override public DeviceNameView apply(DeviceName deviceName) {
@@ -320,7 +320,7 @@ public class EditNamesManager implements Serializable {
             }
         });
     }
-    
+
     public List<DeviceName> getHistoryEvents() { return historyDeviceNames; }
 
     public boolean isSuperUser() { return userManager.isSuperUser(); }
@@ -331,7 +331,7 @@ public class EditNamesManager implements Serializable {
     public boolean isFormFilled() {
         return superSectionID != null && sectionID != null && subsectionID != null && disciplineID != null && categoryID != null && genDeviceID != null;
     }
-    
+
      public String getSelectedDeviceNameSectionString() {
         if (selectedDeviceName != null) {
             NameEvent bottomName = selectedDeviceName.getSection();
@@ -369,7 +369,7 @@ public class EditNamesManager implements Serializable {
         }
         return "No selection!";
     }
-    
+
     private void showMessage(FacesMessage.Severity severity, String summary, String message) {
         FacesContext context = FacesContext.getCurrentInstance();
         context.addMessage(null, new FacesMessage(severity, summary, message));

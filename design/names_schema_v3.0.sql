@@ -219,7 +219,7 @@ CREATE TABLE IF NOT EXISTS `device_name` (
   `name_id` varchar(64) NOT NULL,
   `section_id` int(10) unsigned NOT NULL,
   `device_type_id` int(10) unsigned NOT NULL,
-  `instance_index` varchar(10) DEFAULT NULL,
+  `qualifier` varchar(10) DEFAULT NULL,
   `status` varchar(16) NOT NULL DEFAULT 'invalid',
   `requested_by` int(10) unsigned NOT NULL,
   `request_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -227,7 +227,7 @@ CREATE TABLE IF NOT EXISTS `device_name` (
   `process_date` timestamp NULL DEFAULT NULL,
   `version` int(10) unsigned zerofill NOT NULL DEFAULT '0000000001',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `section_id` (`section_id`,`device_type_id`,`instance_index`),
+  UNIQUE KEY `section_id` (`section_id`,`device_type_id`,`qualifier`),
   KEY `FK_device_name_device_type_id` (`device_type_id`),
   CONSTRAINT `FK_device_name_discipline_device_type_id` FOREIGN KEY (`device_type_id`) REFERENCES `name_event` (`id`),
   CONSTRAINT `FK_device_name_section_id` FOREIGN KEY (`section_id`) REFERENCES `name_event` (`id`)

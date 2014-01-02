@@ -41,8 +41,9 @@ src/main/java/org/openepics/names/model/NameStatus.java -text
 src/main/java/org/openepics/names/model/Persistable.java -text
 src/main/java/org/openepics/names/model/Privilege.java -text
 src/main/java/org/openepics/names/services/EssNamingConvention.java -text
-src/main/java/org/openepics/names/services/EssNamingConventionValidation.java -text
+src/main/java/org/openepics/names/services/FribNamingConvention.java -text
 src/main/java/org/openepics/names/services/NamesEJB.java -text
+src/main/java/org/openepics/names/services/NamingConvention.java -text
 src/main/java/org/openepics/names/services/NamingConventionEJB.java -text
 src/main/java/org/openepics/names/ui/CustomExceptionHandler.java -text
 src/main/java/org/openepics/names/ui/CustomExceptionHandlerFactory.java -text

@@ -10,11 +10,11 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.openepics.names.ui.UserManager;
 import org.openepics.names.model.DeviceName;
-import org.openepics.names.model.NameStatus;
 import org.openepics.names.model.NameEvent;
+import org.openepics.names.model.NameStatus;
 import org.openepics.names.model.Privilege;
+import org.openepics.names.ui.UserManager;
 
 @Stateless
 public class NamingConventionEJB {
@@ -73,7 +73,7 @@ public class NamingConventionEJB {
         DeviceName deletedName;
         if (nameToDelete.getStatus() == NameStatus.VALID) {
             // make new revision
-            deletedName = new DeviceName(nameToDelete.getSection(), nameToDelete.getDeviceType(), nameToDelete.getInstanceIndex(), NameStatus.DELETED);
+            deletedName = new DeviceName(nameToDelete.getSection(), nameToDelete.getDeviceType(), nameToDelete.getQualifier(), NameStatus.DELETED);
             deletedName.setNameId(nameToDelete.getNameId());
             deletedName.setRequestedBy(userManager.getUser());
             deletedName.setProcessedBy(userManager.getUser());
@@ -117,14 +117,12 @@ public class NamingConventionEJB {
         return em.createNamedQuery("DeviceName.findById", DeviceName.class).setParameter("id", id).getSingleResult();
     }
 
-    public DeviceName findDeviceNameByReference(NameEvent section, NameEvent deviceTypeEvent, String instanceIndex) {
+    public DeviceName findDeviceNameByReference(NameEvent section, NameEvent deviceTypeEvent, String qualifier) {
         Preconditions.checkNotNull(section);
         Preconditions.checkNotNull(deviceTypeEvent);
-        Preconditions.checkNotNull(instanceIndex);
+        Preconditions.checkNotNull(qualifier);
 
-        return em.createNamedQuery("DeviceName.findByParts", DeviceName.class).setParameter("section", section).
-                setParameter("deviceType", deviceTypeEvent).setParameter("instanceIndex", instanceIndex).
-                getSingleResult();
+        return em.createNamedQuery("DeviceName.findByParts", DeviceName.class).setParameter("section", section).setParameter("deviceType", deviceTypeEvent).setParameter("qualifier", qualifier).getSingleResult();
     }
 
     /**

@@ -15,7 +15,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -23,7 +22,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @Entity
 @Table(name = "device_name", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"section_id", "device_type_id", "instance_index"})
+    @UniqueConstraint(columnNames = {"section_id", "device_type_id", "qualifier"})
 })
 @XmlRootElement
 @NamedQueries({
@@ -32,10 +31,9 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "DeviceName.findBySection", query = "SELECT n FROM DeviceName n WHERE n.section = :section"),
     @NamedQuery(name = "DeviceName.findByDiscipline", query = "SELECT n FROM DeviceName n WHERE n.deviceType = :deviceType"),
     @NamedQuery(name = "DeviceName.findByStatus", query = "SELECT n FROM DeviceName n WHERE n.status = :status"),
-    @NamedQuery(name = "DeviceName.findByParts", query = "SELECT n FROM DeviceName n WHERE n.section = :section AND n.deviceType = :deviceType AND n.instanceIndex = :instanceIndex")})
+    @NamedQuery(name = "DeviceName.findByParts", query = "SELECT n FROM DeviceName n WHERE n.section = :section AND n.deviceType = :deviceType AND n.qualifier = :qualifier")})
 public class DeviceName extends Persistable {
 
-    @Size(max = 64)
     @Column(name = "name_id")
     private String nameId;
 
@@ -47,9 +45,8 @@ public class DeviceName extends Persistable {
     @ManyToOne(optional = false)
     private NameEvent deviceType;
 
-    @Column(name = "instance_index", length = 32)
-    @Size(min = 1, max = 32)
-    private String instanceIndex;
+    @Column(name = "qualifier")
+    private String qualifier;
 
     @Basic(optional = false)
     @Column(name = "status")
@@ -76,10 +73,10 @@ public class DeviceName extends Persistable {
 
     protected DeviceName() {}
 
-    public DeviceName(NameEvent section, NameEvent deviceType, String instanceIndex, NameStatus status) {
+    public DeviceName(NameEvent section, NameEvent deviceType, String qualifier, NameStatus status) {
         this.section = section;
         this.deviceType = deviceType;
-        this.instanceIndex = instanceIndex;
+        this.qualifier = qualifier;
         this.status = status;
     }
 
@@ -89,8 +86,8 @@ public class DeviceName extends Persistable {
     public NameEvent getDeviceType() { return deviceType; }
     public void setDeviceType(NameEvent deviceType) { this.deviceType = deviceType; }
 
-    public String getInstanceIndex() { return instanceIndex; }
-    public void setInstanceIndex(String instanceIndex) { this.instanceIndex = instanceIndex; }
+    public String getQualifier() { return qualifier; }
+    public void setInstanceIndex(String qualifier) { this.qualifier = qualifier; }
 
     public NameStatus getStatus() { return status; }
     public void setStatus(NameStatus status) { this.status = status; }
