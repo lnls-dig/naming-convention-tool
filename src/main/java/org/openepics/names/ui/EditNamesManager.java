@@ -112,7 +112,8 @@ public class EditNamesManager implements Serializable {
             final NameEvent subsection = namesEJB.findEventById(subsectionID);
             final NameEvent genDevice = namesEJB.findEventById(genDeviceID);
             final DeviceName newDeviceName = ncEJB.createDeviceName(subsection, genDevice);
-            showMessage(FacesMessage.SEVERITY_INFO, "NC Name successfully added.", "Name: " + "[TODO]");
+            showMessage(FacesMessage.SEVERITY_INFO, "NC Name successfully added.", "Name: " +
+                    namingConvention.getNamingConventionName(newDeviceName));
         } finally {
             init();
         }
@@ -121,7 +122,8 @@ public class EditNamesManager implements Serializable {
     public void onModify() {
         try {
             final DeviceName modifiedName = ncEJB.modifyDeviceName(subsectionID, genDeviceID, selectedDeviceName.getId());
-            showMessage(FacesMessage.SEVERITY_INFO, "NC Name modified.", "Name: " + "[TODO]");
+            showMessage(FacesMessage.SEVERITY_INFO, "NC Name modified.", "Name: " +
+                    namingConvention.getNamingConventionName(modifiedName));
         } finally {
             init();
         }
@@ -130,7 +132,8 @@ public class EditNamesManager implements Serializable {
     public void onDelete() {
         try {
             final DeviceName newDeviceName = ncEJB.deleteDeviceName(selectedDeviceName.getDeviceName());
-            showMessage(FacesMessage.SEVERITY_INFO, "NC Name successfully deleted.", "Name: " + "[TODO]");
+            showMessage(FacesMessage.SEVERITY_INFO, "NC Name successfully deleted.", "Name: " +
+                    namingConvention.getNamingConventionName(newDeviceName));
         } finally {
             init();
             selectedDeviceName = null;
