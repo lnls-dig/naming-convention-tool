@@ -4,13 +4,12 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.openepics.names.model.NameEvent;
-import org.openepics.names.model.NameEventStatus;
 
 /**
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 public class NameEventView {
-    
+
     private final NameEvent nameEvent;
 
     public NameEventView(NameEvent nameEvent) {

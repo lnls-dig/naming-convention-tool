@@ -30,26 +30,10 @@ public class EditNamesManager implements Serializable {
     @Inject private UserManager userManager;
     @Inject private NamingConvention namingConvention;
 
-    private Integer superSectionID;
-    private Integer sectionID;
-    private Integer subsectionID;
-    private Integer disciplineID;
-    private Integer categoryID;
-    private Integer genDeviceID;
-    private Integer specDeviceID;
-
     private DeviceNameView selectedDeviceName;
 
     private List<MnemonicNameView> sectionLevels;
     private List<MnemonicNameView> deviceTypeLevels;
-
-    private List<NameEvent> superSectionNames;
-    private List<NameEvent> sectionNames;
-    private List<NameEvent> subsectionNames;
-    private List<NameEvent> disciplineNames;
-    private List<NameEvent> categoryNames;
-    private List<NameEvent> genDevNames;
-    private List<NameEvent> specDevNames;
 
     private List<DeviceName> allDeviceNames;
     private List<DeviceName> historyDeviceNames;
@@ -78,29 +62,11 @@ public class EditNamesManager implements Serializable {
         for(int i = 1; i < nameHierarchy.getDeviceTypeLevels().size(); i++)
             deviceTypeLevels.add(new MnemonicNameView(new ArrayList<NameEvent>()));
 
-        loadSuperSections();
-        loadSections();
-        loadSubsections();
-        loadDisciplines();
-        loadCategories();
-        loadGenericDevices();
-        loadSpecificDevices();
         loadDeviceNames();
-        clearSelectionIds();
-    }
-
-    private void clearSelectionIds() {
-        superSectionID = null;
-        sectionID = null;
-        subsectionID = null;
-        disciplineID = null;
-        categoryID = null;
-        genDeviceID = null;
-        specDeviceID = null;
     }
 
     public void onAdd() {
-        // TODO solve generically
+        // TODO solve generically and for specific + generic device
         try {
             Integer subsectionID = sectionLevels.get(sectionLevels.size()-1).getSelectedId();
             Integer genDeviceID = deviceTypeLevels.get(2).getSelectedId();
@@ -120,7 +86,10 @@ public class EditNamesManager implements Serializable {
     }
 
     public void onModify() {
+        // TODO solve generically and for specific + generic device
         try {
+            Integer subsectionID = sectionLevels.get(sectionLevels.size()-1).getSelectedId();
+            Integer genDeviceID = deviceTypeLevels.get(2).getSelectedId();
             final DeviceName modifiedName = ncEJB.modifyDeviceName(subsectionID, genDeviceID, selectedDeviceName.getId());
             showMessage(FacesMessage.SEVERITY_INFO, "NC Name modified.", "Name: " +
                     namingConvention.getNamingConventionName(modifiedName));
@@ -137,116 +106,6 @@ public class EditNamesManager implements Serializable {
         } finally {
             init();
             selectedDeviceName = null;
-        }
-    }
-
-    public void loadSuperSections() {
-        List<NameCategory> categories = namesEJB.getCategories();
-        NameCategory superSectionCategory = null;
-        for (NameCategory category : categories) {
-            if (category.getName().equalsIgnoreCase(NameCategories.supersection())) {
-                superSectionCategory = category;
-                break;
-            }
-        }
-        superSectionNames = superSectionCategory == null ? null : namesEJB.findEventsByCategory(superSectionCategory);
-
-        sectionID = null;
-        if (sectionNames != null) {
-            sectionNames.clear();
-        }
-        subsectionID = null;
-        if (subsectionNames != null) {
-            subsectionNames.clear();
-        }
-    }
-
-    public void loadSections() {
-        if (superSectionID != null) {
-            NameEvent superSection = namesEJB.findEventById(superSectionID);
-            sectionNames = namesEJB.findEventsByParent(superSection);
-
-            subsectionID = null;
-            if (subsectionNames != null) {
-                subsectionNames.clear();
-            }
-        } else {
-            sectionNames = null;
-        }
-    }
-
-    public void loadSubsections() {
-        if (sectionID != null) {
-            NameEvent section = namesEJB.findEventById(sectionID);
-            subsectionNames = namesEJB.findEventsByParent(section);
-        } else {
-            subsectionNames = null;
-        }
-    }
-
-    public void loadDisciplines() {
-        List<NameCategory> categories = namesEJB.getCategories();
-        NameCategory disciplineCategory = null;
-        for (NameCategory category : categories) {
-            if (category.getName().equalsIgnoreCase("DSCP")) {
-                disciplineCategory = category;
-                break;
-            }
-        }
-        disciplineNames = disciplineCategory == null ? null : namesEJB.findEventsByCategory(disciplineCategory);
-
-        categoryID = null;
-        if (categoryNames != null) {
-            categoryNames.clear();
-        }
-        genDeviceID = null;
-        if (genDevNames != null) {
-            genDevNames.clear();
-        }
-        specDeviceID = null;
-        if (specDevNames != null) {
-            specDevNames.clear();
-        }
-    }
-
-    public void loadCategories() {
-        if (disciplineID != null) {
-            NameEvent discipline = namesEJB.findEventById(disciplineID);
-            categoryNames = namesEJB.findEventsByParent(discipline);
-
-            genDeviceID = null;
-            if (genDevNames != null) {
-                genDevNames.clear();
-            }
-            specDeviceID = null;
-            if (specDevNames != null) {
-                specDevNames.clear();
-            }
-        } else {
-            categoryNames = null;
-        }
-    }
-
-    public void loadGenericDevices() {
-        if (categoryID != null) {
-            NameEvent category = namesEJB.findEventById(categoryID);
-            genDevNames = namesEJB.findEventsByParent(category);
-
-            specDeviceID = null;
-            if (specDevNames != null) {
-                specDevNames.clear();
-            }
-        } else {
-            genDevNames = null;
-        }
-    }
-
-    public void loadSpecificDevices() {
-        if (genDeviceID != null) {
-            NameEvent genDevice = namesEJB.findEventById(genDeviceID);
-            specDevNames = namesEJB.findEventsByParent(genDevice);
-        } else {
-            specDevNames = null;
         }
     }
 
@@ -272,73 +131,62 @@ public class EditNamesManager implements Serializable {
             Map<String, Integer> namePartMap = new HashMap<>();
 
             NameEvent sectionNode = selectedDeviceName.getSection();
-            while (sectionNode.getParentName() != null) {
+            while (sectionNode != null) {
                 namePartMap.put(sectionNode.getNameCategory().getName(), sectionNode.getId());
                 sectionNode = sectionNode.getParentName();
             }
-            namePartMap.put(sectionNode.getNameCategory().getName(), sectionNode.getId());
 
             NameEvent disciplineNode = selectedDeviceName.getDeviceType();
-            while (disciplineNode.getParentName() != null) {
+            while (disciplineNode != null) {
                 namePartMap.put(disciplineNode.getNameCategory().getName(), disciplineNode.getId());
                 disciplineNode = disciplineNode.getParentName();
             }
-            namePartMap.put(disciplineNode.getNameCategory().getName(), disciplineNode.getId());
 
-            loadSuperSections();
-            this.superSectionID = namePartMap.get(NameCategories.supersection());
-            loadSections();
-            this.sectionID = namePartMap.get(NameCategories.section());
-            loadSubsections();
-            this.subsectionID = namePartMap.get(NameCategories.subsection());
+            // TODO do generic solution
+            sectionLevels.get(0).setOptions(loadSuperSections());
+            sectionLevels.get(0).setSelectedId(namePartMap.get(NameCategories.supersection()));
+            loadNextSectionLevel(0);
+            sectionLevels.get(1).setSelectedId(namePartMap.get(NameCategories.section()));
+            loadNextSectionLevel(1);
+            sectionLevels.get(2).setSelectedId(namePartMap.get(NameCategories.subsection()));
 
-            loadDisciplines();
-            this.disciplineID = namePartMap.get(NameCategories.discipline());
-            loadCategories();
-            this.categoryID = namePartMap.get(NameCategories.category());
-            loadGenericDevices();
-            this.genDeviceID = namePartMap.get(NameCategories.genericDevice());
+            // TODO do generic solution
+            deviceTypeLevels.get(0).setOptions(loadDisciplines());
+            deviceTypeLevels.get(0).setSelectedId(namePartMap.get(NameCategories.discipline()));
+            loadNextDeviceTypeLevel(0);
+            deviceTypeLevels.get(1).setSelectedId(namePartMap.get(NameCategories.category()));
+            loadNextDeviceTypeLevel(1);
+            deviceTypeLevels.get(2).setSelectedId(namePartMap.get(NameCategories.genericDevice()));
             if (namePartMap.containsKey(NameCategories.specificDevice())) {
-                loadSpecificDevices();
-                this.specDeviceID = namePartMap.get(NameCategories.specificDevice());
+                loadNextDeviceTypeLevel(2);
+                deviceTypeLevels.get(3).setSelectedId(namePartMap.get(NameCategories.specificDevice()));
             }
         }
     }
 
-    public List<NameEvent> getSuperSectionNames() { return superSectionNames; }
+    private List<NameEvent> loadSuperSections() {
+        List<NameCategory> categories = namesEJB.getCategories();
+        NameCategory superSectionCategory = null;
+        for (NameCategory category : categories) {
+            if (category.getName().equalsIgnoreCase(NameCategories.supersection())) {
+                superSectionCategory = category;
+                break;
+            }
+        }
+        return superSectionCategory == null ? null : namesEJB.findEventsByCategory(superSectionCategory);
+    }
 
-    public List<NameEvent> getSectionNames() { return sectionNames; }
-
-    public List<NameEvent> getSubsectionNames() { return subsectionNames; }
-
-    public List<NameEvent> getDisciplineNames() { return disciplineNames; }
-
-    public List<NameEvent> getCategoryNames() { return categoryNames; }
-
-    public List<NameEvent> getGenDevNames() { return genDevNames; }
-
-    public List<NameEvent> getSpecDevNames() { return specDevNames; }
-
-    public Integer getSuperSectionID() { return superSectionID; }
-    public void setSuperSectionID(Integer superSectionID) { this.superSectionID = superSectionID; }
-
-    public Integer getSectionID() { return sectionID; }
-    public void setSectionID(Integer sectionID) { this.sectionID = sectionID; }
-
-    public Integer getSubsectionID() { return subsectionID; }
-    public void setSubsectionID(Integer subsectionID) { this.subsectionID = subsectionID; }
-
-    public Integer getDisciplineID() { return disciplineID; }
-    public void setDisciplineID(Integer disciplineID) { this.disciplineID = disciplineID; }
-
-    public Integer getCategoryID() { return categoryID; }
-    public void setCategoryID(Integer categoryID) { this.categoryID = categoryID; }
-
-    public Integer getGenDeviceID() { return genDeviceID; }
-    public void setGenDeviceID(Integer genDeviceID) { this.genDeviceID = genDeviceID; }
-
-    public Integer getSpecDeviceID() { return specDeviceID; }
-    public void setSpecDeviceID(Integer specDeviceID) { this.specDeviceID = specDeviceID; }
+    private List<NameEvent> loadDisciplines() {
+        List<NameCategory> categories = namesEJB.getCategories();
+        NameCategory disciplineCategory = null;
+        for (NameCategory category : categories) {
+            if (category.getName().equalsIgnoreCase(NameCategories.discipline())) {
+                disciplineCategory = category;
+                break;
+            }
+        }
+        return disciplineCategory == null ? null : namesEJB.findEventsByCategory(disciplineCategory);
+    }
 
     public DeviceNameView getSelectedDeviceName() { return selectedDeviceName; }
     public void setSelectedDeviceName(DeviceNameView selectedDeviceName) { this.selectedDeviceName = selectedDeviceName; }
