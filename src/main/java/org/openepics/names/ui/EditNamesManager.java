@@ -3,6 +3,7 @@ package org.openepics.names.ui;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import javax.inject.Inject;
 import org.openepics.names.model.DeviceName;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
+import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.services.NamesEJB;
 import org.openepics.names.services.NamingConvention;
 import org.openepics.names.services.NamingConventionEJB;
@@ -38,6 +40,9 @@ public class EditNamesManager implements Serializable {
 
     private DeviceNameView selectedDeviceName;
 
+    private List<MnemonicNameView> sectionLevels;
+    private List<MnemonicNameView> deviceTypeLevels;
+
     private List<NameEvent> superSectionNames;
     private List<NameEvent> sectionNames;
     private List<NameEvent> subsectionNames;
@@ -55,6 +60,24 @@ public class EditNamesManager implements Serializable {
 
     @PostConstruct
     public void init() {
+
+        /* init section levels
+        * for init, the first level of hierarchy is filled and all other parts are empty lists
+        */
+        NameHierarchy nameHierarchy = namesEJB.getNameHierarchy();
+        sectionLevels = new ArrayList<>(nameHierarchy.getSectionLevels().size());
+        sectionLevels.add(new MnemonicNameView(namesEJB.getStandardNames(nameHierarchy.getSectionLevels().get(0).getName(), false)));
+        for(int i = 1; i < nameHierarchy.getSectionLevels().size(); i++)
+            sectionLevels.add(new MnemonicNameView(new ArrayList<NameEvent>()));
+
+        /* init section levels
+        * for init, the first level of hierarchy is filled and all other parts are empty lists
+        */
+        deviceTypeLevels = new ArrayList<>(nameHierarchy.getDeviceTypeLevels().size());
+        deviceTypeLevels.add(new MnemonicNameView(namesEJB.getStandardNames(nameHierarchy.getDeviceTypeLevels().get(0).getName(), false)));
+        for(int i = 1; i < nameHierarchy.getDeviceTypeLevels().size(); i++)
+            deviceTypeLevels.add(new MnemonicNameView(new ArrayList<NameEvent>()));
+
         loadSuperSections();
         loadSections();
         loadSubsections();
@@ -77,7 +100,11 @@ public class EditNamesManager implements Serializable {
     }
 
     public void onAdd() {
+        // TODO solve generically
         try {
+            Integer subsectionID = sectionLevels.get(sectionLevels.size()-1).getSelectedId();
+            Integer genDeviceID = deviceTypeLevels.get(2).getSelectedId();
+
             if (subsectionID == null || genDeviceID == null) {
                 showMessage(FacesMessage.SEVERITY_ERROR, "Required field missing", " ");
                 return;
@@ -323,13 +350,27 @@ public class EditNamesManager implements Serializable {
 
     public List<DeviceName> getHistoryEvents() { return historyDeviceNames; }
 
+    public List<MnemonicNameView> getSectionLevels() { return sectionLevels; }
+
+    public List<MnemonicNameView> getDeviceTypeLevels() { return deviceTypeLevels; }
+
     public boolean isSuperUser() { return userManager.isSuperUser(); }
 
     public boolean isShowDeletedNames() { return showDeletedNames; }
     public void setShowDeletedNames(boolean showDeletedNames) { this.showDeletedNames = showDeletedNames; }
 
     public boolean isFormFilled() {
-        return superSectionID != null && sectionID != null && subsectionID != null && disciplineID != null && categoryID != null && genDeviceID != null;
+        boolean isFilled = true;
+        for(MnemonicNameView element : sectionLevels)
+            isFilled = isFilled && (element.isSelected());
+
+        // TODO Make this selection configurable
+        for(int i = 0; i < deviceTypeLevels.size(); i++) {
+            isFilled = isFilled & (deviceTypeLevels.get(i).isSelected());
+            if(i>=2) break;
+        }
+
+        return isFilled;
     }
 
      public String getSelectedDeviceNameSectionString() {
@@ -374,4 +415,77 @@ public class EditNamesManager implements Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
         context.addMessage(null, new FacesMessage(severity, summary, message));
     }
+
+    /**
+     * This method returns the number of columns for the "Add new device name" dialog
+     * @return
+     */
+    public int getNamePartsCount() {
+        NameHierarchy hierarchy;
+        hierarchy = namesEJB.getNameHierarchy();
+
+        return Math.max(hierarchy.getSectionLevels().size(), hierarchy.getDeviceTypeLevels().size());
+    }
+
+    /**
+     * This method generates the Ids of the select elements that need to be updated when a select element item changes.
+     * @param currentId the Id (index) of the element that triggered the update
+     * @param prefix
+     * @param maxId
+     * @param staticIds
+     * @return
+     */
+    public String generateUpdateIds(int currentId, String prefix, int maxId, String staticIds) {
+        StringBuilder returnIds = new StringBuilder();
+        for( int i = currentId + 1; i < maxId; i++) {
+            returnIds.append(prefix);
+            returnIds.append(i);
+            if(i<maxId-1) returnIds.append(' ');
+        }
+
+        return staticIds.trim().isEmpty() ? returnIds.toString() : returnIds.append(' ').append(staticIds).toString();
+    }
+
+    /**
+     * Loads the next section in the hierarchy. The current level is the index in the hierarchy that the new level
+     * is based on. E. g. : If current level is 0, this function prepares the data on level 1
+     * @param currentLevel
+     */
+    public void loadNextSectionLevel(int currentLevel) {
+        NameHierarchy hierarchy = namesEJB.getNameHierarchy();
+
+        if(currentLevel + 1 < hierarchy.getSectionLevels().size() &&
+                !sectionLevels.get(currentLevel).getOptions().isEmpty() &&
+                sectionLevels.get(currentLevel).getSelectedId() != null) {
+            NameEvent parent = namesEJB.findEventById(sectionLevels.get(currentLevel).getSelectedId());
+            sectionLevels.get(currentLevel + 1).setOptions(namesEJB.findEventsByParent(parent));
+            sectionLevels.get(currentLevel + 1).setSelectedId(null);
+
+            // clear the rest of the inputs
+            for(int i = currentLevel + 2; i < hierarchy.getSectionLevels().size(); i++)
+                sectionLevels.get(i).clear();
+        }
+    }
+
+    /**
+     * Loads the next device in the hierarchy. The current level is the index in the hierarchy that the new level
+     * is based on. E. g. : If current level is 0, this function prepares the data on level 1
+     * @param currentLevel
+     */
+    public void loadNextDeviceTypeLevel(int currentLevel) {
+        NameHierarchy hierarchy = namesEJB.getNameHierarchy();
+
+        if(currentLevel + 1 < hierarchy.getDeviceTypeLevels().size() &&
+                !deviceTypeLevels.get(currentLevel).getOptions().isEmpty() &&
+                deviceTypeLevels.get(currentLevel).getSelectedId() != null) {
+            NameEvent parent = namesEJB.findEventById(deviceTypeLevels.get(currentLevel).getSelectedId());
+            deviceTypeLevels.get(currentLevel + 1).setOptions(namesEJB.findEventsByParent(parent));
+            deviceTypeLevels.get(currentLevel + 1).setSelectedId(null);
+
+            // clear the rest of the inputs
+            for(int i = currentLevel + 2; i < hierarchy.getDeviceTypeLevels().size(); i++)
+                deviceTypeLevels.get(i).clear();
+        }
+    }
+
 }

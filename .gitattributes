@@ -52,6 +52,7 @@ src/main/java/org/openepics/names/ui/DeviceNamesManager.java -text
 src/main/java/org/openepics/names/ui/EditNamesManager.java -text
 src/main/java/org/openepics/names/ui/LoginManager.java -text
 src/main/java/org/openepics/names/ui/MenuManager.java -text
+src/main/java/org/openepics/names/ui/MnemonicNameView.java -text
 src/main/java/org/openepics/names/ui/NameCategories.java -text
 src/main/java/org/openepics/names/ui/NameEventView.java -text
 src/main/java/org/openepics/names/ui/NamesManager.java -text
