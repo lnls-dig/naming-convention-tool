@@ -1,35 +1,32 @@
 package org.openepics.names.ui;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import org.openepics.names.services.NamesEJB;
-
 import org.openepics.names.model.DeviceName;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
+import org.openepics.names.services.EssNamingConvention;
+import org.openepics.names.services.NamesEJB;
 import org.openepics.names.services.NamingConventionEJB;
 
 @ManagedBean
 @ViewScoped
 public class EditNamesManager implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @EJB
-    private NamingConventionEJB ncEJB;
-    @EJB
-    private NamesEJB namesEJB;
-    @Inject
-    private UserManager userManager;
+    @Inject private NamingConventionEJB ncEJB;
+    @Inject private NamesEJB namesEJB;
+    @Inject private UserManager userManager;
+    @Inject private EssNamingConvention namingConvention;
 
     private Integer superSectionID;
     private Integer sectionID;
@@ -39,7 +36,7 @@ public class EditNamesManager implements Serializable {
     private Integer genDeviceID;
     private Integer specDeviceID;
 
-    private DeviceName selectedDeviceName;
+    private DeviceNameView selectedDeviceName;
 
     private List<NameEvent> superSectionNames;
     private List<NameEvent> sectionNames;
@@ -105,7 +102,7 @@ public class EditNamesManager implements Serializable {
 
     public void onDelete() {
         try {
-            final DeviceName newDeviceName = ncEJB.deleteDeviceName(selectedDeviceName);
+            final DeviceName newDeviceName = ncEJB.deleteDeviceName(selectedDeviceName.getDeviceName());
             showMessage(FacesMessage.SEVERITY_INFO, "NC Name successfully deleted.", "Name: " + "[TODO]");
         } finally {
             init();
@@ -237,7 +234,7 @@ public class EditNamesManager implements Serializable {
             historyDeviceNames = null;
             return;
         }
-        historyDeviceNames = ncEJB.getDeviceNameHistory(selectedDeviceName.getNameId());
+        historyDeviceNames = ncEJB.getDeviceNameHistory(selectedDeviceName.getDeviceName().getNameId());
     }
 
     public void loadSelectedName() {
@@ -313,10 +310,16 @@ public class EditNamesManager implements Serializable {
     public Integer getSpecDeviceID() { return specDeviceID; }
     public void setSpecDeviceID(Integer specDeviceID) { this.specDeviceID = specDeviceID; }
 
-    public DeviceName getSelectedDeviceName() { return selectedDeviceName; }
-    public void setSelectedDeviceName(DeviceName selectedDeviceName) { this.selectedDeviceName = selectedDeviceName; }
+    public DeviceNameView getSelectedDeviceName() { return selectedDeviceName; }
+    public void setSelectedDeviceName(DeviceNameView selectedDeviceName) { this.selectedDeviceName = selectedDeviceName; }
     
-    public List<DeviceName> getAllDeviceNames() { return allDeviceNames; }
+    public List<DeviceNameView> getAllDeviceNames() {
+        return Lists.transform(allDeviceNames, new Function<DeviceName, DeviceNameView>() {
+            @Override public DeviceNameView apply(DeviceName deviceName) {
+                return new DeviceNameView(deviceName, namingConvention.getNamingConventionName(deviceName));
+            }
+        });
+    }
     
     public List<DeviceName> getHistoryEvents() { return historyDeviceNames; }
 
@@ -328,14 +331,43 @@ public class EditNamesManager implements Serializable {
     public boolean isFormFilled() {
         return superSectionID != null && sectionID != null && subsectionID != null && disciplineID != null && categoryID != null && genDeviceID != null;
     }
-
-    public String nameStatus(DeviceName nreq) {
-        switch (nreq.getStatus()) {
-            case VALID: return "Published";
-            case INVALID: return "In-Process";
-            case DELETED: return "Deleted";
-            default: return "unknown";
+    
+     public String getSelectedDeviceNameSectionString() {
+        if (selectedDeviceName != null) {
+            NameEvent bottomName = selectedDeviceName.getSection();
+            String sectionString = "";
+            boolean firstTime = true;
+            while (bottomName != null) {
+                if (firstTime) {
+                    firstTime = false;
+                } else {
+                    sectionString = " - " + sectionString;
+                }
+                sectionString = bottomName.getFullName() + sectionString;
+                bottomName = bottomName.getParentName();
+            }
+            return sectionString.trim();
         }
+        return "No selection!";
+    }
+
+    public String getSelectedDeviceNameDisciplineString() {
+        if (selectedDeviceName != null) {
+            NameEvent bottomName = selectedDeviceName.getDeviceType();
+            String disciplineString = "";
+            boolean firstTime = true;
+            while (bottomName != null) {
+                if (firstTime) {
+                    firstTime = false;
+                } else {
+                    disciplineString = " - " + disciplineString;
+                }
+                disciplineString = bottomName.getFullName() + disciplineString;
+                bottomName = bottomName.getParentName();
+            }
+            return disciplineString.trim();
+        }
+        return "No selection!";
     }
     
     private void showMessage(FacesMessage.Severity severity, String summary, String message) {

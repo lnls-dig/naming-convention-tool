@@ -15,9 +15,10 @@
  */
 package org.openepics.names.ui;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -185,19 +186,6 @@ public class RequestManager implements Serializable {
 
     }
 
-    public String requestType(NameEventType eventType) {
-        switch (eventType) {
-            case INSERT:
-                return "Add";
-            case MODIFY:
-                return "Modify";
-            case DELETE:
-                return "Delete";
-            default:
-                throw new IllegalStateException();
-        }
-    }
-
     // TODO: merge with same method in NamesManager
     public void findHistory() {
         try {
@@ -221,8 +209,12 @@ public class RequestManager implements Serializable {
     }
 
     /* --------------------------- */
-    public List<NameEvent> getValidNames() {
-        return validNames;
+    public List<NameEventView> getValidNames() {
+        return Lists.transform(validNames, new Function<NameEvent, NameEventView>() {
+            @Override public NameEventView apply(NameEvent nameEvent) {
+                return new NameEventView(nameEvent);
+            }
+        });
     }
 
     public NameEvent getSelectedName() {

@@ -56,7 +56,7 @@
                          emptyMessage="There are no pending requests."
                          selection="#{requestManager.selectedName}"
                          filteredValue="#{requestManager.filteredNames}"
-                         rowStyleClass="#{namesManager.nameStatus(nevent)}"
+                         rowStyleClass="#{namesManager.nameStatus(nevent.nameEvent)}"
                          style="width: 90%">
                 <f:facet name="header">
                     <h:outputText value="Submit Change Request" />
@@ -66,26 +66,21 @@
                 <p:column selectionMode="single" style="width: 5%" />
 
                 <p:column id="status" headerText="Status" style="width: 9%" >
-                    <h:outputText value="#{namesManager.nameStatus(nevent)}" />
+                    <h:outputText value="#{namesManager.nameStatus(nevent.nameEvent)}" />
                 </p:column>
                 <p:column id="type" headerText="Type" rendered="#{requestManager.myRequest}" style="width: 7%">
-                    <h:outputText value="#{requestManager.requestType(nevent.eventType)}" />
+                    <h:outputText value="#{nevent.eventType}" />
                 </p:column>
-                <p:column id="nameCat" headerText="Category" filterBy="#{nevent.nameCategory.description}"
+                <p:column id="nameCat" headerText="Category" filterBy="#{nevent.nameCategory}"
                           filterMatchMode="contains" style="width: 15%" >
-                    <h:outputText value="#{nevent.nameCategory.description}" />
+                    <h:outputText value="#{nevent.nameCategory}" />
                 </p:column>
-                <p:column id="nameCode" headerText="Name" filterBy="#{nevent.name}"
-                          filterMatchMode="startsWith" style="width: 15%" >
-                    <h:outputText value="#{nevent.name}" />
-                </p:column>
-                <p:column id="parent" headerText="Parent Name" filterBy="#{nevent.parentName.name}"
-                          filterMatchMode="startsWith" style="width: 15%" >
-                    <h:outputText value="#{nevent.parentName.name == null ? '-' : nevent.parentName.name}" />
+                <p:column id="nameCode" headerText="Name" filterBy="#{nevent.name}" filterMatchMode="startsWith">
+                    <h:outputText value="#{nevent.namePath}" />
                 </p:column>
                 <p:column id="nameDesc" headerText="Full Name" filterBy="#{nevent.fullName}"
                           filterMatchMode="contains" >
-                    <h:outputText value="#{nevent.fullName}" />
+                    <h:outputText value="#{nevent.fullNamePath}" />
                 </p:column>
 
             </p:dataTable>

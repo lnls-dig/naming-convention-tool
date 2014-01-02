@@ -18,7 +18,7 @@
             <!-- =================== Menus ============================ -->
             <p:menu id="ncReqMenu" styleClass="fixedPosition box"
                     style="width: 8%">
-                <p:submenu label="NC Names">
+                <p:submenu label="Device Names">
                     <p:menuitem value="Add" icon="ui-icon-plus" update=":AddDeviceNameForm"
                             oncomplete="addDeviceName.show()" title="Add Name"
                             rendered="#{userManager.editor}" />
@@ -71,12 +71,7 @@
             </p:contextMenu>
 
             <!-- ===================Data Table============================ -->
-            <p:dataTable id="ncCrTable" var="deviceName"
-                    value="#{editNamesManager.allDeviceNames}" paginator="true" rows="50"
-                    resizableColumns="true" rowKey="#{deviceName.id}"
-                    emptyMessage="There are no NC Names"
-                    rowStyleClass="#{editNamesManager.nameStatus(deviceName)}"
-                    selection="#{editNamesManager.selectedDeviceName}" style="width: 90%">
+            <p:dataTable id="ncCrTable" var="deviceName" value="#{editNamesManager.allDeviceNames}" paginator="true" rows="50" resizableColumns="true" rowKey="#{deviceName.id}" emptyMessage="There are no NC Names" rowStyleClass="#{deviceName.status}" selection="#{editNamesManager.selectedDeviceName}" style="width: 90%">
                 <f:facet name="header">
                     <h:outputText value="Existing Device Names" />
                 </f:facet>
@@ -84,29 +79,21 @@
                 <p:ajax event="rowSelectRadio" update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />
                 <p:column selectionMode="single" style="width: 5%" />
 
-                <p:column id="nameString" headerText="NC Name"
-                filterBy="#{deviceName.name}" filterMatchMode="contains"
-                style="width: 20%">
-                    <h:outputText value="#{deviceName.name}" />
+                <p:column id="nameString" headerText="Convention Name" filterBy="#{deviceName.conventionName}" filterMatchMode="contains" style="width: 20%">
+                    <h:outputText value="#{deviceName.conventionName}" />
                 </p:column>
-                <p:column id="nameSection" headerText="Section"
-                        filterBy="#{deviceName.section.fullName}" filterMatchMode="contains"
-                        style="width: 15%">
-                    <h:outputText value="#{deviceName.section.fullName}" />
+                <p:column id="nameSection" headerText="Section" filterBy="#{deviceName.section.fullName}" filterMatchMode="contains" style="width: 30%">
+                    <h:outputText value="#{deviceName.sectionPath}" />
                 </p:column>
-                <p:column id="nameDiscipline" headerText="Device type"
-                        filterBy="#{deviceName.deviceType.fullName}"
-                        filterMatchMode="contains" style="width: 15%">
-                    <h:outputText value="#{deviceName.deviceType.fullName}" />
+                <p:column id="nameDiscipline" headerText="Device type" filterBy="#{deviceName.deviceType.fullName}" filterMatchMode="contains" style="width: 30%">
+                    <h:outputText value="#{deviceName.deviceTypePath}" />
                 </p:column>
                 <p:column id="nameStatus">
                     <f:facet name="header">
                         <h:outputText value="Status" />
                         <br />
-                        <p:selectBooleanButton value="#{editNamesManager.showDeletedNames}"
-                                               onLabel="Deleted" offLabel="Deleted"
-                                               onIcon="ui-icon-check" offIcon="ui-icon-close">
-                            <p:ajax update="ncCrTable"  listener="#{editNamesManager.refreshDeviceNames}"/>
+                        <p:selectBooleanButton value="#{editNamesManager.showDeletedNames}" onLabel="Deleted" offLabel="Deleted" onIcon="ui-icon-check" offIcon="ui-icon-close">
+                            <p:ajax update="ncCrTable"  listener="#{editNamesManager.loadDeviceNames}"/>
                         </p:selectBooleanButton>
                     </f:facet>
                     <h:outputText value="#{deviceName.status}" />
@@ -355,7 +342,7 @@
                         </p:column>
                         <p:column style="width: 128px">
                             <h:outputText
-                                    value="#{editNamesManager.selectedDeviceName.discipline.fullName}" />
+                                    value="#{editNamesManager.selectedDeviceName.deviceType.fullName}" />
                         </p:column>
                     </p:row>
 
