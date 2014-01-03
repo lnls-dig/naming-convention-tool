@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<!-- ToDo: split this one into MyRequests and RequestSub -->
 
 <ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
                 template="/WEB-INF/namesTemplate.xhtml"
@@ -20,7 +19,7 @@
                     style="width: 8%; z-index: 100;">
                 <p:submenu label="Device Names">
                     <p:menuitem value="Add" icon="ui-icon-plus" update=":AddDeviceNameForm"
-                            oncomplete="addDeviceName.show()" title="Add Name"
+                            oncomplete="addDeviceName.show()" title="Add Device Name"
                             rendered="#{userManager.editor}" />
                     <p:menuitem value="Delete" icon="ui-icon-trash"
                             update=":delDeviceNameForm" oncomplete="delDeviceName.show()"
@@ -29,7 +28,7 @@
                     <p:menuitem value="Modify" icon="ui-icon-pencil"
                             update=":modDeviceNameForm" oncomplete="modDeviceName.show()"
                             action="#{editNamesManager.loadSelectedName()}"
-                            title="Modify NC Name" rendered="#{userManager.editor}"
+                            title="Modify Device Name" rendered="#{userManager.editor}"
                 disabled="#{empty editNamesManager.selectedDeviceName || editNamesManager.selectedDeviceName.requestedBy.username != userManager.user.username}" />
                     <p:menuitem value="History" icon="ui-icon-search"
                             actionListener="#{editNamesManager.loadHistory()}"
