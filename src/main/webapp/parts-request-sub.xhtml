@@ -158,7 +158,7 @@
 
                     <p:row>
                         <p:column><h:outputLabel for="mpart" value="#{msgs.nameElementCategory}:" /></p:column>
-                        <p:column><h:outputText value="#{requestManager.selectedName.nameCategory.description}" /></p:column>
+                        <p:column><h:outputText value="#{requestManager.selectedName.nameCategory}" /></p:column>
                         <p:column>
                             <h:selectOneMenu id="mpart" value="#{requestManager.newCategoryID}" >
 	                    	<p:ajax listener="#{requestManager.loadParentCandidates()}"
@@ -170,7 +170,7 @@
                     </p:row>
                     <p:row>
                     	<p:column><h:outputLabel for="mparent" value="Parent:" /></p:column>
-                        <p:column><h:outputText value="#{requestManager.selectedName.parentName.name}" /></p:column>
+                        <p:column><h:outputText value="#{requestManager.selectedName.nameEvent.parentName.name}" /></p:column>
                         <p:column>
                             <h:selectOneMenu id="mparent" value="#{requestManager.newParentID}"
                             				disabled="#{!requestManager.isParentSelectable()}">
@@ -226,7 +226,7 @@
                 </f:facet>
                 <p:panelGrid id="pgrid" columns="2" style="text-align: left">
                     <h:outputText  value="Category:" />
-                    <h:outputText value="#{requestManager.selectedName.nameCategory.description}" />
+                    <h:outputText value="#{requestManager.selectedName.nameCategory}" />
 
                     <h:outputText value="Name:" />
                     <h:outputText value="#{requestManager.selectedName.name}" />
@@ -262,7 +262,7 @@
                 </f:facet>
                 <p:panelGrid id="pgrid" columns="2" style="text-align: left">
                     <h:outputText  value="Category:" />
-                    <h:outputText value="#{requestManager.selectedName.nameCategory.description}" />
+                    <h:outputText value="#{requestManager.selectedName.nameCategory}" />
 
                     <h:outputText value="Code:" />
                     <h:outputText value="#{requestManager.selectedName.name}" />

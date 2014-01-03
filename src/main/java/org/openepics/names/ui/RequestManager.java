@@ -1,17 +1,17 @@
 /*
  * This software is Copyright by the Board of Trustees of Michigan
  * State University (c) Copyright 2012.
- * 
+ *
  * You may use this software under the terms of the GNU public license
  *  (GPL). The terms of this license are described at:
  *       http://www.gnu.org/licenses/gpl.txt
- * 
+ *
  * Contact Information:
  *   Facility for Rare Isotope Beam
  *   Michigan State University
  *   East Lansing, MI 48824-1321
  *   http://frib.msu.edu
- * 
+ *
  */
 package org.openepics.names.ui;
 
@@ -29,12 +29,12 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import org.openepics.names.services.NamesEJB;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
 import org.openepics.names.model.NameEventStatus;
 import org.openepics.names.model.NameEventType;
 import org.openepics.names.model.NameHierarchy;
+import org.openepics.names.services.NamesEJB;
 
 /**
  * Manages Change Requests (backing bean for request-sub.xhtml)
@@ -217,12 +217,12 @@ public class RequestManager implements Serializable {
         });
     }
 
-    public NameEvent getSelectedName() {
-        return selectedName;
+    public NameEventView getSelectedName() {
+        return new NameEventView(selectedName);
     }
 
-    public void setSelectedName(NameEvent selectedName) {
-        this.selectedName = selectedName;
+    public void setSelectedName(NameEventView selectedName) {
+        this.selectedName = selectedName.getNameEvent();
     }
 
     public List<NameEvent> getFilteredNames() {
@@ -304,7 +304,7 @@ public class RequestManager implements Serializable {
         final @Nullable NameCategory category = newCategoryID != null ? namesEJB.findCategoryById(newCategoryID) : null;
         return category != null && getParentCategory(category) != null;
     }
-    
+
     private @Nullable NameCategory getParentCategory(NameCategory nameCategory) {
         final NameHierarchy nameHierarchy = namesEJB.getNameHierarchy();
         final int sectionIndex = nameHierarchy.getSectionLevels().indexOf(nameCategory);

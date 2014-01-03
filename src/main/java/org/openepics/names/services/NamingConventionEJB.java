@@ -36,9 +36,9 @@ public class NamingConventionEJB {
         }
 
         final long deviceInstances = countDeviceNamesByRef(section, deviceType);
-        final String deviceInstanceIndex = section.getName().substring(0, 2) + getDeviceInstanceIndex(deviceInstances);
+        final String qualifier = getQualifier(deviceInstances);
 
-        final DeviceName newDeviceName = new DeviceName(section, deviceType, deviceInstanceIndex, NameStatus.VALID);
+        final DeviceName newDeviceName = new DeviceName(section, deviceType, qualifier, NameStatus.VALID);
         newDeviceName.setNameId(UUID.randomUUID().toString());
         newDeviceName.setRequestedBy(userManager.getUser());
         newDeviceName.setProcessedBy(userManager.getUser());
@@ -104,7 +104,7 @@ public class NamingConventionEJB {
         return returnName;
     }
 
-    private String getDeviceInstanceIndex(long namesCount) {
+    private String getQualifier(long namesCount) {
         return (namesCount <= 0) ? "A" : "" + ((char) (namesCount % 26 + 'A')) + (namesCount / 26);
     }
 

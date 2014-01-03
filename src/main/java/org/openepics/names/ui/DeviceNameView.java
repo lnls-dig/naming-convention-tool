@@ -11,7 +11,7 @@ import org.openepics.names.model.Privilege;
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 public class DeviceNameView {
-    
+
     private final DeviceName deviceName;
     private final String conventionName;
 
@@ -27,7 +27,8 @@ public class DeviceNameView {
     public String getDeviceTypePath() { return getNamePath(getDeviceType()); }
     public NameEvent getSection() { return deviceName.getSection(); }
     public NameEvent getDeviceType() { return deviceName.getDeviceType(); }
-    public String getStatus() { 
+    public String getQualifier() { return deviceName.getQualifier(); }
+    public String getStatus() {
         switch (deviceName.getStatus()) {
             case VALID: return "Published";
             case INVALID: return "In-Process";
@@ -36,7 +37,7 @@ public class DeviceNameView {
         }
     }
     public Privilege getRequestedBy() { return deviceName.getRequestedBy(); }
-    
+
     private String getNamePath(NameEvent nameEvent) {
         final List<String> pathElements = Lists.newArrayList();
         for (NameEvent pathElement = nameEvent; pathElement != null; pathElement = pathElement.getParentName()) {
