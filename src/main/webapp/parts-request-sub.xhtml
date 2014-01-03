@@ -56,7 +56,7 @@
                          emptyMessage="There are no pending requests."
                          selection="#{requestManager.selectedName}"
                          filteredValue="#{requestManager.filteredNames}"
-                         rowStyleClass="#{namesManager.nameStatus(nevent.nameEvent)}"
+                         rowStyleClass="#{namesManager.nameViewStatus(nevent)}"
                          style="width: 90%">
                 <f:facet name="header">
                     <h:outputText value="Submit Change Request" />
@@ -69,14 +69,22 @@
                     <h:outputText value="#{namesManager.nameStatus(nevent.nameEvent)}" />
                 </p:column>
                 <p:column id="type" headerText="Type" rendered="#{requestManager.myRequest}" style="width: 7%">
-                    <h:outputText value="#{nevent.eventType}" />
+                    <h:outputText value="#{requestManager.getRequestType(nevent)}" />
                 </p:column>
                 <p:column id="nameCat" headerText="Category" filterBy="#{nevent.nameCategory}"
                           filterMatchMode="contains" style="width: 15%" >
                     <h:outputText value="#{nevent.nameCategory}" />
                 </p:column>
                 <p:column id="nameCode" headerText="Name" filterBy="#{nevent.name}" filterMatchMode="startsWith">
-                    <h:outputText value="#{nevent.namePath}" />
+                    <h:outputText value="#{requestManager.getNewPath(nevent)} "
+                                  style="#{requestManager.getNewNameStyle(nevent)}" />
+                <!--
+                    <h:outputText value="(#{nevent.name})" style="color: #F5A52F; text-decoration: line-through;"
+                                  rendered="#{requestManager.isModified(nevent) && nevent.pendingChange.status == 'PROCESSING'}"
+                    <h:outputText value="(#{nevent.name})"
+                                  style="#{requestManager.getNewNameStyle(nevent)} text-decoration: line-through;"
+                                  rendered="#{requestManager.isModified(nevent) && nevent.pendingChange.status != 'PROCESSING'}"
+                -->
                 </p:column>
                 <p:column id="nameDesc" headerText="Full Name" filterBy="#{nevent.fullName}"
                           filterMatchMode="contains" >

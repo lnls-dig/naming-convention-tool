@@ -19,7 +19,7 @@ import org.openepics.names.ui.UserManager;
 @Stateless
 public class NamingConventionEJB {
 
-    private static final Logger logger = Logger.getLogger("org.openepics.names");
+    private static final Logger logger = Logger.getLogger("org.openepics.names.services.NamingConventionEJB");
 
     @Inject
     private UserManager userManager;

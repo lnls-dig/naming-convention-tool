@@ -26,9 +26,10 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import org.openepics.names.services.NamesEJB;
 import org.openepics.names.model.NameEvent;
 import org.openepics.names.model.NameRelease;
+import org.openepics.names.services.NamesEJB;
+import org.openepics.names.ui.names.NameView;
 
 /**
  * Manages naming events.
@@ -120,6 +121,26 @@ public class NamesManager implements Serializable {
 			default: return "unknown";
 		}
 	}
+
+	public String nameViewStatus(NameView entry) {
+		switch (entry.getNameEvent().getStatus()) {
+			case PROCESSING : return "Processing";
+			case CANCELLED:
+			case REJECTED: return "default";
+			case APPROVED:
+                if(isPublished(entry))
+                    return "Published";
+                return "Approved";
+			default: return "unknown";
+		}
+	}
+
+    public boolean isPublished(NameView entry) {
+        if(entry.getNameEvent().getProcessDate() == null) return false;
+
+        List<NameRelease> releases = namesEJB.getAllReleases();
+        return (releases.size() > 0 && !releases.get(0).getReleaseDate().before(entry.getNameEvent().getProcessDate()));
+    }
 
 	private void showMessage(FacesMessage.Severity severity, String summary,
 			String message) {

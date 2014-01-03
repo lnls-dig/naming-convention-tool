@@ -1,13 +1,13 @@
 .Modified {
-    background-color:   palegreen; 
+    background-color:   palegreen;
 }
 
 .Added {
-    background-color:   palegreen; 
+    background-color:   palegreen;
 }
 
 .In-Process {
-    background-color:    salmon; 
+    background-color:    salmon;
 }
 
 .Deleted {
@@ -19,11 +19,20 @@
     text-align: left;
 }
 
-.Published {
-}
-
 .unknown, .Cancelled  {
     text-decoration:   blink;
+}
+
+/* styles for the new UI : row backgrounds */
+.Published, .defualt {
+}
+
+.Approved {
+    background-color: #DAEEF3;
+}
+
+.Processing {
+    background-color: #FCD5B4;
 }
 
 .noBorders>tbody>tr, .noBorders>tbody>tr>td {
@@ -32,8 +41,8 @@
     /* vertical-align: top; */
 }
 
-.heading { 
-    text-align: left;   
+.heading {
+    text-align: left;
 }
 
 .fixedPosition {
@@ -43,11 +52,11 @@
 }
 
 .box {
-    margin: 0px; 
+    margin: 0px;
     padding: 10px;
     border: 0px solid LightGray;
     border-radius: 7px;
-    box-shadow: 0 0 7px 2px #888888; 
+    box-shadow: 0 0 7px 2px #888888;
     color: black;
     /* text-align: left; */
     /* width: 80%; */
@@ -55,7 +64,7 @@
 }
 
 .boxf {
-    margin: 0px; 
+    margin: 0px;
     padding: 10px;
     border: 0px solid #000000;
     color: black;
@@ -82,9 +91,9 @@
 
 .title {
     font-family: Georgia, "Times New Roman", Times, serif;
-    font-size: 24px; 
+    font-size: 24px;
     font-style: normal;
-    font-weight: bold; 
+    font-weight: bold;
 }
 .Logo
 {
@@ -93,7 +102,7 @@
     left: 15px;
     padding: 10px;
     text-decoration: none;
-    background-image: url('../images/header-bg.png'); 
+    background-image: url('../images/header-bg.png');
     background-repeat: repeat;
 }
 
@@ -136,7 +145,7 @@
 }
 
 .h1 {
-    font-size:  16px;   
+    font-size:  16px;
     margin-bottom: 10px;
     padding: 0px;
     color: #086A87;

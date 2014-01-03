@@ -35,6 +35,7 @@ import org.openepics.names.model.NameEventStatus;
 import org.openepics.names.model.NameEventType;
 import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.services.NamesEJB;
+import org.openepics.names.ui.names.NameView.Change;
 
 /**
  * Manages Change Requests (backing bean for request-sub.xhtml)
@@ -130,6 +131,61 @@ public class RequestManager implements Serializable {
         return selectedName == null ? false : selectedName.getStatus() != NameEventStatus.PROCESSING;
     }
 
+    public String getRequestType(NameView req) {
+        Change change = req.getPendingChange();
+        if(change instanceof NameView.AddChange) return "Add request";
+        if(change instanceof NameView.ModifiyChange) return "Modify request";
+        if(change instanceof NameView.DeleteChange) return "Delete request";
+        return "Unknown";
+    }
+
+    public String getNewPath(NameView req) {
+        StringBuilder outputStr = new StringBuilder();
+        List<String> path = req.getNamePath();
+        for(int i = 0; i < path.size() - 1; i++)
+            outputStr.append(path.get(i)).append(' ').append("»").append(' ');
+        Change change = req.getPendingChange();
+        if(change instanceof NameView.ModifiyChange)
+            outputStr.append(((NameView.ModifiyChange)change).getNewName());
+        else
+            outputStr.append(req.getName());
+
+        return outputStr.toString();
+    }
+
+    public String getNewFullPath(NameView req) {
+        StringBuilder outputStr = new StringBuilder();
+        List<String> path = req.getFullNamePath();
+        for(int i = 0; i < path.size() - 1; i++)
+            outputStr.append(path.get(i)).append(' ').append("»").append(' ');
+        Change change = req.getPendingChange();
+        if(change instanceof NameView.ModifiyChange)
+            outputStr.append(((NameView.ModifiyChange)change).getNewFullName());
+        else
+            outputStr.append(req.getFullName());
+
+        return outputStr.toString();
+    }
+
+    public boolean isModified(NameView req) {
+        return req.getPendingChange() instanceof NameView.ModifiyChange;
+    }
+
+    public String getNewNameStyle(NameView req) {
+        Change change = req.getPendingChange();
+        if(change == null) return "";
+        switch(change.getStatus()) {
+            case CANCELLED: return "font-style: italic; color: #BFBFBF;";
+            case REJECTED: return "font-style: italic; color: #632523; font-weight: bold;";
+            case PROCESSING:
+                if(change instanceof NameView.AddChange) return "color: #366092;";
+                if(change instanceof NameView.ModifiyChange) return "color: #963634;";
+                if(change instanceof NameView.DeleteChange) return "color: #F5A52F; text-decoration: line-through;";
+                break;
+        }
+        return "text-decoration: blink;";
+    }
+
     public void onDelete() {
         NameEvent newRequest;
 
@@ -218,7 +274,7 @@ public class RequestManager implements Serializable {
     }
 
     public NameView getSelectedName() {
-        return new NameView(selectedName, null);
+        return selectedName != null ? new NameView(selectedName, null) : null;
     }
 
     public void setSelectedName(NameView selectedName) {
