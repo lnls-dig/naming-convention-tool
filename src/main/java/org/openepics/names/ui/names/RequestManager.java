@@ -13,7 +13,7 @@
  *   http://frib.msu.edu
  *
  */
-package org.openepics.names.ui;
+package org.openepics.names.ui.names;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -209,19 +209,19 @@ public class RequestManager implements Serializable {
     }
 
     /* --------------------------- */
-    public List<NameEventView> getValidNames() {
-        return Lists.transform(validNames, new Function<NameEvent, NameEventView>() {
-            @Override public NameEventView apply(NameEvent nameEvent) {
-                return new NameEventView(nameEvent);
+    public List<NameView> getValidNames() {
+        return Lists.transform(validNames, new Function<NameEvent, NameView>() {
+            @Override public NameView apply(NameEvent nameEvent) {
+                return new NameView(nameEvent, null);
             }
         });
     }
 
-    public NameEventView getSelectedName() {
-        return new NameEventView(selectedName);
+    public NameView getSelectedName() {
+        return new NameView(selectedName, null);
     }
 
-    public void setSelectedName(NameEventView selectedName) {
+    public void setSelectedName(NameView selectedName) {
         this.selectedName = selectedName.getNameEvent();
     }
 

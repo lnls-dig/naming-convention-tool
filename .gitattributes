@@ -54,14 +54,14 @@ src/main/java/org/openepics/names/ui/LoginManager.java -text
 src/main/java/org/openepics/names/ui/MenuManager.java -text
 src/main/java/org/openepics/names/ui/MnemonicNameView.java -text
 src/main/java/org/openepics/names/ui/NameCategories.java -text
-src/main/java/org/openepics/names/ui/NameEventView.java -text
 src/main/java/org/openepics/names/ui/NamesManager.java -text
 src/main/java/org/openepics/names/ui/PreferencesManager.java -text
 src/main/java/org/openepics/names/ui/PublicationManager.java -text
 src/main/java/org/openepics/names/ui/ReportManager.java -text
-src/main/java/org/openepics/names/ui/RequestManager.java -text
 src/main/java/org/openepics/names/ui/RequestProcManager.java -text
 src/main/java/org/openepics/names/ui/UserManager.java -text
+src/main/java/org/openepics/names/ui/names/NameView.java -text
+src/main/java/org/openepics/names/ui/names/RequestManager.java -text
 src/main/java/org/openepics/names/webservice/DeviceNameResource.java -text
 src/main/java/org/openepics/names/webservice/NameElement.java -text
 src/main/java/org/openepics/names/webservice/NameElementCategoryResource.java -text
