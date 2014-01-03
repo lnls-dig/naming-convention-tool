@@ -4,9 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -44,7 +42,6 @@ public class EditNamesManager implements Serializable {
 
     @PostConstruct
     public void init() {
-
         /* init section levels
         * for init, the first level of hierarchy is filled and all other parts are empty lists
         */
@@ -128,64 +125,50 @@ public class EditNamesManager implements Serializable {
 
     public void loadSelectedName() {
         if (selectedDeviceName != null) {
-            Map<String, Integer> namePartMap = new HashMap<>();
+            NameHierarchy hierarchy = namesEJB.getNameHierarchy();
 
-            NameEvent sectionNode = selectedDeviceName.getSection();
-            while (sectionNode != null) {
-                namePartMap.put(sectionNode.getNameCategory().getName(), sectionNode.getId());
-                sectionNode = sectionNode.getParentName();
-            }
+            if(sectionLevels.size() != hierarchy.getSectionLevels().size())
+                throw new IllegalStateException("Section levels do not match hierarchy.");
 
-            NameEvent disciplineNode = selectedDeviceName.getDeviceType();
-            while (disciplineNode != null) {
-                namePartMap.put(disciplineNode.getNameCategory().getName(), disciplineNode.getId());
-                disciplineNode = disciplineNode.getParentName();
-            }
+            if(deviceTypeLevels.size() != hierarchy.getDeviceTypeLevels().size())
+                throw new IllegalStateException("Device type levels do not match hierarchy.");
 
-            // TODO do generic solution
-            sectionLevels.get(0).setOptions(loadSuperSections());
-            sectionLevels.get(0).setSelectedId(namePartMap.get(NameCategories.supersection()));
-            loadNextSectionLevel(0);
-            sectionLevels.get(1).setSelectedId(namePartMap.get(NameCategories.section()));
-            loadNextSectionLevel(1);
-            sectionLevels.get(2).setSelectedId(namePartMap.get(NameCategories.subsection()));
-
-            // TODO do generic solution
-            deviceTypeLevels.get(0).setOptions(loadDisciplines());
-            deviceTypeLevels.get(0).setSelectedId(namePartMap.get(NameCategories.discipline()));
-            loadNextDeviceTypeLevel(0);
-            deviceTypeLevels.get(1).setSelectedId(namePartMap.get(NameCategories.category()));
-            loadNextDeviceTypeLevel(1);
-            deviceTypeLevels.get(2).setSelectedId(namePartMap.get(NameCategories.genericDevice()));
-            if (namePartMap.containsKey(NameCategories.specificDevice())) {
-                loadNextDeviceTypeLevel(2);
-                deviceTypeLevels.get(3).setSelectedId(namePartMap.get(NameCategories.specificDevice()));
-            }
+            fillDropDowns(selectedDeviceName.getSection(), hierarchy.getSectionLevels(), sectionLevels);
+            fillDropDowns(selectedDeviceName.getDeviceType(), hierarchy.getDeviceTypeLevels(), deviceTypeLevels);
         }
     }
 
-    private List<NameEvent> loadSuperSections() {
-        List<NameCategory> categories = namesEJB.getCategories();
-        NameCategory superSectionCategory = null;
-        for (NameCategory category : categories) {
-            if (category.getName().equalsIgnoreCase(NameCategories.supersection())) {
-                superSectionCategory = category;
-                break;
+    private void fillDropDowns(NameEvent namePart, List<NameCategory> hierarchyLevels, List<MnemonicNameView> dropdownsToFill) {
+        NameEvent currentNamePart = namePart;
+        for(int i = hierarchyLevels.size()-1; i >= 0; i--) {
+            MnemonicNameView currentDropdown = dropdownsToFill.get(i);
+            if(currentNamePart.getNameCategory().equals(hierarchyLevels.get(i))) {
+                // if the current name part category equals the category a the current level
+                // then we know how to fill the current drop-down and we know what element is selected
+                NameEvent parent = currentNamePart.getParentName();
+                if(i > 0) {
+                    // not at the top of hierarchy.
+                    currentDropdown.setOptions(namesEJB.findEventsByParent(parent));
+                } else {
+                    // at the top of the hierarchy
+                    currentDropdown.setOptions(namesEJB.findEventsByCategory(currentNamePart.getNameCategory()));
+                }
+                currentDropdown.setSelectedId(currentNamePart.getId());
+                currentNamePart = parent;
+            } else {
+                // the drop-down we are currently populating does not match the currently
+                // selected name part, but is the selected name part the parent of the populating drop-down?
+                // E.g.: name is for Generic device, but we start filling at specific device.
+                if(currentNamePart.getNameCategory().equals(hierarchyLevels.get(i-1))) {
+                    // we can fill this drop-down according to current name part
+                    currentDropdown.setOptions(namesEJB.findEventsByParent(currentNamePart));
+                    currentDropdown.setSelectedId(null);
+                } else {
+                    // we don not know how to fill this dropdown
+                    currentDropdown.clear();
+                }
             }
         }
-        return superSectionCategory == null ? null : namesEJB.findEventsByCategory(superSectionCategory);
-    }
-
-    private List<NameEvent> loadDisciplines() {
-        List<NameCategory> categories = namesEJB.getCategories();
-        NameCategory disciplineCategory = null;
-        for (NameCategory category : categories) {
-            if (category.getName().equalsIgnoreCase(NameCategories.discipline())) {
-                disciplineCategory = category;
-                break;
-            }
-        }
-        return disciplineCategory == null ? null : namesEJB.findEventsByCategory(disciplineCategory);
     }
 
     public DeviceNameView getSelectedDeviceName() { return selectedDeviceName; }
