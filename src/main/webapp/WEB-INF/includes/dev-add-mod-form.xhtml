@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <h:form id="#{formId}">
+        <p:dialog widgetVar="#{widgetName}">
+            <f:facet name="header">
+                <h:outputText value="#{dialogTitle}" />
+            </f:facet>
+            <p:panelGrid style="text-align: left">
+                <p:row>
+                    <p:column colspan="4">
+                        Which part of the facility does the device provide service to?
+                    </p:column>
+                </p:row>
+                <p:row rendered="#{showExistingValue}">
+                    <p:column colspan="1">
+                        Current values:
+                    </p:column>
+                    <p:column colspan="3">
+                        <h:outputText value="#{editNamesManager.getSelectedDeviceNameSectionString()}" />
+                    </p:column>
+                </p:row>
+                <p:row>
+                    <c:forEach items="#{editNamesManager.sectionLevels}" var="level" varStatus="loop">
+                        <p:column style="width: 128px">
+                            <p:selectOneMenu id="sectLvl_#{loop.index}" value="#{level.selectedId}">
+                                <p:ajax listener="#{editNamesManager.loadNextSectionLevel(loop.index)}"
+                                        update="#{editNamesManager.generateUpdateIds(0, 'sectLvl_', editNamesManager.sectionLevels.size(), 'bsub')}" />
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
+                                <f:selectItems value="#{level.options}"
+                                        var="selItem" itemLabel="#{selItem.fullName}" itemValue="#{selItem.id}" />
+                            </p:selectOneMenu>
+                        </p:column>
+                    </c:forEach>
+                    <!-- append empty columns if necessary -->
+                    <c:forEach begin="#{editNamesManager.sectionLevels.size() + 1}" end="#{editNamesManager.namePartsCount}" >
+                        <p:column style="width: 128px">
+                        </p:column>
+                    </c:forEach>
+                </p:row>
+
+                <p:row>
+                    <p:column colspan="4">
+                        What kind of device is it?
+                    </p:column>
+                </p:row>
+                <p:row rendered="#{showExistingValue}">
+                    <p:column colspan="1">
+                        Current values:
+                    </p:column>
+                    <p:column colspan="3">
+                        <h:outputText value="#{editNamesManager.getSelectedDeviceNameDisciplineString()}" />
+                    </p:column>
+                </p:row>
+                <p:row>
+                    <c:forEach items="#{editNamesManager.deviceTypeLevels}" var="level" varStatus="loop">
+                        <p:column style="width: 128px">
+                            <p:selectOneMenu id="devLvl_#{loop.index}" value="#{level.selectedId}">
+                                <p:ajax listener="#{editNamesManager.loadNextDeviceTypeLevel(loop.index)}"
+                                        update="#{editNamesManager.generateUpdateIds(0, 'devLvl_', editNamesManager.deviceTypeLevels.size(), 'bsub')}" />
+                                <f:selectItem itemLabel="Select..." noSelectionOption="true" />
+                                <f:selectItems value="#{level.options}"
+                                        var="selItem" itemLabel="#{selItem.fullName}" itemValue="#{selItem.id}" />
+                            </p:selectOneMenu>
+                        </p:column>
+                    </c:forEach>
+                    <!-- append empty columns if necessary -->
+                    <c:forEach begin="#{editNamesManager.deviceTypeLevels.size() + 1}" end="#{editNamesManager.namePartsCount}" >
+                        <p:column style="width: 128px">
+                        </p:column>
+                    </c:forEach>
+                </p:row>
+            </p:panelGrid>
+            <p:separator />
+
+            <p:commandButton id="bsub" value="Submit" style="float: left"
+                    update=":ManageNameForm" oncomplete="#{widgetName}.hide()"
+                    action="#{editNamesManager[submitHandler]}"
+                    disabled="#{!editNamesManager.isFormFilled()}"/>
+            <p:commandButton value="Cancel" style="float: right"
+                    onclick="#{widgetName}.hide()" />
+        </p:dialog>
+    </h:form>
+</ui:composition>
