@@ -21,13 +21,13 @@
                 <h:outputText value="#{ncname.id}" />
             </p:column>
             <p:column id="histName" headerText="Name">
-                <h:outputText value="#{ncname.name}" />
+                <h:outputText value="#{ncname.conventionName}" />
             </p:column>
             <p:column id="histNameSect" headerText="Section">
-                <h:outputText value="#{ncname.section.name}" />
+                <h:outputText value="#{ncname.sectionPath}" />
             </p:column>
             <p:column id="histNameDscp" headerText="Discipline">
-                <h:outputText value="#{ncname.discipline.name}" />
+                <h:outputText value="#{ncname.deviceTypePath}" />
             </p:column>
             <p:column id="histStatus" headerText="Status">
                 <h:outputText value="#{ncname.status}" />
@@ -35,8 +35,8 @@
             <p:column id="histReqBy" headerText="By" sortBy="#{ncname.requestedBy}">
                 <h:outputText value="#{ncname.requestedBy.username}" />
             </p:column>
-            <p:column id="histReqDate" headerText="Date" sortBy="#{ncname.requestDate}">
-                <h:outputText value="#{ncname.requestDate}">
+            <p:column id="histReqDate" headerText="Date" sortBy="#{ncname.deviceName.requestDate}">
+                <h:outputText value="#{ncname.deviceName.requestDate}">
                     <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" />
                 </h:outputText>
             </p:column>

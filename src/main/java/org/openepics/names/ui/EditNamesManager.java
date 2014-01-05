@@ -182,7 +182,13 @@ public class EditNamesManager implements Serializable {
         });
     }
 
-    public List<DeviceName> getHistoryEvents() { return historyDeviceNames; }
+    public List<DeviceNameView> getHistoryEvents() {
+        return historyDeviceNames == null ? null : Lists.transform(historyDeviceNames, new Function<DeviceName, DeviceNameView>() {
+            @Override public DeviceNameView apply(DeviceName deviceName) {
+                return new DeviceNameView(deviceName, namingConvention.getNamingConventionName(deviceName));
+            }
+        });
+    }
 
     public List<MnemonicNameView> getSectionLevels() { return sectionLevels; }
 

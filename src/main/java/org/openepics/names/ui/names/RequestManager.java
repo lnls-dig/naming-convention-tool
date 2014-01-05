@@ -143,7 +143,7 @@ public class RequestManager implements Serializable {
         StringBuilder outputStr = new StringBuilder();
         List<String> path = req.getNamePath();
         for(int i = 0; i < path.size() - 1; i++)
-            outputStr.append(path.get(i)).append(' ').append("»").append(' ');
+            outputStr.append(path.get(i)).append(" ▸ ");
         Change change = req.getPendingChange();
         if(change instanceof NameView.ModifiyChange)
             outputStr.append(((NameView.ModifiyChange)change).getNewName());
@@ -157,7 +157,7 @@ public class RequestManager implements Serializable {
         StringBuilder outputStr = new StringBuilder();
         List<String> path = req.getFullNamePath();
         for(int i = 0; i < path.size() - 1; i++)
-            outputStr.append(path.get(i)).append(' ').append("»").append(' ');
+            outputStr.append(path.get(i)).append(" ▸ ");
         Change change = req.getPendingChange();
         if(change instanceof NameView.ModifiyChange)
             outputStr.append(((NameView.ModifiyChange)change).getNewFullName());
