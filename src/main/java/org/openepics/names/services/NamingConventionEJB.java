@@ -70,20 +70,13 @@ public class NamingConventionEJB {
             throw new AccessControlException("You are not authorized to ");
         }
 
-        DeviceName deletedName;
-        if (nameToDelete.getStatus() == NameStatus.VALID) {
-            // make new revision
-            deletedName = new DeviceName(nameToDelete.getSection(), nameToDelete.getDeviceType(), nameToDelete.getQualifier(), NameStatus.DELETED);
-            deletedName.setNameId(nameToDelete.getNameId());
-            deletedName.setRequestedBy(userManager.getUser());
-            deletedName.setProcessedBy(userManager.getUser());
-            deletedName.setProcessDate(new Date());
-            em.persist(deletedName);
-        } else {
-            // INVALID. Remove from database.
-            deletedName = em.find(DeviceName.class, nameToDelete.getId());
-            em.remove(deletedName);
-        }
+        // make new revision
+        DeviceName deletedName = new DeviceName(nameToDelete.getSection(), nameToDelete.getDeviceType(), nameToDelete.getQualifier(), NameStatus.DELETED);
+        deletedName.setNameId(nameToDelete.getNameId());
+        deletedName.setRequestedBy(userManager.getUser());
+        deletedName.setProcessedBy(userManager.getUser());
+        deletedName.setProcessDate(new Date());
+        em.persist(deletedName);
 
         return deletedName;
     }
