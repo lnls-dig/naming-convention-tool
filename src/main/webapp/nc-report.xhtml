@@ -12,23 +12,31 @@
         <h:form id="listNcNameForm">
 
             <!-- ===================Data Table============================ -->
-            <p:dataTable id="ncCrTable" var="deviceName" value="#{deviceNamesManager.activeDeviceNames}" paginator="true" rows="50" resizableColumns="true" rowKey="#{deviceName.id}" emptyMessage="There are no active NC Names" selectionMode="single" style="width: 90%">
+            <p:dataTable id="ncCrTable" var="deviceName" value="#{deviceNamesManager.activeDeviceNames}"
+                         paginator="true" rows="50" resizableColumns="true" rowKey="#{deviceName.id}"
+                         emptyMessage="There are no active NC Names" selectionMode="single" style="width: 90%">
                 <f:facet name="header">
                     <h:outputText value="Active Naming Convention Names" />
                 </f:facet>
 
-                <p:ajax event="rowSelect" update=":listNcNameForm:historyTable" listener="#{deviceNamesManager.loadHistory(deviceName.nameId)}" oncomplete="nameDetail.show()" />
+                <p:ajax event="rowSelect" update=":listNcNameForm:historyTable"
+                        listener="#{deviceNamesManager.findHistory(deviceName.deviceName.nameId)}"
+                        oncomplete="nameDetail.show()" />
 
-                <p:column id="nameString" headerText="Device Name" filterBy="#{deviceName.name}" filterMatchMode="contains" style="width: 20%">
-                    <h:outputText value="#{deviceName.name}" />
+                <p:column id="nameString" headerText="Device Name" filterBy="#{deviceName.conventionName}"
+                          filterMatchMode="contains" style="width: 20%">
+                    <h:outputText value="#{deviceName.conventionName}" />
                 </p:column>
-                <p:column id="nameSection" headerText="Section" filterBy="#{deviceName.section.fullName}" filterMatchMode="contains" style="width: 15%">
-                    <h:outputText value="#{deviceName.section.fullName}" />
+                <p:column id="nameSection" headerText="Section" filterBy="#{deviceName.sectionPath}"
+                          filterMatchMode="contains">
+                    <h:outputText value="#{deviceName.sectionPath}" />
                 </p:column>
-                <p:column id="nameDiscipline" headerText="Device Type" filterBy="#{deviceName.deviceType.fullName}" filterMatchMode="startsWith" style="width: 15%">
-                    <h:outputText value="#{deviceName.deviceType.fullName}" />
+                <p:column id="nameDiscipline" headerText="Device Type" filterBy="#{deviceName.deviceTypePath}"
+                          filterMatchMode="startsWith">
+                    <h:outputText value="#{deviceName.deviceTypePath}" />
                 </p:column>
-                <p:column id="nameStatus" headerText="Status" filterBy="#{deviceName.status}" filterMatchMode="contains">
+                <p:column id="nameStatus" headerText="Status" filterBy="#{deviceName.status}"
+                          style="width: 20%" filterMatchMode="contains">
                     <h:outputText value="#{deviceName.status}" />
                 </p:column>
 

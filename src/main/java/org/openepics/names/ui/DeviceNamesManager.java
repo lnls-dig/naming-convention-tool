@@ -1,18 +1,19 @@
 package org.openepics.names.ui;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-
+import javax.inject.Inject;
 import org.openepics.names.model.DeviceName;
+import org.openepics.names.services.NamingConvention;
 import org.openepics.names.services.NamingConventionEJB;
 
 @ManagedBean
@@ -20,13 +21,13 @@ import org.openepics.names.services.NamingConventionEJB;
 public class DeviceNamesManager implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @EJB
-    private NamingConventionEJB ncEJB;
+    @Inject private NamingConventionEJB ncEJB;
+    @Inject private NamingConvention namingConvention;
     private static final Logger logger = Logger.getLogger("org.openepics.names.ui.DeviceNamesManager");
 
     private List<DeviceName> allDeviceNames;
     private List<DeviceName> activeDeviceNames;
-    private List<DeviceName> historyNcNames;
+    private List<DeviceName> historyDeviceNames;
 
     public DeviceNamesManager() {
         // EMPTY
@@ -38,6 +39,7 @@ public class DeviceNamesManager implements Serializable {
         loadActiveDeviceNames();
     }
 
+    // TODO check usage
     public void loadAllDeviceNames() {
         try {
             allDeviceNames = ncEJB.getAllDeviceNames();
@@ -58,16 +60,26 @@ public class DeviceNamesManager implements Serializable {
         }
     }
 
-    public List<DeviceName> getAllDeviceNames() {
-        return allDeviceNames;
+    // TODO check usage
+    public List<DeviceNameView> getAllDeviceNames() {
+        return Lists.transform(allDeviceNames, new Function<DeviceName, DeviceNameView>() {
+            @Override public DeviceNameView apply(DeviceName deviceName) {
+                return new DeviceNameView(deviceName, namingConvention.getNamingConventionName(deviceName));
+            }
+        });
     }
 
+    // TODO check usage
     public void setAllDeviceNames(List<DeviceName> allDeviceNames) {
         this.allDeviceNames = allDeviceNames;
     }
 
-    public List<DeviceName> getActiveDeviceNames() {
-        return activeDeviceNames;
+    public List<DeviceNameView> getActiveDeviceNames() {
+        return Lists.transform(activeDeviceNames, new Function<DeviceName, DeviceNameView>() {
+            @Override public DeviceNameView apply(DeviceName deviceName) {
+                return new DeviceNameView(deviceName, namingConvention.getNamingConventionName(deviceName));
+            }
+        });
     }
 
     public void setActiveDeviceNames(List<DeviceName> activeDeviceNames) {
@@ -76,7 +88,7 @@ public class DeviceNamesManager implements Serializable {
 
 	public void findHistory(String nameId) {
 		try {
-			historyNcNames = ncEJB.getDeviceNameHistory(nameId);
+			historyDeviceNames = ncEJB.getDeviceNameHistory(nameId);
 		} catch (Exception e) {
 			showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
 					e.getMessage());
@@ -84,8 +96,12 @@ public class DeviceNamesManager implements Serializable {
 		}
 	}
 
-    public List<DeviceName> getHistoryEvents() {
-		return historyNcNames;
+    public List<DeviceNameView> getHistoryEvents() {
+        return historyDeviceNames == null ? null : Lists.transform(historyDeviceNames, new Function<DeviceName, DeviceNameView>() {
+            @Override public DeviceNameView apply(DeviceName deviceName) {
+                return new DeviceNameView(deviceName, namingConvention.getNamingConventionName(deviceName));
+            }
+        });
 	}
 
 	private void showMessage(FacesMessage.Severity severity, String summary, String message) {
