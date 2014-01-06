@@ -16,6 +16,7 @@
 package org.openepics.names.ui.names;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
@@ -141,9 +142,9 @@ public class RequestManager implements Serializable {
 
     public String getNewPath(NameView req) {
         StringBuilder outputStr = new StringBuilder();
-        List<String> path = req.getNamePath();
-        for(int i = 0; i < path.size() - 1; i++)
-            outputStr.append(path.get(i)).append(" ▸ ");
+
+        Joiner.on(" ▸ ").appendTo(outputStr, req.getNamePath().subList(0, req.getNamePath().size() - 1)).append(" ▸ ");
+
         Change change = req.getPendingChange();
         if(change instanceof NameView.ModifiyChange)
             outputStr.append(((NameView.ModifiyChange)change).getNewName());
@@ -155,9 +156,10 @@ public class RequestManager implements Serializable {
 
     public String getNewFullPath(NameView req) {
         StringBuilder outputStr = new StringBuilder();
-        List<String> path = req.getFullNamePath();
-        for(int i = 0; i < path.size() - 1; i++)
-            outputStr.append(path.get(i)).append(" ▸ ");
+
+        Joiner.on(" ▸ ").appendTo(outputStr, req.getFullNamePath().subList(0, req.getFullNamePath().size() - 1))
+                .append(" ▸ ");
+
         Change change = req.getPendingChange();
         if(change instanceof NameView.ModifiyChange)
             outputStr.append(((NameView.ModifiyChange)change).getNewFullName());
@@ -172,23 +174,20 @@ public class RequestManager implements Serializable {
     }
 
     public String getNameClass(NameView req) {
-        // TODO totally wrong. Detect real status.
+        Change change = req.getPendingChange();
+        if(change == null) {
+            if(req.isDeleted()) return "Delete-Approved";
+            return "Insert-Approved";
+        }
 
         StringBuilder ret = new StringBuilder();
-        switch(req.getNameEvent().getEventType()) {
-            case INSERT:
-                ret.append("Insert-");
-                break;
-            case MODIFY:
-                ret.append("Modify-");
-                break;
-            case DELETE:
-                ret.append("Delete-");
-                break;
-            default:
-                return "unknown";
-        }
-        switch(req.getNameEvent().getStatus()) {
+        if(change instanceof NameView.AddChange) ret.append("Insert-");
+        else if(change instanceof NameView.ModifiyChange) ret.append("Modify-");
+        else if(change instanceof NameView.DeleteChange) ret.append("Delete-");
+        // ERROR!!!! unknown class
+        else return "unknown";
+
+        switch(change.getStatus()) {
             case APPROVED:
                 ret.append("Approved");
                 break;
