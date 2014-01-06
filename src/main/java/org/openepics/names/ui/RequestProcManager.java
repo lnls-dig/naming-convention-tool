@@ -15,6 +15,8 @@
  */
 package org.openepics.names.ui;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Level;
@@ -25,9 +27,10 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import org.openepics.names.services.NamesEJB;
 import org.openepics.names.model.NameEvent;
 import org.openepics.names.model.NameEventStatus;
+import org.openepics.names.services.NamesEJB;
+import org.openepics.names.ui.names.NameView;
 
 /**
  * Manages Request Processing (backing bean for request-proc.xhtml)
@@ -143,11 +146,19 @@ public class RequestProcManager implements Serializable {
         this.procComments = comments;
     }
 
-    public List<NameEvent> getEvents() {
-        return events;
+    public List<NameView> getEvents() {
+        return Lists.transform(events, new Function<NameEvent, NameView>() {
+            @Override public NameView apply(NameEvent nameEvent) {
+                return new NameView(nameEvent, null);
+            }
+        });
     }
 
-    public List<NameEvent> getHistoryEvents() {
-        return historyEvents;
+    public List<NameView> getHistoryEvents() {
+        return historyEvents == null ? null : Lists.transform(historyEvents, new Function<NameEvent, NameView>() {
+            @Override public NameView apply(NameEvent nameEvent) {
+                return new NameView(nameEvent, null);
+            }
+        });
     }
 }

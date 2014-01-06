@@ -51,11 +51,11 @@
                     <h:outputText value="#{nevent.id}" />
                 </p:column>
                 <p:column id="type" headerText="Type"  >
-                    <h:outputText value="#{requestManager.requestType(nevent.eventType)}" />
+                    <h:outputText value="#{requestManager.getRequestType(nevent)}" />
                 </p:column>
-                <p:column id="nameCat" headerText="Category" filterBy="#{nevent.nameCategory.name}"
+                <p:column id="nameCat" headerText="Category" filterBy="#{nevent.nameCategory}"
                           filterMatchMode="contains"  >
-                    <h:outputText value="#{nevent.nameCategory.name}" />
+                    <h:outputText value="#{nevent.nameCategory}" />
                 </p:column>
                 <p:column id="name" headerText="Name" filterBy="#{nevent.name}"
                           filterMatchMode="startsWith"  >
@@ -66,16 +66,16 @@
                     <h:outputText value="#{nevent.fullName}" />
                 </p:column>
 
-                <p:column id="reqBy" headerText="By" sortBy="#{nevent.requestedBy.username}" >
-                    <h:outputText value="#{nevent.requestedBy.username}" />
+                <p:column id="reqBy" headerText="By" sortBy="#{nevent.nameEvent.requestedBy.username}" >
+                    <h:outputText value="#{nevent.nameEvent.requestedBy.username}" />
                 </p:column>
-                <p:column id="reqDate" headerText="Date" sortBy="#{nevent.requestDate}" >
-                    <h:outputText value="#{nevent.requestDate}" >
+                <p:column id="reqDate" headerText="Date" sortBy="#{nevent.nameEvent.requestDate}" >
+                    <h:outputText value="#{nevent.nameEvent.requestDate}" >
                         <f:convertDateTime pattern="yyyy-MM-dd" />
                     </h:outputText>
                 </p:column>
                 <p:column id="reqComment" headerText="Comment" >
-                    <h:outputText value="#{nevent.requestorComment}" />
+                    <h:outputText value="#{nevent.nameEvent.requestorComment}" />
                 </p:column>
             </p:dataTable>
 
