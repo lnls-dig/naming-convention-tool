@@ -135,7 +135,7 @@ public class RequestManager implements Serializable {
     public String getRequestType(NameView req) {
         Change change = req.getPendingChange();
         if(change instanceof NameView.AddChange) return "Add request";
-        if(change instanceof NameView.ModifiyChange) return "Modify request";
+        if(change instanceof NameView.ModifyChange) return "Modify request";
         if(change instanceof NameView.DeleteChange) return "Delete request";
         return "Unknown";
     }
@@ -143,11 +143,12 @@ public class RequestManager implements Serializable {
     public String getNewPath(NameView req) {
         StringBuilder outputStr = new StringBuilder();
 
-        Joiner.on(" ▸ ").appendTo(outputStr, req.getNamePath().subList(0, req.getNamePath().size() - 1)).append(" ▸ ");
+        Joiner.on(" ▸ ").appendTo(outputStr, req.getNamePath().subList(0, req.getNamePath().size() - 1));
+        if(outputStr.length()>0) outputStr.append(" ▸ ");
 
         Change change = req.getPendingChange();
-        if(change instanceof NameView.ModifiyChange)
-            outputStr.append(((NameView.ModifiyChange)change).getNewName());
+        if(change instanceof NameView.ModifyChange)
+            outputStr.append(((NameView.ModifyChange)change).getNewName());
         else
             outputStr.append(req.getName());
 
@@ -157,12 +158,12 @@ public class RequestManager implements Serializable {
     public String getNewFullPath(NameView req) {
         StringBuilder outputStr = new StringBuilder();
 
-        Joiner.on(" ▸ ").appendTo(outputStr, req.getFullNamePath().subList(0, req.getFullNamePath().size() - 1))
-                .append(" ▸ ");
+        Joiner.on(" ▸ ").appendTo(outputStr, req.getFullNamePath().subList(0, req.getFullNamePath().size() - 1));
+        if(outputStr.length()>0) outputStr.append(" ▸ ");
 
         Change change = req.getPendingChange();
-        if(change instanceof NameView.ModifiyChange)
-            outputStr.append(((NameView.ModifiyChange)change).getNewFullName());
+        if(change instanceof NameView.ModifyChange)
+            outputStr.append(((NameView.ModifyChange)change).getNewFullName());
         else
             outputStr.append(req.getFullName());
 
@@ -170,7 +171,7 @@ public class RequestManager implements Serializable {
     }
 
     public boolean isModified(NameView req) {
-        return req.getPendingChange() instanceof NameView.ModifiyChange;
+        return req.getPendingChange() instanceof NameView.ModifyChange;
     }
 
     public String getNameClass(NameView req) {
@@ -182,7 +183,7 @@ public class RequestManager implements Serializable {
 
         StringBuilder ret = new StringBuilder();
         if(change instanceof NameView.AddChange) ret.append("Insert-");
-        else if(change instanceof NameView.ModifiyChange) ret.append("Modify-");
+        else if(change instanceof NameView.ModifyChange) ret.append("Modify-");
         else if(change instanceof NameView.DeleteChange) ret.append("Delete-");
         // ERROR!!!! unknown class
         else return "unknown";

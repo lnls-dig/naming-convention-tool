@@ -34,11 +34,11 @@ public class NameView {
         }
     }
 
-    public class ModifiyChange extends Change {
+    public class ModifyChange extends Change {
         private final @Nullable String newName;
         private final @Nullable String newFullName;
 
-        public ModifiyChange(NameEventStatus status, String newName, String newFullName) {
+        public ModifyChange(NameEventStatus status, String newName, String newFullName) {
             super(status);
             this.newName = newName;
             this.newFullName = newFullName;
@@ -71,7 +71,7 @@ public class NameView {
             } else if (pendingRevision.getEventType() == NameEventType.MODIFY) {
                 final @Nullable String newName = !pendingRevision.getName().equals(currentRevision.getName()) ? pendingRevision.getName() : null;
                 final @Nullable String newFullName = !pendingRevision.getName().equals(currentRevision.getName()) ? pendingRevision.getName() : null;
-                return new ModifiyChange(pendingRevision.getStatus(), newName, newFullName);
+                return new ModifyChange(pendingRevision.getStatus(), newName, newFullName);
             } else {
                 throw new IllegalStateException();
             }

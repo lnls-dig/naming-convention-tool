@@ -55,7 +55,7 @@
     font-weight: bold;
 }
 
-.Modify-Processing-New {
+.Modify-Processing, .Modify-Processing-New {
     color: #963634;
 }
 
@@ -68,7 +68,7 @@
     /* blank on purpose */
 }
 
-.Modify-Cancelled-New {
+.Modify-Cancelled, .Modify-Cancelled-New {
     color: #BFBFBF;
     font-style: italic;
 }
@@ -79,7 +79,7 @@
     text-decoration: line-through;
 }
 
-.Modify-Rejected-New {
+.Modify-Rejected, .Modify-Rejected-New {
     color: #632523;
     font-style: italic;
     font-weight: bold;

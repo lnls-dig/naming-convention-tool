@@ -80,7 +80,8 @@
                 <p:column id="nameCode" headerText="Name" filterBy="#{nevent.name}" filterMatchMode="startsWith">
                     <h:outputText value="#{requestManager.getNewPath(nevent)}"
                                   styleClass="#{requestManager.getNameClass(nevent)}-New" />
-                    <h:outputText value=" (#{nevent.name})"
+                    <h:outputText value=" " rendered="#{requestManager.isModified(nevent)}" />
+                    <h:outputText value="(#{nevent.name})"
                                   styleClass="#{requestManager.getNameClass(nevent)}-Old"
                                   rendered="#{requestManager.isModified(nevent)}" />
                 </p:column>
@@ -88,6 +89,10 @@
                           filterMatchMode="contains" >
                     <h:outputText value="#{requestManager.getNewFullPath(nevent)}"
                                   styleClass="#{requestManager.getNameClass(nevent)}" />
+                    <h:outputText value=" " rendered="#{requestManager.isModified(nevent)}" />
+                    <h:outputText value="(#{nevent.fullName})"
+                                  styleClass="#{requestManager.getNameClass(nevent)}-Old"
+                                  rendered="#{requestManager.isModified(nevent)}" />
                 </p:column>
 
             </p:dataTable>
