@@ -122,6 +122,7 @@ public class NamesManager implements Serializable {
 		}
 	}
 
+    // TODO should be renamed to nameViewStatusToClass(...)
 	public String nameViewStatus(NameView entry) {
 		switch (entry.getNameEvent().getStatus()) {
 			case PROCESSING : return "Processing";

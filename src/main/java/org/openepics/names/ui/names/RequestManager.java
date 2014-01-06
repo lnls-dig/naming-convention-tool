@@ -137,7 +137,7 @@ public class RequestManager implements Serializable {
         if(change instanceof NameView.AddChange) return "Add request";
         if(change instanceof NameView.ModifyChange) return "Modify request";
         if(change instanceof NameView.DeleteChange) return "Delete request";
-        return "Unknown";
+        return req.getNameEvent().getEventType().toString();
     }
 
     public String getNewPath(NameView req) {
@@ -354,8 +354,12 @@ public class RequestManager implements Serializable {
         return myRequest;
     }
 
-    public List<NameEvent> getHistoryEvents() {
-        return historyEvents;
+    public List<NameView> getHistoryEvents() {
+        return historyEvents == null ? null : Lists.transform(historyEvents, new Function<NameEvent, NameView>() {
+            @Override public NameView apply(NameEvent nameEvent) {
+                return new NameView(nameEvent, null);
+            }
+        });
     }
 
     public List<NameEvent> getParentCandidates() {

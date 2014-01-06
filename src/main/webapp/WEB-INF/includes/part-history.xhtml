@@ -5,6 +5,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
                 >
     <!-- ToDo: find better way to adjust width of the panel -->
     <p:dialog id="nameDetail"  widgetVar="nameDetail" width="900" dynamic="true"
@@ -18,7 +19,7 @@
                 <h:outputText value="#{nevent.id}" />
             </p:column>
             <p:column id="nameCat" headerText="Category"   >
-                <h:outputText value="#{nevent.nameCategory.description}" />
+                <h:outputText value="#{nevent.nameCategory}" />
             </p:column>
             <p:column id="nameCode" headerText="Name" >
                 <h:outputText value="#{nevent.name}" />
@@ -26,37 +27,37 @@
             <p:column id="nameDesc" headerText="Full Name">
                 <h:outputText value="#{nevent.fullName}" />
             </p:column>
-            <p:column id="parentName" headerText="Parent Name">
-                <h:outputText value="#{nevent.parentName != null ? nevent.parentName.name : '-' }" />
+            <p:column id="parentName" headerText="Parent Path">
+                <h:outputText value="#{fn:length(nevent.namePath) > 1 ? requestManager.getNewPath(nevent) : '-' }" />
             </p:column>
             <p:column id="type" headerText="Type" >
-                <h:outputText value="#{requestManager.requestType(nevent.eventType)}" />
+                <h:outputText value="#{requestManager.getRequestType(nevent)}" />
             </p:column>
-            <p:column id="reqBy" headerText="By" sortBy="#{nevent.requestedBy.username}" >
-                <h:outputText value="#{nevent.requestedBy.username}" />
+            <p:column id="reqBy" headerText="By" sortBy="#{nevent.nameEvent.requestedBy.username}" >
+                <h:outputText value="#{nevent.nameEvent.requestedBy.username}" />
             </p:column>
-            <p:column id="reqDate" headerText="Date" sortBy="#{nevent.requestDate}">
-                <h:outputText value="#{nevent.requestDate}" >
+            <p:column id="reqDate" headerText="Date" sortBy="#{nevent.nameEvent.requestDate}">
+                <h:outputText value="#{nevent.nameEvent.requestDate}" >
                     <f:convertDateTime pattern="yyyy-MM-dd" />
                 </h:outputText>
             </p:column>
             <p:column id="reqComment" headerText="Comment" >
-                <h:outputText value="#{nevent.requestorComment}" />
+                <h:outputText value="#{nevent.nameEvent.requestorComment}" />
             </p:column>
 
             <p:column id="status" headerText="Status"   >
-                <h:outputText value="#{namesManager.nameStatus(nevent)}" title="status"/>
+                <h:outputText value="#{namesManager.nameStatus(nevent.nameEvent)}" title="status"/>
             </p:column>
             <p:column id="By" headerText="Proc By" >
-                <h:outputText value="#{nevent.processedBy.username}" />
+                <h:outputText value="#{nevent.nameEvent.processedBy.username}" />
             </p:column>
-            <p:column id="procDate" headerText="Proc Date" sortBy="#{nevent.processDate}">
-                <h:outputText value="#{nevent.processDate}" >
+            <p:column id="procDate" headerText="Proc Date" sortBy="#{nevent.nameEvent.processDate}">
+                <h:outputText value="#{nevent.nameEvent.processDate}" >
                     <f:convertDateTime pattern="yyyy-MM-dd" />
                 </h:outputText>
             </p:column>
             <p:column id="procComment" headerText="Proc Comment" >
-                <h:outputText value="#{nevent.processorComment}" />
+                <h:outputText value="#{nevent.nameEvent.processorComment}" />
             </p:column>
         </p:dataTable>
     </p:dialog>
