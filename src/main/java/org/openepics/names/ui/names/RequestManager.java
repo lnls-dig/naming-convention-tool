@@ -171,19 +171,40 @@ public class RequestManager implements Serializable {
         return req.getPendingChange() instanceof NameView.ModifiyChange;
     }
 
-    public String getNewNameStyle(NameView req) {
-        Change change = req.getPendingChange();
-        if(change == null) return "";
-        switch(change.getStatus()) {
-            case CANCELLED: return "font-style: italic; color: #BFBFBF;";
-            case REJECTED: return "font-style: italic; color: #632523; font-weight: bold;";
-            case PROCESSING:
-                if(change instanceof NameView.AddChange) return "color: #366092;";
-                if(change instanceof NameView.ModifiyChange) return "color: #963634;";
-                if(change instanceof NameView.DeleteChange) return "color: #F5A52F; text-decoration: line-through;";
+    public String getNameClass(NameView req) {
+        // TODO totally wrong. Detect real status.
+
+        StringBuilder ret = new StringBuilder();
+        switch(req.getNameEvent().getEventType()) {
+            case INSERT:
+                ret.append("Insert-");
                 break;
+            case MODIFY:
+                ret.append("Modify-");
+                break;
+            case DELETE:
+                ret.append("Delete-");
+                break;
+            default:
+                return "unknown";
         }
-        return "text-decoration: blink;";
+        switch(req.getNameEvent().getStatus()) {
+            case APPROVED:
+                ret.append("Approved");
+                break;
+            case CANCELLED:
+                ret.append("Cancelled");
+                break;
+            case PROCESSING:
+                ret.append("Processing");
+                break;
+            case REJECTED:
+                ret.append("Rejected");
+                break;
+            default:
+                return "unknown";
+        }
+        return ret.toString();
     }
 
     public void onDelete() {

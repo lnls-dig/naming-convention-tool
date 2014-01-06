@@ -35,6 +35,86 @@
     background-color: #FCD5B4;
 }
 
+/* styles for the new UI : text style */
+.Insert-Processing, .Insert-Processing-New {
+    color: #366092;
+}
+
+.Insert-Approved, .Insert-Approved-New {
+    /* blank on purpose */
+}
+
+.Insert-Cancelled, .Insert-Cancelled-New {
+    color: #BFBFBF;
+    font-style: italic;
+}
+
+.Insert-Rejected, .Insert-Rejected-New {
+    color: #632523;
+    font-style: italic;
+    font-weight: bold;
+}
+
+.Modify-Processing-New {
+    color: #963634;
+}
+
+.Modify-Processing-Old {
+    color: #F5A52F;
+    text-decoration: line-through;
+}
+
+.Modify-Approved, .Modify-Approved-New {
+    /* blank on purpose */
+}
+
+.Modify-Cancelled-New {
+    color: #BFBFBF;
+    font-style: italic;
+}
+
+.Modify-Cancelled-Old {
+    color: #BFBFBF;
+    font-style: italic;
+    text-decoration: line-through;
+}
+
+.Modify-Rejected-New {
+    color: #632523;
+    font-style: italic;
+    font-weight: bold;
+}
+
+.Modify-Rejected-Old {
+    color: #632523;
+    font-style: italic;
+    font-weight: bold;
+    text-decoration: line-through;
+}
+
+.Delete-Processing, .Delete-Processing-New {
+    color: #F5A52F;
+    text-decoration: line-through;
+}
+
+.Delete-Approved, .Delete-Approved-New {
+    color: #BFBFBF;
+    text-decoration: line-through;
+}
+
+.Delete-Cancelled, .Delete-Cancelled-New {
+    color: #BFBFBF;
+    font-style: italic;
+    text-decoration: line-through;
+}
+
+.Delete-Rejected, .Delete-Rejected-New {
+    color: #632523;
+    font-style: italic;
+    font-weight: bold;
+    text-decoration: line-through;
+}
+
 .noBorders>tbody>tr, .noBorders>tbody>tr>td {
     background: none;
     border: none;
