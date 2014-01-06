@@ -10,7 +10,7 @@
     <ui:define name="content">
         <h:outputText value="Sorry, you are not authorized to perform this operation." rendered="#{not userManager.superUser}" />
         <h:form id="requestForm" rendered="#{userManager.superUser}">
-            <p:panelGrid style="position:fixed" styleClass="noBorders"  rendered="false">
+            <p:panelGrid style="position:fixed" styleClass="noBorders" rendered="false">
                 <p:row>
                     <p:column>
                         <p:commandButton icon="ui-icon-check" onclick="approveRequest.show()" title="Approve"/>
@@ -24,15 +24,20 @@
             </p:panelGrid>
             <p:menu  rendered="true" styleClass="fixedPosition box"  style="width: 7%">
                 <p:submenu  label="Process">
-                    <p:menuitem value="Approve" icon="ui-icon-check" update=":ApproveForm" oncomplete="approveRequest.show()" title="Approve Request" />
-                    <p:menuitem value="Reject"  icon="ui-icon-close" update=":RejectForm" oncomplete="rejectRequest.show()" title="Reject Request" />
-                    <p:menuitem value="History" icon="ui-icon-search"  title="View History" actionListener="#{requestProcManager.findHistory()}" update=":requestForm:historyTable" oncomplete="nameDetail.show()" />
+                    <p:menuitem value="Approve" icon="ui-icon-check" update=":ApproveForm"
+                                oncomplete="approveRequest.show()" title="Approve Request" />
+                    <p:menuitem value="Reject"  icon="ui-icon-close" update=":RejectForm"
+                                oncomplete="rejectRequest.show()" title="Reject Request" />
+                    <p:menuitem value="History" icon="ui-icon-search"  title="View History"
+                                actionListener="#{requestProcManager.findHistory()}" update=":requestForm:historyTable"
+                                oncomplete="nameDetail.show()" />
                 </p:submenu>
             </p:menu>
             <p:contextMenu for="requestTable">
                 <p:menuitem value="Approve" icon="ui-icon-check"  onclick="approveRequest.show()" />
                 <p:menuitem value="Reject" icon="ui-icon-close"  onclick="rejectRequest.show()" />
-                <p:menuitem value="History" icon="ui-icon-search"  actionListener="#{requestProcManager.findHistory()}" update=":requestForm:historyTable" oncomplete="nameDetail.show()" />
+                <p:menuitem value="History" icon="ui-icon-search" actionListener="#{requestProcManager.findHistory()}"
+                            update=":requestForm:historyTable" oncomplete="nameDetail.show()" />
             </p:contextMenu>
             <p:dataTable id="requestTable" var="nevent" value="#{requestProcManager.events}"
                          paginator="true" rows="50" resizableColumns="true"

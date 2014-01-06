@@ -18,6 +18,7 @@ package org.openepics.names.ui;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,7 +46,7 @@ public class RequestProcManager implements Serializable {
     private NamesEJB namesEJB;
     private static final Logger logger = Logger.getLogger("org.openepics.names.ui.RequestProcManager");
     private List<NameEvent> events;
-    private NameEvent[] selectedEvents;
+    private List<NameEvent> selectedEvents;
     private List<NameEvent> filteredEvents;
     private List<NameEvent> historyEvents;
     // Input parameters
@@ -70,7 +71,7 @@ public class RequestProcManager implements Serializable {
     public void onApprove() {
         try {
             logger.log(Level.INFO, "Approving ");
-            namesEJB.processEvents(selectedEvents, NameEventStatus.APPROVED, procComments);
+            namesEJB.processEvents((NameEvent[])selectedEvents.toArray(), NameEventStatus.APPROVED, procComments);
             showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully approved.", " ");
         } catch (Exception e) {
             showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error", e.getMessage());
@@ -83,7 +84,7 @@ public class RequestProcManager implements Serializable {
     public void onReject() {
         try {
             logger.log(Level.INFO, "Rejecting ");
-            namesEJB.processEvents(selectedEvents, NameEventStatus.REJECTED, procComments);
+            namesEJB.processEvents((NameEvent[])selectedEvents.toArray(), NameEventStatus.REJECTED, procComments);
             showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully rejected.", " ");
         } catch (Exception e) {
             showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error", e.getMessage());
@@ -96,15 +97,15 @@ public class RequestProcManager implements Serializable {
     //TODO: merge with same method in NamesManager
     public void findHistory() {
         try {
-            if (selectedEvents == null || selectedEvents.length == 0) {
+            if (selectedEvents == null || selectedEvents.isEmpty()) {
                 showMessage(FacesMessage.SEVERITY_ERROR, "Error", "You must select a name first.");
                 historyEvents = null;
                 return;
             }
             // logger.log(Level.INFO, "history ");
-            historyEvents = namesEJB.findEventsByName(selectedEvents[0].getNameId());
-            for (int i = 1; i < selectedEvents.length; i++) {
-                historyEvents.addAll(namesEJB.findEventsByName(selectedEvents[i].getNameId()));
+            historyEvents = new ArrayList<>();
+            for (NameEvent event : selectedEvents ) {
+                historyEvents.addAll(namesEJB.findEventsByName(event.getNameId()));
             }
             // showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } catch (Exception e) {
@@ -122,12 +123,23 @@ public class RequestProcManager implements Serializable {
 
     }
 
-    public NameEvent[] getSelectedEvents() {
-        return selectedEvents;
+    public NameView[] getSelectedEvents() {
+        return selectedEvents == null ? null : (NameView[])Lists.transform(selectedEvents, new Function<NameEvent, NameView>() {
+            @Override public NameView apply(NameEvent nameEvent) {
+                return new NameView(nameEvent, null);
+            }
+        }).toArray();
     }
 
-    public void setSelectedEvents(NameEvent[] selectedEvents) {
-        this.selectedEvents = selectedEvents;
+    public void setSelectedEvents(NameView[] selectedEvents) {
+        this.selectedEvents = null;
+        if(selectedEvents == null) return;
+
+        ArrayList<NameEvent> selection = new ArrayList<>();
+        for(NameView event : selectedEvents)
+            selection.add(event.getNameEvent());
+
+        this.selectedEvents = selection;
     }
 
     public List<NameEvent> getFilteredEvents() {
