@@ -24,7 +24,7 @@
                 <p:ajax event="rowSelect" listener="#{namesManager.findHistory()}"
                         update=":stdNameForm:historyTable" oncomplete="nameDetail.show()" />
 
-                <p:column id="nstatus" style="width: 15%" sortBy="#{namesManager.nameViewStatus(stdname)}" >
+                <p:column id="nstatus" style="width: 15%" sortBy="#{stdname.nameEvent.status}" >
                     <f:facet name="header">
                         <h:outputText value="Status" />
                         <br />

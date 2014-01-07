@@ -1,21 +1,20 @@
 /*
  * This software is Copyright by the Board of Trustees of Michigan
  * State University (c) Copyright 2012.
- * 
+ *
  * You may use this software under the terms of the GNU public license
  *  (GPL). The terms of this license are described at:
  *       http://www.gnu.org/licenses/gpl.txt
- * 
+ *
  * Contact Information:
  *   Facilitty for Rare Isotope Beam
  *   Michigan State University
  *   East Lansing, MI 48824-1321
  *   http://frib.msu.edu
- * 
+ *
  */
 package org.openepics.names.services;
 
-import org.openepics.names.ui.UserManager;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +34,7 @@ import org.openepics.names.model.NameEventType;
 import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NameRelease;
 import org.openepics.names.model.Privilege;
+import org.openepics.names.ui.UserManager;
 
 // import org.openepics.auth.japi.*;
 /**
@@ -45,7 +45,7 @@ import org.openepics.names.model.Privilege;
 @Stateless
 public class NamesEJB {
 
-    private static final Logger logger = Logger.getLogger("org.openepics.names");
+    private static final Logger logger = Logger.getLogger("org.openepics.names.services.NamesEJB");
     // TODO: Remove the injection. Not a good way to authorize.
     @Inject
     private UserManager userManager;
@@ -55,7 +55,7 @@ public class NamesEJB {
     private NamingConventionEJB ncEJB;
 
     // private AuthServ authService = null; //* Authentication service
-    
+
     /**
      * Create a new event i.e. name creation, modification, deletion etc.
      *
@@ -124,7 +124,7 @@ public class NamesEJB {
         logger.log(Level.FINER, "persisted...");
         return mEvent;
     }
-    
+
     public NameHierarchy getNameHierarchy() {
         return em.createQuery("SELECT nameHierarchy FROM NameHierarchy nameHierarchy", NameHierarchy.class).getSingleResult();
     }
@@ -203,7 +203,7 @@ public class NamesEJB {
         query.setParameter("requestedBy", user);
 
         nameEvents = query.getResultList();
-        logger.log(Level.FINE, "Results for requests: " + nameEvents.size());
+        logger.log(Level.FINE, "Results for user requests: " + nameEvents.size());
         return nameEvents;
     }
 
@@ -233,7 +233,7 @@ public class NamesEJB {
         TypedQuery<NameRelease> query = em.createQuery("SELECT n FROM NameRelease n ORDER BY n.releaseDate DESC",
                 NameRelease.class);
         releases = query.getResultList();
-        logger.log(Level.INFO, "Results for all events: " + releases.size());
+        logger.log(Level.FINE, "Results for all releases: " + releases.size());
         return releases;
     }
 
@@ -250,7 +250,7 @@ public class NamesEJB {
         TypedQuery<NameEvent> query = em.createQuery(
                 "SELECT n FROM NameEvent n WHERE n.nameId = :nameid "
                 + "ORDER BY n.requestDate DESC", NameEvent.class)
-                .setParameter("nameid", nameId); // ToDo: convert to criteria query.      
+                .setParameter("nameid", nameId); // ToDo: convert to criteria query.
         nameEvents = query.getResultList();
         logger.log(Level.FINE, "Events for " + nameId + nameEvents.size());
         return nameEvents;
@@ -495,58 +495,58 @@ public class NamesEJB {
 
     /*
      * private int validate(String ticket) throws Exception { findAuthService();
-     * 
+     *
      * if (authService == null) { logger.log(Level.WARNING,
      * "Cannot access Auth Service."); return -1; //TODO: This is not good. Use
      * exceptions. }
-     * 
+     *
      * MultivaluedMap<String, String> params = new MultivaluedMapImpl();
      * AuthResponse resp;
-     * 
+     *
      * params.add("ticket", ticket);
-     * 
+     *
      * resp = authService.validate(params);
-     * 
+     *
      * return resp.getStatus(); }
-     * 
+     *
      * @Override public AuthResponse authenticate (String userid, String
      * password) throws Exception { AuthResponse response; findAuthService();
-     * 
+     *
      * if (authService == null) { logger.log(Level.WARNING,
      * "Cannot access Auth Service."); return null; //TODO: Use exceptions. }
-     * 
+     *
      * // RequestContext context = RequestContext.getCurrentInstance(); //
      * AuthServ auth = new
      * AuthServ("http://qa01.hlc.nscl.msu.edu:8080/auth/rs/v0");
      * MultivaluedMap<String, String> params = new MultivaluedMapImpl();
-     * 
+     *
      * params.add("user", userid); params.add("password", password); response =
      * authService.authenticate(params); password = "xxxxxxxx"; //TODO implement
      * a better way destroy the password (from JVM)
-     * 
+     *
      * return response; }
-     * 
+     *
      * private void findAuthService() throws Exception { Properties prop =
      * getProperties("AuthDomain"); // defined via JNDI String serviceURL;
-     * 
+     *
      * if (prop == null || !"true".equals(prop.getProperty("Enabled"))) {
      * authService = null; logger.log(Level.INFO,
      * "Auth Domain not enabled or defined"); return; }
-     * 
+     *
      * if (authService == null) { serviceURL = prop.getProperty("ServiceURL");
      * if (serviceURL == null || serviceURL.isEmpty()) {
      * logger.log(Level.SEVERE, "ServiceURL not set"); authService = null; }
      * else { authService = new AuthServ(serviceURL); } } }
-     * 
+     *
      * private Properties getProperties(String jndiName) throws Exception {
      * Properties properties;
-     * 
+     *
      * InitialContext context = new InitialContext(); properties = (Properties)
      * context.lookup(jndiName); context.close();
-     * 
+     *
      * if (properties == null) { logger.log(Level.SEVERE,
      * "Error occurred while getting properties from JNDI."); }
-     * 
+     *
      * return properties; }
      */
 }
