@@ -1,17 +1,17 @@
 /*
  * This software is Copyright by the Board of Trustees of Michigan
  * State University (c) Copyright 2012.
- * 
+ *
  * You may use this software under the terms of the GNU public license
  *  (GPL). The terms of this license are described at:
  *       http://www.gnu.org/licenses/gpl.txt
- * 
+ *
  * Contact Information:
  *   Facilitty for Rare Isotope Beam
  *   Michigan State University
  *   East Lansing, MI 48824-1321
  *   http://frib.msu.edu
- * 
+ *
  */
 package org.openepics.names.ui;
 
@@ -22,16 +22,16 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
-import org.openepics.names.services.NamesEJB;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameEvent;
+import org.openepics.names.services.NamesEJB;
 import org.primefaces.component.menuitem.MenuItem;
 import org.primefaces.model.DefaultMenuModel;
 import org.primefaces.model.MenuModel;
 
 /**
  * For generating menu items for Naming Categories
- * 
+ *
  * @author Vasu V <vuppala@frib.msu.org>
  */
 @ManagedBean
@@ -69,12 +69,12 @@ public class MenuManager implements Serializable {
 		item.setUrl("/names.xhtml");
         item.setStyle("font-style: italic");
 		model.addMenuItem(item);
-        
-        
+
+
 		for (NameCategory cat : categories) {
 			item = new MenuItem();
 			item.setId("_" + cat.getId());
-			item.setValue(cat.getName());
+			item.setValue(cat.getDescription());
 			item.setUrl("/names.xhtml?category=" + cat.getName());
 			model.addMenuItem(item);
 		}
