@@ -25,8 +25,8 @@ public class DeviceView {
     public String getConventionName() { return conventionName; }
     public String getSectionPath() { return getNamePath(getSection()); }
     public String getDeviceTypePath() { return getNamePath(getDeviceType()); }
-    public NamePartView getSection() { return deviceName.getSection(); }
-    public NamePartView getDeviceType() { return deviceName.getDeviceType(); }
+    public NamePartView getSection() { return ViewFactory.getView(deviceName.getSection()); }
+    public NamePartView getDeviceType() { return ViewFactory.getView(deviceName.getDeviceType()); }
     public String getQualifier() { return deviceName.getQualifier(); }
     public String getStatus() {
         switch (deviceName.getStatus()) {

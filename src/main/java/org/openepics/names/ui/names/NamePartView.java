@@ -3,10 +3,10 @@ package org.openepics.names.ui.names;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.model.NamePartRevisionType;
-import org.openepics.names.model.NamePart;
 import org.openepics.names.services.NamePartService;
 
 /**
@@ -51,14 +51,12 @@ public class NamePartView {
     }
 
     private final NamePartService namePartService;
-    private final NamePart namePart;
     private final @Nullable NamePartRevision currentRevision;
     private final @Nullable NamePartRevision pendingRevision;
 
-    public NamePartView(NamePartService namePartService, NamePart namePart) {
+    public NamePartView(NamePartService namePartService, @Nullable NamePartRevision currentRevision, @Nullable NamePartRevision pendingRevision) {
         this.namePartService = namePartService;
-        this.namePart = namePart;
-        this.currentRevision = currentRevison;
+        this.currentRevision = currentRevision;
         this.pendingRevision = pendingRevision;
     }
 
@@ -76,11 +74,11 @@ public class NamePartView {
         if (pendingRevision == null) {
             return null;
         } else {
-            if (pendingRevision.getEventType() == NamePartRevisionType.DELETE) {
+            if (pendingRevision.getRevisionType() == NamePartRevisionType.DELETE) {
                 return new DeleteChange(pendingRevision.getStatus());
-            } else if (pendingRevision.getEventType() == NamePartRevisionType.INSERT) {
+            } else if (pendingRevision.getRevisionType() == NamePartRevisionType.INSERT) {
                 return new AddChange(pendingRevision.getStatus());
-            } else if (pendingRevision.getEventType() == NamePartRevisionType.MODIFY) {
+            } else if (pendingRevision.getRevisionType() == NamePartRevisionType.MODIFY) {
                 final @Nullable String newName = !pendingRevision.getName().equals(currentRevision.getName()) ? pendingRevision.getName() : null;
                 final @Nullable String newFullName = !pendingRevision.getName().equals(currentRevision.getName()) ? pendingRevision.getName() : null;
                 return new ModifyChange(pendingRevision.getStatus(), newName, newFullName);
@@ -90,7 +88,7 @@ public class NamePartView {
         }
     }
 
-    public boolean isDeleted() { return baseRevision().getEventType() == NamePartRevisionType.DELETE; }
+    public boolean isDeleted() { return baseRevision().getRevisionType() == NamePartRevisionType.DELETE; }
 
     public String getNameCategory() { return baseRevision().getNameCategory().getDescription(); }
 
@@ -100,7 +98,7 @@ public class NamePartView {
 
     public List<String> getNamePath() {
         final ImmutableList.Builder<String> pathElements = ImmutableList.builder();
-        for (NamePartRevision pathElement = baseRevision(); pathElement != null; pathElement = pathElement.getParentName()) {
+        for (NamePartView pathElement = this; pathElement != null; pathElement = pathElement.getParent()) {
             pathElements.add(pathElement.getName());
         }
         return pathElements.build().reverse();
@@ -108,7 +106,7 @@ public class NamePartView {
 
     public List<String> getFullNamePath() {
         final ImmutableList.Builder<String> pathElements = ImmutableList.builder();
-        for (NamePartRevision pathElement = baseRevision(); pathElement != null; pathElement = pathElement.getParentName()) {
+        for (NamePartView pathElement = this; pathElement != null; pathElement = pathElement.getParent()) {
             pathElements.add(pathElement.getFullName());
         }
         return pathElements.build().reverse();

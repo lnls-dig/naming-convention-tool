@@ -53,7 +53,7 @@ public class DeviceRevision extends Persistable {
     @Basic(optional = false)
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private DeviceRevisionStatus status;
+    private DeviceRevisionType status;
 
     @JoinColumn(name = "requested_by", referencedColumnName = "id")
     @ManyToOne(optional = false)
@@ -75,7 +75,7 @@ public class DeviceRevision extends Persistable {
 
     protected DeviceRevision() {}
 
-    public DeviceRevision(NamePart section, NamePart deviceType, String qualifier, DeviceRevisionStatus status) {
+    public DeviceRevision(NamePart section, NamePart deviceType, String qualifier, DeviceRevisionType status) {
         this.section = section;
         this.deviceType = deviceType;
         this.qualifier = qualifier;
@@ -94,8 +94,8 @@ public class DeviceRevision extends Persistable {
     public String getQualifier() { return qualifier; }
     public void setInstanceIndex(String qualifier) { this.qualifier = qualifier; }
 
-    public DeviceRevisionStatus getStatus() { return status; }
-    public void setStatus(DeviceRevisionStatus status) { this.status = status; }
+    public DeviceRevisionType getStatus() { return status; }
+    public void setStatus(DeviceRevisionType status) { this.status = status; }
 
     public Privilege getRequestedBy() { return requestedBy; }
     public void setRequestedBy(Privilege requestedBy) { this.requestedBy = requestedBy; }

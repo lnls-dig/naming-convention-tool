@@ -137,7 +137,7 @@ public class RequestManager implements Serializable {
         if(change instanceof NamePartView.AddChange) return "Add request";
         if(change instanceof NamePartView.ModifyChange) return "Modify request";
         if(change instanceof NamePartView.DeleteChange) return "Delete request";
-        return req.getNameEvent().getEventType().toString();
+        return req.getNameEvent().getRevisionType().toString();
     }
 
     public String getNewPath(NamePartView req) {

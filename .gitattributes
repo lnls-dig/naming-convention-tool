@@ -32,7 +32,7 @@ docs/Names-devenv-instructions.pdf -text svneol=unset#unset
 src/main/java/org/openepics/names/model/Configuration.java -text
 src/main/java/org/openepics/names/model/Device.java -text
 src/main/java/org/openepics/names/model/DeviceRevision.java -text
-src/main/java/org/openepics/names/model/DeviceRevisionStatus.java -text
+src/main/java/org/openepics/names/model/DeviceRevisionType.java -text
 src/main/java/org/openepics/names/model/NameCategory.java -text
 src/main/java/org/openepics/names/model/NameHierarchy.java -text
 src/main/java/org/openepics/names/model/NamePart.java -text
@@ -62,6 +62,7 @@ src/main/java/org/openepics/names/ui/PublicationManager.java -text
 src/main/java/org/openepics/names/ui/ReportManager.java -text
 src/main/java/org/openepics/names/ui/RequestProcManager.java -text
 src/main/java/org/openepics/names/ui/UserManager.java -text
+src/main/java/org/openepics/names/ui/ViewFactory.java -text
 src/main/java/org/openepics/names/ui/names/NamePartView.java -text
 src/main/java/org/openepics/names/ui/names/RequestManager.java -text
 src/main/java/org/openepics/names/webservice/DeviceNameResource.java -text

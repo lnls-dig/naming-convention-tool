@@ -47,10 +47,10 @@ public class NamePartService {
         Preconditions.checkState(userManager.isLoggedIn());
 
         final NamePartRevision baseRevision = baseRevision(namePart);
-        Preconditions.checkState(baseRevision.getEventType() != NamePartRevisionType.DELETE);
+        Preconditions.checkState(baseRevision.getRevisionType() != NamePartRevisionType.DELETE);
 
         final @Nullable NamePartRevision pendingRevision = pendingRevision(namePart);
-        Preconditions.checkState(pendingRevision == null || pendingRevision.getEventType() != NamePartRevisionType.DELETE);
+        Preconditions.checkState(pendingRevision == null || pendingRevision.getRevisionType() != NamePartRevisionType.DELETE);
 
         if (pendingRevision != null) {
             pendingRevision.setStatus(NamePartRevisionStatus.CANCELLED);
@@ -59,7 +59,7 @@ public class NamePartService {
             pendingRevision.setProcessorComment(comment);
         }
 
-        final NamePartRevisionType eventType = pendingRevision != null ? pendingRevision.getEventType() : NamePartRevisionType.MODIFY;
+        final NamePartRevisionType eventType = pendingRevision != null ? pendingRevision.getRevisionType() : NamePartRevisionType.MODIFY;
         final NamePartRevision newRevision = new NamePartRevision(namePart, eventType, userManager.getUser(), new Date(), comment, baseRevision.getNameCategory(), baseRevision.getParent(), name, fullName);
 
         if (userManager.isEditor() && !baseRevision.getNameCategory().isApprovalNeeded() && isOriginalCreator(userManager.getUser(), namePart)) {
@@ -75,10 +75,10 @@ public class NamePartService {
         Preconditions.checkState(userManager.isLoggedIn());
 
         final NamePartRevision baseRevision = baseRevision(namePart);
-        Preconditions.checkState(baseRevision.getEventType() != NamePartRevisionType.DELETE);
+        Preconditions.checkState(baseRevision.getRevisionType() != NamePartRevisionType.DELETE);
 
         final @Nullable NamePartRevision pendingRevision = pendingRevision(namePart);
-        Preconditions.checkState(pendingRevision == null || pendingRevision.getEventType() != NamePartRevisionType.DELETE);
+        Preconditions.checkState(pendingRevision == null || pendingRevision.getRevisionType() != NamePartRevisionType.DELETE);
 
         if (pendingRevision != null) {
             pendingRevision.setStatus(NamePartRevisionStatus.CANCELLED);
@@ -87,7 +87,7 @@ public class NamePartService {
             pendingRevision.setProcessorComment(comment);
         }
 
-        if (pendingRevision == null || pendingRevision.getEventType() != NamePartRevisionType.INSERT) {
+        if (pendingRevision == null || pendingRevision.getRevisionType() != NamePartRevisionType.INSERT) {
             final NamePartRevision newRevision = new NamePartRevision(namePart, NamePartRevisionType.DELETE, userManager.getUser(), new Date(), comment, baseRevision.getNameCategory(), baseRevision.getParent(), baseRevision.getName(), baseRevision.getFullName());
 
             if (userManager.isEditor() && !baseRevision.getNameCategory().isApprovalNeeded() && isOriginalCreator(userManager.getUser(), namePart)) {
@@ -121,7 +121,7 @@ public class NamePartService {
         Preconditions.checkState(userManager.isLoggedIn());
 
         final NamePartRevision baseRevision = baseRevision(namePart);
-        Preconditions.checkState(baseRevision.getEventType() != NamePartRevisionType.DELETE);
+        Preconditions.checkState(baseRevision.getRevisionType() != NamePartRevisionType.DELETE);
 
         final @Nullable NamePartRevision pendingRevision = pendingRevision(namePart);
         Preconditions.checkState(pendingRevision != null);

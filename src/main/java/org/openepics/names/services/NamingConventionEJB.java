@@ -12,7 +12,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.model.DeviceRevisionStatus;
+import org.openepics.names.model.DeviceRevisionType;
 import org.openepics.names.model.Privilege;
 import org.openepics.names.ui.UserManager;
 
@@ -38,7 +38,7 @@ public class NamingConventionEJB {
         final long deviceInstances = countDeviceNamesByRef(section, deviceType);
         final String qualifier = getQualifier(deviceInstances);
 
-        final DeviceRevision newDeviceName = new DeviceRevision(section, deviceType, qualifier, DeviceRevisionStatus.VALID);
+        final DeviceRevision newDeviceName = new DeviceRevision(section, deviceType, qualifier, DeviceRevisionType.VALID);
         newDeviceName.setNameId(UUID.randomUUID().toString());
         newDeviceName.setRequestedBy(userManager.getUser());
         newDeviceName.setProcessedBy(userManager.getUser());
@@ -61,7 +61,7 @@ public class NamingConventionEJB {
 
         Preconditions.checkNotNull(nameToDelete);
 
-        if (nameToDelete.getStatus() == DeviceRevisionStatus.DELETED) {
+        if (nameToDelete.getStatus() == DeviceRevisionType.DELETED) {
             return nameToDelete;
         }
 
@@ -71,7 +71,7 @@ public class NamingConventionEJB {
         }
 
         // make new revision
-        DeviceRevision deletedName = new DeviceRevision(nameToDelete.getSection(), nameToDelete.getDeviceType(), nameToDelete.getQualifier(), DeviceRevisionStatus.DELETED);
+        DeviceRevision deletedName = new DeviceRevision(nameToDelete.getSection(), nameToDelete.getDeviceType(), nameToDelete.getQualifier(), DeviceRevisionType.DELETED);
         deletedName.setNameId(nameToDelete.getNameId());
         deletedName.setRequestedBy(userManager.getUser());
         deletedName.setProcessedBy(userManager.getUser());
@@ -135,7 +135,7 @@ public class NamingConventionEJB {
      */
     public List<DeviceRevision> getExistingDeviceNames() {
         return em.createQuery("SELECT n FROM DeviceName n WHERE n.requestDate = (SELECT MAX(r.requestDate) FROM DeviceName r WHERE (r.nameId = n.nameId)) AND n.status != :status ORDER BY n.status, n.deviceType.id, n.section.id", DeviceRevision.class)
-                .setParameter("status", DeviceRevisionStatus.DELETED).getResultList();
+                .setParameter("status", DeviceRevisionType.DELETED).getResultList();
     }
 
     public List<DeviceRevision> getDeviceNameHistory(String deviceNameId) {
@@ -144,15 +144,15 @@ public class NamingConventionEJB {
 
     public List<DeviceRevision> getActiveNames() {
         return em.createQuery("SELECT n FROM DeviceName n WHERE n.requestDate = (SELECT MAX(r.requestDate) FROM DeviceName r WHERE (r.nameId = n.nameId) AND r.processDate IS NOT NULL) AND (n.status = :status) ORDER BY n.status, n.deviceType.id, n.section.id", DeviceRevision.class)
-                .setParameter("status", DeviceRevisionStatus.VALID).getResultList();
+                .setParameter("status", DeviceRevisionType.VALID).getResultList();
     }
 
-    public List<DeviceRevision> getDeviceNamesByStatus(DeviceRevisionStatus status) {
+    public List<DeviceRevision> getDeviceNamesByStatus(DeviceRevisionType status) {
         return em.createNamedQuery("DeviceName.findByStatus", DeviceRevision.class).setParameter("status", status).getResultList();
     }
 
     public boolean isNameValid(DeviceRevision deviceName) {
-        return deviceName.getStatus() == DeviceRevisionStatus.VALID;
+        return deviceName.getStatus() == DeviceRevisionType.VALID;
     }
 
     /**
@@ -165,7 +165,7 @@ public class NamingConventionEJB {
      */
     public boolean setNameValid(Integer id, Integer modifierId) {
         final DeviceRevision dbName = findDeviceNameById(id);
-        dbName.setStatus(DeviceRevisionStatus.VALID);
+        dbName.setStatus(DeviceRevisionType.VALID);
         setNameProcessed(dbName, modifierId);
 
         return true;

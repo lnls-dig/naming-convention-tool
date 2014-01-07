@@ -29,8 +29,8 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePart;
+import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NameRelease;
 import org.openepics.names.services.NamePartService;
 import org.openepics.names.services.NamesEJB;
@@ -85,9 +85,8 @@ public class NamesManager implements Serializable {
 
     public void refreshNames() {
         standardNames = Lists.transform(namePartService.getPendingNames(currentCategory, showDeletedNames), new Function<NamePart, NamePartView>() {
-            @Override
-            public NamePartView apply(NamePart namePart) {
-                return new NamePartView(namePart, null);
+            @Override public NamePartView apply(NamePart namePart) {
+                return ViewFactory.getView(namePart);
             }
         });
     }
@@ -112,7 +111,7 @@ public class NamesManager implements Serializable {
             case APPROVED:
                 final NameRelease latestRelease = pubManager.getLatestRelease();
                 final boolean processedBeforeLatestRelease = latestRelease != null && nreq.getProcessDate() != null && nreq.getProcessDate().before(latestRelease.getReleaseDate());
-                switch (nreq.getEventType()) {
+                switch (nreq.getRevisionType()) {
                     case INSERT:
                         return processedBeforeLatestRelease ? "Published" : "Added";
                     case MODIFY:
@@ -218,9 +217,8 @@ public class NamesManager implements Serializable {
 
     public List<NamePartView> getHistoryEvents() {
         return historyEvents == null ? null : Lists.transform(historyEvents, new Function<NamePartRevision, NamePartView>() {
-            @Override
-            public NamePartView apply(NamePartRevision nameEvent) {
-                return new NamePartView(nameEvent, null);
+            @Override public NamePartView apply(NamePartRevision namePartRevision) {
+                return ViewFactory.getView(namePartRevision);
             }
         });
     }

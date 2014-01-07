@@ -14,9 +14,9 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NameCategory;
-import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
+import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.services.NamePartService;
 import org.openepics.names.services.NamesEJB;
 import org.openepics.names.services.NamingConvention;
@@ -49,7 +49,7 @@ public class EditNamesManager implements Serializable {
     public void init() {
         final NameCategory topSectionCategory = namesEJB.getNameHierarchy().getSectionLevels().get(0);
         final List<NamePartView> topSections = Lists.transform(namePartService.getPendingNames(topSectionCategory, false), new Function<NamePart, NamePartView>() {
-            @Override public NamePartView apply(NamePart namePart) { return new NamePartView(namePartService, namePart); }
+            @Override public NamePartView apply(NamePart namePart) { return ViewFactory.getView(namePart); }
         });
         sectionLevels = new ArrayList<>();
         sectionLevels.add(new NamePartSelectionView(topSections));
@@ -59,7 +59,7 @@ public class EditNamesManager implements Serializable {
 
         final NameCategory topDeviceTypeCategory = namesEJB.getNameHierarchy().getDeviceTypeLevels().get(0);
         final List<NamePartView> topDeviceTypes = Lists.transform(namePartService.getPendingNames(topDeviceTypeCategory, false), new Function<NamePart, NamePartView>() {
-            @Override public NamePartView apply(NamePart namePart) { return new NamePartView(namePartService, namePart); }
+            @Override public NamePartView apply(NamePart namePart) { return ViewFactory.getView(namePart); }
         });
         deviceTypeLevels = new ArrayList<>();
         deviceTypeLevels.add(new NamePartSelectionView(topDeviceTypes));

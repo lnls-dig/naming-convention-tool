@@ -1,5 +1,5 @@
 package org.openepics.names.model;
 
-public enum DeviceRevisionStatus {
+public enum DeviceRevisionType {
     INVALID, VALID, DELETED
 }

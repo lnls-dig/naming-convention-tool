@@ -23,8 +23,6 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -37,23 +35,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Vasu V <vuppala@frib.msu.org>
  */
 @Entity
-@Table(name = "name_event")
+@Table(name = "name_part_revision")
 @XmlRootElement
-@NamedQueries({
-    @NamedQuery(name = "NamePartEvent.findAll", query = "SELECT n FROM NamePartEvent n"),
-    @NamedQuery(name = "NamePartEvent.findById", query = "SELECT n FROM NamePartEvent n WHERE n.id = :id"),
-    @NamedQuery(name = "NamePartEvent.findByName", query = "SELECT n FROM NamePartEvent n WHERE n.name = :name ORDER BY n.id DESC"),
-    @NamedQuery(name = "NamePartEvent.findByFullName", query = "SELECT n FROM NamePartEvent n WHERE n.fullName = :fullName"),
-    @NamedQuery(name = "NamePartEvent.findByCategory", query = "SELECT n FROM NamePartEvent n WHERE n.nameCategory = :nameCategory"),
-    @NamedQuery(name = "NamePartEvent.findByParentName", query = "SELECT n FROM NamePartEvent n WHERE n.parentName = :parentName"),
-    @NamedQuery(name = "NamePartEvent.findByEventType", query = "SELECT n FROM NamePartEvent n WHERE n.eventType = :eventType"),
-    @NamedQuery(name = "NamePartEvent.findByRequestedBy", query = "SELECT n FROM NamePartEvent n WHERE n.requestedBy = :requestedBy"),
-    @NamedQuery(name = "NamePartEvent.findByRequestorComment", query = "SELECT n FROM NamePartEvent n WHERE n.requestorComment = :requestorComment"),
-    @NamedQuery(name = "NamePartEvent.findByRequestDate", query = "SELECT n FROM NamePartEvent n WHERE n.requestDate = :requestDate"),
-    @NamedQuery(name = "NamePartEvent.findByStatus", query = "SELECT n FROM NamePartEvent n WHERE n.status = :status"),
-    @NamedQuery(name = "NamePartEvent.findByProcessedBy", query = "SELECT n FROM NamePartEvent n WHERE n.processedBy = :processedBy"),
-    @NamedQuery(name = "NamePartEvent.findByProcessorComment", query = "SELECT n FROM NamePartEvent n WHERE n.processorComment = :processorComment"),
-    @NamedQuery(name = "NamePartEvent.findByProcessDate", query = "SELECT n FROM NamePartEvent n WHERE n.processDate = :processDate")})
 public class NamePartRevision extends Persistable {
 
     @JoinColumn(name = "name_part_id", referencedColumnName = "id")
@@ -62,8 +45,8 @@ public class NamePartRevision extends Persistable {
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(name = "event_type")
-    private NamePartRevisionType eventType;
+    @Column(name = "revision_type")
+    private NamePartRevisionType revisionType;
 
     @JoinColumn(name = "requested_by", referencedColumnName = "id")
     @ManyToOne(optional = false)
@@ -119,9 +102,9 @@ public class NamePartRevision extends Persistable {
     protected NamePartRevision() {
     }
 
-    public NamePartRevision(NamePart namePart, NamePartRevisionType eventType, Privilege requestedBy, Date requestDate, String requestorComment, NameCategory nameCategory, NamePart parent, String name, String fullName) {
+    public NamePartRevision(NamePart namePart, NamePartRevisionType revisionType, Privilege requestedBy, Date requestDate, String requestorComment, NameCategory nameCategory, NamePart parent, String name, String fullName) {
         this.namePart = namePart;
-        this.eventType = eventType;
+        this.revisionType = revisionType;
         this.requestedBy = requestedBy;
         this.requestDate = requestDate;
         this.requestorComment = requestorComment;
@@ -137,7 +120,7 @@ public class NamePartRevision extends Persistable {
 
     public NamePart getNamePart() { return namePart; }
 
-    public NamePartRevisionType getEventType() { return eventType; }
+    public NamePartRevisionType getRevisionType() { return revisionType; }
 
     public Privilege getRequestedBy() { return requestedBy; }
 
@@ -188,6 +171,6 @@ public class NamePartRevision extends Persistable {
 
     @Override
     public String toString() {
-        return "org.openepics.names.NamePartEvent[ id=" + id + " ]";
+        return "org.openepics.names.NamePartRevision[ id=" + id + " ]";
     }
 }
