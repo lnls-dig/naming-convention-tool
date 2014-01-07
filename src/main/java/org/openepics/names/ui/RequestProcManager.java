@@ -133,7 +133,7 @@ public class RequestProcManager implements Serializable {
 
     public void setSelectedEvents(NameView[] selectedEvents) {
         this.selectedEvents = null;
-        if(selectedEvents == null) return;
+        if(selectedEvents == null || selectedEvents.length == 0) return;
 
         ArrayList<NameEvent> selection = new ArrayList<>();
         for(NameView event : selectedEvents)
