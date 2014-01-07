@@ -17,7 +17,6 @@ package org.openepics.names.services;
 
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
@@ -28,10 +27,10 @@ import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import org.openepics.names.model.NameCategory;
-import org.openepics.names.model.NameEvent;
-import org.openepics.names.model.NameEventStatus;
-import org.openepics.names.model.NameEventType;
+import org.openepics.names.model.NamePartRevision;
+import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.model.NameHierarchy;
+import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NameRelease;
 import org.openepics.names.model.Privilege;
 import org.openepics.names.ui.UserManager;
@@ -53,77 +52,6 @@ public class NamesEJB {
     private EntityManager em;
     @EJB
     private NamingConventionEJB ncEJB;
-
-    // private AuthServ authService = null; //* Authentication service
-
-    /**
-     * Create a new event i.e. name creation, modification, deletion etc.
-     *
-     * @author Vasu V <vuppala@frib.msu.org>
-     */
-    public NameEvent createNewEvent(String nameId, String name, String fullName, Integer nameCategoryID,
-            Integer parentNameID, NameEventType eventType, String comment) throws Exception {
-        logger.log(Level.FINER, "creating...");
-        Date curdate = new Date();
-
-        if (userManager == null) {
-            throw new Exception("userManager is null. Cannot inject it");
-        }
-
-        if (!userManager.isLoggedIn()) {
-            throw new Exception("You are not authorized to perform this operation.");
-        }
-
-        NameCategory ncat = null;
-        if (nameCategoryID != null) {
-            ncat = em.find(NameCategory.class, nameCategoryID);
-        }
-        if (ncat == null) {
-            logger.log(Level.SEVERE, "Invalid categroy: " + nameCategoryID);
-            return null;
-        }
-
-        NameEvent parent = null;
-        if (parentNameID != null) {
-            parent = em.find(NameEvent.class, parentNameID);
-        }
-
-        NameEvent mEvent = new NameEvent(eventType, userManager.getUser(), curdate, NameEventStatus.PROCESSING, name, fullName);
-        logger.log(Level.FINE, "new created:" + name + ":" + fullName);
-        if (eventType == NameEventType.INSERT) {
-            nameId = UUID.randomUUID().toString();
-        }
-
-        mEvent.setRequestorComment(comment);
-        mEvent.setNameCategory(ncat);
-        mEvent.setNameId(nameId);
-        if (parent != null) {
-            mEvent.setParentName(parent);
-        }
-
-        /* No approval needed for:
-         * NameEventType.INSERT - any Editor can create new instance
-         * NameEventType.MODIFY - only if user is original creator
-         * NameEventType.DELETE - only if user is original creator
-         */
-        if (userManager.isEditor() && !ncat.isApprovalNeeded()) {
-            List<NameEvent> connectedEvents = findEventsByName(nameId);
-            if (eventType == NameEventType.INSERT
-                    || connectedEvents.get(0).getRequestedBy().equals(userManager.getUser())) {
-                mEvent.setStatus(NameEventStatus.APPROVED);
-                mEvent.setProcessDate(new Date());
-                mEvent.setProcessorComment("AUTOMATIC APPROVAL BASED ON CATEGORY SETTING");
-                mEvent.setProcessedBy(userManager.getUser());
-            } else {
-                throw new Exception("You are not authorized to perform this operation.");
-            }
-        }
-
-        logger.log(Level.FINEST, "set properties...");
-        em.persist(mEvent);
-        logger.log(Level.FINER, "persisted...");
-        return mEvent;
-    }
 
     public NameHierarchy getNameHierarchy() {
         return em.createQuery("SELECT nameHierarchy FROM NameHierarchy nameHierarchy", NameHierarchy.class).getSingleResult();
@@ -153,10 +81,10 @@ public class NamesEJB {
      *
      * @author Vasu V <vuppala@frib.msu.org>
      */
-    public List<NameEvent> getUnprocessedEvents() {
-        List<NameEvent> nameEvents;
+    public List<NamePartRevision> getUnprocessedEvents() {
+        List<NamePartRevision> nameEvents;
 
-        TypedQuery<NameEvent> query = em.createQuery("SELECT n FROM NameEvent n WHERE n.status = :status", NameEvent.class).setParameter("status", NameEventStatus.PROCESSING);
+        TypedQuery<NamePartRevision> query = em.createQuery("SELECT n FROM NameEvent n WHERE n.status = :status", NamePartRevision.class).setParameter("status", NamePartRevisionStatus.PROCESSING);
 
         nameEvents = query.getResultList();
         logger.log(Level.INFO, "retreived pending requests: " + nameEvents.size());
@@ -164,47 +92,19 @@ public class NamesEJB {
     }
 
     /**
-     * Get names that are approved, and are new or modified.
-     */
-    public List<NameEvent> getValidNames() {
-        return getStandardNames("%", false);
-    }
-
-    /**
      * Is name being changed?
      */
-    public boolean isUnderChange(NameEvent nevent) {
-        List<NameEvent> nameEvents;
+    public boolean isUnderChange(NamePartRevision nevent) {
+        List<NamePartRevision> nameEvents;
 
-        TypedQuery<NameEvent> query = em
+        TypedQuery<NamePartRevision> query = em
                 .createQuery(
                         "SELECT n FROM NameEvent n WHERE n.name = :name AND n.status != :status "
                         + "AND  n.requestDate > (SELECT MAX(r.releaseDate) FROM NameRelease r)",
-                        NameEvent.class).setParameter("status", NameEventStatus.REJECTED).setParameter("name", nevent.getName());
+                        NamePartRevision.class).setParameter("status", NamePartRevisionStatus.REJECTED).setParameter("name", nevent.getName());
         nameEvents = query.getResultList();
         logger.log(Level.FINE, "change requests: " + nameEvents.size());
         return !nameEvents.isEmpty();
-    }
-
-    /**
-     * Get all requests of the current user
-     */
-    public List<NameEvent> getUserRequests() {
-        List<NameEvent> nameEvents;
-        Privilege user = userManager.getUser();
-        // String user = "system";
-
-        if (user == null) {
-            return null;
-        }
-
-        TypedQuery<NameEvent> query = em.
-                createNamedQuery("NameEvent.findByRequestedBy", NameEvent.class);
-        query.setParameter("requestedBy", user);
-
-        nameEvents = query.getResultList();
-        logger.log(Level.FINE, "Results for user requests: " + nameEvents.size());
-        return nameEvents;
     }
 
     /**
@@ -212,10 +112,10 @@ public class NamesEJB {
      *
      * @author Vasu V <vuppala@frib.msu.org>
      */
-    public List<NameEvent> getAllEvents() {
-        List<NameEvent> nameEvents;
+    public List<NamePartRevision> getAllEvents() {
+        List<NamePartRevision> nameEvents;
 
-        TypedQuery<NameEvent> query = em.createQuery("SELECT n FROM NameEvent n ORDER BY n.requestDate DESC", NameEvent.class);
+        TypedQuery<NamePartRevision> query = em.createQuery("SELECT n FROM NameEvent n ORDER BY n.requestDate DESC", NamePartRevision.class);
 
         nameEvents = query.getResultList();
         logger.log(Level.FINE, "Results for all events: " + nameEvents.size());
@@ -240,27 +140,20 @@ public class NamesEJB {
     /**
      * Retrieve all events of a given name.
      *
-     * @param nameId - the name ID of the name
+     * @param namePart
      * @return a list of name events in the descending order
      * @author Vasu V <vuppala@frib.msu.org>
      */
-    public List<NameEvent> findEventsByName(String nameId) {
-        List<NameEvent> nameEvents;
-
-        TypedQuery<NameEvent> query = em.createQuery(
-                "SELECT n FROM NameEvent n WHERE n.nameId = :nameid "
-                + "ORDER BY n.requestDate DESC", NameEvent.class)
-                .setParameter("nameid", nameId); // ToDo: convert to criteria query.
-        nameEvents = query.getResultList();
-        logger.log(Level.FINE, "Events for " + nameId + nameEvents.size());
-        return nameEvents;
+    public List<NamePartRevision> findEventsByName(NamePart namePart) {
+        final TypedQuery<NamePartRevision> query = em.createQuery("SELECT n FROM NameEvent n WHERE n.namePart = :namePart " + "ORDER BY n.requestDate DESC", NamePartRevision.class).setParameter("namePart", namePart);
+        return query.getResultList();
     }
 
-    public List<NameEvent> findEventsByCategory(NameCategory category) {
-        List<NameEvent> nameEvents;
+    public List<NamePartRevision> findEventsByCategory(NameCategory category) {
+        List<NamePartRevision> nameEvents;
 
-        TypedQuery<NameEvent> query = em.createQuery(
-                "SELECT n FROM NameEvent n WHERE n.nameCategory = :nameCategory ORDER BY n.name", NameEvent.class)
+        TypedQuery<NamePartRevision> query = em.createQuery(
+                "SELECT n FROM NameEvent n WHERE n.nameCategory = :nameCategory ORDER BY n.name", NamePartRevision.class)
                 .setParameter("nameCategory", category);
 
         nameEvents = query.getResultList();
@@ -273,12 +166,12 @@ public class NamesEJB {
      *
      * @author Vasu V <vuppala@frib.msu.org>
      */
-    public NameEvent findLatestEvent(String name) {
-        List<NameEvent> nameEvents;
+    public NamePartRevision findLatestEvent(String name) {
+        List<NamePartRevision> nameEvents;
 
-        TypedQuery<NameEvent> query = em.createQuery(
+        TypedQuery<NamePartRevision> query = em.createQuery(
                 "SELECT n FROM NameEvent n WHERE n.name = :name  AND n.status != :status ORDER BY n.requestDate DESC",
-                NameEvent.class).setParameter("status", NameEventStatus.REJECTED).setParameter("name", name);
+                NamePartRevision.class).setParameter("status", NamePartRevisionStatus.REJECTED).setParameter("name", name);
 
         nameEvents = query.getResultList();
         if (nameEvents.isEmpty()) {
@@ -288,11 +181,11 @@ public class NamesEJB {
         }
     }
 
-    public List<NameEvent> findEventsByParent(NameEvent parent) {
-        List<NameEvent> childEvents;
+    public List<NamePartRevision> findEventsByParent(NamePartRevision parent) {
+        List<NamePartRevision> childEvents;
 
-        TypedQuery<NameEvent> query = em.createQuery(
-                "SELECT n FROM NameEvent n WHERE n.parentName = :parentName ORDER BY n.name", NameEvent.class);
+        TypedQuery<NamePartRevision> query = em.createQuery(
+                "SELECT n FROM NameEvent n WHERE n.parentName = :parentName ORDER BY n.name", NamePartRevision.class);
         query.setParameter("parentName", parent);
 
         childEvents = query.getResultList();
@@ -308,8 +201,8 @@ public class NamesEJB {
      *
      * @author Vasu V <vuppala@frib.msu.org>
      */
-    public List<NameEvent> findEvents(char eventType, char eventStatus) {
-        List<NameEvent> nameEvents;
+    public List<NamePartRevision> findEvents(char eventType, char eventStatus) {
+        List<NamePartRevision> nameEvents;
 
         String queryStr = "SELECT n FROM NameEvent n ";
         String cons = "";
@@ -333,7 +226,7 @@ public class NamesEJB {
 
         logger.log(Level.INFO, "Search query is: " + queryStr);
 
-        TypedQuery<NameEvent> query = em.createQuery(queryStr, NameEvent.class);
+        TypedQuery<NamePartRevision> query = em.createQuery(queryStr, NamePartRevision.class);
 
         nameEvents = query.getResultList();
         logger.log(Level.INFO, "Search hits: " + nameEvents.size());
@@ -341,54 +234,10 @@ public class NamesEJB {
     }
 
     /**
-     * Get name elements that have been approved.
-     *
-     * @param category Restrict names to the given name-element category
-     *
-     * @param includeDeleted Don't discard deleted name-elements.
+     * Finds a {@link NamePartRevision} with the specified ID.
      */
-    public List<NameEvent> getStandardNames(String category, boolean includeDeleted) {
-        List<NameEvent> nameEvents;
-        TypedQuery<NameEvent> query;
-
-        if (includeDeleted) {
-            query = em
-                    .createQuery(
-                            "SELECT n FROM NameEvent n WHERE n.nameCategory.name LIKE :categ "
-                            + "AND n.requestDate = ("
-                            + "SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name "
-                            + "AND (r.status = :status1 OR r.status = :status2)) "
-                            + "ORDER BY n.nameCategory.id, n.name",
-                            NameEvent.class);
-            query.setParameter("status1", NameEventStatus.APPROVED);
-            query.setParameter("status2", NameEventStatus.PROCESSING);
-            query.setParameter("categ", category);
-        } else {
-            query = em
-                    .createQuery(
-                            "SELECT n FROM NameEvent n WHERE n.nameCategory.name LIKE :categ "
-                            + "AND n.requestDate = ("
-                            + "SELECT MAX(r.requestDate) FROM NameEvent r WHERE r.name = n.name "
-                            + "AND (r.status = :status1 OR r.status = :status2)) "
-                            + "AND NOT (n.eventType = :type AND n.status = :status1) "
-                            + "ORDER BY n.nameCategory.id, n.name",
-                            NameEvent.class);
-            query.setParameter("status1", NameEventStatus.APPROVED);
-            query.setParameter("status2", NameEventStatus.PROCESSING);
-            query.setParameter("type", NameEventType.DELETE);
-            query.setParameter("categ", category);
-        }
-        // TODO: check category values
-        nameEvents = query.getResultList();
-        logger.log(Level.FINE, "Results for category " + category + ":" + nameEvents.size());
-        return nameEvents;
-    }
-
-    /**
-     * Finds a {@link NameEvent} with the specified ID.
-     */
-    public NameEvent findEventById(Integer id) {
-        return em.find(NameEvent.class, id);
+    public NamePartRevision findEventById(Integer id) {
+        return em.find(NamePartRevision.class, id);
     }
 
     /**
@@ -396,22 +245,22 @@ public class NamesEJB {
      *
      * @author Vasu V <vuppala@frib.msu.org>
      */
-    public void processEvents(NameEvent[] nevents, NameEventStatus status, String comment) throws Exception {
-        NameEvent mEvent;
+    public void processEvents(NamePartRevision[] nevents, NamePartRevisionStatus status, String comment) throws Exception {
+        NamePartRevision mEvent;
 
         // TODO; check if user has privs to processEvents.
         if (!userManager.isEditor()) {
             throw new Exception("You are not authorized to perform this operation.");
         }
         logger.log(Level.FINE, "Processing events " + nevents.length);
-        for (NameEvent event : nevents) {
+        for (NamePartRevision event : nevents) {
             logger.log(Level.FINER, "Processing  " + event.getName());
-            mEvent = em.find(NameEvent.class, event.getId(), LockModeType.OPTIMISTIC);
+            mEvent = em.find(NamePartRevision.class, event.getId(), LockModeType.OPTIMISTIC);
             mEvent.setStatus(status);
             mEvent.setProcessDate(new java.util.Date());
             mEvent.setProcessorComment(comment);
             mEvent.setProcessedBy(userManager.getUser());
-            if (status == NameEventStatus.REJECTED) {
+            if (status == NamePartRevisionStatus.REJECTED) {
                 continue;
             }
 			// TODO what's up with this?
@@ -427,11 +276,11 @@ public class NamesEJB {
      * @author Vasu V <vuppala@frib.msu.org>
      */
     public void cancelRequest(int eventId, String comment) throws Exception {
-        NameEvent mEvent;
+        NamePartRevision mEvent;
 
 		// TODO; check if user has privs to processEvents.
         // TODO: better to merge or extend the persistence context?
-        mEvent = em.find(NameEvent.class, eventId, LockModeType.OPTIMISTIC);
+        mEvent = em.find(NamePartRevision.class, eventId, LockModeType.OPTIMISTIC);
 
         if (mEvent == null) {
             throw new Exception("Event not found.");
@@ -440,7 +289,7 @@ public class NamesEJB {
             throw new Exception("Unauthorized access");
         }
         logger.log(Level.FINE, "Processing  " + mEvent.getName());
-        mEvent.setStatus(NameEventStatus.CANCELLED);
+        mEvent.setStatus(NamePartRevisionStatus.CANCELLED);
         mEvent.setProcessDate(new java.util.Date());
         mEvent.setProcessorComment(comment);
         mEvent.setProcessedBy(userManager.getUser());

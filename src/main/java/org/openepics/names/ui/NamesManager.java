@@ -23,16 +23,18 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import org.openepics.names.model.NameEvent;
+import javax.inject.Inject;
+import org.openepics.names.model.NamePartRevision;
+import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NameRelease;
+import org.openepics.names.services.NamePartService;
 import org.openepics.names.services.NamesEJB;
-import org.openepics.names.ui.names.NameView;
+import org.openepics.names.ui.names.NamePartView;
 
 /**
  * Manages naming events.
@@ -43,183 +45,191 @@ import org.openepics.names.ui.names.NameView;
 @ViewScoped
 public class NamesManager implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	@EJB
-	private NamesEJB namesEJB;
-	@ManagedProperty(value = "#{publicationManager}")
-	private PublicationManager pubManager;
-	private static final Logger logger = Logger.getLogger("org.openepics.names.ui.NamesManager");
-	private List<NameEvent> standardNames;
-	private NameView selectedName;
-	private List<NameEvent> filteredNames;
-	private List<NameEvent> historyEvents;
-	private boolean showDeletedNames = false;
-	private String currentCategory;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * Creates a new instance of NamesManager
-	 */
-	public NamesManager() {
-	}
+    @Inject private NamesEJB namesEJB;
+    @Inject private NamePartService namePartService;
+    @ManagedProperty(value = "#{publicationManager}") private PublicationManager pubManager;
 
-	@PostConstruct
-	public void init() {
-		try {
-			String category = (String) FacesContext.getCurrentInstance()
-					.getExternalContext().getRequestParameterMap()
-					.get("category");
-			if (category == null) {
-				currentCategory = "%"; // ToDo: Use a better method.
-			} else {
-				currentCategory = category;
-			}
-			refreshNames();
-		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Could not initialize NameManager.");
-			System.err.println(e);
-		}
-	}
+    private static final Logger logger = Logger.getLogger("org.openepics.names.ui.NamesManager");
+    private List<NamePartView> standardNames;
+    private NamePartView selectedName;
+    private List<NamePartView> filteredNames;
+    private List<NamePartRevision> historyEvents;
+    private boolean showDeletedNames = false;
+    private String currentCategory;
 
-	public void refreshNames() {
-		standardNames = namesEJB.getStandardNames(currentCategory,
-				showDeletedNames);
-	}
-
-	public void findHistory() {
-		try {
-			if (selectedName == null) {
-				showMessage(FacesMessage.SEVERITY_ERROR, "Error",
-						"You must select a name first.");
-				historyEvents = null;
-				return;
-			}
-			logger.log(Level.INFO, "history ");
-			historyEvents = namesEJB.findEventsByName(selectedName.getNameEvent().getNameId());
-			// showMessage(FacesMessage.SEVERITY_INFO,
-			// "Your request was successfully submitted.", "Request Number: " +
-			// newRequest.getId());
-		} catch (Exception e) {
-			showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
-					e.getMessage());
-			System.err.println(e);
-		} finally {
-		}
-	}
-
-	public String nameStatus(NameEvent nreq) {
-		switch (nreq.getStatus()) {
-			case PROCESSING : return "In-Process";
-			case CANCELLED: return "Cancelled";
-			case REJECTED: return "Rejected";
-			case APPROVED:
-				final NameRelease latestRelease = pubManager.getLatestRelease();
-				final boolean processedBeforeLatestRelease = latestRelease != null && nreq.getProcessDate() != null && nreq.getProcessDate().before(latestRelease.getReleaseDate());
-				switch (nreq.getEventType()) {
-					case INSERT: return processedBeforeLatestRelease ? "Published" : "Added";
-					case MODIFY: return processedBeforeLatestRelease ? "Published" : "Modified";
-					case DELETE: return "Deleted";
-				default:
-					return "unknown";
-				}
-			default: return "unknown";
-		}
-	}
-
-	public String nameViewStatus(NameView entry) {
-		switch (entry.getNameEvent().getStatus()) {
-			case PROCESSING : return "Processing";
-			case CANCELLED: return "Cancelled";
-			case REJECTED: return "Rejcted";
-			case APPROVED:
-                if(isPublished(entry))
-                    return "Published";
-                return "Approved";
-			default: return "unknown";
-		}
-	}
-
-	public String nameViewClass(NameView entry) {
-		switch (entry.getNameEvent().getStatus()) {
-			case PROCESSING : return "Processing";
-			case CANCELLED:
-			case REJECTED: return "default";
-			case APPROVED:
-                if(isPublished(entry))
-                    return "Published";
-                return "Approved";
-			default: return "unknown";
-		}
-	}
-
-    public String getPath(NameView req) {
-        return  Joiner.on(" ▸ ").join(req.getNamePath());
+    /**
+     * Creates a new instance of NamesManager
+     */
+    public NamesManager() {
     }
 
-    public String getFullPath(NameView req) {
-        return  Joiner.on(" ▸ ").join(req.getFullNamePath());
+    @PostConstruct
+    public void init() {
+        try {
+            String category = (String) FacesContext.getCurrentInstance()
+                    .getExternalContext().getRequestParameterMap()
+                    .get("category");
+            if (category == null) {
+                currentCategory = "%"; // ToDo: Use a better method.
+            } else {
+                currentCategory = category;
+            }
+            refreshNames();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Could not initialize NameManager.");
+            System.err.println(e);
+        }
     }
 
-    public boolean isPublished(NameView entry) {
-        if(entry.getNameEvent().getProcessDate() == null) return false;
+    public void refreshNames() {
+        standardNames = Lists.transform(namePartService.getPendingNames(currentCategory, showDeletedNames), new Function<NamePart, NamePartView>() {
+            @Override
+            public NamePartView apply(NamePart namePart) {
+                return new NamePartView(namePart, null);
+            }
+        });
+    }
+
+    public void findHistory() {
+        if (selectedName == null) {
+            showMessage(FacesMessage.SEVERITY_ERROR, "Error", "You must select a name first.");
+            historyEvents = null;
+        } else {
+            historyEvents = namePartService.getNameEvents(selectedName.getNamePart());
+        }
+    }
+
+    public String nameStatus(NamePartRevision nreq) {
+        switch (nreq.getStatus()) {
+            case PROCESSING:
+                return "In-Process";
+            case CANCELLED:
+                return "Cancelled";
+            case REJECTED:
+                return "Rejected";
+            case APPROVED:
+                final NameRelease latestRelease = pubManager.getLatestRelease();
+                final boolean processedBeforeLatestRelease = latestRelease != null && nreq.getProcessDate() != null && nreq.getProcessDate().before(latestRelease.getReleaseDate());
+                switch (nreq.getEventType()) {
+                    case INSERT:
+                        return processedBeforeLatestRelease ? "Published" : "Added";
+                    case MODIFY:
+                        return processedBeforeLatestRelease ? "Published" : "Modified";
+                    case DELETE:
+                        return "Deleted";
+                    default:
+                        return "unknown";
+                }
+            default:
+                return "unknown";
+        }
+    }
+
+    public String nameViewStatus(NamePartView entry) {
+        switch (entry.getNameEvent().getStatus()) {
+            case PROCESSING:
+                return "Processing";
+            case CANCELLED:
+                return "Cancelled";
+            case REJECTED:
+                return "Rejcted";
+            case APPROVED:
+                if (isPublished(entry)) {
+                    return "Published";
+                }
+                return "Approved";
+            default:
+                return "unknown";
+        }
+    }
+
+    public String nameViewClass(NamePartView entry) {
+        switch (entry.getNameEvent().getStatus()) {
+            case PROCESSING:
+                return "Processing";
+            case CANCELLED:
+            case REJECTED:
+                return "default";
+            case APPROVED:
+                if (isPublished(entry)) {
+                    return "Published";
+                }
+                return "Approved";
+            default:
+                return "unknown";
+        }
+    }
+
+    public String getPath(NamePartView req) {
+        return Joiner.on(" ▸ ").join(req.getNamePath());
+    }
+
+    public String getFullPath(NamePartView req) {
+        return Joiner.on(" ▸ ").join(req.getFullNamePath());
+    }
+
+    public boolean isPublished(NamePartView entry) {
+        if (entry.getNameEvent().getProcessDate() == null) {
+            return false;
+        }
 
         List<NameRelease> releases = namesEJB.getAllReleases();
         return (releases.size() > 0 && !releases.get(0).getReleaseDate().before(entry.getNameEvent().getProcessDate()));
     }
 
-	private void showMessage(FacesMessage.Severity severity, String summary,
-			String message) {
-		FacesContext context = FacesContext.getCurrentInstance();
+    private void showMessage(FacesMessage.Severity severity, String summary,
+            String message) {
+        FacesContext context = FacesContext.getCurrentInstance();
 
-		context.addMessage(null, new FacesMessage(severity, summary, message));
-		FacesMessage n = new FacesMessage();
+        context.addMessage(null, new FacesMessage(severity, summary, message));
+        FacesMessage n = new FacesMessage();
 
-	}
+    }
 
-	public boolean isUnderChange(NameEvent nevent) {
-		return namesEJB.isUnderChange(nevent);
-	}
+    public boolean isUnderChange(NamePartRevision nevent) {
+        return namesEJB.isUnderChange(nevent);
+    }
 
-	public void setPubManager(PublicationManager pubMgr) {
-		this.pubManager = pubMgr;
-	}
+    public void setPubManager(PublicationManager pubMgr) {
+        this.pubManager = pubMgr;
+    }
 
-	public NameView getSelectedName() {
-		return selectedName;
-	}
+    public NamePartView getSelectedName() {
+        return selectedName;
+    }
 
-	public void setSelectedName(NameView selectedName) {
-		this.selectedName = selectedName;
-	}
+    public void setSelectedName(NamePartView selectedName) {
+        this.selectedName = selectedName;
+    }
 
-	public List<NameEvent> getFilteredNames() {
-		return filteredNames;
-	}
+    public List<NamePartView> getFilteredNames() {
+        return filteredNames;
+    }
 
-	public void setFilteredNames(List<NameEvent> filteredNames) {
-		this.filteredNames = filteredNames;
-	}
+    public void setFilteredNames(List<NamePartView> filteredNames) {
+        this.filteredNames = filteredNames;
+    }
 
-	public List<NameView> getStandardNames() {
-        return standardNames == null ? null : Lists.transform(standardNames, new Function<NameEvent, NameView>() {
-            @Override public NameView apply(NameEvent nameEvent) {
-                return new NameView(nameEvent, null);
-            }
-        });
-	}
+    public List<NamePartView> getStandardNames() {
+        return standardNames;
+    }
 
-    public List<NameView> getHistoryEvents() {
-        return historyEvents == null ? null : Lists.transform(historyEvents, new Function<NameEvent, NameView>() {
-            @Override public NameView apply(NameEvent nameEvent) {
-                return new NameView(nameEvent, null);
+    public List<NamePartView> getHistoryEvents() {
+        return historyEvents == null ? null : Lists.transform(historyEvents, new Function<NamePartRevision, NamePartView>() {
+            @Override
+            public NamePartView apply(NamePartRevision nameEvent) {
+                return new NamePartView(nameEvent, null);
             }
         });
     }
 
-	public boolean isShowDeletedNames() {
-		return showDeletedNames;
-	}
+    public boolean isShowDeletedNames() {
+        return showDeletedNames;
+    }
 
-	public void setShowDeletedNames(boolean showDeletedNames) {
-		this.showDeletedNames = showDeletedNames;
-	}
+    public void setShowDeletedNames(boolean showDeletedNames) {
+        this.showDeletedNames = showDeletedNames;
+    }
 }

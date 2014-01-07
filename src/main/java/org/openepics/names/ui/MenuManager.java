@@ -23,7 +23,7 @@ import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import org.openepics.names.model.NameCategory;
-import org.openepics.names.model.NameEvent;
+import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.services.NamesEJB;
 import org.primefaces.component.menuitem.MenuItem;
 import org.primefaces.model.DefaultMenuModel;
@@ -47,7 +47,7 @@ public class MenuManager implements Serializable {
 
 	private List<NameCategory> categories;
 
-	private List<NameEvent> parents;
+	private List<NamePartRevision> parents;
 
 	private MenuModel model;
 
@@ -86,7 +86,7 @@ public class MenuManager implements Serializable {
 		return categories;
 	}
 
-	public List<NameEvent> getParents() {
+	public List<NamePartRevision> getParents() {
 		return parents;
 	}
 

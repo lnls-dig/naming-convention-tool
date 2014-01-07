@@ -20,7 +20,7 @@
                 </f:facet>
 
                 <p:ajax event="rowSelect" update=":listNcNameForm:historyTable"
-                        listener="#{deviceNamesManager.findHistory(deviceName.deviceName.nameId)}"
+                        listener="#{deviceNamesManager.findHistory(deviceName.device.nameId)}"
                         oncomplete="nameDetail.show()" />
 
                 <p:column id="nameString" headerText="Device Name" filterBy="#{deviceName.conventionName}"

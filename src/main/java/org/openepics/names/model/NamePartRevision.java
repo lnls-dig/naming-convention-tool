@@ -1,0 +1,193 @@
+/*
+ * This software is Copyright by the Board of Trustees of Michigan
+ * State University (c) Copyright 2012.
+ *
+ * You may use this software under the terms of the GNU public license
+ *  (GPL). The terms of this license are described at:
+ *       http://www.gnu.org/licenses/gpl.txt
+ *
+ * Contact Information:
+ *   Facilitty for Rare Isotope Beam
+ *   Michigan State University
+ *   East Lansing, MI 48824-1321
+ *   http://frib.msu.edu
+ *
+ */
+package org.openepics.names.model;
+
+import java.util.Date;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlRootElement;
+
+/**
+ *
+ * @author Vasu V <vuppala@frib.msu.org>
+ */
+@Entity
+@Table(name = "name_event")
+@XmlRootElement
+@NamedQueries({
+    @NamedQuery(name = "NamePartEvent.findAll", query = "SELECT n FROM NamePartEvent n"),
+    @NamedQuery(name = "NamePartEvent.findById", query = "SELECT n FROM NamePartEvent n WHERE n.id = :id"),
+    @NamedQuery(name = "NamePartEvent.findByName", query = "SELECT n FROM NamePartEvent n WHERE n.name = :name ORDER BY n.id DESC"),
+    @NamedQuery(name = "NamePartEvent.findByFullName", query = "SELECT n FROM NamePartEvent n WHERE n.fullName = :fullName"),
+    @NamedQuery(name = "NamePartEvent.findByCategory", query = "SELECT n FROM NamePartEvent n WHERE n.nameCategory = :nameCategory"),
+    @NamedQuery(name = "NamePartEvent.findByParentName", query = "SELECT n FROM NamePartEvent n WHERE n.parentName = :parentName"),
+    @NamedQuery(name = "NamePartEvent.findByEventType", query = "SELECT n FROM NamePartEvent n WHERE n.eventType = :eventType"),
+    @NamedQuery(name = "NamePartEvent.findByRequestedBy", query = "SELECT n FROM NamePartEvent n WHERE n.requestedBy = :requestedBy"),
+    @NamedQuery(name = "NamePartEvent.findByRequestorComment", query = "SELECT n FROM NamePartEvent n WHERE n.requestorComment = :requestorComment"),
+    @NamedQuery(name = "NamePartEvent.findByRequestDate", query = "SELECT n FROM NamePartEvent n WHERE n.requestDate = :requestDate"),
+    @NamedQuery(name = "NamePartEvent.findByStatus", query = "SELECT n FROM NamePartEvent n WHERE n.status = :status"),
+    @NamedQuery(name = "NamePartEvent.findByProcessedBy", query = "SELECT n FROM NamePartEvent n WHERE n.processedBy = :processedBy"),
+    @NamedQuery(name = "NamePartEvent.findByProcessorComment", query = "SELECT n FROM NamePartEvent n WHERE n.processorComment = :processorComment"),
+    @NamedQuery(name = "NamePartEvent.findByProcessDate", query = "SELECT n FROM NamePartEvent n WHERE n.processDate = :processDate")})
+public class NamePartRevision extends Persistable {
+
+    @JoinColumn(name = "name_part_id", referencedColumnName = "id")
+    @ManyToOne(optional = false)
+    private NamePart namePart;
+
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    @Column(name = "event_type")
+    private NamePartRevisionType eventType;
+
+    @JoinColumn(name = "requested_by", referencedColumnName = "id")
+    @ManyToOne(optional = false)
+    private Privilege requestedBy;
+
+    @Basic(optional = false)
+    @NotNull
+    @Column(name = "request_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date requestDate;
+
+    @Size(max = 255)
+    @Column(name = "requestor_comment")
+    private String requestorComment;
+
+    @JoinColumn(name = "name_category_id", referencedColumnName = "id")
+    @ManyToOne(optional = false)
+    private NameCategory nameCategory;
+
+    @JoinColumn(name = "parent_id", referencedColumnName = "id")
+    @ManyToOne(optional = true)
+    private NamePart parent;
+
+    @Basic(optional = false)
+    @Size(min = 1, max = 32)
+    @NotNull
+    @Column(name = "name")
+    private String name;
+
+    @Basic(optional = false)
+    @Size(min = 1, max = 255)
+    @NotNull
+    @Column(name = "full_name")
+    private String fullName;
+
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    @Column(name = "status")
+    private NamePartRevisionStatus status;
+
+    @JoinColumn(name = "processed_by", referencedColumnName = "id")
+    @ManyToOne(optional = true)
+    private Privilege processedBy;
+
+    @Column(name = "process_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date processDate;
+
+    @Size(max = 255)
+    @Column(name = "processor_comment")
+    private String processorComment;
+
+    protected NamePartRevision() {
+    }
+
+    public NamePartRevision(NamePart namePart, NamePartRevisionType eventType, Privilege requestedBy, Date requestDate, String requestorComment, NameCategory nameCategory, NamePart parent, String name, String fullName) {
+        this.namePart = namePart;
+        this.eventType = eventType;
+        this.requestedBy = requestedBy;
+        this.requestDate = requestDate;
+        this.requestorComment = requestorComment;
+        this.nameCategory = nameCategory;
+        this.parent = parent;
+        this.name = name;
+        this.fullName = fullName;
+        this.status = NamePartRevisionStatus.PROCESSING;
+        this.processedBy = null;
+        this.processDate = null;
+        this.processorComment = null;
+    }
+
+    public NamePart getNamePart() { return namePart; }
+
+    public NamePartRevisionType getEventType() { return eventType; }
+
+    public Privilege getRequestedBy() { return requestedBy; }
+
+    public Date getRequestDate() { return requestDate; }
+
+    public String getRequestorComment() { return requestorComment; }
+
+    public String getName() { return name; }
+
+    public String getFullName() { return fullName; }
+
+    public NameCategory getNameCategory() { return nameCategory; }
+
+    public NamePart getParent() { return parent; }
+
+    public NamePartRevisionStatus getStatus() { return status; }
+    public void setStatus(NamePartRevisionStatus status) { this.status = status; }
+
+    public Privilege getProcessedBy() { return processedBy; }
+    public void setProcessedBy(Privilege processedBy) { this.processedBy = processedBy; }
+
+    public Date getProcessDate() { return processDate; }
+    public void setProcessDate(Date processDate) { this.processDate = processDate; }
+
+    public String getProcessorComment() { return processorComment; }
+    public void setProcessorComment(String processorComment) { this.processorComment = processorComment; }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are
+        // not set
+        if (!(object instanceof NamePartRevision)) {
+            return false;
+        }
+        NamePartRevision other = (NamePartRevision) object;
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "org.openepics.names.NamePartEvent[ id=" + id + " ]";
+    }
+}

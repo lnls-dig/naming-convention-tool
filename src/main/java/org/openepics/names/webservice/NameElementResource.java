@@ -11,7 +11,7 @@ import javax.ejb.Stateless;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import org.openepics.names.services.NamesEJB;
-import org.openepics.names.model.NameEvent;
+import org.openepics.names.model.NamePartRevision;
 /**
  *
  * @author Vasu V <vuppala@frib.msu.org>
@@ -26,12 +26,12 @@ public class NameElementResource {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
     public List<NameElement> getNameElements(@DefaultValue("%") @QueryParam("category") String categoty,
         @DefaultValue("false") @QueryParam("deleted") Boolean deleted) {
-        List<NameEvent> nameEvents;
+        List<NamePartRevision> nameEvents;
         List<NameElement> nameElements = new ArrayList<NameElement>();
         
         nameEvents = namesEJB.getStandardNames(categoty, deleted);
         
-        for (NameEvent ne: nameEvents) {
+        for (NamePartRevision ne: nameEvents) {
             nameElements.add(new NameElement(ne.getId(), ne.getName(), ne.getNameCategory().getId(), ne.getFullName()));
         }
         return nameElements;

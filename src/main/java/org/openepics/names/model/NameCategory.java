@@ -1,33 +1,29 @@
 /*
  * This software is Copyright by the Board of Trustees of Michigan
  * State University (c) Copyright 2012.
- * 
+ *
  * You may use this software under the terms of the GNU public license
  *  (GPL). The terms of this license are described at:
  *       http://www.gnu.org/licenses/gpl.txt
- * 
+ *
  * Contact Information:
  *   Facilitty for Rare Isotope Beam
  *   Michigan State University
  *   East Lansing, MI 48824-1321
  *   http://frib.msu.edu
- * 
+ *
  */
 package org.openepics.names.model;
 
-import java.util.List;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -55,9 +51,6 @@ public class NameCategory extends Persistable {
     @Size(max = 255)
     @Column(name = "description")
     private String description;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "nameCategory")
-    private List<NameEvent> nameEventList;
 
     public String getName() {
         return name;
@@ -91,15 +84,6 @@ public class NameCategory extends Persistable {
 
     public void setApprovalNeeded(boolean approvalNeeded) {
         this.approvalNeeded = approvalNeeded;
-    }
-
-    @XmlTransient
-    public List<NameEvent> getNameEventList() {
-        return nameEventList;
-    }
-
-    public void setNameEventList(List<NameEvent> nameEventList) {
-        this.nameEventList = nameEventList;
     }
 
     @Override

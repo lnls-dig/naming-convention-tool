@@ -7,26 +7,26 @@
 package org.openepics.names.ui;
 
 import java.util.List;
-import org.openepics.names.model.NameEvent;
+import org.openepics.names.ui.names.NamePartView;
 
 /**
  *
  * @author Miha Vitorovic <miha.vitorovic@cosylab.com>
  */
-public class MnemonicNameView {
-    private List<NameEvent> options;
+public class NamePartSelectionView {
+    private List<NamePartView> options;
     private Integer selectedId;
 
-    public MnemonicNameView(List<NameEvent> options) {
+    public NamePartSelectionView(List<NamePartView> options) {
         this.options = options;
         selectedId = null;
     }
 
-    public List<NameEvent> getOptions() {
+    public List<NamePartView> getOptions() {
         return options;
     }
 
-    public void setOptions(List<NameEvent> options) {
+    public void setOptions(List<NamePartView> options) {
         this.options = options;
     }
 

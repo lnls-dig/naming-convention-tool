@@ -10,7 +10,7 @@ import javax.ejb.Stateless;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import org.openepics.names.services.NamesEJB;
-import org.openepics.names.model.NameEvent;
+import org.openepics.names.model.NamePartRevision;
 
 /**
  *
@@ -24,7 +24,7 @@ public class NameEventResource  {
 
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
-    public List<NameEvent> getNameElements(@DefaultValue("%") @QueryParam("category") String categoty,
+    public List<NamePartRevision> getNameElements(@DefaultValue("%") @QueryParam("category") String categoty,
         @DefaultValue("false") @QueryParam("deleted") Boolean deleted) {
        
         return namesEJB.getStandardNames(categoty, deleted);

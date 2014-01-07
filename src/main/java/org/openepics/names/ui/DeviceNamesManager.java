@@ -12,7 +12,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import org.openepics.names.model.DeviceName;
+import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.services.NamingConvention;
 import org.openepics.names.services.NamingConventionEJB;
 
@@ -21,13 +21,14 @@ import org.openepics.names.services.NamingConventionEJB;
 public class DeviceNamesManager implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
     @Inject private NamingConventionEJB ncEJB;
     @Inject private NamingConvention namingConvention;
     private static final Logger logger = Logger.getLogger("org.openepics.names.ui.DeviceNamesManager");
 
-    private List<DeviceName> allDeviceNames;
-    private List<DeviceName> activeDeviceNames;
-    private List<DeviceName> historyDeviceNames;
+    private List<DeviceRevision> allDeviceNames;
+    private List<DeviceRevision> activeDeviceNames;
+    private List<DeviceRevision> historyDeviceNames;
 
     public DeviceNamesManager() {
         // EMPTY
@@ -61,53 +62,55 @@ public class DeviceNamesManager implements Serializable {
     }
 
     // TODO check usage
-    public List<DeviceNameView> getAllDeviceNames() {
-        return Lists.transform(allDeviceNames, new Function<DeviceName, DeviceNameView>() {
-            @Override public DeviceNameView apply(DeviceName deviceName) {
-                return new DeviceNameView(deviceName, namingConvention.getNamingConventionName(deviceName));
+    public List<DeviceView> getAllDeviceNames() {
+        return Lists.transform(allDeviceNames, new Function<DeviceRevision, DeviceView>() {
+            @Override
+            public DeviceView apply(DeviceRevision deviceName) {
+                return new DeviceView(deviceName, namingConvention.getNamingConventionName(deviceName));
             }
         });
     }
 
     // TODO check usage
-    public void setAllDeviceNames(List<DeviceName> allDeviceNames) {
+    public void setAllDeviceNames(List<DeviceRevision> allDeviceNames) {
         this.allDeviceNames = allDeviceNames;
     }
 
-    public List<DeviceNameView> getActiveDeviceNames() {
-        return Lists.transform(activeDeviceNames, new Function<DeviceName, DeviceNameView>() {
-            @Override public DeviceNameView apply(DeviceName deviceName) {
-                return new DeviceNameView(deviceName, namingConvention.getNamingConventionName(deviceName));
+    public List<DeviceView> getActiveDeviceNames() {
+        return Lists.transform(activeDeviceNames, new Function<DeviceRevision, DeviceView>() {
+            @Override
+            public DeviceView apply(DeviceRevision deviceName) {
+                return new DeviceView(deviceName, namingConvention.getNamingConventionName(deviceName));
             }
         });
     }
 
-    public void setActiveDeviceNames(List<DeviceName> activeDeviceNames) {
+    public void setActiveDeviceNames(List<DeviceRevision> activeDeviceNames) {
         this.activeDeviceNames = activeDeviceNames;
     }
 
-	public void findHistory(String nameId) {
-		try {
-			historyDeviceNames = ncEJB.getDeviceNameHistory(nameId);
-		} catch (Exception e) {
-			showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
-					e.getMessage());
-			System.err.println(e);
-		}
-	}
+    public void findHistory(String nameId) {
+        try {
+            historyDeviceNames = ncEJB.getDeviceNameHistory(nameId);
+        } catch (Exception e) {
+            showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
+                    e.getMessage());
+            System.err.println(e);
+        }
+    }
 
-    public List<DeviceNameView> getHistoryEvents() {
-        return historyDeviceNames == null ? null : Lists.transform(historyDeviceNames, new Function<DeviceName, DeviceNameView>() {
-            @Override public DeviceNameView apply(DeviceName deviceName) {
-                return new DeviceNameView(deviceName, namingConvention.getNamingConventionName(deviceName));
+    public List<DeviceView> getHistoryEvents() {
+        return historyDeviceNames == null ? null : Lists.transform(historyDeviceNames, new Function<DeviceRevision, DeviceView>() {
+            @Override
+            public DeviceView apply(DeviceRevision deviceName) {
+                return new DeviceView(deviceName, namingConvention.getNamingConventionName(deviceName));
             }
         });
-	}
+    }
 
-	private void showMessage(FacesMessage.Severity severity, String summary, String message) {
-		FacesContext context = FacesContext.getCurrentInstance();
-		context.addMessage(null, new FacesMessage(severity, summary, message));
-	}
-
+    private void showMessage(FacesMessage.Severity severity, String summary, String message) {
+        FacesContext context = FacesContext.getCurrentInstance();
+        context.addMessage(null, new FacesMessage(severity, summary, message));
+    }
 
 }

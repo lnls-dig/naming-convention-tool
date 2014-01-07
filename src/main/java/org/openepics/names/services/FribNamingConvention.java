@@ -1,8 +1,8 @@
 package org.openepics.names.services;
 
 import javax.ejb.Stateless;
-import org.openepics.names.model.DeviceName;
-import org.openepics.names.model.NameEvent;
+import org.openepics.names.ui.DeviceView;
+import org.openepics.names.ui.names.NamePartView;
 
 /**
  *
@@ -10,7 +10,7 @@ import org.openepics.names.model.NameEvent;
  */
 @Stateless
 public class FribNamingConvention implements NamingConvention {
-    @Override public String getNamingConventionName(DeviceName deviceName) {
+    @Override public String getNamingConventionName(DeviceView deviceName) {
         throw new IllegalStateException();
     }
 
@@ -18,11 +18,11 @@ public class FribNamingConvention implements NamingConvention {
         throw new IllegalStateException();
     }
 
-    @Override public boolean isNameValid(NameEvent nameEvent) {
+    @Override public boolean isNameValid(NamePartView namePart) {
         throw new IllegalStateException();
     }
 
-    @Override public boolean isDeviceNameValid(DeviceName deviceName) {
+    @Override public boolean isDeviceNameValid(DeviceView deviceName) {
         throw new IllegalStateException();
     }
 }

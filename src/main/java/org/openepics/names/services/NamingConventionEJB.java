@@ -10,9 +10,9 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.openepics.names.model.DeviceName;
-import org.openepics.names.model.NameEvent;
-import org.openepics.names.model.NameStatus;
+import org.openepics.names.model.DeviceRevision;
+import org.openepics.names.model.NamePartRevision;
+import org.openepics.names.model.DeviceRevisionStatus;
 import org.openepics.names.model.Privilege;
 import org.openepics.names.ui.UserManager;
 
@@ -27,7 +27,7 @@ public class NamingConventionEJB {
     @PersistenceContext(unitName = "org.openepics.names.punit")
     private EntityManager em;
 
-    public DeviceName createDeviceName(NameEvent section, NameEvent deviceType) {
+    public DeviceRevision createDeviceName(NamePartRevision section, NamePartRevision deviceType) {
         Preconditions.checkNotNull(section);
         Preconditions.checkNotNull(deviceType);
 
@@ -38,7 +38,7 @@ public class NamingConventionEJB {
         final long deviceInstances = countDeviceNamesByRef(section, deviceType);
         final String qualifier = getQualifier(deviceInstances);
 
-        final DeviceName newDeviceName = new DeviceName(section, deviceType, qualifier, NameStatus.VALID);
+        final DeviceRevision newDeviceName = new DeviceRevision(section, deviceType, qualifier, DeviceRevisionStatus.VALID);
         newDeviceName.setNameId(UUID.randomUUID().toString());
         newDeviceName.setRequestedBy(userManager.getUser());
         newDeviceName.setProcessedBy(userManager.getUser());
@@ -54,14 +54,14 @@ public class NamingConventionEJB {
      * @param nameToDelete
      * @return
      */
-    public DeviceName deleteDeviceName(DeviceName nameToDelete) {
+    public DeviceRevision deleteDeviceName(DeviceRevision nameToDelete) {
         if (!userManager.isLoggedIn()) {
             throw new AccessControlException("You must be logged in to perform this action.");
         }
 
         Preconditions.checkNotNull(nameToDelete);
 
-        if (nameToDelete.getStatus() == NameStatus.DELETED) {
+        if (nameToDelete.getStatus() == DeviceRevisionStatus.DELETED) {
             return nameToDelete;
         }
 
@@ -71,7 +71,7 @@ public class NamingConventionEJB {
         }
 
         // make new revision
-        DeviceName deletedName = new DeviceName(nameToDelete.getSection(), nameToDelete.getDeviceType(), nameToDelete.getQualifier(), NameStatus.DELETED);
+        DeviceRevision deletedName = new DeviceRevision(nameToDelete.getSection(), nameToDelete.getDeviceType(), nameToDelete.getQualifier(), DeviceRevisionStatus.DELETED);
         deletedName.setNameId(nameToDelete.getNameId());
         deletedName.setRequestedBy(userManager.getUser());
         deletedName.setProcessedBy(userManager.getUser());
@@ -81,16 +81,16 @@ public class NamingConventionEJB {
         return deletedName;
     }
 
-    public DeviceName modifyDeviceName(Integer sectionId, Integer deviceTypeId, Integer selectedDeviceNameId) {
+    public DeviceRevision modifyDeviceName(Integer sectionId, Integer deviceTypeId, Integer selectedDeviceNameId) {
         Preconditions.checkNotNull(sectionId);
         Preconditions.checkNotNull(deviceTypeId);
         Preconditions.checkNotNull(selectedDeviceNameId);
 
-        final NameEvent section = em.find(NameEvent.class, sectionId);
-        final NameEvent deviceType = em.find(NameEvent.class, deviceTypeId);
-        final DeviceName selectedDeviceName = em.find(DeviceName.class, selectedDeviceNameId);
+        final NamePartRevision section = em.find(NamePartRevision.class, sectionId);
+        final NamePartRevision deviceType = em.find(NamePartRevision.class, deviceTypeId);
+        final DeviceRevision selectedDeviceName = em.find(DeviceRevision.class, selectedDeviceNameId);
 
-        final DeviceName returnName = createDeviceName(section, deviceType);
+        final DeviceRevision returnName = createDeviceName(section, deviceType);
         returnName.setNameId(selectedDeviceName.getNameId());
         em.persist(returnName);
 
@@ -101,21 +101,21 @@ public class NamingConventionEJB {
         return (namesCount <= 0) ? "A" : "" + ((char) (namesCount % 26 + 'A')) + (namesCount / 26);
     }
 
-    private long countDeviceNamesByRef(NameEvent section, NameEvent deviceType) {
+    private long countDeviceNamesByRef(NamePartRevision section, NamePartRevision deviceType) {
         return em.createQuery("SELECT COUNT(n) FROM DeviceName n WHERE n.section = :section AND n.deviceType = :deviceType", Long.class)
                 .setParameter("section", section).setParameter("deviceType", deviceType).getSingleResult().longValue();
     }
 
-    public DeviceName findDeviceNameById(Integer id) {
-        return em.createNamedQuery("DeviceName.findById", DeviceName.class).setParameter("id", id).getSingleResult();
+    public DeviceRevision findDeviceNameById(Integer id) {
+        return em.createNamedQuery("DeviceName.findById", DeviceRevision.class).setParameter("id", id).getSingleResult();
     }
 
-    public DeviceName findDeviceNameByReference(NameEvent section, NameEvent deviceTypeEvent, String qualifier) {
+    public DeviceRevision findDeviceNameByReference(NamePartRevision section, NamePartRevision deviceTypeEvent, String qualifier) {
         Preconditions.checkNotNull(section);
         Preconditions.checkNotNull(deviceTypeEvent);
         Preconditions.checkNotNull(qualifier);
 
-        return em.createNamedQuery("DeviceName.findByParts", DeviceName.class).setParameter("section", section).setParameter("deviceType", deviceTypeEvent).setParameter("qualifier", qualifier).getSingleResult();
+        return em.createNamedQuery("DeviceName.findByParts", DeviceRevision.class).setParameter("section", section).setParameter("deviceType", deviceTypeEvent).setParameter("qualifier", qualifier).getSingleResult();
     }
 
     /**
@@ -123,8 +123,8 @@ public class NamingConventionEJB {
      *
      * @return
      */
-    public List<DeviceName> getAllDeviceNames() {
-        return em.createQuery("SELECT n FROM DeviceName n WHERE n.requestDate = (SELECT MAX(r.requestDate) FROM DeviceName r WHERE r.nameId = n.nameId) ORDER BY n.status, n.deviceType.id, n.section.id", DeviceName.class)
+    public List<DeviceRevision> getAllDeviceNames() {
+        return em.createQuery("SELECT n FROM DeviceName n WHERE n.requestDate = (SELECT MAX(r.requestDate) FROM DeviceName r WHERE r.nameId = n.nameId) ORDER BY n.status, n.deviceType.id, n.section.id", DeviceRevision.class)
                 .getResultList();
     }
 
@@ -133,26 +133,26 @@ public class NamingConventionEJB {
      *
      * @return
      */
-    public List<DeviceName> getExistingDeviceNames() {
-        return em.createQuery("SELECT n FROM DeviceName n WHERE n.requestDate = (SELECT MAX(r.requestDate) FROM DeviceName r WHERE (r.nameId = n.nameId)) AND n.status != :status ORDER BY n.status, n.deviceType.id, n.section.id", DeviceName.class)
-                .setParameter("status", NameStatus.DELETED).getResultList();
+    public List<DeviceRevision> getExistingDeviceNames() {
+        return em.createQuery("SELECT n FROM DeviceName n WHERE n.requestDate = (SELECT MAX(r.requestDate) FROM DeviceName r WHERE (r.nameId = n.nameId)) AND n.status != :status ORDER BY n.status, n.deviceType.id, n.section.id", DeviceRevision.class)
+                .setParameter("status", DeviceRevisionStatus.DELETED).getResultList();
     }
 
-    public List<DeviceName> getDeviceNameHistory(String deviceNameId) {
-        return em.createQuery("SELECT n FROM DeviceName n WHERE n.nameId = :nameId", DeviceName.class).setParameter("nameId", deviceNameId).getResultList();
+    public List<DeviceRevision> getDeviceNameHistory(String deviceNameId) {
+        return em.createQuery("SELECT n FROM DeviceName n WHERE n.nameId = :nameId", DeviceRevision.class).setParameter("nameId", deviceNameId).getResultList();
     }
 
-    public List<DeviceName> getActiveNames() {
-        return em.createQuery("SELECT n FROM DeviceName n WHERE n.requestDate = (SELECT MAX(r.requestDate) FROM DeviceName r WHERE (r.nameId = n.nameId) AND r.processDate IS NOT NULL) AND (n.status = :status) ORDER BY n.status, n.deviceType.id, n.section.id", DeviceName.class)
-                .setParameter("status", NameStatus.VALID).getResultList();
+    public List<DeviceRevision> getActiveNames() {
+        return em.createQuery("SELECT n FROM DeviceName n WHERE n.requestDate = (SELECT MAX(r.requestDate) FROM DeviceName r WHERE (r.nameId = n.nameId) AND r.processDate IS NOT NULL) AND (n.status = :status) ORDER BY n.status, n.deviceType.id, n.section.id", DeviceRevision.class)
+                .setParameter("status", DeviceRevisionStatus.VALID).getResultList();
     }
 
-    public List<DeviceName> getDeviceNamesByStatus(NameStatus status) {
-        return em.createNamedQuery("DeviceName.findByStatus", DeviceName.class).setParameter("status", status).getResultList();
+    public List<DeviceRevision> getDeviceNamesByStatus(DeviceRevisionStatus status) {
+        return em.createNamedQuery("DeviceName.findByStatus", DeviceRevision.class).setParameter("status", status).getResultList();
     }
 
-    public boolean isNameValid(DeviceName deviceName) {
-        return deviceName.getStatus() == NameStatus.VALID;
+    public boolean isNameValid(DeviceRevision deviceName) {
+        return deviceName.getStatus() == DeviceRevisionStatus.VALID;
     }
 
     /**
@@ -164,18 +164,18 @@ public class NamingConventionEJB {
      * @return true if modification was successful.
      */
     public boolean setNameValid(Integer id, Integer modifierId) {
-        final DeviceName dbName = findDeviceNameById(id);
-        dbName.setStatus(NameStatus.VALID);
+        final DeviceRevision dbName = findDeviceNameById(id);
+        dbName.setStatus(DeviceRevisionStatus.VALID);
         setNameProcessed(dbName, modifierId);
 
         return true;
     }
 
-    public boolean setNameProcessed(DeviceName nameToProcess, Integer modifierId) {
+    public boolean setNameProcessed(DeviceRevision nameToProcess, Integer modifierId) {
         Privilege modifier = em.find(Privilege.class, modifierId);
         Date currentDate = new Date();
 
-        final DeviceName dbName;
+        final DeviceRevision dbName;
         if (em.contains(nameToProcess)) {
             dbName = nameToProcess;
         } else {

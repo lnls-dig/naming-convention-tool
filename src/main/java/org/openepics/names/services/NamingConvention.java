@@ -1,7 +1,7 @@
 package org.openepics.names.services;
 
-import org.openepics.names.model.DeviceName;
-import org.openepics.names.model.NameEvent;
+import org.openepics.names.ui.DeviceView;
+import org.openepics.names.ui.names.NamePartView;
 
 /**
  *
@@ -11,9 +11,9 @@ public interface NamingConvention {
 
     String getNameNormalizedForEquivalence(String name);
 
-    String getNamingConventionName(DeviceName deviceName);
+    String getNamingConventionName(DeviceView deviceName);
 
-    boolean isNameValid(NameEvent nameEvent);
+    boolean isNameValid(NamePartView namePart);
 
-    boolean isDeviceNameValid(DeviceName deviceName);
+    boolean isDeviceNameValid(DeviceView deviceName);
 }
