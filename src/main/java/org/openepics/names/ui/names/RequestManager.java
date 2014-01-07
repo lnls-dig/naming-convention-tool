@@ -144,7 +144,7 @@ public class RequestManager implements Serializable {
         StringBuilder outputStr = new StringBuilder();
 
         Joiner.on(" ▸ ").appendTo(outputStr, req.getNamePath().subList(0, req.getNamePath().size() - 1));
-        if(outputStr.length()>0) outputStr.append(" ▸ ");
+        if(outputStr.length() > 0) outputStr.append(" ▸ ");
 
         Change change = req.getPendingChange();
         if(change instanceof NameView.ModifyChange)
@@ -159,7 +159,7 @@ public class RequestManager implements Serializable {
         StringBuilder outputStr = new StringBuilder();
 
         Joiner.on(" ▸ ").appendTo(outputStr, req.getFullNamePath().subList(0, req.getFullNamePath().size() - 1));
-        if(outputStr.length()>0) outputStr.append(" ▸ ");
+        if(outputStr.length() > 0) outputStr.append(" ▸ ");
 
         Change change = req.getPendingChange();
         if(change instanceof NameView.ModifyChange)
@@ -287,6 +287,7 @@ public class RequestManager implements Serializable {
 
     /* --------------------------- */
     public List<NameView> getValidNames() {
+        // TODO return null on validNames == null ??
         return Lists.transform(validNames, new Function<NameEvent, NameView>() {
             @Override public NameView apply(NameEvent nameEvent) {
                 return new NameView(nameEvent, null);

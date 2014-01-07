@@ -16,7 +16,7 @@
                          emptyMessage="No Names Found."
                          selection="#{namesManager.selectedName}"
                          filteredValue="#{namesManager.filteredNames}"
-                         rowStyleClass="#{namesManager.nameStatus(stdname)}"
+                         rowStyleClass="#{namesManager.nameViewClass(stdname)}"
                          style="width: 90%">
                 <f:facet name="header">
                     <h:outputText value="#{msgs.nameElement}" />
@@ -24,7 +24,7 @@
                 <p:ajax event="rowSelect" listener="#{namesManager.findHistory()}"
                         update=":stdNameForm:historyTable" oncomplete="nameDetail.show()" />
 
-                <p:column id="nstatus" style="width: 15%" sortBy="#{namesManager.nameStatus(stdname)}" >
+                <p:column id="nstatus" style="width: 15%" sortBy="#{namesManager.nameViewStatus(stdname)}" >
                     <f:facet name="header">
                         <h:outputText value="Status" />
                         <br />
@@ -34,36 +34,28 @@
                         </p:selectBooleanButton>
 
                     </f:facet>
-                    <h:outputText value="#{namesManager.nameStatus(stdname)}" />
+                    <h:outputText value="#{namesManager.nameViewStatus(stdname)}" />
                 </p:column>
 
-                <p:column id="nameCat" sortBy="#{stdname.nameCategory.name}"
+                <p:column id="nameCat" sortBy="#{stdname.nameCategory}"
                           style="width: 15%" >
                     <f:facet name="header">
                         <!--ToDo: Move it to the menubar, if possible-->
-                        <p:menuButton model="#{menuManager.model}"  value="#{msgs.nameElementCategory}"/>
+                        <p:menuButton model="#{menuManager.model}" value="#{msgs.nameElementCategory}"/>
                     </f:facet>
-                    <h:outputText value="#{stdname.nameCategory.name}" />
+                    <h:outputText value="#{stdname.nameCategory}" />
                 </p:column>
-
-                <p:column id="parentName" headerText="Parent name" sortBy="#{stdname.parentName.name}"
-                          filterBy="#{stdname.parentName.name}"
-                          filterMatchMode="startsWith" style="width: 15%" >
-                    <h:outputText value="#{stdname.parentName.name == null ? '-' : stdname.parentName.name}" />
-
-                </p:column>
-
 
                 <p:column id="nameCode" headerText="Name" sortBy="#{stdname.name}"
                           filterBy="#{stdname.name}"
-                          filterMatchMode="startsWith" style="width: 15%" >
-                    <h:outputText value="#{stdname.name}" />
+                          filterMatchMode="startsWith" >
+                    <h:outputText value="#{namesManager.getPath(stdname)}" />
 
                 </p:column>
                 <p:column id="fullName" headerText="Full Name"
                           filterBy="#{stdname.fullName}"
                           filterMatchMode="contains" >
-                    <h:outputText value="#{stdname.fullName}" />
+                    <h:outputText value="#{namesManager.getFullPath(stdname)}" />
                 </p:column>
 
             </p:dataTable>

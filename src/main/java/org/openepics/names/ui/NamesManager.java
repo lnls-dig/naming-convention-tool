@@ -15,6 +15,9 @@
  */
 package org.openepics.names.ui;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Level;
@@ -47,7 +50,7 @@ public class NamesManager implements Serializable {
 	private PublicationManager pubManager;
 	private static final Logger logger = Logger.getLogger("org.openepics.names.ui.NamesManager");
 	private List<NameEvent> standardNames;
-	private NameEvent selectedName;
+	private NameView selectedName;
 	private List<NameEvent> filteredNames;
 	private List<NameEvent> historyEvents;
 	private boolean showDeletedNames = false;
@@ -91,7 +94,7 @@ public class NamesManager implements Serializable {
 				return;
 			}
 			logger.log(Level.INFO, "history ");
-			historyEvents = namesEJB.findEventsByName(selectedName.getNameId());
+			historyEvents = namesEJB.findEventsByName(selectedName.getNameEvent().getNameId());
 			// showMessage(FacesMessage.SEVERITY_INFO,
 			// "Your request was successfully submitted.", "Request Number: " +
 			// newRequest.getId());
@@ -122,8 +125,20 @@ public class NamesManager implements Serializable {
 		}
 	}
 
-    // TODO should be renamed to nameViewStatusToClass(...)
 	public String nameViewStatus(NameView entry) {
+		switch (entry.getNameEvent().getStatus()) {
+			case PROCESSING : return "Processing";
+			case CANCELLED: return "Cancelled";
+			case REJECTED: return "Rejcted";
+			case APPROVED:
+                if(isPublished(entry))
+                    return "Published";
+                return "Approved";
+			default: return "unknown";
+		}
+	}
+
+	public String nameViewClass(NameView entry) {
 		switch (entry.getNameEvent().getStatus()) {
 			case PROCESSING : return "Processing";
 			case CANCELLED:
@@ -135,6 +150,14 @@ public class NamesManager implements Serializable {
 			default: return "unknown";
 		}
 	}
+
+    public String getPath(NameView req) {
+        return  Joiner.on(" ▸ ").join(req.getNamePath());
+    }
+
+    public String getFullPath(NameView req) {
+        return  Joiner.on(" ▸ ").join(req.getFullNamePath());
+    }
 
     public boolean isPublished(NameView entry) {
         if(entry.getNameEvent().getProcessDate() == null) return false;
@@ -160,11 +183,11 @@ public class NamesManager implements Serializable {
 		this.pubManager = pubMgr;
 	}
 
-	public NameEvent getSelectedName() {
+	public NameView getSelectedName() {
 		return selectedName;
 	}
 
-	public void setSelectedName(NameEvent selectedName) {
+	public void setSelectedName(NameView selectedName) {
 		this.selectedName = selectedName;
 	}
 
@@ -176,13 +199,21 @@ public class NamesManager implements Serializable {
 		this.filteredNames = filteredNames;
 	}
 
-	public List<NameEvent> getStandardNames() {
-		return standardNames;
+	public List<NameView> getStandardNames() {
+        return standardNames == null ? null : Lists.transform(standardNames, new Function<NameEvent, NameView>() {
+            @Override public NameView apply(NameEvent nameEvent) {
+                return new NameView(nameEvent, null);
+            }
+        });
 	}
 
-	public List<NameEvent> getHistoryEvents() {
-		return historyEvents;
-	}
+    public List<NameView> getHistoryEvents() {
+        return historyEvents == null ? null : Lists.transform(historyEvents, new Function<NameEvent, NameView>() {
+            @Override public NameView apply(NameEvent nameEvent) {
+                return new NameView(nameEvent, null);
+            }
+        });
+    }
 
 	public boolean isShowDeletedNames() {
 		return showDeletedNames;
