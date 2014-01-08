@@ -26,6 +26,8 @@ docs/Names-Installation-v2.3.pdf -text
 docs/Names-Installation-v2.4.docx -text
 docs/Names-devenv-instructions.docx -text
 docs/Names-devenv-instructions.pdf -text svneol=unset#unset
+docs/Naming[!!-~]Convention[!!-~]Tool[!!-~]User[!!-~]Manual.docx -text
+docs/Naming[!!-~]Convention[!!-~]Tool[!!-~]User[!!-~]Manual.pdf -text svneol=unset#unset
 /faces-config.NavData -text
 /nb-configuration.xml -text
 /pom.xml -text
