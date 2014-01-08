@@ -21,21 +21,20 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameHierarchy;
+import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.model.NamePartRevisionStatus;
-import org.openepics.names.model.NamePartRevisionType;
+import org.openepics.names.services.NamePartService;
 import org.openepics.names.services.NamesEJB;
+import org.openepics.names.ui.ViewFactory;
 import org.openepics.names.ui.names.NamePartView.Change;
 
 /**
@@ -47,16 +46,15 @@ import org.openepics.names.ui.names.NamePartView.Change;
 @ViewScoped
 public class RequestManager implements Serializable {
 
-    @EJB
-    private NamesEJB namesEJB;
-    private static final Logger logger = Logger.getLogger("org.openepics.names.ui.RequestManager");
-    private List<NamePartRevision> validNames;
-    private NamePartRevision selectedName;
-    private List<NamePartRevision> filteredNames;
-    private List<NamePartRevision> historyEvents;
-    private boolean myRequest = false; // user is looking at 'his'her' requests
-    // i.e. 'option' param is 'user'
-    private String option = null; // option parameter
+    @Inject private NamePartService namePartService;
+    @Inject private NamesEJB namesEJB;
+
+    private List<NamePartView> validNames;
+    private NamePartView selectedName;
+    private List<NamePartView> filteredNames;
+    private List<NamePartView> historyEvents;
+    private boolean myRequest = false;
+
     // Input parameters from input page
     private Integer newCategoryID;
     private Integer newParentID;
@@ -68,57 +66,43 @@ public class RequestManager implements Serializable {
 
     @PostConstruct
     public void init() {
-        try {
-            if (option == null) {
-                option = (String) FacesContext.getCurrentInstance()
-                        .getExternalContext().getRequestParameterMap()
-                        .get("option");
-            }
+        final String option = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("option");
 
-            if (option == null) {
-                validNames = namesEJB.getValidNames();
-                myRequest = false;
-            } else if ("user".equals(option)) {
-                validNames = namesEJB.getUserRequests();
-                myRequest = true;
-            }
-            newCode = newDescription = newComment = null;
-            newCategoryID = newParentID = null;
-            selectedName = (validNames == null || validNames.size() == 0) ? null : validNames.get(0);
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Could not initialize Request Manager: " + e.getMessage(), e);
+        final List<NamePart> validNameParts;
+        if (option == null) {
+            validNameParts = namePartService.getApprovedOrPendingNames();
+            myRequest = false;
+        } else if ("user".equals(option)) {
+            validNameParts = namePartService.getNamesWithChangesProposedByCurrentUser();
+            myRequest = true;
+        } else {
+            validNameParts = Lists.newArrayList();
         }
+
+        validNames = Lists.newArrayList(Lists.transform(validNameParts, new Function<NamePart, NamePartView>() {
+            @Override public NamePartView apply(NamePart namePart) {
+                return ViewFactory.getView(namePart);
+            }
+        }));
+
+        newCode = newDescription = newComment = null;
+        newCategoryID = newParentID = null;
+        selectedName = (validNames == null || validNames.size() == 0) ? null : validNames.get(0);
     }
 
     public void onModify() {
-        NamePartRevision newRequest;
-
         try {
-            logger.log(Level.INFO, "Modifying ");
-            newRequest = namesEJB.createNewEvent(selectedName.getNameId(), newCode, newDescription, newCategoryID, newParentID, NamePartRevisionType.MODIFY, newComment);
+            final NamePartRevision newRequest = namePartService.modifyNamePart(selectedName.getNamePart(), newCode, newDescription, newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
-        } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
-            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             init();
         }
     }
 
     public void onAdd() {
-        NamePartRevision newRequest;
-
         try {
-            logger.log(Level.INFO, "Adding...");
-            if (newCode == null || newCode.isEmpty()) {
-                showMessage(FacesMessage.SEVERITY_ERROR, "Code is empty", " ");
-            }
-            String newCategoryName = namesEJB.findEventById(newCategoryID).getName();
-            newRequest = namesEJB.createNewEvent("", newCode, newDescription, newCategoryID, newParentID, NamePartRevisionType.INSERT, newComment);
+            final NamePartRevision newRequest = namePartService.addNamePart(newCode, newDescription, newCategoryID, newParentID, newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
-        } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
-            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             init();
         }
@@ -128,15 +112,15 @@ public class RequestManager implements Serializable {
      * Has the selectedName been processed?
      */
     public boolean selectedEventProcessed() {
-        return selectedName == null ? false : selectedName.getStatus() != NamePartRevisionStatus.PROCESSING;
+        return selectedName == null ? false : selectedName.getPendingChange() == null;
     }
 
     public String getRequestType(NamePartView req) {
-        Change change = req.getPendingChange();
-        if(change instanceof NamePartView.AddChange) return "Add request";
-        if(change instanceof NamePartView.ModifyChange) return "Modify request";
-        if(change instanceof NamePartView.DeleteChange) return "Delete request";
-        return req.getNameEvent().getRevisionType().toString();
+        final Change change = req.getPendingChange();
+        if (change instanceof NamePartView.AddChange) return "Add request";
+        else if (change instanceof NamePartView.ModifyChange) return "Modify request";
+        else if (change instanceof NamePartView.DeleteChange) return "Delete request";
+        else return req.getNameEvent().getRevisionType().toString();
     }
 
     public String getNewPath(NamePartView req) {
@@ -207,102 +191,53 @@ public class RequestManager implements Serializable {
     }
 
     public void onDelete() {
-        NamePartRevision newRequest;
-
         try {
-            if (selectedName == null) {
-                showMessage(FacesMessage.SEVERITY_ERROR, "Error:",
-                        "You did not select any name.");
-                return;
-            }
-
-            logger.log(Level.INFO, "Deleting ");
-            Integer categoryID = selectedName.getNameCategory() == null ? null : selectedName.getNameCategory().getId();
-            Integer parentID = selectedName.getParentName() == null ? null : selectedName.getParentName().getId();
-            newRequest = namesEJB.createNewEvent(selectedName.getNameId(), selectedName.getName(), selectedName.getFullName(), categoryID, parentID, NamePartRevisionType.DELETE, newComment);
-            showMessage(FacesMessage.SEVERITY_INFO,
-                    "Your request was successfully submitted.",
-                    "Request Number: " + newRequest.getId());
-        } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
-            logger.log(Level.SEVERE, e.getMessage(), e);
+            final NamePartRevision newRequest = namePartService.deleteNamePart(selectedName.getNamePart(), newComment);
+            showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {
             init();
         }
     }
 
     public void onCancel() {
-
         try {
-            if (selectedName == null) {
-                showMessage(FacesMessage.SEVERITY_ERROR, "Error:",
-                        "You did not select any request.");
-                return;
-            }
-            logger.log(Level.INFO, "Cancelling ");
-            namesEJB.cancelRequest(selectedName.getId(), newComment);
-            showMessage(FacesMessage.SEVERITY_INFO,
-                    "Your request has been cancelled.", "Request Number: ");
-        } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
-            logger.log(Level.SEVERE, e.getMessage(), e);
+            namePartService.cancelNamePartRequests(selectedName.getNamePart(), newComment);
+            showMessage(FacesMessage.SEVERITY_INFO, "Your request has been cancelled.", "Request Number: ");
         } finally {
             init();
         }
     }
 
-    private void showMessage(FacesMessage.Severity severity, String summary,
-            String message) {
-        FacesContext context = FacesContext.getCurrentInstance();
-
+    private void showMessage(FacesMessage.Severity severity, String summary, String message) {
+        final FacesContext context = FacesContext.getCurrentInstance();
         context.addMessage(null, new FacesMessage(severity, summary, message));
-        //FacesMessage n = new FacesMessage();
     }
 
-    // TODO: merge with same method in NamesManager
     public void findHistory() {
-        try {
-            if (selectedName == null) {
-                showMessage(FacesMessage.SEVERITY_ERROR, "Error",
-                        "You must select a name first.");
-                historyEvents = null;
-                return;
+        historyEvents = Lists.newArrayList(Lists.transform(namePartService.getRevisions(selectedName.getNamePart()), new Function<NamePartRevision, NamePartView>() {
+            @Override public NamePartView apply(NamePartRevision revision) {
+                return ViewFactory.getView(revision);
             }
-            logger.log(Level.FINE, "history ");
-            historyEvents = namesEJB.findEventsByName(selectedName.getNameId());
-			// showMessage(FacesMessage.SEVERITY_INFO,
-            // "Your request was successfully submitted.", "Request Number: " +
-            // newRequest.getId());
-        } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        } finally {
-        }
+        }));
     }
 
-    /* --------------------------- */
     public List<NamePartView> getValidNames() {
-        // TODO return null on validNames == null ??
-        return Lists.transform(validNames, new Function<NamePartRevision, NamePartView>() {
-            @Override public NamePartView apply(NamePartRevision nameEvent) {
-                return new NamePartView(nameEvent, null);
-            }
-        });
+        return validNames;
     }
 
     public NamePartView getSelectedName() {
-        return selectedName != null ? new NamePartView(selectedName, null) : null;
+        return selectedName;
     }
 
     public void setSelectedName(NamePartView selectedName) {
-        this.selectedName = selectedName.getNameEvent();
+        this.selectedName = selectedName;
     }
 
-    public List<NamePartRevision> getFilteredNames() {
+    public List<NamePartView> getFilteredNames() {
         return filteredNames;
     }
 
-    public void setFilteredNames(List<NamePartRevision> filteredNames) {
+    public void setFilteredNames(List<NamePartView> filteredNames) {
         this.filteredNames = filteredNames;
     }
 
@@ -351,11 +286,7 @@ public class RequestManager implements Serializable {
     }
 
     public List<NamePartView> getHistoryEvents() {
-        return historyEvents == null ? null : Lists.transform(historyEvents, new Function<NamePartRevision, NamePartView>() {
-            @Override public NamePartView apply(NamePartRevision nameEvent) {
-                return new NamePartView(nameEvent, null);
-            }
-        });
+        return historyEvents;
     }
 
     public List<NamePartRevision> getParentCandidates() {
@@ -368,7 +299,7 @@ public class RequestManager implements Serializable {
 
     public void loadParentCandidates() {
         if (newCategoryID != null) {
-            final NameHierarchy nameHierarchy = namesEJB.getNameHierarchy();
+            final NameHierarchy nameHierarchy = namePartService.getNameHierarchy();
             final @Nullable NameCategory category = namesEJB.findCategoryById(newCategoryID);
             if (category != null) {
                 final @Nullable NameCategory parentCategory = getParentCategory(category);
@@ -383,7 +314,7 @@ public class RequestManager implements Serializable {
     }
 
     private @Nullable NameCategory getParentCategory(NameCategory nameCategory) {
-        final NameHierarchy nameHierarchy = namesEJB.getNameHierarchy();
+        final NameHierarchy nameHierarchy = namePartService.getNameHierarchy();
         final int sectionIndex = nameHierarchy.getSectionLevels().indexOf(nameCategory);
         final int deviceTypeIndex = nameHierarchy.getDeviceTypeLevels().indexOf(nameCategory);
         if (sectionIndex >= 0) {

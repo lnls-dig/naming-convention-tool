@@ -6,15 +6,15 @@ package org.openepics.names.webservice;
 
 import java.util.List;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.openepics.names.services.NamesEJB;
 import org.openepics.names.model.NameCategory;
+import org.openepics.names.services.NamePartService;
 
 /**
  *
@@ -23,15 +23,14 @@ import org.openepics.names.model.NameCategory;
 @Stateless
 @Path("category")
 public class NameElementCategoryResource {
-    @EJB
-    private NamesEJB namesEJB;
+    @Inject private NamePartService namePartService;
 
-    @GET    
+    @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
     public List<NameCategory> findAll() {
-        return namesEJB.getCategories();
+        return namePartService.getNameCategories();
     }
-    
+
     /*
     public NameElementCategoryResource() {
         super(NameCategory.class);

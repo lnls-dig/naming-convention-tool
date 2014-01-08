@@ -16,6 +16,7 @@
 package org.openepics.names.services;
 
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
@@ -23,7 +24,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.openepics.names.model.NameHierarchy;
+import javax.persistence.TypedQuery;
 import org.openepics.names.model.NameRelease;
 import org.openepics.names.model.Privilege;
 import org.openepics.names.ui.UserManager;
@@ -46,8 +47,19 @@ public class NamesEJB {
     @EJB
     private NamingConventionEJB ncEJB;
 
-    public NameHierarchy getNameHierarchy() {
-        return em.createQuery("SELECT nameHierarchy FROM NameHierarchy nameHierarchy", NameHierarchy.class).getSingleResult();
+    /**
+     * Retrieve all releases.
+     *
+     * @author Vasu V <vuppala@frib.msu.org>
+     */
+    public List<NameRelease> getAllReleases() {
+        List<NameRelease> releases;
+
+        TypedQuery<NameRelease> query = em.createQuery("SELECT n FROM NameRelease n ORDER BY n.releaseDate DESC",
+                NameRelease.class);
+        releases = query.getResultList();
+        logger.log(Level.FINE, "Results for all releases: " + releases.size());
+        return releases;
     }
 
     /**

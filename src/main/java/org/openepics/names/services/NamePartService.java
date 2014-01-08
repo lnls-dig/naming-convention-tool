@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.openepics.names.model.NameCategory;
+import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
@@ -103,7 +104,7 @@ public class NamePartService {
         }
     }
 
-    public NamePartRevision cancelNamePartRequest(NamePart namePart, String comment) {
+    public NamePartRevision cancelNamePartRequests(List<NamePartRevision> revisions, String comment) {
         final NamePartRevision baseRevision = baseRevision(namePart);
         Preconditions.checkState(baseRevision.getRevisionType() != NamePartRevisionType.DELETE);
 
@@ -120,6 +121,18 @@ public class NamePartService {
         return pendingRevision;
     }
 
+    public void approveNamePartRequests(List<NamePartRevision> revisions, String comment) {
+        throw new IllegalStateException(); // TODO
+    }
+
+    public void rejectNamePartRequests(List<NamePartRevision> revisions, String comment) {
+        throw new IllegalStateException(); // TODO
+    }
+
+    public NameHierarchy getNameHierarchy() {
+        return em.createQuery("SELECT nameHierarchy FROM NameHierarchy nameHierarchy", NameHierarchy.class).getSingleResult();
+    }
+
     public List<NamePart> getApprovedNames(@Nullable NameCategory category, boolean includeDeleted) {
         if (includeDeleted)
             return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :status)", NamePart.class).setParameter("status", NamePartRevisionStatus.APPROVED).getResultList();
@@ -128,12 +141,20 @@ public class NamePartService {
         }
     }
 
-    public List<NamePart> getPendingNames(@Nullable NameCategory category, boolean includeDeleted) {
+    public List<NamePart> getApprovedNames() {
+        return getApprovedNames(null, false);
+    }
+
+    public List<NamePart> getApprovedOrPendingNames(@Nullable NameCategory category, boolean includeDeleted) {
         if (includeDeleted)
             return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :status1 OR r2.status = :status2))", NamePart.class).setParameter("status1", NamePartRevisionStatus.APPROVED).setParameter("status2", NamePartRevisionStatus.PROCESSING).getResultList();
         else {
             return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :status1 OR r2.status = :status2) AND r2.revisionType = :revisionType)", NamePart.class).setParameter("status1", NamePartRevisionStatus.APPROVED).setParameter("status1", NamePartRevisionStatus.PROCESSING).setParameter("revisionType", NamePartRevisionType.DELETE).getResultList();
         }
+    }
+
+    public List<NamePart> getApprovedOrPendingNames() {
+        return getApprovedOrPendingNames(null, false);
     }
 
     public List<NamePart> getNamesWithChangesProposedByCurrentUser() {

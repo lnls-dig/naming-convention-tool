@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -32,7 +31,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.services.NamePartService;
 import org.openepics.names.services.NamesEJB;
 import org.openepics.names.ui.names.NamePartView;
@@ -67,30 +65,21 @@ public class RequestProcManager implements Serializable {
 
     @PostConstruct
     public void init() {
-        try {
-            events = namePartService.getPendingNames(null, true);
-            pendingNames = events.size() > 0 ? new ArrayList<NamePartView>() : null;
-            for(NamePart entry : events) {
-                List<NamePartRevision> history = namePartService.getRevisions(entry);
-                NamePartRevision pendingRevision = history.get(history.size() - 1);
-                NamePartRevision currentRevision = history.size() > 1 ? history.get(history.size() - 2) : null;
-                pendingNames.add(new NamePartView(namePartService, currentRevision, pendingRevision));
-            }
-            procComments = null;
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+        events = namePartService.getApprovedOrPendingNames(null, true);
+        pendingNames = events.size() > 0 ? new ArrayList<NamePartView>() : null;
+        for(NamePart entry : events) {
+            List<NamePartRevision> history = namePartService.getRevisions(entry);
+            NamePartRevision pendingRevision = history.get(history.size() - 1);
+            NamePartRevision currentRevision = history.size() > 1 ? history.get(history.size() - 2) : null;
+            pendingNames.add(new NamePartView(namePartService, currentRevision, pendingRevision));
         }
+        procComments = null;
     }
 
     public void onApprove() {
         try {
-            // TODO waiting on service
-            logger.log(Level.INFO, "Approving ");
-            namesEJB.processEvents((NamePartRevision[])selectedEvents.toArray(), NamePartRevisionStatus.APPROVED, procComments);
+            namePartService.approveNamePartRevisions(selectedEvents, procComments);
             showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully approved.", " ");
-        } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
-            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             init();
         }
@@ -98,13 +87,8 @@ public class RequestProcManager implements Serializable {
 
     public void onReject() {
         try {
-            // TODO waiting on service
-            logger.log(Level.INFO, "Rejecting ");
-            namesEJB.processEvents((NamePartRevision[])selectedEvents.toArray(), NamePartRevisionStatus.REJECTED, procComments);
+            namePartService.rejectNamePartRevisions(selectedEvents, procComments);
             showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully rejected.", " ");
-        } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
-            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             init();
         }
@@ -112,20 +96,14 @@ public class RequestProcManager implements Serializable {
 
     //TODO: merge with same method in NamesManager
     public void findHistory() {
-        try {
-            if (selectedEvents == null || selectedEvents.isEmpty()) {
-                showMessage(FacesMessage.SEVERITY_ERROR, "Error", "You must select a name first.");
-                historyEvents = null;
-                return;
-            }
-            historyEvents = new ArrayList<>();
-            for (NamePartView event : selectedEvents) {
-                historyEvents.addAll(namePartService.getRevisions(event.getNamePart()));
-            }
-        } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        } finally {
+        if (selectedEvents == null || selectedEvents.isEmpty()) {
+            showMessage(FacesMessage.SEVERITY_ERROR, "Error", "You must select a name first.");
+            historyEvents = null;
+            return;
+        }
+        historyEvents = new ArrayList<>();
+        for (NamePartView event : selectedEvents) {
+            historyEvents.addAll(namePartService.getRevisions(event.getNamePart()));
         }
     }
 

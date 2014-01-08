@@ -48,7 +48,7 @@ public class EditNamesManager implements Serializable {
     @PostConstruct
     public void init() {
         final NameCategory topSectionCategory = namesEJB.getNameHierarchy().getSectionLevels().get(0);
-        final List<NamePartView> topSections = Lists.transform(namePartService.getPendingNames(topSectionCategory, false), new Function<NamePart, NamePartView>() {
+        final List<NamePartView> topSections = Lists.transform(namePartService.getApprovedOrPendingNames(topSectionCategory, false), new Function<NamePart, NamePartView>() {
             @Override public NamePartView apply(NamePart namePart) { return ViewFactory.getView(namePart); }
         });
         sectionLevels = new ArrayList<>();
@@ -58,7 +58,7 @@ public class EditNamesManager implements Serializable {
         }
 
         final NameCategory topDeviceTypeCategory = namesEJB.getNameHierarchy().getDeviceTypeLevels().get(0);
-        final List<NamePartView> topDeviceTypes = Lists.transform(namePartService.getPendingNames(topDeviceTypeCategory, false), new Function<NamePart, NamePartView>() {
+        final List<NamePartView> topDeviceTypes = Lists.transform(namePartService.getApprovedOrPendingNames(topDeviceTypeCategory, false), new Function<NamePart, NamePartView>() {
             @Override public NamePartView apply(NamePart namePart) { return ViewFactory.getView(namePart); }
         });
         deviceTypeLevels = new ArrayList<>();
