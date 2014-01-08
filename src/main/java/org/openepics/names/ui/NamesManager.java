@@ -29,6 +29,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NameRelease;
@@ -57,7 +58,7 @@ public class NamesManager implements Serializable {
     private List<NamePartView> filteredNames;
     private List<NamePartRevision> historyEvents;
     private boolean showDeletedNames = false;
-    private String currentCategory;
+    private NameCategory currentCategory;
 
     /**
      * Creates a new instance of NamesManager
@@ -72,14 +73,13 @@ public class NamesManager implements Serializable {
                     .getExternalContext().getRequestParameterMap()
                     .get("category");
             if (category == null) {
-                currentCategory = "%"; // ToDo: Use a better method.
+                currentCategory = null;
             } else {
-                currentCategory = category;
+                currentCategory = findCategoryByName(category);
             }
             refreshNames();
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Could not initialize NameManager.");
-            System.err.println(e);
+            logger.log(Level.SEVERE, "Could not initialize NameManager: " + e.getMessage(), e);
         }
     }
 
@@ -183,8 +183,7 @@ public class NamesManager implements Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
 
         context.addMessage(null, new FacesMessage(severity, summary, message));
-        FacesMessage n = new FacesMessage();
-
+        // FacesMessage n = new FacesMessage();
     }
 
     public boolean isUnderChange(NamePartRevision nevent) {
@@ -229,5 +228,12 @@ public class NamesManager implements Serializable {
 
     public void setShowDeletedNames(boolean showDeletedNames) {
         this.showDeletedNames = showDeletedNames;
+    }
+
+    private NameCategory findCategoryByName(String name) {
+        List<NameCategory> categories = namePartService.getNameCategories();
+        for(NameCategory category : categories)
+            if(category.getDescription().equalsIgnoreCase(name)) return category;
+        return null;
     }
 }

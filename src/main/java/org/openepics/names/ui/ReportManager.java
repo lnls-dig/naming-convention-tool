@@ -56,12 +56,11 @@ public class ReportManager implements Serializable {
     public void onGenReport() {
         try {
             logger.log(Level.INFO, "Action: generating report");
-            // System.out.println("Action: generating report");
             char etype = "%".equals(eventType)? 0 : eventType.charAt(0);
             char estat = "%".equals(eventStatus)? 0 : eventStatus.charAt(0);
             events = namesEJB.findEvents(etype, estat);
         } catch (Exception e) {
-            System.err.println(e);
+            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             eventType = eventStatus = startRev = endRev = null;
             startDate = endDate = null;

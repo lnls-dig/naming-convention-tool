@@ -25,8 +25,8 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import org.openepics.names.services.NamesEJB;
 import org.openepics.names.model.NameRelease;
+import org.openepics.names.services.NamesEJB;
 
 /**
  * Manages naming system releases
@@ -55,17 +55,16 @@ public class PublicationManager implements Serializable {
 
     @PostConstruct
     public void init() {
-        logger.log(Level.WARNING, "init publication manager");
+        logger.log(Level.INFO, "init publication manager");
         try {
             releases = namesEJB.getAllReleases();
             if (releases != null && !releases.isEmpty()) {
                 latestRelease = releases.get(0); // releases are assumed in descending order of release date
             } else {
-                logger.log(Level.WARNING, "No release information in the database.");
+                logger.log(Level.INFO, "No release information in the database.");
             }
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Could not initialize Publication Manager.");
-            System.err.println(e);
+            logger.log(Level.SEVERE, "Could not initialize Publication Manager: " + e.getMessage(), e);
         }
     }
 
@@ -78,8 +77,8 @@ public class PublicationManager implements Serializable {
             inputRelease = namesEJB.createNewRelease(inputRelease);
             showMessage(FacesMessage.SEVERITY_INFO, "A new Release was successfully published.", " ");
         } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error", e.getMessage());
-            System.err.println(e);
+            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
+            logger.log(Level.SEVERE, "Error adding publication: " + e.getMessage(), e);
         } finally {
             init();
         }

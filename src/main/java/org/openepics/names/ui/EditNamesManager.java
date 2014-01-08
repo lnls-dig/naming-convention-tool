@@ -38,8 +38,8 @@ public class EditNamesManager implements Serializable {
     private List<NamePartSelectionView> sectionLevels;
     private List<NamePartSelectionView> deviceTypeLevels;
 
-    private List<DeviceRevision> allDeviceNames;
-    private List<DeviceRevision> historyDeviceNames;
+    private List<DeviceView> allDeviceNames;
+    private List<DeviceView> historyDeviceNames;
 
     private boolean showDeletedNames = true;
 
@@ -112,11 +112,16 @@ public class EditNamesManager implements Serializable {
     }
 
     public void loadDeviceNames() {
-        if (showDeletedNames) {
+        List<DeviceRevision> allDeviceNames;
+
+        if (showDeletedNames)
             allDeviceNames = ncEJB.getAllDeviceNames();
-        } else {
+        else
             allDeviceNames = ncEJB.getExistingDeviceNames();
-        }
+        this.allDeviceNames = allDeviceNames.isEmpty() ? null : new ArrayList<DeviceView>();
+        for(DeviceRevision dev : allDeviceNames)
+            this.allDeviceNames.add(ViewFactory.getView(dev.getDevice()));
+
     }
 
     public void loadHistory() {
@@ -156,7 +161,13 @@ public class EditNamesManager implements Serializable {
                     currentDropdown.setOptions(parent.getChildren());
                 } else {
                     // at the top of the hierarchy
-                    currentDropdown.setOptions(namesEJB.findEventsByCategory(currentNamePart.getNameCategory()));
+                    currentDropdown.setOptions(
+                            Lists.transform(namesEJB.findEventsByCategory(currentNamePart.getNameEvent().getNameCategory()),
+                                    new Function<NamePartRevision, NamePartView>() {
+                                        @Override public NamePartView apply(NamePartRevision f) {
+                                            return ViewFactory.getView(f.getNamePart());
+                                        }
+                            }));
                 }
                 currentDropdown.setSelectedId(currentNamePart.getId());
                 currentNamePart = parent;
@@ -180,19 +191,11 @@ public class EditNamesManager implements Serializable {
     public void setSelectedDeviceName(DeviceView selectedDeviceName) { this.selectedDeviceName = selectedDeviceName; }
 
     public List<DeviceView> getAllDeviceNames() {
-        return Lists.transform(allDeviceNames, new Function<DeviceRevision, DeviceView>() {
-            @Override public DeviceView apply(DeviceRevision deviceName) {
-                return new DeviceView(deviceName, namingConvention.getNamingConventionName(deviceName));
-            }
-        });
+        return allDeviceNames;
     }
 
     public List<DeviceView> getHistoryEvents() {
-        return historyDeviceNames == null ? null : Lists.transform(historyDeviceNames, new Function<DeviceRevision, DeviceView>() {
-            @Override public DeviceView apply(DeviceRevision deviceName) {
-                return new DeviceView(deviceName, namingConvention.getNamingConventionName(deviceName));
-            }
-        });
+        return historyDeviceNames;
     }
 
     public List<NamePartSelectionView> getSectionLevels() { return sectionLevels; }
@@ -267,9 +270,18 @@ public class EditNamesManager implements Serializable {
      * @param currentLevel
      */
     public void loadNextSectionLevel(int currentLevel) {
-        if (currentLevel + 1 < namesEJB.getNameHierarchy().getSectionLevels().size() && !sectionLevels.get(currentLevel).getOptions().isEmpty() && sectionLevels.get(currentLevel).getSelectedId() != null) {
+        if (currentLevel + 1 < namesEJB.getNameHierarchy().getSectionLevels().size() &&
+                !sectionLevels.get(currentLevel).getOptions().isEmpty() &&
+                sectionLevels.get(currentLevel).getSelectedId() != null) {
             NamePartRevision parent = namesEJB.findEventById(sectionLevels.get(currentLevel).getSelectedId());
-            sectionLevels.get(currentLevel + 1).setOptions(namesEJB.findEventsByParent(parent));
+
+            sectionLevels.get(currentLevel + 1).setOptions(
+                    Lists.transform(namesEJB.findEventsByParent(parent), new Function<NamePartRevision, NamePartView>() {
+                        @Override
+                        public NamePartView apply(NamePartRevision f) {
+                            return ViewFactory.getView(f);
+                        }
+                    }));
             sectionLevels.get(currentLevel + 1).setSelectedId(null);
 
             // clear the rest of the inputs
@@ -285,9 +297,17 @@ public class EditNamesManager implements Serializable {
      * @param currentLevel
      */
     public void loadNextDeviceTypeLevel(int currentLevel) {
-        if (currentLevel + 1 < namesEJB.getNameHierarchy().getDeviceTypeLevels().size() && !deviceTypeLevels.get(currentLevel).getOptions().isEmpty() && deviceTypeLevels.get(currentLevel).getSelectedId() != null) {
+        if (currentLevel + 1 < namesEJB.getNameHierarchy().getDeviceTypeLevels().size() &&
+                !deviceTypeLevels.get(currentLevel).getOptions().isEmpty() &&
+                deviceTypeLevels.get(currentLevel).getSelectedId() != null) {
             NamePartRevision parent = namesEJB.findEventById(deviceTypeLevels.get(currentLevel).getSelectedId());
-            deviceTypeLevels.get(currentLevel + 1).setOptions(namesEJB.findEventsByParent(parent));
+            deviceTypeLevels.get(currentLevel + 1).setOptions(
+                    Lists.transform(namesEJB.findEventsByParent(parent), new Function<NamePartRevision, NamePartView>() {
+                        @Override
+                        public NamePartView apply(NamePartRevision f) {
+                            return ViewFactory.getView(f);
+                        }
+                    }));
             deviceTypeLevels.get(currentLevel + 1).setSelectedId(null);
 
             // clear the rest of the inputs

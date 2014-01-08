@@ -19,12 +19,11 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.inject.Inject;
 import org.openepics.names.model.NameCategory;
-import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.services.NamesEJB;
+import org.openepics.names.services.NamePartService;
 import org.primefaces.component.menuitem.MenuItem;
 import org.primefaces.model.DefaultMenuModel;
 import org.primefaces.model.MenuModel;
@@ -39,15 +38,14 @@ import org.primefaces.model.MenuModel;
 public class MenuManager implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	@EJB
-	private NamesEJB namesEJB;
+    @Inject private NamePartService namePartService;
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger("org.openepics.names.ui.MenuManager");
 
 	private List<NameCategory> categories;
 
-	private List<NamePartRevision> parents;
+	// private List<NamePartRevision> parents;   // TODO remove
 
 	private MenuModel model;
 
@@ -61,7 +59,7 @@ public class MenuManager implements Serializable {
 	private void init() {
 		model = new DefaultMenuModel();
 
-		categories = namesEJB.getCategories();
+        categories = namePartService.getNameCategories();
 
         MenuItem item = new MenuItem();
         item.setId("__" );
@@ -79,16 +77,17 @@ public class MenuManager implements Serializable {
 			model.addMenuItem(item);
 		}
 
-		parents = namesEJB.getValidNames();
+		// parents = namesEJB.getValidNames();   // TODO remove
 	}
 
 	public List<NameCategory> getCategories() {
 		return categories;
 	}
 
-	public List<NamePartRevision> getParents() {
-		return parents;
-	}
+    // TODO remove
+	//public List<NamePartRevision> getParents() {
+	//	return parents;
+	//}
 
 	public MenuModel getModel() {
 		return model;

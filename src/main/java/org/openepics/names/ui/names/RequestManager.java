@@ -31,10 +31,10 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import org.openepics.names.model.NameCategory;
+import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.model.NamePartRevisionType;
-import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.services.NamesEJB;
 import org.openepics.names.ui.names.NamePartView.Change;
 
@@ -86,8 +86,7 @@ public class RequestManager implements Serializable {
             newCategoryID = newParentID = null;
             selectedName = (validNames == null || validNames.size() == 0) ? null : validNames.get(0);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Could not initialize Request Manager.");
-            System.err.println(e);
+            logger.log(Level.SEVERE, "Could not initialize Request Manager: " + e.getMessage(), e);
         }
     }
 
@@ -99,8 +98,8 @@ public class RequestManager implements Serializable {
             newRequest = namesEJB.createNewEvent(selectedName.getNameId(), newCode, newDescription, newCategoryID, newParentID, NamePartRevisionType.MODIFY, newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error", e.getMessage());
-            System.err.println(e);
+            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
+            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             init();
         }
@@ -118,8 +117,8 @@ public class RequestManager implements Serializable {
             newRequest = namesEJB.createNewEvent("", newCode, newDescription, newCategoryID, newParentID, NamePartRevisionType.INSERT, newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error", e.getMessage());
-            System.err.println(e);
+            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
+            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             init();
         }
@@ -225,9 +224,8 @@ public class RequestManager implements Serializable {
                     "Your request was successfully submitted.",
                     "Request Number: " + newRequest.getId());
         } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
-                    e.getMessage());
-            System.err.println(e);
+            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
+            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             init();
         }
@@ -246,9 +244,8 @@ public class RequestManager implements Serializable {
             showMessage(FacesMessage.SEVERITY_INFO,
                     "Your request has been cancelled.", "Request Number: ");
         } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
-                    e.getMessage());
-            System.err.println(e);
+            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
+            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             init();
         }
@@ -259,8 +256,7 @@ public class RequestManager implements Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
 
         context.addMessage(null, new FacesMessage(severity, summary, message));
-        FacesMessage n = new FacesMessage();
-
+        //FacesMessage n = new FacesMessage();
     }
 
     // TODO: merge with same method in NamesManager
@@ -278,9 +274,8 @@ public class RequestManager implements Serializable {
             // "Your request was successfully submitted.", "Request Number: " +
             // newRequest.getId());
         } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error",
-                    e.getMessage());
-            System.err.println(e);
+            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
+            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
         }
     }

@@ -19,6 +19,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,8 +29,11 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
+import org.openepics.names.services.NamePartService;
 import org.openepics.names.services.NamesEJB;
 import org.openepics.names.ui.names.NamePartView;
 
@@ -44,10 +48,13 @@ public class RequestProcManager implements Serializable {
 
     @EJB
     private NamesEJB namesEJB;
+    @Inject NamePartService namePartService;
+
     private static final Logger logger = Logger.getLogger("org.openepics.names.ui.RequestProcManager");
-    private List<NamePartRevision> events;
-    private List<NamePartRevision> selectedEvents;
-    private List<NamePartRevision> filteredEvents;
+    private List<NamePartView> pendingNames;
+    private List<NamePart> events;
+    private List<NamePartView> selectedEvents;
+    private List<NamePartView> filteredEvents;
     private List<NamePartRevision> historyEvents;
     // Input parameters
     private String procComments;
@@ -61,21 +68,29 @@ public class RequestProcManager implements Serializable {
     @PostConstruct
     public void init() {
         try {
-            events = namesEJB.getUnprocessedEvents();
+            events = namePartService.getPendingNames(null, true);
+            pendingNames = events.size() > 0 ? new ArrayList<NamePartView>() : null;
+            for(NamePart entry : events) {
+                List<NamePartRevision> history = namePartService.getRevisions(entry);
+                NamePartRevision pendingRevision = history.get(history.size() - 1);
+                NamePartRevision currentRevision = history.size() > 1 ? history.get(history.size() - 2) : null;
+                pendingNames.add(new NamePartView(namePartService, currentRevision, pendingRevision));
+            }
             procComments = null;
         } catch (Exception e) {
-            System.err.println(e);
+            logger.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
     public void onApprove() {
         try {
+            // TODO waiting on service
             logger.log(Level.INFO, "Approving ");
             namesEJB.processEvents((NamePartRevision[])selectedEvents.toArray(), NamePartRevisionStatus.APPROVED, procComments);
             showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully approved.", " ");
         } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error", e.getMessage());
-            System.err.println(e);
+            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
+            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             init();
         }
@@ -83,12 +98,13 @@ public class RequestProcManager implements Serializable {
 
     public void onReject() {
         try {
+            // TODO waiting on service
             logger.log(Level.INFO, "Rejecting ");
             namesEJB.processEvents((NamePartRevision[])selectedEvents.toArray(), NamePartRevisionStatus.REJECTED, procComments);
             showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully rejected.", " ");
         } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error", e.getMessage());
-            System.err.println(e);
+            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
+            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             init();
         }
@@ -102,15 +118,13 @@ public class RequestProcManager implements Serializable {
                 historyEvents = null;
                 return;
             }
-            // logger.log(Level.INFO, "history ");
             historyEvents = new ArrayList<>();
-            for (NamePartRevision event : selectedEvents ) {
-                historyEvents.addAll(namesEJB.findEventsByName(event.getNameId()));
+            for (NamePartView event : selectedEvents) {
+                historyEvents.addAll(namePartService.getRevisions(event.getNamePart()));
             }
-            // showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Encountered an error", e.getMessage());
-            System.err.println(e);
+            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
+            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
         }
     }
@@ -124,29 +138,22 @@ public class RequestProcManager implements Serializable {
     }
 
     public NamePartView[] getSelectedEvents() {
-        return selectedEvents == null ? null : (NamePartView[])Lists.transform(selectedEvents, new Function<NamePartRevision, NamePartView>() {
-            @Override public NamePartView apply(NamePartRevision nameEvent) {
-                return new NamePartView(nameEvent, null);
-            }
-        }).toArray();
+        return selectedEvents == null ? null : (NamePartView[])selectedEvents.toArray();
     }
 
     public void setSelectedEvents(NamePartView[] selectedEvents) {
         this.selectedEvents = null;
         if(selectedEvents == null || selectedEvents.length == 0) return;
 
-        ArrayList<NamePartRevision> selection = new ArrayList<>();
-        for(NamePartView event : selectedEvents)
-            selection.add(event.getNameEvent());
-
-        this.selectedEvents = selection;
+        this.selectedEvents = new ArrayList<>();
+        this.selectedEvents.addAll(Arrays.asList(selectedEvents));
     }
 
-    public List<NamePartRevision> getFilteredEvents() {
+    public List<NamePartView> getFilteredEvents() {
         return filteredEvents;
     }
 
-    public void setFilteredEvents(List<NamePartRevision> filteredEvents) {
+    public void setFilteredEvents(List<NamePartView> filteredEvents) {
         this.filteredEvents = filteredEvents;
     }
 
@@ -159,17 +166,13 @@ public class RequestProcManager implements Serializable {
     }
 
     public List<NamePartView> getEvents() {
-        return Lists.transform(events, new Function<NamePartRevision, NamePartView>() {
-            @Override public NamePartView apply(NamePartRevision nameEvent) {
-                return new NamePartView(nameEvent, null);
-            }
-        });
+        return pendingNames;
     }
 
     public List<NamePartView> getHistoryEvents() {
         return historyEvents == null ? null : Lists.transform(historyEvents, new Function<NamePartRevision, NamePartView>() {
             @Override public NamePartView apply(NamePartRevision nameEvent) {
-                return new NamePartView(nameEvent, null);
+                return new NamePartView(namePartService, nameEvent, null);
             }
         });
     }
