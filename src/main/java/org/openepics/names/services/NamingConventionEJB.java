@@ -1,10 +1,8 @@
 package org.openepics.names.services;
 
 import com.google.common.base.Preconditions;
-import java.security.AccessControlException;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -26,76 +24,6 @@ public class NamingConventionEJB {
 
     @PersistenceContext(unitName = "org.openepics.names.punit")
     private EntityManager em;
-
-    public DeviceRevision createDeviceName(NamePartRevision section, NamePartRevision deviceType) {
-        Preconditions.checkNotNull(section);
-        Preconditions.checkNotNull(deviceType);
-
-        if (!userManager.isLoggedIn()) {
-            throw new AccessControlException("You must be logged in to perform the operation.");
-        }
-
-        final long deviceInstances = countDeviceNamesByRef(section, deviceType);
-        final String qualifier = getQualifier(deviceInstances);
-
-        final DeviceRevision newDeviceName = new DeviceRevision(section, deviceType, qualifier, DeviceRevisionType.VALID);
-        newDeviceName.setNameId(UUID.randomUUID().toString());
-        newDeviceName.setRequestedBy(userManager.getUser());
-        newDeviceName.setProcessedBy(userManager.getUser());
-        newDeviceName.setProcessDate(new Date());
-        em.persist(newDeviceName);
-        return newDeviceName;
-    }
-
-    /**
-     * Creates a new version of the existing name based on the name received as
-     * the parameter, but the new version is deleted.
-     *
-     * @param nameToDelete
-     * @return
-     */
-    public DeviceRevision deleteDeviceName(DeviceRevision nameToDelete) {
-        if (!userManager.isLoggedIn()) {
-            throw new AccessControlException("You must be logged in to perform this action.");
-        }
-
-        Preconditions.checkNotNull(nameToDelete);
-
-        if (nameToDelete.getStatus() == DeviceRevisionType.DELETED) {
-            return nameToDelete;
-        }
-
-        // Superuser can delete anything. Editors only their own NC names
-        if (!userManager.isSuperUser() && nameToDelete.getRequestedBy().getId().intValue() != userManager.getUser().getId().intValue()) {
-            throw new AccessControlException("You are not authorized to ");
-        }
-
-        // make new revision
-        DeviceRevision deletedName = new DeviceRevision(nameToDelete.getSection(), nameToDelete.getDeviceType(), nameToDelete.getQualifier(), DeviceRevisionType.DELETED);
-        deletedName.setNameId(nameToDelete.getNameId());
-        deletedName.setRequestedBy(userManager.getUser());
-        deletedName.setProcessedBy(userManager.getUser());
-        deletedName.setProcessDate(new Date());
-        em.persist(deletedName);
-
-        return deletedName;
-    }
-
-    public DeviceRevision modifyDeviceName(Integer sectionId, Integer deviceTypeId, Integer selectedDeviceNameId) {
-        Preconditions.checkNotNull(sectionId);
-        Preconditions.checkNotNull(deviceTypeId);
-        Preconditions.checkNotNull(selectedDeviceNameId);
-
-        final NamePartRevision section = em.find(NamePartRevision.class, sectionId);
-        final NamePartRevision deviceType = em.find(NamePartRevision.class, deviceTypeId);
-        final DeviceRevision selectedDeviceName = em.find(DeviceRevision.class, selectedDeviceNameId);
-
-        final DeviceRevision returnName = createDeviceName(section, deviceType);
-        returnName.setNameId(selectedDeviceName.getNameId());
-        em.persist(returnName);
-
-        return returnName;
-    }
 
     private String getQualifier(long namesCount) {
         return (namesCount <= 0) ? "A" : "" + ((char) (namesCount % 26 + 'A')) + (namesCount / 26);

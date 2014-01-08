@@ -96,7 +96,7 @@ public class NamesManager implements Serializable {
             showMessage(FacesMessage.SEVERITY_ERROR, "Error", "You must select a name first.");
             historyEvents = null;
         } else {
-            historyEvents = namePartService.getNameEvents(selectedName.getNamePart());
+            historyEvents = namePartService.getRevisions(selectedName.getNamePart());
         }
     }
 

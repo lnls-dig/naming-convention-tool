@@ -16,6 +16,8 @@ import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.model.NamePartRevisionType;
 import org.openepics.names.model.Privilege;
 import org.openepics.names.ui.UserManager;
+import org.openepics.names.util.As;
+import org.openepics.names.util.JpaHelper;
 
 /**
  *
@@ -101,30 +103,14 @@ public class NamePartService {
         }
     }
 
-    public List<NamePart> getApprovedNames(@Nullable NameCategory category, boolean includeDeleted) {
-        throw new IllegalStateException(); // TODO
-    }
-
-    public List<NamePart> getPendingNames(@Nullable NameCategory category, boolean includeDeleted) {
-        throw new IllegalStateException(); // TODO
-    }
-
-    public List<NamePart> getNamesWithChangesProposedByCurrentUser() {
-        throw new IllegalStateException(); // TODO
-    }
-
-    public List<NamePartRevision> getNameEvents(NamePart namePart) {
-        throw new IllegalStateException(); // TODO
-    }
-
     public NamePartRevision cancelNamePartRequest(NamePart namePart, String comment) {
-        Preconditions.checkState(userManager.isLoggedIn());
-
         final NamePartRevision baseRevision = baseRevision(namePart);
         Preconditions.checkState(baseRevision.getRevisionType() != NamePartRevisionType.DELETE);
 
-        final @Nullable NamePartRevision pendingRevision = pendingRevision(namePart);
+        final NamePartRevision pendingRevision = As.notNull(pendingRevision(namePart));
         Preconditions.checkState(pendingRevision != null);
+
+        Preconditions.checkState(pendingRevision.getRequestedBy().equals(userManager.getUser()));
 
         pendingRevision.setStatus(NamePartRevisionStatus.CANCELLED);
         pendingRevision.setProcessedBy(userManager.getUser());
@@ -132,6 +118,35 @@ public class NamePartService {
         pendingRevision.setProcessorComment(comment);
 
         return pendingRevision;
+    }
+
+    public List<NamePart> getApprovedNames(@Nullable NameCategory category, boolean includeDeleted) {
+        if (includeDeleted)
+            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :status)", NamePart.class).setParameter("status", NamePartRevisionStatus.APPROVED).getResultList();
+        else {
+            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :status AND r2.revisionType = :revisionType)", NamePart.class).setParameter("status", NamePartRevisionStatus.APPROVED).setParameter("revisionType", NamePartRevisionType.DELETE).getResultList();
+        }
+    }
+
+    public List<NamePart> getPendingNames(@Nullable NameCategory category, boolean includeDeleted) {
+        if (includeDeleted)
+            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :status1 OR r2.status = :status2))", NamePart.class).setParameter("status1", NamePartRevisionStatus.APPROVED).setParameter("status2", NamePartRevisionStatus.PROCESSING).getResultList();
+        else {
+            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :status1 OR r2.status = :status2) AND r2.revisionType = :revisionType)", NamePart.class).setParameter("status1", NamePartRevisionStatus.APPROVED).setParameter("status1", NamePartRevisionStatus.PROCESSING).setParameter("revisionType", NamePartRevisionType.DELETE).getResultList();
+        }
+    }
+
+    public List<NamePart> getNamesWithChangesProposedByCurrentUser() {
+        final Privilege user = userManager.getUser();
+        return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :status1 OR r2.status = :status2) AND r2.requestedBy = :requestedBy)", NamePart.class).setParameter("status1", NamePartRevisionStatus.PROCESSING).setParameter("status2", NamePartRevisionStatus.REJECTED).setParameter("requestedBy", user).getResultList();
+    }
+
+    public List<NamePartRevision> getRevisions(NamePart namePart) {
+        return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart ORDER BY r.id", NamePartRevision.class).getResultList();
+    }
+
+    public List<NameCategory> getNameCategories() {
+        return em.createNamedQuery("SELECT nameCategory FROM NameCategory nameCategory", NameCategory.class).getResultList();
     }
 
     private void autoApprove(NamePartRevision namePartEvent) {
@@ -146,11 +161,14 @@ public class NamePartService {
     }
 
     private @Nullable NamePartRevision approvedRevision(NamePart namePart) {
-        throw new IllegalStateException(); // TODO
+        return JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND r.status = :status ORDER BY r.id DESC LIMIT 1)", NamePartRevision.class).setParameter("status", NamePartRevisionStatus.APPROVED));
     }
 
     private @Nullable NamePartRevision pendingRevision(NamePart namePart) {
-        throw new IllegalStateException(); // TODO
+        final @Nullable NamePartRevision lastPendingOrApprovedRevision = JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND (r.status = :status1 OR r.status = :status2) ORDER BY r.id DESC LIMIT 1)", NamePartRevision.class).setParameter("status1", NamePartRevisionStatus.APPROVED).setParameter("status2", NamePartRevisionStatus.PROCESSING));
+        if (lastPendingOrApprovedRevision == null) return null;
+        else if (lastPendingOrApprovedRevision.getStatus() == NamePartRevisionStatus.PROCESSING) return lastPendingOrApprovedRevision;
+        else return null;
     }
 
     private NamePartRevision baseRevision(NamePart namePart) {
