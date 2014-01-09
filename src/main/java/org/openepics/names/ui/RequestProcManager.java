@@ -78,7 +78,7 @@ public class RequestProcManager implements Serializable {
 
     public void onApprove() {
         try {
-            namePartService.approveNamePartRevisions(selectedEvents, procComments);
+            namePartService.approveNamePartRequests(selectedEvents, procComments);
             showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully approved.", " ");
         } finally {
             init();
@@ -87,7 +87,7 @@ public class RequestProcManager implements Serializable {
 
     public void onReject() {
         try {
-            namePartService.rejectNamePartRevisions(selectedEvents, procComments);
+            namePartService.rejectNamePartRequests(selectedEvents, procComments);
             showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully rejected.", " ");
         } finally {
             init();
@@ -111,8 +111,7 @@ public class RequestProcManager implements Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
 
         context.addMessage(null, new FacesMessage(severity, summary, message));
-        FacesMessage n = new FacesMessage();
-
+        //FacesMessage n = new FacesMessage();
     }
 
     public NamePartView[] getSelectedEvents() {

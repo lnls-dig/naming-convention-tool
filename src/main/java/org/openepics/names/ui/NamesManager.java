@@ -186,9 +186,10 @@ public class NamesManager implements Serializable {
         // FacesMessage n = new FacesMessage();
     }
 
-    public boolean isUnderChange(NamePartRevision nevent) {
-        return namesEJB.isUnderChange(nevent);
-    }
+    // TODO no usage found
+    // public boolean isUnderChange(NamePartRevision nevent) {
+    //     return namesEJB.isUnderChange(nevent);
+    // }
 
     public void setPubManager(PublicationManager pubMgr) {
         this.pubManager = pubMgr;

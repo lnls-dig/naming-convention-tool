@@ -30,12 +30,18 @@ public class NamePartSelectionView {
         this.options = options;
     }
 
+    // TODO remove after fixing JSF
     public void setSelectedId(Integer selectedId) {
         this.selectedId = selectedId;
     }
 
+    // TODO remove after fixing JSF
     public Integer getSelectedId() {
         return selectedId;
+    }
+
+    public NamePartView getSelected() {
+        throw new IllegalStateException(); // TODO
     }
 
     public void clear() {
