@@ -92,6 +92,8 @@ public class NamePartView {
 
     public String getNameCategory() { return baseRevision().getNameCategory().getDescription(); }
 
+    public @Nullable NamePartRevision getPendingRevision() { return pendingRevision; }
+
     public String getName() { return baseRevision().getName(); }
 
     public String getFullName() { return baseRevision().getFullName(); }
