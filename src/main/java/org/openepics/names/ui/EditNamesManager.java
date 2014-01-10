@@ -10,7 +10,10 @@ import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.convert.Converter;
+import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NameCategory;
@@ -278,16 +281,15 @@ public class EditNamesManager implements Serializable {
         if (currentLevel + 1 < namePartService.getNameHierarchy().getSectionLevels().size() &&
                 !sectionLevels.get(currentLevel).getOptions().isEmpty() &&
                 sectionLevels.get(currentLevel).getSelectedId() != null) {
-            NamePartView parent = sectionLevels.get(currentLevel).getSelected().getParent();
-
             sectionLevels.get(currentLevel + 1).setOptions(
-                    Lists.transform(namesEJB.findEventsByParent(parent), new Function<NamePartRevision, NamePartView>() {
-                        @Override
-                        public NamePartView apply(NamePartRevision f) {
-                            return ViewFactory.getView(f);
-                        }
-                    }));
-            sectionLevels.get(currentLevel + 1).setSelectedId(null);
+                    Lists.transform(namePartService.getSiblings(sectionLevels.get(currentLevel).getSelected().getNamePart()),
+                            new Function<NamePart, NamePartView>() {
+                                @Override
+                                public NamePartView apply(NamePart f) {
+                                    return ViewFactory.getView(f);
+                                }
+                            }));
+            sectionLevels.get(currentLevel + 1).setSelected(null);
 
             // clear the rest of the inputs
             for (int i = currentLevel + 2; i < namePartService.getNameHierarchy().getSectionLevels().size(); i++) {
@@ -305,14 +307,14 @@ public class EditNamesManager implements Serializable {
         if (currentLevel + 1 < namePartService.getNameHierarchy().getDeviceTypeLevels().size() &&
                 !deviceTypeLevels.get(currentLevel).getOptions().isEmpty() &&
                 deviceTypeLevels.get(currentLevel).getSelectedId() != null) {
-            NamePartView parent = deviceTypeLevels.get(currentLevel).getSelected().getParent();
             deviceTypeLevels.get(currentLevel + 1).setOptions(
-                    Lists.transform(namesEJB.findEventsByParent(parent), new Function<NamePartRevision, NamePartView>() {
-                        @Override
-                        public NamePartView apply(NamePartRevision f) {
-                            return ViewFactory.getView(f);
-                        }
-                    }));
+                    Lists.transform(namePartService.getSiblings(deviceTypeLevels.get(currentLevel).getSelected().getNamePart()),
+                            new Function<NamePart, NamePartView>() {
+                                @Override
+                                public NamePartView apply(NamePart f) {
+                                    return ViewFactory.getView(f);
+                                }
+                            }));
             deviceTypeLevels.get(currentLevel + 1).setSelectedId(null);
 
             // clear the rest of the inputs
@@ -320,6 +322,47 @@ public class EditNamesManager implements Serializable {
                 deviceTypeLevels.get(i).clear();
             }
         }
+    }
+
+    @FacesConverter("npsvConverter")
+    public class NamePartViewConverter implements Converter {
+
+        @Override
+        public Object getAsObject(FacesContext context, UIComponent component, String value) {
+            if(value == null) return null;
+
+            String componentName = component.getId();
+            final List<NamePartSelectionView> selectionList;
+            if(componentName.startsWith("sectLvl_"))
+                selectionList = sectionLevels;
+            else if(componentName.startsWith("devLvl_"))
+                selectionList = deviceTypeLevels;
+            else
+                throw new IllegalStateException("Converter called on illegal UI component: " + component.getId());
+
+            int levelIndex = Integer.parseInt(componentName.split("_")[1]);
+            return selectionList.get(levelIndex).getOptions().get(Integer.parseInt(value));
+        }
+
+        @Override
+        public String getAsString(FacesContext context, UIComponent component, Object value) {
+            if(value == null) return null;
+            if(!(value instanceof NamePartView))
+                throw new IllegalStateException("Converter called on illegal UI component: " + component.getId());
+
+            String componentName = component.getId();
+            final List<NamePartSelectionView> selectionList;
+            if(componentName.startsWith("sectLvl_"))
+                selectionList = sectionLevels;
+            else if(componentName.startsWith("devLvl_"))
+                selectionList = deviceTypeLevels;
+            else
+                throw new IllegalStateException("Converter called on illegal UI component: " + component.getId());
+
+            int levelIndex = Integer.parseInt(componentName.split("_")[1]);
+            return Integer.toString(selectionList.get(levelIndex).getOptions().indexOf(value));
+        }
+
     }
 
 }

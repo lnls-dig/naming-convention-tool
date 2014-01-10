@@ -29,12 +29,12 @@
                 <p:row>
                     <c:forEach items="#{editNamesManager.sectionLevels}" var="level" varStatus="loop">
                         <p:column style="width: 128px">
-                            <p:selectOneMenu id="sectLvl_#{loop.index}" value="#{level.selectedId}">
+                            <p:selectOneMenu id="sectLvl_#{loop.index}" value="#{level.selected}" converter="npsvConverter">
                                 <p:ajax listener="#{editNamesManager.loadNextSectionLevel(loop.index)}"
                                         update="#{editNamesManager.generateUpdateIds(0, 'sectLvl_', editNamesManager.sectionLevels.size(), 'bsub')}" />
                                 <f:selectItem itemLabel="Select..." noSelectionOption="true" />
                                 <f:selectItems value="#{level.options}"
-                                        var="selItem" itemLabel="#{selItem.fullName}" itemValue="#{selItem.id}" />
+                                        var="selItem" itemLabel="#{selItem.fullName}" itemValue="#{selItem}" />
                             </p:selectOneMenu>
                         </p:column>
                     </c:forEach>
@@ -61,12 +61,12 @@
                 <p:row>
                     <c:forEach items="#{editNamesManager.deviceTypeLevels}" var="level" varStatus="loop">
                         <p:column style="width: 128px">
-                            <p:selectOneMenu id="devLvl_#{loop.index}" value="#{level.selectedId}">
+                            <p:selectOneMenu id="devLvl_#{loop.index}" value="#{level.selected}" converter="npsvConverter">
                                 <p:ajax listener="#{editNamesManager.loadNextDeviceTypeLevel(loop.index)}"
                                         update="#{editNamesManager.generateUpdateIds(0, 'devLvl_', editNamesManager.deviceTypeLevels.size(), 'bsub')}" />
                                 <f:selectItem itemLabel="Select..." noSelectionOption="true" />
                                 <f:selectItems value="#{level.options}"
-                                        var="selItem" itemLabel="#{selItem.fullName}" itemValue="#{selItem.id}" />
+                                        var="selItem" itemLabel="#{selItem.fullName}" itemValue="#{selItem}" />
                             </p:selectOneMenu>
                         </p:column>
                     </c:forEach>

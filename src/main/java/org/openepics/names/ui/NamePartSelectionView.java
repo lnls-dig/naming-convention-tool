@@ -7,6 +7,7 @@
 package org.openepics.names.ui;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import org.openepics.names.ui.names.NamePartView;
 
 /**
@@ -15,6 +16,7 @@ import org.openepics.names.ui.names.NamePartView;
  */
 public class NamePartSelectionView {
     private List<NamePartView> options;
+    private NamePartView selected;
     private Integer selectedId;
 
     public NamePartSelectionView(List<NamePartView> options) {
@@ -30,18 +32,22 @@ public class NamePartSelectionView {
         this.options = options;
     }
 
-    // TODO remove after fixing JSF
+    // TODO remove after fixing JSF (done), but needs to be tested
     public void setSelectedId(Integer selectedId) {
         this.selectedId = selectedId;
     }
 
-    // TODO remove after fixing JSF
+    // TODO remove after fixing JSF (done), but needs to be tested
     public Integer getSelectedId() {
         return selectedId;
     }
 
-    public NamePartView getSelected() {
-        throw new IllegalStateException(); // TODO
+    public @Nullable NamePartView getSelected() {
+        return selected;
+    }
+
+    public void setSelected(@Nullable NamePartView selected) {
+        this.selected = selected;
     }
 
     public void clear() {
@@ -50,7 +56,7 @@ public class NamePartSelectionView {
     }
 
     public boolean isSelected() {
-        return selectedId != null;
+        return selected != null;
     }
 
 }

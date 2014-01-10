@@ -208,4 +208,8 @@ public class NamePartService {
     public List<NamePartRevision> getNamePartReport(@Nullable NamePartRevisionType type, @Nullable NamePartRevisionStatus status) {
         throw new IllegalStateException(); // TODO
     }
+
+    public List<NamePart> getSiblings(NamePart namePart) {
+        throw new IllegalStateException(); // TODO
+    }
 }
