@@ -20,11 +20,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.inject.Inject;
 import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.services.NamesEJB;
+import org.openepics.names.model.NamePartRevisionStatus;
+import org.openepics.names.model.NamePartRevisionType;
+import org.openepics.names.services.NamePartService;
 
 /**
  * Manages report generation.
@@ -37,13 +39,13 @@ public class ReportManager implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@EJB
-    private NamesEJB namesEJB;
+    @Inject private NamePartService namePartService;
+
     private static final Logger logger = Logger.getLogger("org.openepics.names.ui.ReportManager");
     private List<NamePartRevision> events;
     // Search Parameters
-    private String eventType;
-    private String eventStatus;
+    private NamePartRevisionType revisionType;
+    private NamePartRevisionStatus revisionStatus;
     private Date startDate, endDate;
     private String startRev, endRev;
 
@@ -55,14 +57,14 @@ public class ReportManager implements Serializable {
 
     public void onGenReport() {
         try {
-            logger.log(Level.INFO, "Action: generating report");
-            char etype = "%".equals(eventType)? 0 : eventType.charAt(0);
-            char estat = "%".equals(eventStatus)? 0 : eventStatus.charAt(0);
-            events = namesEJB.findEvents(etype, estat);
+            logger.log(Level.FINE, "Action: generating report");
+            events = namePartService.getNamePartReport(revisionType, revisionStatus);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            eventType = eventStatus = startRev = endRev = null;
+            revisionType = null;
+            revisionStatus = null;
+            startRev = endRev = null;
             startDate = endDate = null;
         }
     }
@@ -71,28 +73,20 @@ public class ReportManager implements Serializable {
         return events;
     }
 
-    public NamesEJB getNamesEJB() {
-        return namesEJB;
+    public NamePartRevisionType getEventType() {
+        return revisionType;
     }
 
-    public void setNamesEJB(NamesEJB namesEJB) {
-        this.namesEJB = namesEJB;
+    public void setEventType(NamePartRevisionType eventType) {
+        this.revisionType = eventType;
     }
 
-    public String getEventType() {
-        return eventType;
+    public NamePartRevisionStatus getEventStatus() {
+        return revisionStatus;
     }
 
-    public void setEventType(String eventType) {
-        this.eventType = eventType;
-    }
-
-    public String getEventStatus() {
-        return eventStatus;
-    }
-
-    public void setEventStatus(String eventStatus) {
-        this.eventStatus = eventStatus;
+    public void setEventStatus(NamePartRevisionStatus eventStatus) {
+        this.revisionStatus = eventStatus;
     }
 
     public Date getStartDate() {

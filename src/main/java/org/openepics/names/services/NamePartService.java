@@ -196,4 +196,16 @@ public class NamePartService {
         final NamePartRevision approvedRevision = approvedRevision(namePart);
         return approvedRevision != null ? approvedRevision : pendingRevision(namePart);
     }
+
+    /**
+     * Only expecting the latest revisions for each NamePart matching the status and type.
+     * @param type
+     *          <code>null</code> means any type
+     * @param status
+     *          <code>null</code> means any status
+     * @return
+     */
+    public List<NamePartRevision> getNamePartReport(@Nullable NamePartRevisionType type, @Nullable NamePartRevisionStatus status) {
+        throw new IllegalStateException(); // TODO
+    }
 }

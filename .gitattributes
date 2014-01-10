@@ -57,6 +57,8 @@ src/main/java/org/openepics/names/ui/DeviceView.java -text
 src/main/java/org/openepics/names/ui/EditNamesManager.java -text
 src/main/java/org/openepics/names/ui/LoginManager.java -text
 src/main/java/org/openepics/names/ui/MenuManager.java -text
+src/main/java/org/openepics/names/ui/NamePartRevisionStatusConverter.java -text
+src/main/java/org/openepics/names/ui/NamePartRevisionTypeConverter.java -text
 src/main/java/org/openepics/names/ui/NamePartSelectionView.java -text
 src/main/java/org/openepics/names/ui/NamesManager.java -text
 src/main/java/org/openepics/names/ui/PreferencesManager.java -text
