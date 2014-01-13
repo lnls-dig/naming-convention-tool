@@ -38,7 +38,7 @@ public class DeviceNamesManager implements Serializable {
     public void loadAllDeviceNames() {
         List<DeviceRevision> allDeviceNames = ncEJB.getAllDeviceNames();
         this.allDeviceNames = allDeviceNames.isEmpty() ? null : new ArrayList<DeviceView>();
-        for(DeviceRevision dev : allDeviceNames)
+        for (DeviceRevision dev : allDeviceNames)
             this.allDeviceNames.add(ViewFactory.getView(dev.getDevice()));
         logger.log(Level.FINER, "Found DeviceNames: " + allDeviceNames.size());
     }
@@ -46,7 +46,7 @@ public class DeviceNamesManager implements Serializable {
     public void loadActiveDeviceNames() {
         List<DeviceRevision> activeDeviceNames = ncEJB.getActiveNames();
         this.activeDeviceNames = activeDeviceNames.isEmpty() ? null : new ArrayList<DeviceView>();
-        for(DeviceRevision dev : activeDeviceNames)
+        for (DeviceRevision dev : activeDeviceNames)
             this.activeDeviceNames.add(ViewFactory.getView(dev.getDevice()));
         logger.log(Level.FINER, "Found active DeviceNames: " + activeDeviceNames.size());
     }
@@ -62,7 +62,7 @@ public class DeviceNamesManager implements Serializable {
     public void findHistory(String nameId) {
         List<DeviceRevision> historyDeviceNames = ncEJB.getDeviceNameHistory(nameId);
         this.historyDeviceNames = historyDeviceNames.isEmpty() ? null : new ArrayList<DeviceView>();
-        for(DeviceRevision dev : historyDeviceNames)
+        for (DeviceRevision dev : historyDeviceNames)
             this.historyDeviceNames.add(ViewFactory.getView(dev.getDevice()));
     }
 

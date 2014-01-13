@@ -233,8 +233,8 @@ public class NamesManager implements Serializable {
 
     private NameCategory findCategoryByName(String name) {
         List<NameCategory> categories = namePartService.getNameCategories();
-        for(NameCategory category : categories)
-            if(category.getDescription().equalsIgnoreCase(name)) return category;
+        for (NameCategory category : categories)
+            if (category.getDescription().equalsIgnoreCase(name)) return category;
         return null;
     }
 }

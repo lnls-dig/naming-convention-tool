@@ -23,7 +23,7 @@ public class NamePartRevisionStatusConverter implements Converter {
     @Override
     public Object getAsObject(FacesContext context, UIComponent component, String value) {
         try {
-            if(value == null) return null;
+            if (value == null) return null;
             return NamePartRevisionStatus.valueOf(value);
         } catch (IllegalArgumentException e) {
             throw new ConverterException("Expecting NamePartRevisionStatus name at FaceContext: "
@@ -33,9 +33,9 @@ public class NamePartRevisionStatusConverter implements Converter {
 
     @Override
     public String getAsString(FacesContext context, UIComponent component, Object value) {
-        if(!(value instanceof NamePartRevisionStatus))
+        if (!(value instanceof NamePartRevisionStatus))
             throw new ConverterException("Expecting NamePartRevisionStatus at FaceContext: "
                     + context.getApplication().toString() + " UI:" + component.getId());
-        return ((NamePartRevisionStatus)value).name();
+        return ((NamePartRevisionStatus) value).name();
     }
 }

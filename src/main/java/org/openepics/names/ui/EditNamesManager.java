@@ -122,7 +122,7 @@ public class EditNamesManager implements Serializable {
         else
             allDeviceNames = ncEJB.getExistingDeviceNames();
         this.allDeviceNames = allDeviceNames.isEmpty() ? null : new ArrayList<DeviceView>();
-        for(DeviceRevision dev : allDeviceNames)
+        for (DeviceRevision dev : allDeviceNames)
             this.allDeviceNames.add(ViewFactory.getView(dev.getDevice()));
     }
 
@@ -145,10 +145,10 @@ public class EditNamesManager implements Serializable {
         if (selectedDeviceName != null) {
             NameHierarchy hierarchy = namePartService.getNameHierarchy();
 
-            if(sectionLevels.size() != hierarchy.getSectionLevels().size())
+            if (sectionLevels.size() != hierarchy.getSectionLevels().size())
                 throw new IllegalStateException("Section levels do not match hierarchy.");
 
-            if(deviceTypeLevels.size() != hierarchy.getDeviceTypeLevels().size())
+            if (deviceTypeLevels.size() != hierarchy.getDeviceTypeLevels().size())
                 throw new IllegalStateException("Device type levels do not match hierarchy.");
 
             fillDropDowns(selectedDeviceName.getSection(), hierarchy.getSectionLevels(), sectionLevels);
@@ -217,13 +217,13 @@ public class EditNamesManager implements Serializable {
 
     public boolean isFormFilled() {
         boolean isFilled = true;
-        for(NamePartSelectionView element : sectionLevels)
+        for (NamePartSelectionView element : sectionLevels)
             isFilled = isFilled && (element.isSelected());
 
         // TODO Make this selection configurable
-        for(int i = 0; i < deviceTypeLevels.size(); i++) {
+        for (int i = 0; i < deviceTypeLevels.size(); i++) {
             isFilled = isFilled & (deviceTypeLevels.get(i).isSelected());
-            if(i>=2) break;
+            if (i>=2) break;
         }
 
         return isFilled;
@@ -263,10 +263,10 @@ public class EditNamesManager implements Serializable {
      */
     public String generateUpdateIds(int currentId, String prefix, int maxId, String staticIds) {
         StringBuilder returnIds = new StringBuilder();
-        for( int i = currentId + 1; i < maxId; i++) {
+        for ( int i = currentId + 1; i < maxId; i++) {
             returnIds.append(prefix);
             returnIds.append(i);
-            if(i<maxId-1) returnIds.append(' ');
+            if (i<maxId-1) returnIds.append(' ');
         }
 
         return staticIds.trim().isEmpty() ? returnIds.toString() : returnIds.append(' ').append(staticIds).toString();
@@ -329,13 +329,13 @@ public class EditNamesManager implements Serializable {
 
         @Override
         public Object getAsObject(FacesContext context, UIComponent component, String value) {
-            if(value == null) return null;
+            if (value == null) return null;
 
             String componentName = component.getId();
             final List<NamePartSelectionView> selectionList;
-            if(componentName.startsWith("sectLvl_"))
+            if (componentName.startsWith("sectLvl_"))
                 selectionList = sectionLevels;
-            else if(componentName.startsWith("devLvl_"))
+            else if (componentName.startsWith("devLvl_"))
                 selectionList = deviceTypeLevels;
             else
                 throw new IllegalStateException("Converter called on illegal UI component: " + component.getId());
@@ -346,15 +346,15 @@ public class EditNamesManager implements Serializable {
 
         @Override
         public String getAsString(FacesContext context, UIComponent component, Object value) {
-            if(value == null) return null;
-            if(!(value instanceof NamePartView))
+            if (value == null) return null;
+            if (!(value instanceof NamePartView))
                 throw new IllegalStateException("Converter called on illegal UI component: " + component.getId());
 
             String componentName = component.getId();
             final List<NamePartSelectionView> selectionList;
-            if(componentName.startsWith("sectLvl_"))
+            if (componentName.startsWith("sectLvl_"))
                 selectionList = sectionLevels;
-            else if(componentName.startsWith("devLvl_"))
+            else if (componentName.startsWith("devLvl_"))
                 selectionList = deviceTypeLevels;
             else
                 throw new IllegalStateException("Converter called on illegal UI component: " + component.getId());

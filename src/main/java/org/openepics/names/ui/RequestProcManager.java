@@ -67,7 +67,7 @@ public class RequestProcManager implements Serializable {
     public void init() {
         events = namePartService.getApprovedOrPendingNames(null, true);
         pendingNames = events.size() > 0 ? new ArrayList<NamePartView>() : null;
-        for(NamePart entry : events) {
+        for (NamePart entry : events) {
             List<NamePartRevision> history = namePartService.getRevisions(entry);
             NamePartRevision pendingRevision = history.get(history.size() - 1);
             NamePartRevision currentRevision = history.size() > 1 ? history.get(history.size() - 2) : null;
@@ -132,7 +132,7 @@ public class RequestProcManager implements Serializable {
 
     public void setSelectedEvents(NamePartView[] selectedEvents) {
         this.selectedEvents = null;
-        if(selectedEvents == null || selectedEvents.length == 0) return;
+        if (selectedEvents == null || selectedEvents.length == 0) return;
 
         this.selectedEvents = new ArrayList<>();
         this.selectedEvents.addAll(Arrays.asList(selectedEvents));
