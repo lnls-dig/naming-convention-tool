@@ -56,7 +56,7 @@ public class RequestManager implements Serializable {
     private boolean myRequest = false;
 
     // Input parameters from input page
-    private Integer newCategoryID;
+    private NameCategory category;
     private Integer newParentID;
     private String newCode;
     private String newDescription;
@@ -86,7 +86,8 @@ public class RequestManager implements Serializable {
         }));
 
         newCode = newDescription = newComment = null;
-        newCategoryID = newParentID = null;
+        category = null;
+        newParentID = null;
         selectedName = (validNames == null || validNames.size() == 0) ? null : validNames.get(0);
     }
 
@@ -101,7 +102,7 @@ public class RequestManager implements Serializable {
 
     public void onAdd() {
         try {
-            final NamePartRevision newRequest = namePartService.addNamePart(newCode, newDescription, newCategoryID, newParentID, newComment);
+            final NamePartRevision newRequest = namePartService.addNamePart(newCode, newDescription, category, newParentID, newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {
             init();
@@ -241,12 +242,12 @@ public class RequestManager implements Serializable {
         this.filteredNames = filteredNames;
     }
 
-    public Integer getNewCategoryID() {
-        return newCategoryID;
+    public NameCategory getCategory() {
+        return category;
     }
 
-    public void setNewCategoryID(Integer newCategoryID) {
-        this.newCategoryID = newCategoryID;
+    public void setCategory(NameCategory category) {
+        this.category = category;
     }
 
     public Integer getNewParentID() {
@@ -298,18 +299,13 @@ public class RequestManager implements Serializable {
     }
 
     public void loadParentCandidates() {
-        if (newCategoryID != null) {
-            final NameHierarchy nameHierarchy = namePartService.getNameHierarchy();
-            final @Nullable NameCategory category = namesEJB.findCategoryById(newCategoryID);
-            if (category != null) {
-                final @Nullable NameCategory parentCategory = getParentCategory(category);
-                setParentCandidates(parentCategory != null ? namesEJB.findEventsByCategory(parentCategory) : ImmutableList.<NamePartRevision>of());
-            }
+        if (category != null) {
+            final @Nullable NameCategory parentCategory = getParentCategory(category);
+            setParentCandidates(parentCategory != null ? namesEJB.findEventsByCategory(parentCategory) : ImmutableList.<NamePartRevision>of());
         }
     }
 
     public boolean isParentSelectable() {
-        final @Nullable NameCategory category = newCategoryID != null ? namesEJB.findCategoryById(newCategoryID) : null;
         return category != null && getParentCategory(category) != null;
     }
 

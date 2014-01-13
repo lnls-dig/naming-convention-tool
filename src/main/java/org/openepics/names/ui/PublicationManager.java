@@ -89,7 +89,7 @@ public class PublicationManager implements Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
 
         context.addMessage(null, new FacesMessage(severity, summary, message));
-        FacesMessage n = new FacesMessage();
+        // FacesMessage n = new FacesMessage();
     }
 
     public List<NameRelease> getReleases() {

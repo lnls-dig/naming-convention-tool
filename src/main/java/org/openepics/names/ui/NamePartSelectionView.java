@@ -17,11 +17,10 @@ import org.openepics.names.ui.names.NamePartView;
 public class NamePartSelectionView {
     private List<NamePartView> options;
     private NamePartView selected;
-    private Integer selectedId;
 
     public NamePartSelectionView(List<NamePartView> options) {
         this.options = options;
-        selectedId = null;
+        selected = null;
     }
 
     public List<NamePartView> getOptions() {
@@ -30,16 +29,6 @@ public class NamePartSelectionView {
 
     public void setOptions(List<NamePartView> options) {
         this.options = options;
-    }
-
-    // TODO remove after fixing JSF (done), but needs to be tested
-    public void setSelectedId(Integer selectedId) {
-        this.selectedId = selectedId;
-    }
-
-    // TODO remove after fixing JSF (done), but needs to be tested
-    public Integer getSelectedId() {
-        return selectedId;
     }
 
     public @Nullable NamePartView getSelected() {
@@ -52,7 +41,7 @@ public class NamePartSelectionView {
 
     public void clear() {
         options.clear();
-        selectedId = null;
+        selected = null;
     }
 
     public boolean isSelected() {

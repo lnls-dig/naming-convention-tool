@@ -84,11 +84,12 @@ public class NamesManager implements Serializable {
     }
 
     public void refreshNames() {
-        standardNames = Lists.transform(namePartService.getApprovedOrPendingNames(currentCategory, showDeletedNames), new Function<NamePart, NamePartView>() {
-            @Override public NamePartView apply(NamePart namePart) {
-                return ViewFactory.getView(namePart);
-            }
-        });
+        standardNames = Lists.transform(namePartService.getApprovedOrPendingNames(currentCategory, showDeletedNames),
+                new Function<NamePart, NamePartView>() {
+                    @Override public NamePartView apply(NamePart namePart) {
+                        return ViewFactory.getView(namePart);
+                    }
+                });
     }
 
     public void findHistory() {

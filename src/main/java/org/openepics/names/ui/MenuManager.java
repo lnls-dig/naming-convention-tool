@@ -21,6 +21,11 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.convert.Converter;
+import javax.faces.convert.ConverterException;
+import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.services.NamePartService;
@@ -92,5 +97,34 @@ public class MenuManager implements Serializable {
 	public MenuModel getModel() {
 		return model;
 	}
+
+    @FacesConverter("mmCategoryConverter")
+    public class CategoryConverter implements Converter {
+
+        @Override
+        public Object getAsObject(FacesContext context, UIComponent component, String value) {
+            try {
+                if (value == null) return null;
+                Integer categoryID = Integer.valueOf(value);
+                for (NameCategory cat : categories)
+                    if(cat.getId().equals(categoryID)) return cat;
+                throw new ConverterException("NameCategory with ID " + categoryID + " not found at FaceContext: "
+                        + context.getApplication().toString() + " UI:" + component.getId());
+            } catch (IllegalArgumentException e) {
+                throw new ConverterException("Expecting NameCategory ID at FaceContext: "
+                        + context.getApplication().toString() + " UI:" + component.getId());
+            }
+        }
+
+        @Override
+        public String getAsString(FacesContext context, UIComponent component, Object value) {
+            if (!(value instanceof NameCategory)) {
+                throw new ConverterException("NameCategory expected at FaceContext: "
+                        + context.getApplication().toString() + " UI:" + component.getId());
+            }
+            return ((NameCategory) value).getId().toString();
+        }
+
+    }
 
 }

@@ -19,7 +19,6 @@ import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
-import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.services.NamePartService;
 import org.openepics.names.services.NamesEJB;
 import org.openepics.names.services.NamingConvention;
@@ -51,9 +50,13 @@ public class EditNamesManager implements Serializable {
     @PostConstruct
     public void init() {
         final NameCategory topSectionCategory = namePartService.getNameHierarchy().getSectionLevels().get(0);
-        final List<NamePartView> topSections = Lists.transform(namePartService.getApprovedOrPendingNames(topSectionCategory, false), new Function<NamePart, NamePartView>() {
-            @Override public NamePartView apply(NamePart namePart) { return ViewFactory.getView(namePart); }
-        });
+        final List<NamePartView> topSections =
+                Lists.transform(namePartService.getApprovedOrPendingNames(topSectionCategory, false),
+                        new Function<NamePart, NamePartView>() {
+                            @Override public NamePartView apply(NamePart namePart) {
+                                return ViewFactory.getView(namePart);
+                            }
+                        });
         sectionLevels = new ArrayList<>();
         sectionLevels.add(new NamePartSelectionView(topSections));
         for (int i = 1; i < namePartService.getNameHierarchy().getSectionLevels().size(); i++) {
@@ -61,9 +64,13 @@ public class EditNamesManager implements Serializable {
         }
 
         final NameCategory topDeviceTypeCategory = namePartService.getNameHierarchy().getDeviceTypeLevels().get(0);
-        final List<NamePartView> topDeviceTypes = Lists.transform(namePartService.getApprovedOrPendingNames(topDeviceTypeCategory, false), new Function<NamePart, NamePartView>() {
-            @Override public NamePartView apply(NamePart namePart) { return ViewFactory.getView(namePart); }
-        });
+        final List<NamePartView> topDeviceTypes =
+                Lists.transform(namePartService.getApprovedOrPendingNames(topDeviceTypeCategory, false),
+                        new Function<NamePart, NamePartView>() {
+                            @Override public NamePartView apply(NamePart namePart) {
+                                return ViewFactory.getView(namePart);
+                            }
+                        });
         deviceTypeLevels = new ArrayList<>();
         deviceTypeLevels.add(new NamePartSelectionView(topDeviceTypes));
         for (int i = 1; i < namePartService.getNameHierarchy().getDeviceTypeLevels().size(); i++) {
@@ -76,16 +83,14 @@ public class EditNamesManager implements Serializable {
     public void onAdd() {
         // TODO solve generically and for specific + generic device
         try {
-            Integer subsectionID = sectionLevels.get(sectionLevels.size()-1).getSelectedId();
-            Integer genDeviceID = deviceTypeLevels.get(2).getSelectedId();
+            final NamePartView subsection = sectionLevels.get(sectionLevels.size()-1).getSelected();
+            final NamePartView genDevice = deviceTypeLevels.get(2).getSelected();
 
-            if (subsectionID == null || genDeviceID == null) {
-                showMessage(FacesMessage.SEVERITY_ERROR, "Required field missing", " ");
+            if (subsection == null || genDevice == null) {
+                showMessage(FacesMessage.SEVERITY_ERROR, "Error", "Required field missing");
                 return;
             }
-            final NamePartRevision subsection = namesEJB.findEventById(subsectionID);
-            final NamePartRevision genDevice = namesEJB.findEventById(genDeviceID);
-            final DeviceRevision newDeviceName = ncEJB.createDeviceName(subsection, genDevice);
+            final DeviceRevision newDeviceName = ncEJB.createDeviceName(subsection.getNamePart(), genDevice.getNamePart());
             showMessage(FacesMessage.SEVERITY_INFO, "Device Name successfully added.", "Name: " + namingConvention.getNamingConventionName(newDeviceName));
         } finally {
             init();
@@ -95,10 +100,10 @@ public class EditNamesManager implements Serializable {
     public void onModify() {
         // TODO solve generically and for specific + generic device
         try {
-            Integer subsectionID = sectionLevels.get(sectionLevels.size()-1).getSelectedId();
-            Integer genDeviceID = deviceTypeLevels.get(2).getSelectedId();
-            final DeviceRevision modifiedName = ncEJB.modifyDeviceName(subsectionID, genDeviceID, selectedDeviceName.getId());
-            showMessage(FacesMessage.SEVERITY_INFO, "NC Name modified.", "Name: " + namingConvention.getNamingConventionName(modifiedName));
+            final NamePartView subsection = sectionLevels.get(sectionLevels.size()-1).getSelected();
+            final NamePartView genDevice = deviceTypeLevels.get(2).getSelected();
+            final DeviceRevision modifiedName = ncEJB.modifyDeviceName(subsection.getNamePart(), genDevice.getNamePart(), selectedDeviceName.getId());
+            showMessage(FacesMessage.SEVERITY_INFO, "Device modified.", "Name: " + namingConvention.getNamingConventionName(modifiedName));
         } finally {
             init();
         }
@@ -107,7 +112,7 @@ public class EditNamesManager implements Serializable {
     public void onDelete() {
         try {
             final DeviceRevision newDeviceName = ncEJB.deleteDeviceName(selectedDeviceName.getDevice());
-            showMessage(FacesMessage.SEVERITY_INFO, "NC Name successfully deleted.", "Name: " + namingConvention.getNamingConventionName(newDeviceName));
+            showMessage(FacesMessage.SEVERITY_INFO, "Device successfully deleted.", "Name: " + namingConvention.getNamingConventionName(newDeviceName));
         } finally {
             init();
             selectedDeviceName = null;
@@ -177,7 +182,7 @@ public class EditNamesManager implements Serializable {
                                         }
                             }));
                 }
-                currentDropdown.setSelectedId(currentNamePart.getId());
+                currentDropdown.setSelected(currentNamePart);
                 currentNamePart = parent;
             } else {
                 // the drop-down we are currently populating does not match the currently
@@ -186,7 +191,7 @@ public class EditNamesManager implements Serializable {
                 if (currentNamePart.getNameCategory().equals(hierarchyLevels.get(i - 1))) {
                     // we can fill this drop-down according to current name part
                     currentDropdown.setOptions(currentNamePart.getChildren());
-                    currentDropdown.setSelectedId(null);
+                    currentDropdown.setSelected(null);
                 } else {
                     // we don not know how to fill this dropdown
                     currentDropdown.clear();
@@ -266,7 +271,7 @@ public class EditNamesManager implements Serializable {
         for ( int i = currentId + 1; i < maxId; i++) {
             returnIds.append(prefix);
             returnIds.append(i);
-            if (i<maxId-1) returnIds.append(' ');
+            if (i < maxId - 1) returnIds.append(' ');
         }
 
         return staticIds.trim().isEmpty() ? returnIds.toString() : returnIds.append(' ').append(staticIds).toString();
@@ -278,9 +283,9 @@ public class EditNamesManager implements Serializable {
      * @param currentLevel
      */
     public void loadNextSectionLevel(int currentLevel) {
-        if (currentLevel + 1 < namePartService.getNameHierarchy().getSectionLevels().size() &&
-                !sectionLevels.get(currentLevel).getOptions().isEmpty() &&
-                sectionLevels.get(currentLevel).getSelectedId() != null) {
+        if (currentLevel + 1 < namePartService.getNameHierarchy().getSectionLevels().size()
+                && !sectionLevels.get(currentLevel).getOptions().isEmpty()
+                && sectionLevels.get(currentLevel).getSelected() != null) {
             sectionLevels.get(currentLevel + 1).setOptions(
                     Lists.transform(namePartService.getSiblings(sectionLevels.get(currentLevel).getSelected().getNamePart()),
                             new Function<NamePart, NamePartView>() {
@@ -304,9 +309,9 @@ public class EditNamesManager implements Serializable {
      * @param currentLevel
      */
     public void loadNextDeviceTypeLevel(int currentLevel) {
-        if (currentLevel + 1 < namePartService.getNameHierarchy().getDeviceTypeLevels().size() &&
-                !deviceTypeLevels.get(currentLevel).getOptions().isEmpty() &&
-                deviceTypeLevels.get(currentLevel).getSelectedId() != null) {
+        if (currentLevel + 1 < namePartService.getNameHierarchy().getDeviceTypeLevels().size()
+                && !deviceTypeLevels.get(currentLevel).getOptions().isEmpty()
+                && deviceTypeLevels.get(currentLevel).getSelected() != null) {
             deviceTypeLevels.get(currentLevel + 1).setOptions(
                     Lists.transform(namePartService.getSiblings(deviceTypeLevels.get(currentLevel).getSelected().getNamePart()),
                             new Function<NamePart, NamePartView>() {
@@ -315,7 +320,7 @@ public class EditNamesManager implements Serializable {
                                     return ViewFactory.getView(f);
                                 }
                             }));
-            deviceTypeLevels.get(currentLevel + 1).setSelectedId(null);
+            deviceTypeLevels.get(currentLevel + 1).setSelected(null);
 
             // clear the rest of the inputs
             for (int i = currentLevel + 2; i < namePartService.getNameHierarchy().getDeviceTypeLevels().size(); i++) {
