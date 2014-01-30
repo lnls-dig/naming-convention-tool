@@ -32,6 +32,7 @@ import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
+import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.NamePartService;
 import org.openepics.names.ui.ViewFactory;
 import org.openepics.names.ui.names.NamePartView.Change;
@@ -100,7 +101,8 @@ public class RequestManager implements Serializable {
 
     public void onAdd() {
         try {
-            final NamePartRevision newRequest = namePartService.addNamePart(newCode, newDescription, category, namePartService.namePartWithId(newParentID), newComment);
+            final NamePartType namePartType = namePartService.nameHierarchy().getSectionLevels().contains(category) ? NamePartType.SECTION : NamePartType.DEVICE_TYPE;
+            final NamePartRevision newRequest = namePartService.addNamePart(newCode, newDescription, namePartType, namePartService.namePartWithId(newParentID), newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {
             init();

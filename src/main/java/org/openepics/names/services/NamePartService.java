@@ -14,6 +14,7 @@ import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
+import org.openepics.names.model.NamePartType;
 import org.openepics.names.model.Privilege;
 import org.openepics.names.ui.UserManager;
 import org.openepics.names.util.As;
@@ -34,17 +35,19 @@ public class NamePartService {
         throw new IllegalStateException(); // TODO
     }
 
-    public NamePartRevision addNamePart(String name, String fullName, NameCategory nameCategory, @Nullable NamePart parent, String comment) {
+    public NamePartRevision addNamePart(String name, String fullName, NamePartType nameType, @Nullable NamePart parent, String comment) {
         Preconditions.checkState(userManager.isLoggedIn());
 
-        final NamePartRevision parentBaseRevision = approvedOrElsePendingRevision(parent);
-        final @Nullable NamePartRevision parentPendingRevision = pendingRevision(parent);
-        Preconditions.checkState(!parentBaseRevision.isDeleted() && (parentPendingRevision == null || !parentPendingRevision.isDeleted()));
+        final @Nullable NamePartRevision parentBaseRevision = parent != null ? approvedOrElsePendingRevision(parent) : null;
+        final @Nullable NamePartRevision parentPendingRevision = parent != null ? pendingRevision(parent) : null;
+        Preconditions.checkState((parentBaseRevision == null || !parentBaseRevision.isDeleted()) && (parentPendingRevision == null || !parentPendingRevision.isDeleted()));
+
+        final NameCategory nameCategory = childNameCategory(nameType, parentBaseRevision != null ? parentBaseRevision.getNameCategory() : null);
 
         final NamePart namePart = new NamePart(UUID.randomUUID().toString());
         final NamePartRevision newRevision = new NamePartRevision(namePart, userManager.getUser(), new Date(), comment, false, nameCategory, parent, name, fullName);
 
-        if (userManager.isEditor() && !nameCategory.isApprovalNeeded() && parentBaseRevision.getStatus() == NamePartRevisionStatus.APPROVED) {
+        if (userManager.isEditor() && !nameCategory.isApprovalNeeded() && (parentBaseRevision == null || parentBaseRevision.getStatus() == NamePartRevisionStatus.APPROVED)) {
             autoApprove(newRevision);
         }
 
@@ -52,6 +55,20 @@ public class NamePartService {
         em.persist(newRevision);
 
         return newRevision;
+    }
+
+    private NameCategory childNameCategory(NamePartType nameType, @Nullable NameCategory parentCategory) {
+        if (parentCategory != null) {
+            return As.notNull(nameHierarchy().getSubCategory(parentCategory));
+        } else {
+            if (nameType == NamePartType.SECTION) {
+                return nameHierarchy().getSectionLevels().get(0);
+            } else if (nameType == NamePartType.DEVICE_TYPE) {
+                return nameHierarchy().getDeviceTypeLevels().get(0);
+            } else {
+                throw new IllegalStateException();
+            }
+        }
     }
 
     public NamePartRevision modifyNamePart(NamePart namePart, String name, String fullName, String comment) {
