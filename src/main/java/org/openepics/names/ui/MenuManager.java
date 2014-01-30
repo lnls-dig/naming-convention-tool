@@ -64,7 +64,7 @@ public class MenuManager implements Serializable {
 	private void init() {
 		model = new DefaultMenuModel();
 
-        categories = namePartService.getNameCategories();
+        categories = namePartService.nameCategories();
 
         MenuItem item = new MenuItem();
         item.setId("__" );

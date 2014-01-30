@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
-import org.openepics.names.model.NamePartRevisionType;
 import org.openepics.names.services.NamePartService;
 
 /**
@@ -74,21 +73,19 @@ public class NamePartView {
         if (pendingRevision == null) {
             return null;
         } else {
-            if (pendingRevision.getRevisionType() == NamePartRevisionType.DELETE) {
+            if (pendingRevision.isDeleted()) {
                 return new DeleteChange(pendingRevision.getStatus());
-            } else if (pendingRevision.getRevisionType() == NamePartRevisionType.INSERT) {
+            } else if (currentRevision == null) {
                 return new AddChange(pendingRevision.getStatus());
-            } else if (pendingRevision.getRevisionType() == NamePartRevisionType.MODIFY) {
+            } else {
                 final @Nullable String newName = !pendingRevision.getName().equals(currentRevision.getName()) ? pendingRevision.getName() : null;
                 final @Nullable String newFullName = !pendingRevision.getName().equals(currentRevision.getName()) ? pendingRevision.getName() : null;
                 return new ModifyChange(pendingRevision.getStatus(), newName, newFullName);
-            } else {
-                throw new IllegalStateException();
             }
         }
     }
 
-    public boolean isDeleted() { return baseRevision().getRevisionType() == NamePartRevisionType.DELETE; }
+    public boolean isDeleted() { return baseRevision().isDeleted(); }
 
     public String getNameCategory() { return baseRevision().getNameCategory().getDescription(); }
 

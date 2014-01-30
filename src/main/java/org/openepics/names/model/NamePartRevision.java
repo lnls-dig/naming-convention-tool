@@ -43,11 +43,6 @@ public class NamePartRevision extends Persistable {
     @ManyToOne(optional = false)
     private NamePart namePart;
 
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    @Column(name = "revision_type")
-    private NamePartRevisionType revisionType;
-
     @JoinColumn(name = "requested_by", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Privilege requestedBy;
@@ -61,6 +56,9 @@ public class NamePartRevision extends Persistable {
     @Size(max = 255)
     @Column(name = "requestor_comment")
     private String requestorComment;
+
+    @Column(name = "deleted")
+    private boolean deleted;
 
     @JoinColumn(name = "name_category_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
@@ -102,17 +100,17 @@ public class NamePartRevision extends Persistable {
     protected NamePartRevision() {
     }
 
-    public NamePartRevision(NamePart namePart, NamePartRevisionType revisionType, Privilege requestedBy, Date requestDate, String requestorComment, NameCategory nameCategory, NamePart parent, String name, String fullName) {
+    public NamePartRevision(NamePart namePart, Privilege requestedBy, Date requestDate, String requestorComment, boolean deleted, NameCategory nameCategory, NamePart parent, String name, String fullName) {
         this.namePart = namePart;
-        this.revisionType = revisionType;
         this.requestedBy = requestedBy;
         this.requestDate = requestDate;
         this.requestorComment = requestorComment;
+        this.deleted = deleted;
         this.nameCategory = nameCategory;
         this.parent = parent;
         this.name = name;
         this.fullName = fullName;
-        this.status = NamePartRevisionStatus.PROCESSING;
+        this.status = NamePartRevisionStatus.PENDING;
         this.processedBy = null;
         this.processDate = null;
         this.processorComment = null;
@@ -120,21 +118,21 @@ public class NamePartRevision extends Persistable {
 
     public NamePart getNamePart() { return namePart; }
 
-    public NamePartRevisionType getRevisionType() { return revisionType; }
-
     public Privilege getRequestedBy() { return requestedBy; }
 
     public Date getRequestDate() { return requestDate; }
 
     public String getRequestorComment() { return requestorComment; }
 
-    public String getName() { return name; }
-
-    public String getFullName() { return fullName; }
+    public boolean isDeleted() { return deleted; }
 
     public NameCategory getNameCategory() { return nameCategory; }
 
     public NamePart getParent() { return parent; }
+
+    public String getName() { return name; }
+
+    public String getFullName() { return fullName; }
 
     public NamePartRevisionStatus getStatus() { return status; }
     public void setStatus(NamePartRevisionStatus status) { this.status = status; }

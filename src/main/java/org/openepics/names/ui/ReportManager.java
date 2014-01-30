@@ -25,7 +25,6 @@ import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
-import org.openepics.names.model.NamePartRevisionType;
 import org.openepics.names.services.NamePartService;
 
 /**
@@ -37,14 +36,13 @@ import org.openepics.names.services.NamePartService;
 @ViewScoped
 public class ReportManager implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     @Inject private NamePartService namePartService;
 
     private static final Logger logger = Logger.getLogger("org.openepics.names.ui.ReportManager");
     private List<NamePartRevision> events;
     // Search Parameters
-    private NamePartRevisionType revisionType;
     private NamePartRevisionStatus revisionStatus;
     private Date startDate, endDate;
     private String startRev, endRev;
@@ -58,11 +56,11 @@ public class ReportManager implements Serializable {
     public void onGenReport() {
         try {
             logger.log(Level.FINE, "Action: generating report");
-            events = namePartService.getNamePartReport(revisionType, revisionStatus);
+            throw new IllegalStateException(); // TODO
+            // events = namePartService.getNamePartReport(revisionType, revisionStatus);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            revisionType = null;
             revisionStatus = null;
             startRev = endRev = null;
             startDate = endDate = null;
@@ -71,14 +69,6 @@ public class ReportManager implements Serializable {
 
     public List<NamePartRevision> getEvents() {
         return events;
-    }
-
-    public NamePartRevisionType getEventType() {
-        return revisionType;
-    }
-
-    public void setEventType(NamePartRevisionType eventType) {
-        this.revisionType = eventType;
     }
 
     public NamePartRevisionStatus getEventStatus() {

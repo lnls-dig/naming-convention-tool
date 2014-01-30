@@ -28,7 +28,7 @@ public class NameElementCategoryResource {
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
     public List<NameCategory> findAll() {
-        return namePartService.getNameCategories();
+        return namePartService.nameCategories();
     }
 
     /*

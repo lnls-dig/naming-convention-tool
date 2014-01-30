@@ -34,7 +34,7 @@ import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NameRelease;
 import org.openepics.names.services.NamePartService;
-import org.openepics.names.services.NamesEJB;
+import org.openepics.names.services.ReleaseService;
 import org.openepics.names.ui.names.NamePartView;
 
 /**
@@ -48,7 +48,7 @@ public class NamesManager implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Inject private NamesEJB namesEJB;
+    @Inject private ReleaseService releaseService;
     @Inject private NamePartService namePartService;
     @ManagedProperty(value = "#{publicationManager}") private PublicationManager pubManager;
 
@@ -84,7 +84,7 @@ public class NamesManager implements Serializable {
     }
 
     public void refreshNames() {
-        standardNames = Lists.transform(namePartService.getApprovedOrPendingNames(currentCategory, showDeletedNames),
+        standardNames = Lists.transform(namePartService.approvedOrPendingNames(currentCategory, showDeletedNames),
                 new Function<NamePart, NamePartView>() {
                     @Override public NamePartView apply(NamePart namePart) {
                         return ViewFactory.getView(namePart);
@@ -97,13 +97,13 @@ public class NamesManager implements Serializable {
             showMessage(FacesMessage.SEVERITY_ERROR, "Error", "You must select a name first.");
             historyEvents = null;
         } else {
-            historyEvents = namePartService.getRevisions(selectedName.getNamePart());
+            historyEvents = namePartService.revisions(selectedName.getNamePart());
         }
     }
 
     public String nameStatus(NamePartRevision nreq) {
         switch (nreq.getStatus()) {
-            case PROCESSING:
+            case PENDING:
                 return "In-Process";
             case CANCELLED:
                 return "Cancelled";
@@ -112,15 +112,10 @@ public class NamesManager implements Serializable {
             case APPROVED:
                 final NameRelease latestRelease = pubManager.getLatestRelease();
                 final boolean processedBeforeLatestRelease = latestRelease != null && nreq.getProcessDate() != null && nreq.getProcessDate().before(latestRelease.getReleaseDate());
-                switch (nreq.getRevisionType()) {
-                    case INSERT:
-                        return processedBeforeLatestRelease ? "Published" : "Added";
-                    case MODIFY:
-                        return processedBeforeLatestRelease ? "Published" : "Modified";
-                    case DELETE:
-                        return "Deleted";
-                    default:
-                        return "unknown";
+                if (nreq.isDeleted()) {
+                    return "Deleted";
+                } else {
+                    return processedBeforeLatestRelease ? "Published" : "Unpublished";
                 }
             default:
                 return "unknown";
@@ -129,7 +124,7 @@ public class NamesManager implements Serializable {
 
     public String nameViewStatus(NamePartView entry) {
         switch (entry.getNameEvent().getStatus()) {
-            case PROCESSING:
+            case PENDING:
                 return "Processing";
             case CANCELLED:
                 return "Cancelled";
@@ -147,7 +142,7 @@ public class NamesManager implements Serializable {
 
     public String nameViewClass(NamePartView entry) {
         switch (entry.getNameEvent().getStatus()) {
-            case PROCESSING:
+            case PENDING:
                 return "Processing";
             case CANCELLED:
             case REJECTED:
@@ -175,7 +170,7 @@ public class NamesManager implements Serializable {
             return false;
         }
 
-        List<NameRelease> releases = namesEJB.getAllReleases();
+        List<NameRelease> releases = releaseService.getAllReleases();
         return (releases.size() > 0 && !releases.get(0).getReleaseDate().before(entry.getNameEvent().getProcessDate()));
     }
 
@@ -233,7 +228,7 @@ public class NamesManager implements Serializable {
     }
 
     private NameCategory findCategoryByName(String name) {
-        List<NameCategory> categories = namePartService.getNameCategories();
+        List<NameCategory> categories = namePartService.nameCategories();
         for (NameCategory category : categories)
             if (category.getDescription().equalsIgnoreCase(name)) return category;
         return null;

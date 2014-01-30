@@ -26,7 +26,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import org.openepics.names.model.NameRelease;
-import org.openepics.names.services.NamesEJB;
+import org.openepics.names.services.ReleaseService;
 
 /**
  * Manages naming system releases
@@ -40,7 +40,7 @@ public class PublicationManager implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @EJB
-    private NamesEJB namesEJB;
+    private ReleaseService releaseService;
     private static final Logger logger = Logger.getLogger("org.openepics.names.ui.PublicationManager");
     private List<NameRelease> releases;
     private NameRelease selectedRelease;
@@ -57,7 +57,7 @@ public class PublicationManager implements Serializable {
     public void init() {
         logger.log(Level.INFO, "init publication manager");
         try {
-            releases = namesEJB.getAllReleases();
+            releases = releaseService.getAllReleases();
             if (releases != null && !releases.isEmpty()) {
                 latestRelease = releases.get(0); // releases are assumed in descending order of release date
             } else {
@@ -74,7 +74,7 @@ public class PublicationManager implements Serializable {
             if (inputRelease.getReleaseId() == null) {
                 showMessage(FacesMessage.SEVERITY_ERROR, "Release ID is empty", " ");
             }
-            inputRelease = namesEJB.createNewRelease(inputRelease);
+            inputRelease = releaseService.createNewRelease(inputRelease);
             showMessage(FacesMessage.SEVERITY_INFO, "A new Release was successfully published.", " ");
         } catch (Exception e) {
             showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());

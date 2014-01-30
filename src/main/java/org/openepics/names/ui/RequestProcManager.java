@@ -21,9 +21,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -32,7 +30,6 @@ import javax.inject.Inject;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.services.NamePartService;
-import org.openepics.names.services.NamesEJB;
 import org.openepics.names.ui.names.NamePartView;
 
 /**
@@ -44,11 +41,8 @@ import org.openepics.names.ui.names.NamePartView;
 @ViewScoped
 public class RequestProcManager implements Serializable {
 
-    @EJB
-    private NamesEJB namesEJB;
     @Inject NamePartService namePartService;
 
-    private static final Logger logger = Logger.getLogger("org.openepics.names.ui.RequestProcManager");
     private List<NamePartView> pendingNames;
     private List<NamePart> events;
     private List<NamePartView> selectedEvents;
@@ -65,10 +59,10 @@ public class RequestProcManager implements Serializable {
 
     @PostConstruct
     public void init() {
-        events = namePartService.getApprovedOrPendingNames(null, true);
+        events = namePartService.approvedOrPendingNames(null, true);
         pendingNames = events.size() > 0 ? new ArrayList<NamePartView>() : null;
         for (NamePart entry : events) {
-            List<NamePartRevision> history = namePartService.getRevisions(entry);
+            List<NamePartRevision> history = namePartService.revisions(entry);
             NamePartRevision pendingRevision = history.get(history.size() - 1);
             NamePartRevision currentRevision = history.size() > 1 ? history.get(history.size() - 2) : null;
             pendingNames.add(new NamePartView(namePartService, currentRevision, pendingRevision));
@@ -78,7 +72,7 @@ public class RequestProcManager implements Serializable {
 
     public void onApprove() {
         try {
-            namePartService.approveNamePartRequests(
+            namePartService.approveNamePartRevisions(
                     Lists.transform(selectedEvents, new Function<NamePartView, NamePartRevision>() {
                         @Override
                         public NamePartRevision apply(NamePartView f) {
@@ -93,7 +87,7 @@ public class RequestProcManager implements Serializable {
 
     public void onReject() {
         try {
-            namePartService.rejectNamePartRequests(
+            namePartService.rejectNamePartRevisions(
                     Lists.transform(selectedEvents, new Function<NamePartView, NamePartRevision>() {
                         @Override
                         public NamePartRevision apply(NamePartView f) {
@@ -115,7 +109,7 @@ public class RequestProcManager implements Serializable {
         }
         historyEvents = new ArrayList<>();
         for (NamePartView event : selectedEvents) {
-            historyEvents.addAll(namePartService.getRevisions(event.getNamePart()));
+            historyEvents.addAll(namePartService.revisions(event.getNamePart()));
         }
     }
 

@@ -33,7 +33,6 @@ import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.services.NamePartService;
-import org.openepics.names.services.NamesEJB;
 import org.openepics.names.ui.ViewFactory;
 import org.openepics.names.ui.names.NamePartView.Change;
 
@@ -47,7 +46,6 @@ import org.openepics.names.ui.names.NamePartView.Change;
 public class RequestManager implements Serializable {
 
     @Inject private NamePartService namePartService;
-    @Inject private NamesEJB namesEJB;
 
     private List<NamePartView> validNames;
     private NamePartView selectedName;
@@ -57,12 +55,12 @@ public class RequestManager implements Serializable {
 
     // Input parameters from input page
     private NameCategory category;
-    private Integer newParentID;
+    private String newParentID;
     private String newCode;
     private String newDescription;
     private String newComment;
 
-    private List<NamePartRevision> parentCandidates;
+    private List<NamePartView> parentCandidates;
 
     @PostConstruct
     public void init() {
@@ -70,10 +68,10 @@ public class RequestManager implements Serializable {
 
         final List<NamePart> validNameParts;
         if (option == null) {
-            validNameParts = namePartService.getApprovedOrPendingNames();
+            validNameParts = namePartService.approvedOrPendingNames();
             myRequest = false;
         } else if ("user".equals(option)) {
-            validNameParts = namePartService.getNamesWithChangesProposedByCurrentUser();
+            validNameParts = namePartService.namesWithChangesProposedByCurrentUser();
             myRequest = true;
         } else {
             validNameParts = Lists.newArrayList();
@@ -102,7 +100,7 @@ public class RequestManager implements Serializable {
 
     public void onAdd() {
         try {
-            final NamePartRevision newRequest = namePartService.addNamePart(newCode, newDescription, category, newParentID, newComment);
+            final NamePartRevision newRequest = namePartService.addNamePart(newCode, newDescription, category, namePartService.namePartWithId(newParentID), newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {
             init();
@@ -121,7 +119,7 @@ public class RequestManager implements Serializable {
         if (change instanceof NamePartView.AddChange) return "Add request";
         else if (change instanceof NamePartView.ModifyChange) return "Modify request";
         else if (change instanceof NamePartView.DeleteChange) return "Delete request";
-        else return req.getNameEvent().getRevisionType().toString();
+        else throw new IllegalStateException();
     }
 
     public String getNewPath(NamePartView req) {
@@ -179,7 +177,7 @@ public class RequestManager implements Serializable {
             case CANCELLED:
                 ret.append("Cancelled");
                 break;
-            case PROCESSING:
+            case PENDING:
                 ret.append("Processing");
                 break;
             case REJECTED:
@@ -202,7 +200,7 @@ public class RequestManager implements Serializable {
 
     public void onCancel() {
         try {
-            namePartService.cancelNamePartRequests(selectedName.getNamePart(), newComment);
+            namePartService.cancelChangesForNamePart(selectedName.getNamePart(), newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request has been cancelled.", "Request Number: ");
         } finally {
             init();
@@ -215,7 +213,7 @@ public class RequestManager implements Serializable {
     }
 
     public void findHistory() {
-        historyEvents = Lists.newArrayList(Lists.transform(namePartService.getRevisions(selectedName.getNamePart()), new Function<NamePartRevision, NamePartView>() {
+        historyEvents = Lists.newArrayList(Lists.transform(namePartService.revisions(selectedName.getNamePart()), new Function<NamePartRevision, NamePartView>() {
             @Override public NamePartView apply(NamePartRevision revision) {
                 return ViewFactory.getView(revision);
             }
@@ -250,11 +248,11 @@ public class RequestManager implements Serializable {
         this.category = category;
     }
 
-    public Integer getNewParentID() {
+    public String getNewParentID() {
         return newParentID;
     }
 
-    public void setNewParentID(Integer newParentID) {
+    public void setNewParentID(String newParentID) {
         this.newParentID = newParentID;
     }
 
@@ -290,18 +288,20 @@ public class RequestManager implements Serializable {
         return historyEvents;
     }
 
-    public List<NamePartRevision> getParentCandidates() {
+    public List<NamePartView> getParentCandidates() {
         return parentCandidates;
-    }
-
-    public void setParentCandidates(List<NamePartRevision> parentCandidates) {
-        this.parentCandidates = parentCandidates;
     }
 
     public void loadParentCandidates() {
         if (category != null) {
             final @Nullable NameCategory parentCategory = getParentCategory(category);
-            setParentCandidates(parentCategory != null ? namesEJB.findEventsByCategory(parentCategory) : ImmutableList.<NamePartRevision>of());
+            if (parentCategory != null) {
+                parentCandidates = Lists.transform(namePartService.namesWithCategory(parentCategory), new Function<NamePart, NamePartView>() {
+                    @Override public NamePartView apply(NamePart namePart) { return ViewFactory.getView(namePart); }
+                });
+            } else {
+                parentCandidates = ImmutableList.<NamePartView>of();
+            }
         }
     }
 
@@ -310,7 +310,7 @@ public class RequestManager implements Serializable {
     }
 
     private @Nullable NameCategory getParentCategory(NameCategory nameCategory) {
-        final NameHierarchy nameHierarchy = namePartService.getNameHierarchy();
+        final NameHierarchy nameHierarchy = namePartService.nameHierarchy();
         final int sectionIndex = nameHierarchy.getSectionLevels().indexOf(nameCategory);
         final int deviceTypeIndex = nameHierarchy.getDeviceTypeLevels().indexOf(nameCategory);
         if (sectionIndex >= 0) {

@@ -12,10 +12,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import org.openepics.names.model.DeviceRevision;
-import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.services.NamesEJB;
-import org.openepics.names.services.NamingConventionEJB;
+import org.openepics.names.model.Device;
+import org.openepics.names.model.NamePart;
+import org.openepics.names.services.DeviceService;
+import org.openepics.names.services.NamePartService;
 
 /**
  * @author Marko Kolar <marko.kolar@cosylab.com>
@@ -24,27 +24,24 @@ import org.openepics.names.services.NamingConventionEJB;
 @Path("device")
 public class DeviceNameResource {
 
-    @PersistenceContext
-    EntityManager em;
-    @Inject
-    NamesEJB namesEJB;
-    @Inject
-    NamingConventionEJB namingConventionEJB;
+    @PersistenceContext EntityManager em;
+    @Inject NamePartService namePartService;
+    @Inject DeviceService deviceService;
 
     @POST
-    public Response create(@QueryParam("section_id") Integer sectionId, @QueryParam("device_type_id") Integer deviceTypeId) {
-       NamePartRevision section = namesEJB.findEventById(sectionId);
-       NamePartRevision deviceType = namesEJB.findEventById(deviceTypeId);
-        namingConventionEJB.createDeviceName(section, deviceType);
+    public Response create(@QueryParam("section_id") String sectionId, @QueryParam("device_type_id") String deviceTypeId) {
+       final NamePart section = namePartService.namePartWithId(sectionId);
+       final NamePart deviceType = namePartService.namePartWithId(deviceTypeId);
+        deviceService.createDevice(section, deviceType);
         return Response.ok().build();
     }
 
     @DELETE
     @Path("{id}")
-    public Response remove(@PathParam("id") Integer id) {
+    public Response remove(@PathParam("id") String id) {
         try {
-            final DeviceRevision deviceName = namingConventionEJB.findDeviceNameById(id);
-            em.remove(deviceName);
+            final Device device = deviceService.deviceWithId(id);
+            deviceService.removeDevice(device);
             return Response.ok().build();
         } catch (NoResultException e) {
             return Response.status(Status.NOT_FOUND).build();

@@ -5,12 +5,14 @@
 package org.openepics.names.webservice;
 
 import java.util.List;
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.ws.rs.*;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import org.openepics.names.services.NamesEJB;
 import org.openepics.names.model.NameRelease;
+import org.openepics.names.services.ReleaseService;
 
 /**
  *
@@ -19,13 +21,12 @@ import org.openepics.names.model.NameRelease;
 @Stateless
 @Path("release")
 public class NameReleaseResource {
-    @EJB
-    private NamesEJB namesEJB;
+    @Inject private ReleaseService releaseService;
 
-    @GET   
+    @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
     public List<NameRelease> findAll() {
-        return namesEJB.getAllReleases();
+        return releaseService.getAllReleases();
     }
     /*
     public NameReleaseResource() {

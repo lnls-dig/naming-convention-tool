@@ -26,17 +26,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import org.openepics.names.model.NameRelease;
-import org.openepics.names.model.Privilege;
 import org.openepics.names.ui.UserManager;
 
 // import org.openepics.auth.japi.*;
 /**
- * The process layer for Naming.
  *
  * @author Vasu V <vuppala@frib.msu.org>
  */
 @Stateless
-public class NamesEJB {
+public class ReleaseService {
 
     private static final Logger logger = Logger.getLogger("org.openepics.names.services.NamesEJB");
     // TODO: Remove the injection. Not a good way to authorize.
@@ -79,29 +77,5 @@ public class NamesEJB {
         em.persist(newRelease);
         logger.log(Level.FINE, "published new release ...");
         return newRelease;
-    }
-
-    /**
-     * Is the current user an Editor?
-     *
-     * @author Vasu V <vuppala@frib.msu.org>
-     */
-    public boolean isEditor(Privilege user) {
-        if (user != null) {
-            return "E".equalsIgnoreCase(user.getOperation()) || "S".equalsIgnoreCase(user.getOperation());
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Is the current user a SuperUser?
-     */
-    public boolean isSuperUser(Privilege user) {
-        if (user != null) {
-            return "S".equalsIgnoreCase(user.getOperation());
-        } else {
-            return false;
-        }
     }
 }
