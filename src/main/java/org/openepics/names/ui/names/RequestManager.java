@@ -381,10 +381,9 @@ public class RequestManager implements Serializable {
 
         private List<NamePartView> asList(List<NamePartView> resultList, TreeNode node) {
             for(TreeNode child : node.children) {
-                // TODO add child
+                resultList.add(ViewFactory.getView(child.node.approved, child.node.pending));
                 asList(resultList, child);
             }
-
             return resultList;
         }
     }
