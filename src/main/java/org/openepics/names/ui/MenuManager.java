@@ -28,7 +28,7 @@ import javax.faces.convert.ConverterException;
 import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
 import org.openepics.names.model.NameCategory;
-import org.openepics.names.services.NamePartService;
+import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.primefaces.component.menuitem.MenuItem;
 import org.primefaces.model.DefaultMenuModel;
 import org.primefaces.model.MenuModel;
@@ -42,61 +42,59 @@ import org.primefaces.model.MenuModel;
 @ViewScoped
 public class MenuManager implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-    @Inject private NamePartService namePartService;
+    private static final long serialVersionUID = 1L;
 
-	@SuppressWarnings("unused")
-	private static final Logger logger = Logger.getLogger("org.openepics.names.ui.MenuManager");
+    @Inject private RestrictedNamePartService namePartService;
 
-	private List<NameCategory> categories;
+    @SuppressWarnings("unused")
+    private static final Logger logger = Logger.getLogger("org.openepics.names.ui.MenuManager");
+
+    private List<NameCategory> categories;
 
 	// private List<NamePartRevision> parents;   // TODO remove
+    private MenuModel model;
 
-	private MenuModel model;
+    /**
+     * Creates a new instance of MenuManager
+     */
+    public MenuManager() {
+    }
 
-	/**
-	 * Creates a new instance of MenuManager
-	 */
-	public MenuManager() {
-	}
-
-	@PostConstruct
-	private void init() {
-		model = new DefaultMenuModel();
+    @PostConstruct
+    private void init() {
+        model = new DefaultMenuModel();
 
         categories = namePartService.nameCategories();
 
         MenuItem item = new MenuItem();
-        item.setId("__" );
-		item.setValue("All");
-		item.setUrl("/names.xhtml");
+        item.setId("__");
+        item.setValue("All");
+        item.setUrl("/names.xhtml");
         item.setStyle("font-style: italic");
-		model.addMenuItem(item);
+        model.addMenuItem(item);
 
+        for (NameCategory cat : categories) {
+            item = new MenuItem();
+            item.setId("_" + cat.getId());
+            item.setValue(cat.getDescription());
+            item.setUrl("/names.xhtml?category=" + cat.getName());
+            model.addMenuItem(item);
+        }
 
-		for (NameCategory cat : categories) {
-			item = new MenuItem();
-			item.setId("_" + cat.getId());
-			item.setValue(cat.getDescription());
-			item.setUrl("/names.xhtml?category=" + cat.getName());
-			model.addMenuItem(item);
-		}
+        // parents = namesEJB.getValidNames();   // TODO remove
+    }
 
-		// parents = namesEJB.getValidNames();   // TODO remove
-	}
-
-	public List<NameCategory> getCategories() {
-		return categories;
-	}
+    public List<NameCategory> getCategories() {
+        return categories;
+    }
 
     // TODO remove
-	//public List<NamePartRevision> getParents() {
-	//	return parents;
-	//}
-
-	public MenuModel getModel() {
-		return model;
-	}
+    //public List<NamePartRevision> getParents() {
+    //	return parents;
+    //}
+    public MenuModel getModel() {
+        return model;
+    }
 
     @FacesConverter("mmCategoryConverter")
     public class CategoryConverter implements Converter {
@@ -104,10 +102,15 @@ public class MenuManager implements Serializable {
         @Override
         public Object getAsObject(FacesContext context, UIComponent component, String value) {
             try {
-                if (value == null) return null;
+                if (value == null) {
+                    return null;
+                }
                 Integer categoryID = Integer.valueOf(value);
-                for (NameCategory cat : categories)
-                    if(cat.getId().equals(categoryID)) return cat;
+                for (NameCategory cat : categories) {
+                    if (cat.getId().equals(categoryID)) {
+                        return cat;
+                    }
+                }
                 throw new ConverterException("NameCategory with ID " + categoryID + " not found at FaceContext: "
                         + context.getApplication().toString() + " UI:" + component.getId());
             } catch (IllegalArgumentException e) {

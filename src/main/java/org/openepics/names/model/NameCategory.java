@@ -45,19 +45,21 @@ public class NameCategory extends Persistable {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "approval_needed")
-    private boolean approvalNeeded;
-
     @Size(max = 255)
     @Column(name = "description")
-    private String description;
+    private String description = null;
+
+    @Column(name = "approval_needed")
+    private boolean approvalNeeded = true;
+
+    protected NameCategory() {}
+
+    public NameCategory(String name) {
+        this.name = name;
+    }
 
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getDescription() {

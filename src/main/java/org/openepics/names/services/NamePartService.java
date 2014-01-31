@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.openepics.names.model.NameCategory;
@@ -15,8 +14,7 @@ import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.model.NamePartType;
-import org.openepics.names.model.Privilege;
-import org.openepics.names.ui.UserManager;
+import org.openepics.names.model.UserAccount;
 import org.openepics.names.util.As;
 import org.openepics.names.util.JpaHelper;
 import org.openepics.names.util.Marker;
@@ -28,16 +26,13 @@ import org.openepics.names.util.Marker;
 @Stateless
 public class NamePartService {
 
-    @Inject private UserManager userManager;
     @PersistenceContext private EntityManager em;
 
     public NamePart namePartWithId(String uuid) {
         throw new IllegalStateException(); // TODO
     }
 
-    public NamePartRevision addNamePart(String name, String fullName, NamePartType nameType, @Nullable NamePart parent, String comment) {
-        Preconditions.checkState(userManager.isLoggedIn());
-
+    public NamePartRevision addNamePart(String name, String fullName, NamePartType nameType, @Nullable NamePart parent, @Nullable UserAccount user, String comment) {
         final @Nullable NamePartRevision parentBaseRevision = parent != null ? approvedOrElsePendingRevision(parent) : null;
         final @Nullable NamePartRevision parentPendingRevision = parent != null ? pendingRevision(parent) : null;
         Preconditions.checkState((parentBaseRevision == null || !parentBaseRevision.isDeleted()) && (parentPendingRevision == null || !parentPendingRevision.isDeleted()));
@@ -45,11 +40,7 @@ public class NamePartService {
         final NameCategory nameCategory = childNameCategory(nameType, parentBaseRevision != null ? parentBaseRevision.getNameCategory() : null);
 
         final NamePart namePart = new NamePart(UUID.randomUUID().toString());
-        final NamePartRevision newRevision = new NamePartRevision(namePart, userManager.getUser(), new Date(), comment, false, nameCategory, parent, name, fullName);
-
-        if (userManager.isEditor() && !nameCategory.isApprovalNeeded() && (parentBaseRevision == null || parentBaseRevision.getStatus() == NamePartRevisionStatus.APPROVED)) {
-            autoApprove(newRevision);
-        }
+        final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, false, nameCategory, parent, name, fullName);
 
         em.persist(namePart);
         em.persist(newRevision);
@@ -71,9 +62,7 @@ public class NamePartService {
         }
     }
 
-    public NamePartRevision modifyNamePart(NamePart namePart, String name, String fullName, String comment) {
-        Preconditions.checkState(userManager.isLoggedIn());
-
+    public NamePartRevision modifyNamePart(NamePart namePart, String name, String fullName, @Nullable UserAccount user, String comment) {
         final NamePartRevision baseRevision = approvedOrElsePendingRevision(namePart);
         Preconditions.checkState(!baseRevision.isDeleted());
 
@@ -81,45 +70,34 @@ public class NamePartService {
         Preconditions.checkState(pendingRevision == null || !pendingRevision.isDeleted());
 
         if (pendingRevision != null) {
-            cancelPendingRevision(pendingRevision);
+            cancelPendingRevision(pendingRevision, user);
         }
 
-        final NamePartRevision newRevision = new NamePartRevision(namePart, userManager.getUser(), new Date(), comment, false, baseRevision.getNameCategory(), baseRevision.getParent(), name, fullName);
+        final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, false, baseRevision.getNameCategory(), baseRevision.getParent(), name, fullName);
 
         final NamePart parent = baseRevision.getParent();
         final NamePartRevision approvedParentRevision = approvedRevision(parent);
-
-        if (userManager.isEditor() && !baseRevision.getNameCategory().isApprovalNeeded() && isOriginalCreator(userManager.getUser(), namePart) && approvedParentRevision != null) {
-            autoApprove(newRevision);
-        }
 
         em.persist(newRevision);
 
         return newRevision;
     }
 
-    public NamePartRevision deleteNamePart(NamePart namePart, String comment) {
-        Preconditions.checkState(userManager.isLoggedIn());
-
+    public NamePartRevision deleteNamePart(NamePart namePart, @Nullable UserAccount user, String comment) {
         final @Nullable NamePartRevision approvedRevision = approvedRevision(namePart);
         final @Nullable NamePartRevision pendingRevision = pendingRevision(namePart);
 
         if ((approvedRevision == null || !approvedRevision.isDeleted()) && (pendingRevision == null || !pendingRevision.isDeleted())) {
             if (pendingRevision != null) {
-                cancelPendingRevision(pendingRevision);
+                cancelPendingRevision(pendingRevision, user);
             }
 
             for (NamePart child : approvedAndProposedChildren(namePart)) {
-                deleteChildNamePart(child, comment);
+                deleteChildNamePart(child, user, comment);
             }
 
             if (approvedRevision != null) {
-                final NamePartRevision newRevision = new NamePartRevision(namePart, userManager.getUser(), new Date(), comment, true, approvedRevision.getNameCategory(), approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getFullName());
-
-                if (userManager.isEditor() && !approvedRevision.getNameCategory().isApprovalNeeded() && isOriginalCreator(userManager.getUser(), namePart)) {
-                    autoApprove(newRevision);
-                }
-
+                final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, true, approvedRevision.getNameCategory(), approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getFullName());
                 em.persist(newRevision);
                 return newRevision;
             } else {
@@ -130,15 +108,13 @@ public class NamePartService {
         }
     }
 
-    public NamePartRevision cancelChangesForNamePart(NamePart namePart, String comment) {
+    public NamePartRevision cancelChangesForNamePart(NamePart namePart, @Nullable UserAccount user, String comment) {
         final @Nullable NamePartRevision approvedRevision = approvedRevision(namePart);
         final @Nullable NamePartRevision pendingRevision = pendingRevision(namePart);
 
         if (pendingRevision != null && pendingRevision.getStatus() == NamePartRevisionStatus.PENDING) {
-            Preconditions.checkState(pendingRevision.getRequestedBy().equals(userManager.getUser()));
-
             pendingRevision.setStatus(NamePartRevisionStatus.CANCELLED);
-            pendingRevision.setProcessedBy(userManager.getUser());
+            pendingRevision.setProcessedBy(user);
             pendingRevision.setProcessDate(new Date());
             pendingRevision.setProcessorComment(comment);
 
@@ -150,12 +126,10 @@ public class NamePartService {
         }
     }
 
-    public void approveNamePartRevision(NamePartRevision namePartRevision) {
-        Preconditions.checkState(userManager.isSuperUser());
-
+    public void approveNamePartRevision(NamePartRevision namePartRevision, @Nullable UserAccount user) {
         if (namePartRevision.getStatus() == NamePartRevisionStatus.PENDING) {
             namePartRevision.setStatus(NamePartRevisionStatus.APPROVED);
-            namePartRevision.setProcessedBy(userManager.getUser());
+            namePartRevision.setProcessedBy(user);
             namePartRevision.setProcessDate(new Date());
             namePartRevision.setProcessorComment(null);
         } else if (namePartRevision.getStatus() == NamePartRevisionStatus.APPROVED) {
@@ -165,12 +139,10 @@ public class NamePartService {
         }
     }
 
-    public void rejectNamePartRevision(NamePartRevision namePartRevision, String comment) {
-        Preconditions.checkState(userManager.isSuperUser());
-
+    public void rejectNamePartRevision(NamePartRevision namePartRevision, @Nullable UserAccount user, String comment) {
         if (namePartRevision.getStatus() == NamePartRevisionStatus.PENDING) {
             namePartRevision.setStatus(NamePartRevisionStatus.REJECTED);
-            namePartRevision.setProcessedBy(userManager.getUser());
+            namePartRevision.setProcessedBy(user);
             namePartRevision.setProcessDate(new Date());
             namePartRevision.setProcessorComment(comment);
         } else if (namePartRevision.getStatus() == NamePartRevisionStatus.REJECTED) {
@@ -180,40 +152,40 @@ public class NamePartService {
         }
     }
 
-    public void approveNamePartRevisions(List<NamePartRevision> revisions, String comment) {
+    public void approveNamePartRevisions(List<NamePartRevision> revisions, @Nullable UserAccount user, String comment) {
         for (NamePartRevision revision : revisions) {
-            approveNamePartRevision(revision);
+            approveNamePartRevision(revision, user);
         }
     }
 
-    public void rejectNamePartRevisions(List<NamePartRevision> revisions, String comment) {
+    public void rejectNamePartRevisions(List<NamePartRevision> revisions, @Nullable UserAccount user, String comment) {
         for (NamePartRevision revision : revisions) {
-            rejectNamePartRevision(revision, comment);
+            rejectNamePartRevision(revision, user, comment);
         }
     }
 
-    private void deleteChildNamePart(NamePart namePart, String comment) {
+    private void deleteChildNamePart(NamePart namePart, @Nullable UserAccount user, String comment) {
         final @Nullable NamePartRevision approvedRevision = approvedRevision(namePart);
         final @Nullable NamePartRevision pendingRevision = pendingRevision(namePart);
 
         if (pendingRevision != null) {
-            cancelPendingRevision(pendingRevision);
+            cancelPendingRevision(pendingRevision, user);
         }
 
         for (NamePart child : approvedAndProposedChildren(namePart)) {
-            deleteChildNamePart(child, comment);
+            deleteChildNamePart(child, user, comment);
         }
 
         if (approvedRevision != null) {
-            final NamePartRevision newRevision = new NamePartRevision(namePart, userManager.getUser(), new Date(), comment, true, approvedRevision.getNameCategory(), approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getFullName());
+            final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, true, approvedRevision.getNameCategory(), approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getFullName());
             newRevision.setStatus(NamePartRevisionStatus.PENDING_PARENT);
             em.persist(newRevision);
         }
     }
 
-    private void cancelPendingRevision(NamePartRevision pendingRevision) {
+    private void cancelPendingRevision(NamePartRevision pendingRevision, @Nullable UserAccount user) {
         pendingRevision.setStatus(NamePartRevisionStatus.CANCELLED);
-        pendingRevision.setProcessedBy(userManager.getUser());
+        pendingRevision.setProcessedBy(user);
         pendingRevision.setProcessDate(new Date());
         pendingRevision.setProcessorComment(null);
     }
@@ -251,8 +223,7 @@ public class NamePartService {
         return approvedOrPendingNames(null, false);
     }
 
-    public List<NamePart> namesWithChangesProposedByCurrentUser() {
-        final Privilege user = userManager.getUser();
+    public List<NamePart> namesWithChangesProposedByUser(UserAccount user) {
         return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :status1 OR r2.status = :status2) AND r2.requestedBy = :requestedBy)", NamePart.class).setParameter("status1", NamePartRevisionStatus.PENDING).setParameter("status2", NamePartRevisionStatus.REJECTED).setParameter("requestedBy", user).getResultList();
     }
 
@@ -293,14 +264,14 @@ public class NamePartService {
         return pendingRevision != null ? pendingRevision : As.notNull(approvedRevision(namePart));
     }
 
-    private void autoApprove(NamePartRevision namePartEvent) {
+    private void autoApprove(NamePartRevision namePartEvent, @Nullable UserAccount user) {
         namePartEvent.setStatus(NamePartRevisionStatus.APPROVED);
         namePartEvent.setProcessDate(new Date());
-        namePartEvent.setProcessedBy(userManager.getUser());
-        namePartEvent.setProcessorComment("AUTOMATIC APPROVAL BASED ON CATEGORY SETTING");
+        namePartEvent.setProcessedBy(user);
+        namePartEvent.setProcessorComment(null);
     }
 
-    private boolean isOriginalCreator(Privilege user, NamePart namePart) {
+    private boolean isOriginalCreator(UserAccount user, NamePart namePart) {
         throw new IllegalStateException(); // TODO
     }
 }

@@ -61,7 +61,7 @@ public class NameRelease extends Persistable {
 
     @JoinColumn(name = "released_by", referencedColumnName = "id")
 	@ManyToOne(optional = false)
-    private Privilege releasedBy;
+    private UserAccount releasedBy;
 
     public String getDescription() {
         return description;
@@ -87,11 +87,11 @@ public class NameRelease extends Persistable {
         this.releaseDate = releaseDate;
     }
 
-    public Privilege getReleasedBy() {
+    public UserAccount getReleasedBy() {
     	return releasedBy;
     }
 
-    public void setReleasedBy(Privilege releasedBy) {
+    public void setReleasedBy(UserAccount releasedBy) {
     	this.releasedBy = releasedBy;
     }
 

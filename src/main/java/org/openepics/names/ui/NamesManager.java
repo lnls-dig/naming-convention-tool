@@ -33,8 +33,8 @@ import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NameRelease;
-import org.openepics.names.services.NamePartService;
 import org.openepics.names.services.ReleaseService;
+import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.names.NamePartView;
 
 /**
@@ -49,7 +49,7 @@ public class NamesManager implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Inject private ReleaseService releaseService;
-    @Inject private NamePartService namePartService;
+    @Inject private RestrictedNamePartService namePartService;
     @ManagedProperty(value = "#{publicationManager}") private PublicationManager pubManager;
 
     private static final Logger logger = Logger.getLogger("org.openepics.names.ui.NamesManager");

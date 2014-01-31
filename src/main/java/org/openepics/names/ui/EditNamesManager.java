@@ -21,7 +21,7 @@ import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.services.DeviceService;
-import org.openepics.names.services.NamePartService;
+import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.names.NamePartView;
 
 @ManagedBean
@@ -29,7 +29,7 @@ import org.openepics.names.ui.names.NamePartView;
 public class EditNamesManager implements Serializable {
 
     @Inject private UserManager userManager;
-    @Inject private NamePartService namePartService;
+    @Inject private RestrictedNamePartService namePartService;
     @Inject private DeviceService deviceService;
 
     private DeviceView selectedDeviceName;

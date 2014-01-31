@@ -4,7 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.openepics.names.model.DeviceRevision;
-import org.openepics.names.model.Privilege;
+import org.openepics.names.model.UserAccount;
 import org.openepics.names.ui.names.NamePartView;
 
 /**
@@ -36,7 +36,7 @@ public class DeviceView {
             default: throw new IllegalStateException();
         }
     }
-    public Privilege getRequestedBy() { return deviceName.getRequestedBy(); }
+    public UserAccount getRequestedBy() { return deviceName.getRequestedBy(); }
 
     private String getNamePath(NamePartView nameEvent) {
         final List<String> pathElementNames = Lists.newArrayList();

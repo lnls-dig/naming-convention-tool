@@ -1,5 +1,6 @@
 package org.openepics.names.model;
 
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.persistence.Entity;
@@ -34,6 +35,13 @@ public class NameHierarchy extends Persistable {
     )
     @OrderColumn(name = "pos")
     private List<NameCategory> deviceTypeLevels;
+
+    protected NameHierarchy() {}
+
+    public NameHierarchy(List<NameCategory> sectionLevels, List<NameCategory> deviceTypeLevels) {
+        this.sectionLevels = ImmutableList.copyOf(sectionLevels);
+        this.deviceTypeLevels = ImmutableList.copyOf(deviceTypeLevels);
+    }
 
     public List<NameCategory> getSectionLevels() { return sectionLevels; }
     public List<NameCategory> getDeviceTypeLevels() { return deviceTypeLevels; }

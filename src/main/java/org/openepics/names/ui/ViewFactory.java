@@ -1,5 +1,6 @@
 package org.openepics.names.ui;
 
+import javax.annotation.Nullable;
 import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePart;
@@ -17,6 +18,10 @@ public class ViewFactory {
     }
 
     public static NamePartView getView(NamePartRevision namePartRevision) {
+        throw new IllegalStateException();
+    }
+
+    public static NamePartView getView(@Nullable NamePartRevision approvedRevision, @Nullable NamePartRevision pendingRevision) {
         throw new IllegalStateException();
     }
 

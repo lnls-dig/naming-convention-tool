@@ -25,7 +25,7 @@ import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
-import org.openepics.names.services.NamePartService;
+import org.openepics.names.services.restricted.RestrictedNamePartService;
 
 /**
  * Manages report generation.
@@ -38,7 +38,7 @@ public class ReportManager implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Inject private NamePartService namePartService;
+    @Inject private RestrictedNamePartService namePartService;
 
     private static final Logger logger = Logger.getLogger("org.openepics.names.ui.ReportManager");
     private List<NamePartRevision> events;
