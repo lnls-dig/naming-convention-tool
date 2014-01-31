@@ -20,7 +20,10 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -321,4 +324,107 @@ public class RequestManager implements Serializable {
             return deviceTypeIndex > 0 ? nameHierarchy.getDeviceTypeLevels().get(deviceTypeIndex - 1) : null;
         }
     }
+
+    private class NamePartRevisionPair {
+        private String uuid;
+        private NamePartRevision approved;
+        private NamePartRevision pending;
+
+        private NamePartRevisionPair approved(NamePartRevision approved) {
+            this.approved = approved;
+            this.uuid = approved.getNamePart().getUuid();
+            return this;
+        }
+
+        private NamePartRevisionPair pending(NamePartRevision pending) {
+            this.pending = pending;
+            this.uuid = pending.getNamePart().getUuid();
+            return this;
+        }
+    }
+
+    private class NamePartRevisionTree {
+        private class TreeNode {
+            private final NamePartRevisionPair node;
+            private final List<TreeNode> children;
+
+            private TreeNode(NamePartRevisionPair pair) {
+                node = pair;
+                children = new ArrayList<>();
+            }
+        }
+
+        private final TreeNode root;
+        private final HashMap<String, TreeNode> inventory;
+
+        private NamePartRevisionTree() {
+            root = new TreeNode(null);
+            inventory = new HashMap<>();
+        }
+
+        private boolean hasNode(NamePartRevisionPair pair) {
+            return inventory.containsKey(pair.uuid);
+        }
+
+        private void addChildToParent(@Nullable String parentUuid, NamePartRevisionPair pair) {
+            final TreeNode newNode = new TreeNode(pair);
+            if(parentUuid != null)
+                inventory.get(parentUuid).children.add(newNode);
+            else
+                root.children.add(newNode);
+            inventory.put(pair.uuid, newNode);
+        }
+
+        private List<NamePartView> asList() {
+            return asList(new ArrayList<NamePartView>(), root);
+        }
+
+        private List<NamePartView> asList(List<NamePartView> resultList, TreeNode node) {
+            for(TreeNode child : node.children) {
+                // TODO add child
+                asList(resultList, child);
+            }
+
+            return resultList;
+        }
+    }
+
+    public List<NamePartView> namePartApprovalTree(List<NamePartRevision> approved, List<NamePartRevision> pending) {
+        final Map<String, NamePartRevisionPair> completeNamePartList = new HashMap<>();
+
+        for(NamePartRevision approvedNPR : approved)
+            completeNamePartList.put(approvedNPR.getNamePart().getUuid(), new NamePartRevisionPair().approved(approvedNPR));
+
+        for(NamePartRevision pendingNPR : pending) {
+            final NamePartRevisionPair pair = completeNamePartList.get(pendingNPR.getNamePart().getUuid());
+            if(pair != null)
+                pair.pending(pendingNPR);
+            else
+                completeNamePartList.put(pendingNPR.getNamePart().getUuid(), new NamePartRevisionPair().pending(pendingNPR));
+        }
+
+        NamePartRevisionTree nprt = new NamePartRevisionTree();
+        for(NamePartRevisionPair pair : completeNamePartList.values())
+            addNamePartRevisionNode(nprt, pair, completeNamePartList);
+
+        return nprt.asList();
+    }
+
+    private void addNamePartRevisionNode(NamePartRevisionTree nprt, NamePartRevisionPair pair, Map<String, NamePartRevisionPair> allPairs ) {
+        if(!nprt.hasNode(pair)) {
+            String parentId;
+            if(pair.approved != null)
+                parentId = pair.approved.getParent() != null ? pair.approved.getParent().getUuid() : null;
+            else
+                parentId = pair.pending.getParent() != null ? pair.pending.getParent().getUuid() : null;
+            if(parentId == null) {
+                nprt.addChildToParent(null, pair);
+            } else {
+                // adding existing parent is a NOP
+                addNamePartRevisionNode(nprt, allPairs.get(parentId), allPairs);
+                nprt.addChildToParent(parentId, pair);
+            }
+        }
+    }
+
 }
