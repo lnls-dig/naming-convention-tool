@@ -14,8 +14,8 @@ import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartType;
-import org.openepics.names.model.UserAccount;
 import org.openepics.names.model.Role;
+import org.openepics.names.model.UserAccount;
 
 /**
  *
@@ -32,7 +32,7 @@ public class TestService {
     private void init() {
         if (namePartService.approvedNames().isEmpty()) {
             fillConfiguration();
-            fillPrivileges();
+            fillUserAccounts();
             fillSections();
             fillDeviceTypes();
         }
@@ -42,7 +42,7 @@ public class TestService {
         em.persist(new Configuration("version", "3.0"));
     }
 
-    private void fillPrivileges() {
+    private void fillUserAccounts() {
         em.persist(new UserAccount("root", Role.SUPERUSER));
         em.persist(new UserAccount("admin", Role.SUPERUSER));
         em.persist(new UserAccount("jaba", Role.EDITOR));
@@ -252,10 +252,10 @@ public class TestService {
     }
 
     private NamePart addSection(@Nullable NamePart parent, String longName, String shortName) {
-        return namePartService.addNamePart(shortName, longName, NamePartType.SECTION, parent, "Test data").getNamePart();
+        return namePartService.addNamePart(shortName, longName, NamePartType.SECTION, parent, null, "Test data").getNamePart();
     }
 
     private NamePart addDeviceType(@Nullable NamePart parent, String longName, String shortName) {
-        return namePartService.addNamePart(shortName, longName, NamePartType.DEVICE_TYPE, parent, "Test data").getNamePart();
+        return namePartService.addNamePart(shortName, longName, NamePartType.DEVICE_TYPE, parent, null, "Test data").getNamePart();
     }
 }

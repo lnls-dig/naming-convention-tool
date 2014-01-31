@@ -32,7 +32,7 @@ public class UserAccount extends Persistable {
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(name = "operation")
+    @Column(name = "role")
     private Role role;
 
     protected UserAccount() {}

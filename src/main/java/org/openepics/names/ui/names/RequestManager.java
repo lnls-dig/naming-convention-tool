@@ -33,7 +33,7 @@ import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
-import org.openepics.names.services.NamePartService;
+import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.ViewFactory;
 import org.openepics.names.ui.names.NamePartView.Change;
 
@@ -46,7 +46,7 @@ import org.openepics.names.ui.names.NamePartView.Change;
 @ViewScoped
 public class RequestManager implements Serializable {
 
-    @Inject private NamePartService namePartService;
+    @Inject private RestrictedNamePartService namePartService;
 
     private List<NamePartView> validNames;
     private NamePartView selectedName;

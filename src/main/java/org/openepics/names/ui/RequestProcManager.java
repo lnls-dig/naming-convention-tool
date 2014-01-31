@@ -29,7 +29,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.services.NamePartService;
+import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.names.NamePartView;
 
 /**
@@ -41,7 +41,7 @@ import org.openepics.names.ui.names.NamePartView;
 @ViewScoped
 public class RequestProcManager implements Serializable {
 
-    @Inject NamePartService namePartService;
+    @Inject RestrictedNamePartService namePartService;
 
     private List<NamePartView> pendingNames;
     private List<NamePart> events;
@@ -62,10 +62,10 @@ public class RequestProcManager implements Serializable {
         events = namePartService.approvedOrPendingNames(null, true);
         pendingNames = events.size() > 0 ? new ArrayList<NamePartView>() : null;
         for (NamePart entry : events) {
-            List<NamePartRevision> history = namePartService.revisions(entry);
-            NamePartRevision pendingRevision = history.get(history.size() - 1);
-            NamePartRevision currentRevision = history.size() > 1 ? history.get(history.size() - 2) : null;
-            pendingNames.add(new NamePartView(namePartService, currentRevision, pendingRevision));
+            final List<NamePartRevision> history = namePartService.revisions(entry);
+            final NamePartRevision currentRevision = history.size() > 1 ? history.get(history.size() - 2) : null;
+            final NamePartRevision pendingRevision = history.get(history.size() - 1);
+            pendingNames.add(ViewFactory.getView(currentRevision, pendingRevision));
         }
         procComments = null;
     }
@@ -154,8 +154,8 @@ public class RequestProcManager implements Serializable {
 
     public List<NamePartView> getHistoryEvents() {
         return historyEvents == null ? null : Lists.transform(historyEvents, new Function<NamePartRevision, NamePartView>() {
-            @Override public NamePartView apply(NamePartRevision nameEvent) {
-                return new NamePartView(namePartService, nameEvent, null);
+            @Override public NamePartView apply(NamePartRevision revision) {
+                return ViewFactory.getView(revision);
             }
         });
     }
