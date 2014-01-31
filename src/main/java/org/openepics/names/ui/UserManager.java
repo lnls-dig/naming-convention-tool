@@ -25,7 +25,8 @@ import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import org.openepics.names.model.Privilege;
+import org.openepics.names.model.UserAccount;
+import org.openepics.names.model.Role;
 
 /**
  *
@@ -37,7 +38,7 @@ public class UserManager implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Privilege user;
+    private UserAccount user;
     private boolean loggedIn = false;
     private boolean editor = false;
     private boolean superUser = false;
@@ -56,16 +57,16 @@ public class UserManager implements Serializable {
         Principal principal = FacesContext.getCurrentInstance()
                 .getExternalContext().getUserPrincipal();
         if (principal == null) {
-            user = new Privilege();
+            user = null;
             loggedIn = false;
             editor = false;
             superUser = false;
         } else {
-            TypedQuery<Privilege> query = em.createQuery(
+            TypedQuery<UserAccount> query = em.createQuery(
                     "SELECT p FROM Privilege p WHERE p.username = :username",
-                    Privilege.class).setParameter("username",
+                    UserAccount.class).setParameter("username",
                             principal.getName());
-            List<Privilege> users = query.getResultList();
+            List<UserAccount> users = query.getResultList();
             user = users.get(0);
             loggedIn = true;
             editor = isEditor(user);
@@ -111,8 +112,8 @@ public class UserManager implements Serializable {
      *
      * return "/index.xhtml"; }
      */
-    public Privilege getUser() {
-        return user != null ? em.find(Privilege.class, user.getId()) : null;
+    public UserAccount getUser() {
+        return user != null ? em.find(UserAccount.class, user.getId()) : null;
     }
 
     public boolean isLoggedIn() {
@@ -140,22 +141,14 @@ public class UserManager implements Serializable {
      *
      * @author Vasu V <vuppala@frib.msu.org>
      */
-    private boolean isEditor(Privilege user) {
-        if (user != null) {
-            return "E".equalsIgnoreCase(user.getOperation()) || "S".equalsIgnoreCase(user.getOperation());
-        } else {
-            return false;
-        }
+    private boolean isEditor(UserAccount user) {
+        return user != null && (user.getRole() == Role.EDITOR || user.getRole() == Role.SUPERUSER);
     }
 
     /**
      * Is the current user a SuperUser?
      */
-    private boolean isSuperUser(Privilege user) {
-        if (user != null) {
-            return "S".equalsIgnoreCase(user.getOperation());
-        } else {
-            return false;
-        }
+    private boolean isSuperUser(UserAccount user) {
+        return user != null && user.getRole() == Role.SUPERUSER;
     }
 }

@@ -11,7 +11,7 @@ import javax.persistence.PersistenceContext;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.DeviceRevisionType;
-import org.openepics.names.model.Privilege;
+import org.openepics.names.model.UserAccount;
 import org.openepics.names.ui.UserManager;
 
 @Stateless
@@ -100,7 +100,7 @@ public class NamingConventionEJB {
     }
 
     public boolean setNameProcessed(DeviceRevision nameToProcess, Integer modifierId) {
-        Privilege modifier = em.find(Privilege.class, modifierId);
+        UserAccount modifier = em.find(UserAccount.class, modifierId);
         Date currentDate = new Date();
 
         final DeviceRevision dbName;

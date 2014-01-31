@@ -45,7 +45,7 @@ public class NamePartRevision extends Persistable {
 
     @JoinColumn(name = "requested_by", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Privilege requestedBy;
+    private UserAccount requestedBy;
 
     @Basic(optional = false)
     @NotNull
@@ -87,7 +87,7 @@ public class NamePartRevision extends Persistable {
 
     @JoinColumn(name = "processed_by", referencedColumnName = "id")
     @ManyToOne(optional = true)
-    private Privilege processedBy;
+    private UserAccount processedBy;
 
     @Column(name = "process_date")
     @Temporal(TemporalType.TIMESTAMP)
@@ -100,7 +100,7 @@ public class NamePartRevision extends Persistable {
     protected NamePartRevision() {
     }
 
-    public NamePartRevision(NamePart namePart, Privilege requestedBy, Date requestDate, String requestorComment, boolean deleted, NameCategory nameCategory, NamePart parent, String name, String fullName) {
+    public NamePartRevision(NamePart namePart, UserAccount requestedBy, Date requestDate, String requestorComment, boolean deleted, NameCategory nameCategory, NamePart parent, String name, String fullName) {
         this.namePart = namePart;
         this.requestedBy = requestedBy;
         this.requestDate = requestDate;
@@ -118,7 +118,7 @@ public class NamePartRevision extends Persistable {
 
     public NamePart getNamePart() { return namePart; }
 
-    public Privilege getRequestedBy() { return requestedBy; }
+    public UserAccount getRequestedBy() { return requestedBy; }
 
     public Date getRequestDate() { return requestDate; }
 
@@ -137,8 +137,8 @@ public class NamePartRevision extends Persistable {
     public NamePartRevisionStatus getStatus() { return status; }
     public void setStatus(NamePartRevisionStatus status) { this.status = status; }
 
-    public Privilege getProcessedBy() { return processedBy; }
-    public void setProcessedBy(Privilege processedBy) { this.processedBy = processedBy; }
+    public UserAccount getProcessedBy() { return processedBy; }
+    public void setProcessedBy(UserAccount processedBy) { this.processedBy = processedBy; }
 
     public Date getProcessDate() { return processDate; }
     public void setProcessDate(Date processDate) { this.processDate = processDate; }

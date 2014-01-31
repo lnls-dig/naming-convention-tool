@@ -1,12 +1,21 @@
 package org.openepics.names.services;
 
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
+import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
-import javax.inject.Singleton;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import org.openepics.names.model.Configuration;
+import org.openepics.names.model.NameCategory;
+import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartType;
+import org.openepics.names.model.UserAccount;
+import org.openepics.names.model.Role;
 
 /**
  *
@@ -17,13 +26,34 @@ import org.openepics.names.model.NamePartType;
 public class TestService {
 
     @Inject private NamePartService namePartService;
+    @PersistenceContext private EntityManager em;
 
     @PostConstruct
     private void init() {
         if (namePartService.approvedNames().isEmpty()) {
+            fillConfiguration();
+            fillPrivileges();
             fillSections();
             fillDeviceTypes();
         }
+    }
+
+    private void fillConfiguration() {
+        em.persist(new Configuration("version", "3.0"));
+    }
+
+    private void fillPrivileges() {
+        em.persist(new UserAccount("root", Role.SUPERUSER));
+        em.persist(new UserAccount("admin", Role.SUPERUSER));
+        em.persist(new UserAccount("jaba", Role.EDITOR));
+        em.persist(new UserAccount("miha", Role.EDITOR));
+        em.persist(new UserAccount("marko", Role.EDITOR));
+    }
+
+    private void fillHierarchy() {
+        final List<NameCategory> sectionLevels = ImmutableList.of(new NameCategory("SUP"), new NameCategory("SECT"), new NameCategory("SUB"));
+        final List<NameCategory> deviceTypeLevels = ImmutableList.of(new NameCategory("DSCP"), new NameCategory("CAT"), new NameCategory("GDEV"), new NameCategory("SDEV"));
+        em.persist(new NameHierarchy(sectionLevels, deviceTypeLevels));
     }
 
     private void fillSections() {

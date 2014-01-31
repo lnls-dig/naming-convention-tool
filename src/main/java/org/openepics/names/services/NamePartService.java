@@ -15,7 +15,7 @@ import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.model.NamePartType;
-import org.openepics.names.model.Privilege;
+import org.openepics.names.model.UserAccount;
 import org.openepics.names.ui.UserManager;
 import org.openepics.names.util.As;
 import org.openepics.names.util.JpaHelper;
@@ -252,7 +252,7 @@ public class NamePartService {
     }
 
     public List<NamePart> namesWithChangesProposedByCurrentUser() {
-        final Privilege user = userManager.getUser();
+        final UserAccount user = userManager.getUser();
         return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :status1 OR r2.status = :status2) AND r2.requestedBy = :requestedBy)", NamePart.class).setParameter("status1", NamePartRevisionStatus.PENDING).setParameter("status2", NamePartRevisionStatus.REJECTED).setParameter("requestedBy", user).getResultList();
     }
 
@@ -300,7 +300,7 @@ public class NamePartService {
         namePartEvent.setProcessorComment("AUTOMATIC APPROVAL BASED ON CATEGORY SETTING");
     }
 
-    private boolean isOriginalCreator(Privilege user, NamePart namePart) {
+    private boolean isOriginalCreator(UserAccount user, NamePart namePart) {
         throw new IllegalStateException(); // TODO
     }
 }

@@ -57,7 +57,7 @@ public class DeviceRevision extends Persistable {
 
     @JoinColumn(name = "requested_by", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Privilege requestedBy;
+    private UserAccount requestedBy;
 
     @Basic(optional = false)
     @NotNull
@@ -67,7 +67,7 @@ public class DeviceRevision extends Persistable {
 
     @JoinColumn(name = "processed_by", referencedColumnName = "id")
     @ManyToOne(optional = true)
-    private Privilege processedBy;
+    private UserAccount processedBy;
 
     @Column(name = "process_date")
     @Temporal(TemporalType.TIMESTAMP)
@@ -97,13 +97,13 @@ public class DeviceRevision extends Persistable {
     public DeviceRevisionType getStatus() { return status; }
     public void setStatus(DeviceRevisionType status) { this.status = status; }
 
-    public Privilege getRequestedBy() { return requestedBy; }
-    public void setRequestedBy(Privilege requestedBy) { this.requestedBy = requestedBy; }
+    public UserAccount getRequestedBy() { return requestedBy; }
+    public void setRequestedBy(UserAccount requestedBy) { this.requestedBy = requestedBy; }
 
     public Date getRequestDate() { return requestDate; }
 
-    public Privilege getProcessedBy() { return processedBy; }
-    public void setProcessedBy(Privilege processedBy) { this.processedBy = processedBy; }
+    public UserAccount getProcessedBy() { return processedBy; }
+    public void setProcessedBy(UserAccount processedBy) { this.processedBy = processedBy; }
 
     public Date getProcessDate() { return processDate; }
     public void setProcessDate(Date processDate) { this.processDate = processDate; }
