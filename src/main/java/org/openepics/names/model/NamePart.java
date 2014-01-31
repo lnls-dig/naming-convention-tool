@@ -2,11 +2,13 @@ package org.openepics.names.model;
 
 import java.util.Objects;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 @Entity
+@Table(name = "name_part")
 public class NamePart extends Persistable {
 
     private String uuid;
