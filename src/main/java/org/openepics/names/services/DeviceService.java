@@ -2,13 +2,11 @@ package org.openepics.names.services;
 
 import java.util.List;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePart;
-import org.openepics.names.ui.UserManager;
 
 /**
  *
@@ -17,7 +15,6 @@ import org.openepics.names.ui.UserManager;
 @Stateless
 public class DeviceService {
 
-    @Inject private UserManager userManager;
     @PersistenceContext private EntityManager em;
 
     public Device deviceWithId(String uuid) {

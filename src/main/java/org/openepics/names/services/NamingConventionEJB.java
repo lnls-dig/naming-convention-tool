@@ -3,27 +3,18 @@ package org.openepics.names.services;
 import com.google.common.base.Preconditions;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.openepics.names.model.DeviceRevision;
-import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.DeviceRevisionType;
+import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.UserAccount;
-import org.openepics.names.ui.UserManager;
 
 @Stateless
 public class NamingConventionEJB {
 
-    private static final Logger logger = Logger.getLogger("org.openepics.names.services.NamingConventionEJB");
-
-    @Inject
-    private UserManager userManager;
-
-    @PersistenceContext(unitName = "org.openepics.names.punit")
-    private EntityManager em;
+    @PersistenceContext private EntityManager em;
 
     private String getQualifier(long namesCount) {
         return (namesCount <= 0) ? "A" : "" + ((char) (namesCount % 26 + 'A')) + (namesCount / 26);

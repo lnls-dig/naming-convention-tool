@@ -13,7 +13,7 @@ import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.NamePartService;
-import org.openepics.names.ui.UserManager;
+import org.openepics.names.services.SessionService;
 import org.openepics.names.util.Marker;
 
 /**
@@ -23,7 +23,7 @@ import org.openepics.names.util.Marker;
 @Stateless
 public class RestrictedNamePartService {
 
-    @Inject private UserManager userManager;
+    @Inject private SessionService sessionService;
     @Inject private NamePartService namePartService;
 
     public NamePart namePartWithId(String uuid) {
@@ -31,8 +31,8 @@ public class RestrictedNamePartService {
     }
 
     public NamePartRevision addNamePart(String name, String fullName, NamePartType nameType, @Nullable NamePart parent, String comment) {
-        Preconditions.checkState(userManager.isLoggedIn());
-        return namePartService.addNamePart(name, fullName, nameType, parent, userManager.getUser(), comment);
+        Preconditions.checkState(sessionService.isLoggedIn());
+        return namePartService.addNamePart(name, fullName, nameType, parent, sessionService.user(), comment);
 
 //        if (userManager.isEditor() && !nameCategory.isApprovalNeeded() && (parentBaseRevision == null || parentBaseRevision.getStatus() == NamePartRevisionStatus.APPROVED)) {
 //            autoApprove(newRevision);
@@ -40,33 +40,33 @@ public class RestrictedNamePartService {
     }
 
     public NamePartRevision modifyNamePart(NamePart namePart, String name, String fullName, String comment) {
-        Preconditions.checkState(userManager.isLoggedIn());
-        return namePartService.modifyNamePart(namePart, name, fullName, userManager.getUser(), comment);
+        Preconditions.checkState(sessionService.isLoggedIn());
+        return namePartService.modifyNamePart(namePart, name, fullName, sessionService.user(), comment);
 
-//        if (userManager.isEditor() && !baseRevision.getNameCategory().isApprovalNeeded() && isOriginalCreator(userManager.getUser(), namePart) && approvedParentRevision != null) {
+//        if (userManager.isEditor() && !baseRevision.getNameCategory().isApprovalNeeded() && isOriginalCreator(userManager.user(), namePart) && approvedParentRevision != null) {
 //            autoApprove(newRevision);
 //        }
     }
 
     public NamePartRevision deleteNamePart(NamePart namePart, String comment) {
-        Preconditions.checkState(userManager.isLoggedIn());
-        return namePartService.deleteNamePart(namePart, userManager.getUser(), comment);
+        Preconditions.checkState(sessionService.isLoggedIn());
+        return namePartService.deleteNamePart(namePart, sessionService.user(), comment);
 
-//        if (userManager.isEditor() && !approvedRevision.getNameCategory().isApprovalNeeded() && isOriginalCreator(userManager.getUser(), namePart)) {
+//        if (userManager.isEditor() && !approvedRevision.getNameCategory().isApprovalNeeded() && isOriginalCreator(userManager.user(), namePart)) {
 //            autoApprove(newRevision);
 //        }
     }
 
     public NamePartRevision cancelChangesForNamePart(NamePart namePart, String comment) {
-        return namePartService.cancelChangesForNamePart(namePart, userManager.getUser(), comment);
+        return namePartService.cancelChangesForNamePart(namePart, sessionService.user(), comment);
     }
 
     public void approveNamePartRevision(NamePartRevision namePartRevision) {
-        Preconditions.checkState(userManager.isSuperUser());
+        Preconditions.checkState(sessionService.isSuperUser());
 
         if (namePartRevision.getStatus() == NamePartRevisionStatus.PENDING) {
             namePartRevision.setStatus(NamePartRevisionStatus.APPROVED);
-            namePartRevision.setProcessedBy(userManager.getUser());
+            namePartRevision.setProcessedBy(sessionService.user());
             namePartRevision.setProcessDate(new Date());
             namePartRevision.setProcessorComment(null);
         } else if (namePartRevision.getStatus() == NamePartRevisionStatus.APPROVED) {
@@ -77,18 +77,18 @@ public class RestrictedNamePartService {
     }
 
     public void rejectNamePartRevision(NamePartRevision namePartRevision, String comment) {
-        Preconditions.checkState(userManager.isSuperUser());
-        namePartService.rejectNamePartRevision(namePartRevision, userManager.getUser(), comment);
+        Preconditions.checkState(sessionService.isSuperUser());
+        namePartService.rejectNamePartRevision(namePartRevision, sessionService.user(), comment);
     }
 
     public void approveNamePartRevisions(List<NamePartRevision> revisions, String comment) {
-        Preconditions.checkState(userManager.isSuperUser());
-        namePartService.approveNamePartRevisions(revisions, userManager.getUser(), comment);
+        Preconditions.checkState(sessionService.isSuperUser());
+        namePartService.approveNamePartRevisions(revisions, sessionService.user(), comment);
     }
 
     public void rejectNamePartRevisions(List<NamePartRevision> revisions, String comment) {
-        Preconditions.checkState(userManager.isSuperUser());
-        namePartService.rejectNamePartRevisions(revisions, userManager.getUser(), comment);
+        Preconditions.checkState(sessionService.isSuperUser());
+        namePartService.rejectNamePartRevisions(revisions, sessionService.user(), comment);
     }
 
     public NameHierarchy nameHierarchy() {
@@ -112,7 +112,7 @@ public class RestrictedNamePartService {
     }
 
     public List<NamePart> namesWithChangesProposedByCurrentUser() {
-        return namePartService.namesWithChangesProposedByUser(userManager.getUser());
+        return namePartService.namesWithChangesProposedByUser(sessionService.user());
     }
 
     public List<NamePart> namesWithCategory(NameCategory category) {

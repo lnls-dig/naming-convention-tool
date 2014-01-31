@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -18,7 +17,7 @@ import javax.inject.Inject;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-
+import org.openepics.names.services.SessionService;
 import org.primefaces.context.RequestContext;
 
 /**
@@ -30,10 +29,8 @@ import org.primefaces.context.RequestContext;
 @ViewScoped
 public class LoginManager implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    @Inject private SessionService sessionService;
 
-	@Inject private UserManager userManager;
-    
     private static final Logger logger = Logger.getLogger("org.openepics.names.ui.LoginManager");
     private String inputUsername;
     private String inputPassword;
@@ -59,19 +56,19 @@ public class LoginManager implements Serializable {
 
         try {
             request.login(inputUsername, inputPassword);
-            logger.log(Level.INFO,"Login successful for " + inputUsername);
+            logger.log(Level.INFO, "Login successful for " + inputUsername);
             RequestContext.getCurrentInstance().addCallbackParam("loginSuccess", true);
             // context.getExternalContext().getSessionMap().put("user", inputUsername);
             showMessage(FacesMessage.SEVERITY_INFO, "You are logged in. Welcome to Proteus.", inputUsername);
             if (originalURL != null) {
                 context.getExternalContext().redirect(originalURL);
             }
-        } catch (ServletException e) {          
+        } catch (ServletException e) {
             showMessage(FacesMessage.SEVERITY_ERROR, "Login Failed! Please try again. ", "Status: ");
             RequestContext.getCurrentInstance().addCallbackParam("loginSuccess", false);
         } finally {
             inputPassword = "xxxxxxxx"; //TODO implement a better way destroy the password (from JVM)
-            userManager.init();
+            sessionService.init();
         }
         return null;
         // return originalURL;
@@ -86,7 +83,7 @@ public class LoginManager implements Serializable {
         } catch (Exception e) {
             showMessage(FacesMessage.SEVERITY_ERROR, "Strangely, logout has failed", "That's odd!");
         } finally {
-            userManager.init();
+            sessionService.init();
         }
 
         return "logout"; //TODO: replace with null

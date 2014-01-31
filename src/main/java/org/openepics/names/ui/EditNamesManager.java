@@ -28,7 +28,6 @@ import org.openepics.names.ui.names.NamePartView;
 @ViewScoped
 public class EditNamesManager implements Serializable {
 
-    @Inject private UserManager userManager;
     @Inject private RestrictedNamePartService namePartService;
     @Inject private DeviceService deviceService;
 
@@ -196,19 +195,13 @@ public class EditNamesManager implements Serializable {
     public DeviceView getSelectedDeviceName() { return selectedDeviceName; }
     public void setSelectedDeviceName(DeviceView selectedDeviceName) { this.selectedDeviceName = selectedDeviceName; }
 
-    public List<DeviceView> getAllDeviceNames() {
-        return allDeviceNames;
-    }
+    public List<DeviceView> getAllDeviceNames() { return allDeviceNames; }
 
-    public List<DeviceView> getHistoryEvents() {
-        return historyDeviceNames;
-    }
+    public List<DeviceView> getHistoryEvents() { return historyDeviceNames; }
 
     public List<NamePartSelectionView> getSectionLevels() { return sectionLevels; }
 
     public List<NamePartSelectionView> getDeviceTypeLevels() { return deviceTypeLevels; }
-
-    public boolean isSuperUser() { return userManager.isSuperUser(); }
 
     public boolean isShowDeletedNames() { return showDeletedNames; }
     public void setShowDeletedNames(boolean showDeletedNames) { this.showDeletedNames = showDeletedNames; }

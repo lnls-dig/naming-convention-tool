@@ -244,11 +244,11 @@ public class NamePartService {
     }
 
     public @Nullable NamePartRevision approvedRevision(NamePart namePart) {
-        return JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND r.status = :status ORDER BY r.id DESC LIMIT 1)", NamePartRevision.class).setParameter("status", NamePartRevisionStatus.APPROVED));
+        return JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND r.status = :status ORDER BY r.id DESC", NamePartRevision.class).setParameter("namePart", namePart).setParameter("status", NamePartRevisionStatus.APPROVED).setMaxResults(1));
     }
 
     public @Nullable NamePartRevision pendingRevision(NamePart namePart) {
-        final @Nullable NamePartRevision lastPendingOrApprovedRevision = JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND (r.status = :status1 OR r.status = :status2 OR r.status = :status3) ORDER BY r.id DESC LIMIT 1)", NamePartRevision.class).setParameter("status1", NamePartRevisionStatus.APPROVED).setParameter("status2", NamePartRevisionStatus.PENDING).setParameter("status3", NamePartRevisionStatus.PENDING_PARENT));
+        final @Nullable NamePartRevision lastPendingOrApprovedRevision = JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND (r.status = :status1 OR r.status = :status2 OR r.status = :status3) ORDER BY r.id DESC", NamePartRevision.class).setParameter("namePart", namePart).setParameter("status1", NamePartRevisionStatus.APPROVED).setParameter("status2", NamePartRevisionStatus.PENDING).setParameter("status3", NamePartRevisionStatus.PENDING_PARENT).setMaxResults(1));
         if (lastPendingOrApprovedRevision == null) return null;
         else if (lastPendingOrApprovedRevision.getStatus() == NamePartRevisionStatus.PENDING || lastPendingOrApprovedRevision.getStatus() == NamePartRevisionStatus.PENDING_PARENT) return lastPendingOrApprovedRevision;
         else return null;

@@ -3,13 +3,10 @@ package org.openepics.names.services;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.openepics.names.model.Configuration;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
@@ -21,25 +18,19 @@ import org.openepics.names.model.UserAccount;
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
-@Singleton
-@Startup
+@Stateless
 public class TestService {
 
     @Inject private NamePartService namePartService;
     @PersistenceContext private EntityManager em;
 
-    @PostConstruct
-    private void init() {
+    public void fillDatabaseWithTestData() {
         if (namePartService.approvedNames().isEmpty()) {
-            fillConfiguration();
             fillUserAccounts();
+            fillHierarchy();
             fillSections();
             fillDeviceTypes();
         }
-    }
-
-    private void fillConfiguration() {
-        em.persist(new Configuration("version", "3.0"));
     }
 
     private void fillUserAccounts() {

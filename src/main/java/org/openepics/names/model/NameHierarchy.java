@@ -3,6 +3,7 @@ package org.openepics.names.model;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.annotation.Nullable;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -18,7 +19,7 @@ import javax.persistence.Table;
 @Table(name = "name_hierarchy")
 public class NameHierarchy extends Persistable {
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
         name = "name_hierarchy_section_levels",
         joinColumns = { @JoinColumn(name = "name_hierarchy_id") },
@@ -27,7 +28,7 @@ public class NameHierarchy extends Persistable {
     @OrderColumn(name = "pos")
     private List<NameCategory> sectionLevels;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
         name = "name_hierarchy_device_type_levels",
         joinColumns = { @JoinColumn(name = "name_hierarchy_id") },
