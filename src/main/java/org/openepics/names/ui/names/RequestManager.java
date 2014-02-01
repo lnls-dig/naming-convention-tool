@@ -394,7 +394,8 @@ public class RequestManager implements Serializable {
         private TreeNode asViewTree(TreeNode parentNode, NamePartRevisionTreeNode nprNode) {
             for (NamePartRevisionTreeNode child : nprNode.children) {
                 TreeNode node = new DefaultTreeNode(viewFactory.getView(child.node.approved, child.node.pending), parentNode);
-                asViewTree(node, child);
+                if (child.node.pending == null || (child.node.pending != null) && !child.node.pending.isDeleted())
+                    asViewTree(node, child);
             }
             return parentNode;
         }
