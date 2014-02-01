@@ -28,14 +28,6 @@ public class DeviceView {
     public NamePartView getSection() { throw new IllegalStateException(); } // { return ViewFactory.getView(deviceName.getSection()); }
     public NamePartView getDeviceType() { throw new IllegalStateException(); } // { return ViewFactory.getView(deviceName.getDeviceType()); }
     public String getQualifier() { return deviceName.getQualifier(); }
-    public String getStatus() {
-        switch (deviceName.getStatus()) {
-            case VALID: return "Published";
-            case INVALID: return "In-Process";
-            case DELETED: return "Deleted";
-            default: throw new IllegalStateException();
-        }
-    }
     public UserAccount getRequestedBy() { return deviceName.getRequestedBy(); }
 
     private String getNamePath(NamePartView nameEvent) {

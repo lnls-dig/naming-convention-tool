@@ -32,7 +32,7 @@ public class DeviceNameResource {
     public Response create(@QueryParam("section_id") String sectionId, @QueryParam("device_type_id") String deviceTypeId) {
        final NamePart section = namePartService.namePartWithId(sectionId);
        final NamePart deviceType = namePartService.namePartWithId(deviceTypeId);
-        deviceService.createDevice(section, deviceType);
+        deviceService.createDevice(section, deviceType, null, null);
         return Response.ok().build();
     }
 
@@ -41,7 +41,7 @@ public class DeviceNameResource {
     public Response remove(@PathParam("id") String id) {
         try {
             final Device device = deviceService.deviceWithId(id);
-            deviceService.removeDevice(device);
+            deviceService.deleteDevice(device, null);
             return Response.ok().build();
         } catch (NoResultException e) {
             return Response.status(Status.NOT_FOUND).build();
