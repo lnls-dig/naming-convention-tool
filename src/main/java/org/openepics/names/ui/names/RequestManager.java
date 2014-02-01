@@ -16,7 +16,6 @@
 package org.openepics.names.ui.names;
 
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
@@ -39,6 +38,8 @@ import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.ViewFactory;
 import org.openepics.names.ui.names.NamePartView.Change;
+import org.primefaces.model.DefaultTreeNode;
+import org.primefaces.model.TreeNode;
 
 /**
  * Manages Change Requests (backing bean for request-sub.xhtml)
@@ -57,6 +58,9 @@ public class RequestManager implements Serializable {
     private List<NamePartView> filteredNames;
     private List<NamePartView> historyEvents;
     private boolean myRequest = false;
+
+    private TreeNode root;
+    private TreeNode[] selectedNodes;
 
     // Input parameters from input page
     private NameCategory category;
@@ -81,6 +85,8 @@ public class RequestManager implements Serializable {
         } else {
             validNameParts = Lists.newArrayList();
         }
+
+        root = namePartApprovalTree(namePartService.currentApprovedRevisions(true), namePartService.currentPendingRevisions(true));
 
         validNames = Lists.newArrayList(Lists.transform(validNameParts, new Function<NamePart, NamePartView>() {
             @Override public NamePartView apply(NamePart namePart) {
@@ -128,34 +134,21 @@ public class RequestManager implements Serializable {
         else throw new IllegalStateException();
     }
 
-    public String getNewPath(NamePartView req) {
-        StringBuilder outputStr = new StringBuilder();
-
-        Joiner.on(" ▸ ").appendTo(outputStr, req.getNamePath().subList(0, req.getNamePath().size() - 1));
-        if(outputStr.length() > 0) outputStr.append(" ▸ ");
-
-        Change change = req.getPendingChange();
-        if(change instanceof NamePartView.ModifyChange)
-            outputStr.append(((NamePartView.ModifyChange)change).getNewName());
+    public String getNewName(NamePartView req) {
+        final Change change = req.getPendingChange();
+        if (change instanceof NamePartView.ModifyChange)
+            return ((NamePartView.ModifyChange)change).getNewName();
         else
-            outputStr.append(req.getName());
+            return req.getName();
 
-        return outputStr.toString();
     }
 
-    public String getNewFullPath(NamePartView req) {
-        StringBuilder outputStr = new StringBuilder();
-
-        Joiner.on(" ▸ ").appendTo(outputStr, req.getFullNamePath().subList(0, req.getFullNamePath().size() - 1));
-        if(outputStr.length() > 0) outputStr.append(" ▸ ");
-
-        Change change = req.getPendingChange();
-        if(change instanceof NamePartView.ModifyChange)
-            outputStr.append(((NamePartView.ModifyChange)change).getNewFullName());
+    public String getNewFullName(NamePartView req) {
+        final Change change = req.getPendingChange();
+        if (change instanceof NamePartView.ModifyChange)
+            return ((NamePartView.ModifyChange)change).getNewFullName();
         else
-            outputStr.append(req.getFullName());
-
-        return outputStr.toString();
+            return req.getFullName();
     }
 
     public boolean isModified(NamePartView req) {
@@ -163,20 +156,20 @@ public class RequestManager implements Serializable {
     }
 
     public String getNameClass(NamePartView req) {
-        Change change = req.getPendingChange();
-        if(change == null) {
-            if(req.isDeleted()) return "Delete-Approved";
+        final Change change = req.getPendingChange();
+        if (change == null) {
+            if (req.isDeleted()) return "Delete-Approved";
             return "Insert-Approved";
         }
 
         StringBuilder ret = new StringBuilder();
-        if(change instanceof NamePartView.AddChange) ret.append("Insert-");
-        else if(change instanceof NamePartView.ModifyChange) ret.append("Modify-");
-        else if(change instanceof NamePartView.DeleteChange) ret.append("Delete-");
+        if (change instanceof NamePartView.AddChange) ret.append("Insert-");
+        else if (change instanceof NamePartView.ModifyChange) ret.append("Modify-");
+        else if (change instanceof NamePartView.DeleteChange) ret.append("Delete-");
         // ERROR!!!! unknown class
         else return "unknown";
 
-        switch(change.getStatus()) {
+        switch (change.getStatus()) {
             case APPROVED:
                 ret.append("Approved");
                 break;
@@ -298,6 +291,18 @@ public class RequestManager implements Serializable {
         return parentCandidates;
     }
 
+    public TreeNode getRoot() {
+        return root;
+    }
+
+    public TreeNode[] getSelectedNodes() {
+        return selectedNodes;
+    }
+
+    public void setSelectedNodes(TreeNode[] selectedNodes) {
+        this.selectedNodes = selectedNodes;
+    }
+
     public void loadParentCandidates() {
         if (category != null) {
             final @Nullable NameCategory parentCategory = getParentCategory(category);
@@ -342,24 +347,30 @@ public class RequestManager implements Serializable {
             this.uuid = pending.getNamePart().getUuid();
             return this;
         }
+
+        private @Nullable String getParentUuid() {
+            if (approved != null)
+                return approved.getParent() != null ? approved.getParent().getUuid() : null;
+            return pending.getParent() != null ? pending.getParent().getUuid() : null;
+        }
     }
 
     private class NamePartRevisionTree {
-        private class TreeNode {
+        private class NamePartRevisionTreeNode {
             private final NamePartRevisionPair node;
-            private final List<TreeNode> children;
+            private final List<NamePartRevisionTreeNode> children;
 
-            private TreeNode(NamePartRevisionPair pair) {
+            private NamePartRevisionTreeNode(NamePartRevisionPair pair) {
                 node = pair;
                 children = new ArrayList<>();
             }
         }
 
-        private final TreeNode root;
-        private final HashMap<String, TreeNode> inventory;
+        private final NamePartRevisionTreeNode root;
+        private final HashMap<String, NamePartRevisionTreeNode> inventory;
 
         private NamePartRevisionTree() {
-            root = new TreeNode(null);
+            root = new NamePartRevisionTreeNode(null);
             inventory = new HashMap<>();
         }
 
@@ -368,34 +379,34 @@ public class RequestManager implements Serializable {
         }
 
         private void addChildToParent(@Nullable String parentUuid, NamePartRevisionPair pair) {
-            final TreeNode newNode = new TreeNode(pair);
-            if(parentUuid != null)
+            final NamePartRevisionTreeNode newNode = new NamePartRevisionTreeNode(pair);
+            if (parentUuid != null)
                 inventory.get(parentUuid).children.add(newNode);
             else
                 root.children.add(newNode);
             inventory.put(pair.uuid, newNode);
         }
 
-        private List<NamePartView> asList() {
-            return asList(new ArrayList<NamePartView>(), root);
+        private TreeNode asViewTree() {
+            return asViewTree(new DefaultTreeNode("root", null), root);
         }
 
-        private List<NamePartView> asList(List<NamePartView> resultList, TreeNode node) {
-            for(TreeNode child : node.children) {
-                resultList.add(viewFactory.getView(child.node.approved, child.node.pending));
-                asList(resultList, child);
+        private TreeNode asViewTree(TreeNode parentNode, NamePartRevisionTreeNode nprNode) {
+            for (NamePartRevisionTreeNode child : nprNode.children) {
+                TreeNode node = new DefaultTreeNode(viewFactory.getView(child.node.approved, child.node.pending), parentNode);
+                asViewTree(node, child);
             }
-            return resultList;
+            return parentNode;
         }
     }
 
-    public List<NamePartView> namePartApprovalTree(List<NamePartRevision> approved, List<NamePartRevision> pending) {
+    private TreeNode namePartApprovalTree(List<NamePartRevision> approved, List<NamePartRevision> pending) {
         final Map<String, NamePartRevisionPair> completeNamePartList = new HashMap<>();
 
-        for(NamePartRevision approvedNPR : approved)
+        for (NamePartRevision approvedNPR : approved)
             completeNamePartList.put(approvedNPR.getNamePart().getUuid(), new NamePartRevisionPair().approved(approvedNPR));
 
-        for(NamePartRevision pendingNPR : pending) {
+        for (NamePartRevision pendingNPR : pending) {
             final NamePartRevisionPair pair = completeNamePartList.get(pendingNPR.getNamePart().getUuid());
             if(pair != null)
                 pair.pending(pendingNPR);
@@ -404,20 +415,16 @@ public class RequestManager implements Serializable {
         }
 
         NamePartRevisionTree nprt = new NamePartRevisionTree();
-        for(NamePartRevisionPair pair : completeNamePartList.values())
+        for (NamePartRevisionPair pair : completeNamePartList.values())
             addNamePartRevisionNode(nprt, pair, completeNamePartList);
 
-        return nprt.asList();
+        return nprt.asViewTree();
     }
 
     private void addNamePartRevisionNode(NamePartRevisionTree nprt, NamePartRevisionPair pair, Map<String, NamePartRevisionPair> allPairs ) {
         if(!nprt.hasNode(pair)) {
-            String parentId;
-            if(pair.approved != null)
-                parentId = pair.approved.getParent() != null ? pair.approved.getParent().getUuid() : null;
-            else
-                parentId = pair.pending.getParent() != null ? pair.pending.getParent().getUuid() : null;
-            if(parentId == null) {
+            final String parentId = pair.getParentUuid();
+            if (parentId == null) {
                 nprt.addChildToParent(null, pair);
             } else {
                 // adding existing parent is a NOP
@@ -426,5 +433,4 @@ public class RequestManager implements Serializable {
             }
         }
     }
-
 }

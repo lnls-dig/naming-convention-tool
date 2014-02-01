@@ -17,7 +17,7 @@
             <p:menu id="reqMenu" styleClass="fixedPosition box" style="width: 8%">
                 <p:submenu label="Requests">
                     <p:menuitem value="Add" icon="ui-icon-plus" oncomplete="addName.show()"
-                                update=":addNameForm :ReqSubForm:crTable" title="Add Name"
+                                update=":addNameForm :ReqSubForm:namePartsTree" title="Add Name"
                                 rendered="#{not requestManager.myRequest}" />
                     <p:menuitem value="Delete" icon="ui-icon-trash" update=":DelNameForm:delName"
                                 oncomplete="delName.show()" title="Delete Name" rendered="#{not requestManager.myRequest}"
@@ -33,7 +33,7 @@
                 </p:submenu>
             </p:menu>
 
-            <p:contextMenu id="cntxtMenu" for="crTable">
+            <p:contextMenu id="cntxtMenu" for="namePartsTree">
                 <p:menuitem value="Add" icon="ui-icon-plus"  oncomplete="addName.show()"
                             rendered="#{not requestManager.myRequest}"/>
                 <p:menuitem value="Delete" update=":DelNameForm" icon="ui-icon-trash"
@@ -49,7 +49,41 @@
                             disabled="#{requestManager.selectedEventProcessed()}"/>
             </p:contextMenu>
 
+            <p:treeTable id="namePartsTree" value="#{requestManager.root}" var="namePart"
+                         selection="#{requestManager.selectedNodes}" selectionMode="multiple"
+                         resizableColumns="true" rowStyleClass="#{namesManager.nameViewClass(namePart)}"
+                         style="width: 90%">
+                <f:facet name="header">
+                    <h:outputText value="Submit Change Request" />
+                </f:facet>
+
+                <p:column id="nameDesc" headerText="Full Name" filterBy="#{namePart.fullName}"
+                          filterMatchMode="contains" >
+                    <h:outputText value="#{requestManager.getNewFullName(namePart)}"
+                                  styleClass="#{requestManager.getNameClass(namePart)}" />
+                    <h:outputText value=" " rendered="#{requestManager.isModified(namePart)}" />
+                    <h:outputText value="(#{namePart.fullName})"
+                                  styleClass="#{requestManager.getNameClass(namePart)}-Old"
+                                  rendered="#{requestManager.isModified(namePart)}" />
+                </p:column>
+                <p:column id="nameCode" headerText="Name" filterBy="#{namePart.name}" filterMatchMode="startsWith"
+                          style="width: 10%">
+                    <h:outputText value="#{requestManager.getNewName(namePart)}"
+                                  styleClass="#{requestManager.getNameClass(namePart)}-New" />
+                    <h:outputText value=" " rendered="#{requestManager.isModified(namePart)}" />
+                    <h:outputText value="(#{namePart.name})"
+                                  styleClass="#{requestManager.getNameClass(namePart)}-Old"
+                                  rendered="#{requestManager.isModified(namePart)}" />
+                </p:column>
+                <p:column id="status" headerText="Status" style="width: 15%">
+                    <h:outputText value="#{namesManager.nameStatus(namePart.nameEvent)}"
+                                  styleClass="#{requestManager.getNameClass(namePart)}" />
+                </p:column>
+
+            </p:treeTable>
+
             <!-- ===================Data Table============================ -->
+            <!--
             <p:dataTable id="crTable" var="nevent" value="#{requestManager.validNames}"
                          paginator="true" rows="50" resizableColumns="true"
                          rowKey="#{nevent.id}"
@@ -62,7 +96,7 @@
                     <h:outputText value="Submit Change Request" />
                 </f:facet>
 
-                <!--<p:ajax event="rowSelectRadio" update=":ReqSubForm:reqMenu :ReqSubForm:cntxtMenu :ModNameForm:mpart"/>-->
+                <p:ajax event="rowSelectRadio" update=":ReqSubForm:reqMenu :ReqSubForm:cntxtMenu"/>
                 <p:column selectionMode="single" style="width: 5%" />
 
                 <p:column id="status" headerText="Status" style="width: 9%" >
@@ -72,10 +106,6 @@
                 <p:column id="type" headerText="Type" rendered="#{requestManager.myRequest}" style="width: 7%">
                     <h:outputText value="#{requestManager.getRequestType(nevent)}"
                                   styleClass="#{requestManager.getNameClass(nevent)}" />
-                </p:column>
-                <p:column id="nameCat" headerText="Category" filterBy="#{nevent.nameCategory}"
-                          filterMatchMode="contains" style="width: 15%" >
-                    <h:outputText value="#{nevent.nameCategory}" styleClass="#{requestManager.getNameClass(nevent)}" />
                 </p:column>
                 <p:column id="nameCode" headerText="Name" filterBy="#{nevent.name}" filterMatchMode="startsWith">
                     <h:outputText value="#{requestManager.getNewPath(nevent)}"
@@ -96,7 +126,7 @@
                 </p:column>
 
             </p:dataTable>
-
+            -->
             <ui:include src="/WEB-INF/includes/part-history.xhtml" >
                 <ui:param name="historyHandler" value="#{requestManager.historyEvents}" />
             </ui:include>
