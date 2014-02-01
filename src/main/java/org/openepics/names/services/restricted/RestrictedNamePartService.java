@@ -117,7 +117,7 @@ public class RestrictedNamePartService {
     }
 
     public List<NamePartRevision> currentPendingRevisions(boolean includeDeleted) {
-        return currentPendingRevisions(includeDeleted);
+        return namePartService.currentPendingRevisions(includeDeleted);
     }
 
     public List<NamePart> namesWithChangesProposedByCurrentUser() {

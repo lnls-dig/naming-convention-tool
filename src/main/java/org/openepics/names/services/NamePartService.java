@@ -232,9 +232,9 @@ public class NamePartService {
 
     public List<NamePartRevision> currentPendingRevisions(boolean includeDeleted) {
         if (includeDeleted)
-            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :pending OR r2.status = :pending_parent))", NamePartRevision.class).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("pending_parent", NamePartRevisionStatus.PENDING_PARENT).getResultList();
+            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :pending OR r2.status = :pending_parent))", NamePartRevision.class).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("pending_parent", NamePartRevisionStatus.PENDING_PARENT).getResultList();
         else {
-            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :pending OR r2.status = :pending_parent)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePartRevision.class).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("pending_parent", NamePartRevisionStatus.PENDING_PARENT).getResultList();
+            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :pending OR r2.status = :pending_parent)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePartRevision.class).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("pending_parent", NamePartRevisionStatus.PENDING_PARENT).getResultList();
         }
     }
 
