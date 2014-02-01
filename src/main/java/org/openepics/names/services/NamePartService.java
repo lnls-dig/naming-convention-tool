@@ -200,9 +200,9 @@ public class NamePartService {
 
     public List<NamePart> approvedNames(boolean includeDeleted) {
         if (includeDeleted)
-            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :status)", NamePart.class).setParameter("status", NamePartRevisionStatus.APPROVED).getResultList();
+            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved)", NamePart.class).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
         else {
-            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :status) AND r.deleted = FALSE", NamePart.class).setParameter("status", NamePartRevisionStatus.APPROVED).getResultList();
+            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) AND r.deleted = FALSE", NamePart.class).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
         }
     }
 
@@ -220,6 +220,22 @@ public class NamePartService {
 
     public List<NamePart> approvedOrPendingNames() {
         return approvedOrPendingNames(null, false);
+    }
+
+    public List<NamePartRevision> currentApprovedRevisions(boolean includeDeleted) {
+        if (includeDeleted)
+            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved)", NamePartRevision.class).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
+        else {
+            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) AND r.deleted = FALSE", NamePartRevision.class).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
+        }
+    }
+
+    public List<NamePartRevision> currentPendingRevisions(boolean includeDeleted) {
+        if (includeDeleted)
+            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :pending OR r2.status = :pending_parent))", NamePartRevision.class).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("pending_parent", NamePartRevisionStatus.PENDING_PARENT).getResultList();
+        else {
+            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :pending OR r2.status = :pending_parent)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePartRevision.class).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("pending_parent", NamePartRevisionStatus.PENDING_PARENT).getResultList();
+        }
     }
 
     public List<NamePart> namesWithChangesProposedByUser(UserAccount user) {

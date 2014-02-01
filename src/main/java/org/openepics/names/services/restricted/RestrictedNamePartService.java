@@ -112,6 +112,14 @@ public class RestrictedNamePartService {
         return namePartService.approvedOrPendingNames();
     }
 
+    public List<NamePartRevision> currentApprovedRevisions(boolean includeDeleted) {
+        return namePartService.currentApprovedRevisions(includeDeleted);
+    }
+
+    public List<NamePartRevision> currentPendingRevisions(boolean includeDeleted) {
+        return currentPendingRevisions(includeDeleted);
+    }
+
     public List<NamePart> namesWithChangesProposedByCurrentUser() {
         return namePartService.namesWithChangesProposedByUser(sessionService.user());
     }
