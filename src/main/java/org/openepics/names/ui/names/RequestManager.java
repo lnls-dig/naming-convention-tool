@@ -213,11 +213,7 @@ public class RequestManager implements Serializable {
     }
 
     public NamePartView getSelectedName() {
-        return selectedName;
-    }
-
-    public void setSelectedName(NamePartView selectedName) {
-        this.selectedName = selectedName;
+        return selectedNodes == null || selectedNodes.length < 1 ? null : (NamePartView)(selectedNodes[0].getData());
     }
 
     public List<NamePartView> getFilteredNames() {
