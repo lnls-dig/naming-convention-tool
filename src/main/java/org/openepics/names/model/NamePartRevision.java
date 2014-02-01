@@ -16,6 +16,7 @@
 package org.openepics.names.model;
 
 import java.util.Date;
+import javax.annotation.Nullable;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -44,8 +45,8 @@ public class NamePartRevision extends Persistable {
     private NamePart namePart;
 
     @JoinColumn(name = "requested_by", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private UserAccount requestedBy;
+    @ManyToOne(optional = true)
+    private @Nullable UserAccount requestedBy;
 
     @Basic(optional = false)
     @NotNull
@@ -55,7 +56,7 @@ public class NamePartRevision extends Persistable {
 
     @Size(max = 255)
     @Column(name = "requestor_comment")
-    private String requestorComment;
+    private @Nullable String requestorComment;
 
     @Column(name = "deleted")
     private boolean deleted;
@@ -100,7 +101,7 @@ public class NamePartRevision extends Persistable {
     protected NamePartRevision() {
     }
 
-    public NamePartRevision(NamePart namePart, UserAccount requestedBy, Date requestDate, String requestorComment, boolean deleted, NameCategory nameCategory, NamePart parent, String name, String fullName) {
+    public NamePartRevision(NamePart namePart, @Nullable UserAccount requestedBy, Date requestDate, @Nullable String requestorComment, boolean deleted, NameCategory nameCategory, NamePart parent, String name, String fullName) {
         this.namePart = namePart;
         this.requestedBy = requestedBy;
         this.requestDate = requestDate;
@@ -118,11 +119,11 @@ public class NamePartRevision extends Persistable {
 
     public NamePart getNamePart() { return namePart; }
 
-    public UserAccount getRequestedBy() { return requestedBy; }
+    public @Nullable UserAccount getRequestedBy() { return requestedBy; }
 
     public Date getRequestDate() { return requestDate; }
 
-    public String getRequestorComment() { return requestorComment; }
+    public @Nullable String getRequestorComment() { return requestorComment; }
 
     public boolean isDeleted() { return deleted; }
 

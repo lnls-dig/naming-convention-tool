@@ -20,7 +20,7 @@ import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
-import org.openepics.names.services.DeviceService;
+import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.names.NamePartView;
 
@@ -29,7 +29,7 @@ import org.openepics.names.ui.names.NamePartView;
 public class EditNamesManager implements Serializable {
 
     @Inject private RestrictedNamePartService namePartService;
-    @Inject private DeviceService deviceService;
+    @Inject private RestrictedDeviceService deviceService;
     @Inject private ViewFactory viewFactory;
 
     private DeviceView selectedDeviceName;
@@ -87,7 +87,7 @@ public class EditNamesManager implements Serializable {
                 showMessage(FacesMessage.SEVERITY_ERROR, "Error", "Required field missing");
                 return;
             }
-            deviceService.createDevice(subsection.getNamePart(), genDevice.getNamePart());
+            deviceService.createDevice(subsection.getNamePart(), genDevice.getNamePart(), null);
             showMessage(FacesMessage.SEVERITY_INFO, "Device Name successfully added.", "Name: [TODO]");
         } finally {
             init();
@@ -99,8 +99,8 @@ public class EditNamesManager implements Serializable {
         try {
             final NamePartView subsection = sectionLevels.get(sectionLevels.size()-1).getSelected();
             final NamePartView genDevice = deviceTypeLevels.get(2).getSelected();
-            deviceService.modifyDevice(selectedDeviceName.getDevice().getDevice(), subsection.getNamePart(), genDevice.getNamePart());
-            showMessage(FacesMessage.SEVERITY_INFO, "Device modified.", "Name: [TODO");
+            deviceService.modifyDevice(selectedDeviceName.getDevice().getDevice(), subsection.getNamePart(), genDevice.getNamePart(), null);
+            showMessage(FacesMessage.SEVERITY_INFO, "Device modified.", "Name: [TODO]");
         } finally {
             init();
         }
@@ -108,7 +108,7 @@ public class EditNamesManager implements Serializable {
 
     public void onDelete() {
         try {
-            deviceService.removeDevice(selectedDeviceName.getDevice().getDevice());
+            deviceService.deleteDevice(selectedDeviceName.getDevice().getDevice());
             showMessage(FacesMessage.SEVERITY_INFO, "Device successfully deleted.", "Name: [TODO]");
         } finally {
             init();
@@ -222,11 +222,11 @@ public class EditNamesManager implements Serializable {
     }
 
     public String getSelectedDeviceNameSectionString() {
-         return Joiner.on(" ▸ ").join(selectedDeviceName.getSection().getNamePath());
+         return selectedDeviceName != null ? Joiner.on(" ▸ ").join(selectedDeviceName.getSection().getNamePath()) : null;
     }
 
     public String getSelectedDeviceNameDisciplineString() {
-        return Joiner.on(" ▸ ").join(selectedDeviceName.getDeviceType().getNamePath());
+        return selectedDeviceName != null ? Joiner.on(" ▸ ").join(selectedDeviceName.getDeviceType().getNamePath()) : null;
     }
 
     private void showMessage(FacesMessage.Severity severity, String summary, String message) {
@@ -323,7 +323,8 @@ public class EditNamesManager implements Serializable {
         public Object getAsObject(FacesContext context, UIComponent component, String value) {
             if (value == null) return null;
 
-            String componentName = component.getId();
+            final String componentName = component.getId();
+
             final List<NamePartSelectionView> selectionList;
             if (componentName.startsWith("sectLvl_"))
                 selectionList = sectionLevels;
