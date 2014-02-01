@@ -53,7 +53,6 @@ public class RequestManager implements Serializable {
     @Inject private RestrictedNamePartService namePartService;
     @Inject private ViewFactory viewFactory;
 
-    private List<NamePartView> validNames;
     private NamePartView selectedName;
     private List<NamePartView> filteredNames;
     private List<NamePartView> historyEvents;
@@ -88,16 +87,10 @@ public class RequestManager implements Serializable {
 
         root = namePartApprovalTree(namePartService.currentApprovedRevisions(true), namePartService.currentPendingRevisions(true));
 
-        validNames = Lists.newArrayList(Lists.transform(validNameParts, new Function<NamePart, NamePartView>() {
-            @Override public NamePartView apply(NamePart namePart) {
-                return viewFactory.getView(namePart);
-            }
-        }));
-
         newCode = newDescription = newComment = null;
         category = null;
         newParentID = null;
-        selectedName = (validNames == null || validNames.size() == 0) ? null : validNames.get(0);
+        selectedName = null;
     }
 
     public void onModify() {
@@ -217,10 +210,6 @@ public class RequestManager implements Serializable {
                 return viewFactory.getView(revision);
             }
         }));
-    }
-
-    public List<NamePartView> getValidNames() {
-        return validNames;
     }
 
     public NamePartView getSelectedName() {
