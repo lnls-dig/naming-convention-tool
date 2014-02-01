@@ -191,8 +191,7 @@ public class NamePartService {
     }
 
     private Iterable<NamePart> approvedAndProposedChildren(NamePart namePart) {
-        // TODO
-        throw new IllegalStateException();
+        return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.parent = :namePart AND r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :approved OR r2.status = :pending OR r2.status = :pending_parent)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePart.class).setParameter("namePart", namePart).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("pending_parent", NamePartRevisionStatus.PENDING_PARENT).getResultList();
     }
 
     public NameHierarchy nameHierarchy() {
@@ -213,9 +212,9 @@ public class NamePartService {
 
     public List<NamePart> approvedOrPendingNames(@Nullable NameCategory category, boolean includeDeleted) {
         if (includeDeleted)
-            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :status1 OR r2.status = :status2 OR r2.status = :status3))", NamePart.class).setParameter("status1", NamePartRevisionStatus.APPROVED).setParameter("status2", NamePartRevisionStatus.PENDING).setParameter("status3", NamePartRevisionStatus.PENDING_PARENT).getResultList();
+            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :approved OR r2.status = :pending OR r2.status = :pending_parent))", NamePart.class).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("pending_parent", NamePartRevisionStatus.PENDING_PARENT).getResultList();
         else {
-            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :status1 OR r2.status = :status2 OR r2.status = :status3)) AND r.deleted = FALSE", NamePart.class).setParameter("status1", NamePartRevisionStatus.APPROVED).setParameter("status2", NamePartRevisionStatus.PENDING).setParameter("status3", NamePartRevisionStatus.PENDING_PARENT).getResultList();
+            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :approved OR r2.status = :pending OR r2.status = :pending_parent)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePart.class).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("pending_parent", NamePartRevisionStatus.PENDING_PARENT).getResultList();
         }
     }
 
