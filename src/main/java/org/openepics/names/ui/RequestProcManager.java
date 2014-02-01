@@ -42,6 +42,7 @@ import org.openepics.names.ui.names.NamePartView;
 public class RequestProcManager implements Serializable {
 
     @Inject RestrictedNamePartService namePartService;
+    @Inject ViewFactory viewFactory;
 
     private List<NamePartView> pendingNames;
     private List<NamePart> events;
@@ -65,7 +66,7 @@ public class RequestProcManager implements Serializable {
             final List<NamePartRevision> history = namePartService.revisions(entry);
             final NamePartRevision currentRevision = history.size() > 1 ? history.get(history.size() - 2) : null;
             final NamePartRevision pendingRevision = history.get(history.size() - 1);
-            pendingNames.add(ViewFactory.getView(currentRevision, pendingRevision));
+            pendingNames.add(viewFactory.getView(currentRevision, pendingRevision));
         }
         procComments = null;
     }
@@ -155,7 +156,7 @@ public class RequestProcManager implements Serializable {
     public List<NamePartView> getHistoryEvents() {
         return historyEvents == null ? null : Lists.transform(historyEvents, new Function<NamePartRevision, NamePartView>() {
             @Override public NamePartView apply(NamePartRevision revision) {
-                return ViewFactory.getView(revision);
+                return viewFactory.getView(revision);
             }
         });
     }

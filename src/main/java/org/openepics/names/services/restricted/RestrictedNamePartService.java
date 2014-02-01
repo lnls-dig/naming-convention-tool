@@ -12,6 +12,7 @@ import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.model.NamePartType;
+import org.openepics.names.model.UserAccount;
 import org.openepics.names.services.NamePartService;
 import org.openepics.names.services.SessionService;
 import org.openepics.names.util.Marker;
@@ -145,5 +146,16 @@ public class RestrictedNamePartService {
 
     public NamePartRevision pendingOrElseApprovedRevision(NamePart namePart) {
         return namePartService.pendingOrElseApprovedRevision(namePart);
+    }
+
+    private void autoApprove(NamePartRevision namePartEvent, @Nullable UserAccount user) {
+        namePartEvent.setStatus(NamePartRevisionStatus.APPROVED);
+        namePartEvent.setProcessDate(new Date());
+        namePartEvent.setProcessedBy(user);
+        namePartEvent.setProcessorComment(null);
+    }
+
+    private boolean isOriginalCreator(UserAccount user, NamePart namePart) {
+        throw new IllegalStateException(); // TODO
     }
 }

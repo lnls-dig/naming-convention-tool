@@ -263,15 +263,4 @@ public class NamePartService {
         final @Nullable NamePartRevision pendingRevision = pendingRevision(namePart);
         return pendingRevision != null ? pendingRevision : As.notNull(approvedRevision(namePart));
     }
-
-    private void autoApprove(NamePartRevision namePartEvent, @Nullable UserAccount user) {
-        namePartEvent.setStatus(NamePartRevisionStatus.APPROVED);
-        namePartEvent.setProcessDate(new Date());
-        namePartEvent.setProcessedBy(user);
-        namePartEvent.setProcessorComment(null);
-    }
-
-    private boolean isOriginalCreator(UserAccount user, NamePart namePart) {
-        throw new IllegalStateException(); // TODO
-    }
 }

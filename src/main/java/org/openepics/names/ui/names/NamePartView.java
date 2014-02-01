@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
-import org.openepics.names.services.NamePartService;
+import org.openepics.names.services.restricted.RestrictedNamePartService;
 
 /**
  * @author Marko Kolar <marko.kolar@cosylab.com>
@@ -49,11 +49,11 @@ public class NamePartView {
         public @Nullable String getNewFullName() { return newFullName; }
     }
 
-    private final NamePartService namePartService;
+    private final RestrictedNamePartService namePartService;
     private final @Nullable NamePartRevision currentRevision;
     private final @Nullable NamePartRevision pendingRevision;
 
-    public NamePartView(NamePartService namePartService, @Nullable NamePartRevision currentRevision, @Nullable NamePartRevision pendingRevision) {
+    public NamePartView(RestrictedNamePartService namePartService, @Nullable NamePartRevision currentRevision, @Nullable NamePartRevision pendingRevision) {
         this.namePartService = namePartService;
         this.currentRevision = currentRevision;
         this.pendingRevision = pendingRevision;
@@ -65,7 +65,14 @@ public class NamePartView {
 
     public Integer getId() { return baseRevision().getId(); }
 
-    public @Nullable NamePartView getParent() { throw new IllegalStateException(); } // TODO
+    public @Nullable NamePartView getParent() {
+        final @Nullable NamePart parent = baseRevision().getParent();
+        if (parent != null) {
+            return new NamePartView(namePartService, namePartService.approvedRevision(parent), namePartService.pendingRevision(parent));
+        } else {
+            return null;
+        }
+    }
 
     public List<NamePartView> getChildren() { throw new IllegalStateException(); } // TODO
 

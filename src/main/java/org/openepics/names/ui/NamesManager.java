@@ -50,6 +50,7 @@ public class NamesManager implements Serializable {
 
     @Inject private ReleaseService releaseService;
     @Inject private RestrictedNamePartService namePartService;
+    @Inject private ViewFactory viewFactory;
     @ManagedProperty(value = "#{publicationManager}") private PublicationManager pubManager;
 
     private static final Logger logger = Logger.getLogger("org.openepics.names.ui.NamesManager");
@@ -87,7 +88,7 @@ public class NamesManager implements Serializable {
         standardNames = Lists.transform(namePartService.approvedOrPendingNames(currentCategory, showDeletedNames),
                 new Function<NamePart, NamePartView>() {
                     @Override public NamePartView apply(NamePart namePart) {
-                        return ViewFactory.getView(namePart);
+                        return viewFactory.getView(namePart);
                     }
                 });
     }
@@ -214,7 +215,7 @@ public class NamesManager implements Serializable {
     public List<NamePartView> getHistoryEvents() {
         return historyEvents == null ? null : Lists.transform(historyEvents, new Function<NamePartRevision, NamePartView>() {
             @Override public NamePartView apply(NamePartRevision namePartRevision) {
-                return ViewFactory.getView(namePartRevision);
+                return viewFactory.getView(namePartRevision);
             }
         });
     }

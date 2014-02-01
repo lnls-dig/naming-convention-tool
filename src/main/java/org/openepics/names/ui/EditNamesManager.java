@@ -30,6 +30,7 @@ public class EditNamesManager implements Serializable {
 
     @Inject private RestrictedNamePartService namePartService;
     @Inject private DeviceService deviceService;
+    @Inject private ViewFactory viewFactory;
 
     private DeviceView selectedDeviceName;
 
@@ -50,7 +51,7 @@ public class EditNamesManager implements Serializable {
                 Lists.transform(namePartService.approvedOrPendingNames(topSectionCategory, false),
                         new Function<NamePart, NamePartView>() {
                             @Override public NamePartView apply(NamePart namePart) {
-                                return ViewFactory.getView(namePart);
+                                return viewFactory.getView(namePart);
                             }
                         });
         sectionLevels = new ArrayList<>();
@@ -64,7 +65,7 @@ public class EditNamesManager implements Serializable {
                 Lists.transform(namePartService.approvedOrPendingNames(topDeviceTypeCategory, false),
                         new Function<NamePart, NamePartView>() {
                             @Override public NamePartView apply(NamePart namePart) {
-                                return ViewFactory.getView(namePart);
+                                return viewFactory.getView(namePart);
                             }
                         });
         deviceTypeLevels = new ArrayList<>();
@@ -170,7 +171,7 @@ public class EditNamesManager implements Serializable {
                             Lists.transform(namePartService.approvedOrPendingNames(currentNamePart.getNameEvent().getNameCategory(), false),
                                     new Function<NamePart, NamePartView>() {
                                         @Override public NamePartView apply(NamePart f) {
-                                            return ViewFactory.getView(f);
+                                            return viewFactory.getView(f);
                                         }
                             }));
                 }
@@ -277,7 +278,7 @@ public class EditNamesManager implements Serializable {
                             new Function<NamePart, NamePartView>() {
                                 @Override
                                 public NamePartView apply(NamePart f) {
-                                    return ViewFactory.getView(f);
+                                    return viewFactory.getView(f);
                                 }
                             }));
             sectionLevels.get(currentLevel + 1).setSelected(null);
@@ -303,7 +304,7 @@ public class EditNamesManager implements Serializable {
                             new Function<NamePart, NamePartView>() {
                                 @Override
                                 public NamePartView apply(NamePart f) {
-                                    return ViewFactory.getView(f);
+                                    return viewFactory.getView(f);
                                 }
                             }));
             deviceTypeLevels.get(currentLevel + 1).setSelected(null);

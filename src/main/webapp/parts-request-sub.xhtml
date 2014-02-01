@@ -62,7 +62,7 @@
                     <h:outputText value="Submit Change Request" />
                 </f:facet>
 
-                <p:ajax event="rowSelectRadio" update=":ReqSubForm:reqMenu :ReqSubForm:cntxtMenu :ModNameForm:mpart"/>
+                <!--<p:ajax event="rowSelectRadio" update=":ReqSubForm:reqMenu :ReqSubForm:cntxtMenu :ModNameForm:mpart"/>-->
                 <p:column selectionMode="single" style="width: 5%" />
 
                 <p:column id="status" headerText="Status" style="width: 9%" >
@@ -110,11 +110,11 @@
                 </f:facet>
                 <p:panelGrid columns="2" style="text-align: left">
                     <h:outputLabel for="ipart" value="Category:" />
-                    <p:selectOneMenu id="ipart" value="#{requestManager.category}" converter="mmCategoryConverter">
+<!--                    <p:selectOneMenu id="ipart" value="#{requestManager.category}" converter="mmCategoryConverter">
                     	<p:ajax listener="#{requestManager.loadParentCandidates()}" update="iparent" />
                         <f:selectItems value="#{menuManager.categories}" var="acat"
                                        itemLabel="#{acat.description}" itemValue="#{acat}" />
-                    </p:selectOneMenu>
+                    </p:selectOneMenu>-->
 
                     <h:outputLabel id="icbparent" value="Parent:" />
                     <p:selectOneMenu id="iparent" value="#{requestManager.newParentID}"
@@ -171,12 +171,12 @@
                         <p:column><h:outputLabel for="mpart" value="#{msgs.nameElementCategory}:" /></p:column>
                         <p:column><h:outputText value="#{requestManager.selectedName.nameCategory}" /></p:column>
                         <p:column>
-                            <h:selectOneMenu id="mpart" value="#{requestManager.category}"
+<!--                            <h:selectOneMenu id="mpart" value="#{requestManager.category}"
                                              converter="mmCategoryConverter">
 	                    	<p:ajax listener="#{requestManager.loadParentCandidates()}" update="mparent" />
                                 <f:selectItems value="#{menuManager.categories}" var="mcat"
                                                itemLabel="#{mcat.description}" itemValue="#{mcat}" />
-                            </h:selectOneMenu>
+                            </h:selectOneMenu>-->
                         </p:column>
                     </p:row>
                     <p:row>

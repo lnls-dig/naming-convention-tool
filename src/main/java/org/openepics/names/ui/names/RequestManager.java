@@ -50,6 +50,7 @@ import org.openepics.names.ui.names.NamePartView.Change;
 public class RequestManager implements Serializable {
 
     @Inject private RestrictedNamePartService namePartService;
+    @Inject private ViewFactory viewFactory;
 
     private List<NamePartView> validNames;
     private NamePartView selectedName;
@@ -83,7 +84,7 @@ public class RequestManager implements Serializable {
 
         validNames = Lists.newArrayList(Lists.transform(validNameParts, new Function<NamePart, NamePartView>() {
             @Override public NamePartView apply(NamePart namePart) {
-                return ViewFactory.getView(namePart);
+                return viewFactory.getView(namePart);
             }
         }));
 
@@ -220,7 +221,7 @@ public class RequestManager implements Serializable {
     public void findHistory() {
         historyEvents = Lists.newArrayList(Lists.transform(namePartService.revisions(selectedName.getNamePart()), new Function<NamePartRevision, NamePartView>() {
             @Override public NamePartView apply(NamePartRevision revision) {
-                return ViewFactory.getView(revision);
+                return viewFactory.getView(revision);
             }
         }));
     }
@@ -302,7 +303,7 @@ public class RequestManager implements Serializable {
             final @Nullable NameCategory parentCategory = getParentCategory(category);
             if (parentCategory != null) {
                 parentCandidates = Lists.transform(namePartService.namesWithCategory(parentCategory), new Function<NamePart, NamePartView>() {
-                    @Override public NamePartView apply(NamePart namePart) { return ViewFactory.getView(namePart); }
+                    @Override public NamePartView apply(NamePart namePart) { return viewFactory.getView(namePart); }
                 });
             } else {
                 parentCandidates = ImmutableList.<NamePartView>of();
@@ -381,7 +382,7 @@ public class RequestManager implements Serializable {
 
         private List<NamePartView> asList(List<NamePartView> resultList, TreeNode node) {
             for(TreeNode child : node.children) {
-                resultList.add(ViewFactory.getView(child.node.approved, child.node.pending));
+                resultList.add(viewFactory.getView(child.node.approved, child.node.pending));
                 asList(resultList, child);
             }
             return resultList;
