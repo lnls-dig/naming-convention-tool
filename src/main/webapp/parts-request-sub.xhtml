@@ -31,7 +31,7 @@
                                 update=":ReqSubForm:historyTable" title="View History" oncomplete="nameDetail.show()"
                                 disabled="#{fn:length(requestManager.selectedNodes) != 1}" />
                     <p:menuitem value="Cancel" icon="ui-icon-close" update=":CancelReqForm:cancelReq"
-                                oncomplete="cancelReq.show()" title="Cancel Request" rendered="#{requestManager.myRequest}"
+                                oncomplete="cancelReq.show()" title="Cancel Request"
                                 disabled="#{requestManager.selectedEventProcessed()}" />
                 </p:submenu>
             </p:menu>
@@ -49,7 +49,7 @@
                             update=":ReqSubForm:historyTable" oncomplete="nameDetail.show()"
                             disabled="#{fn:length(requestManager.selectedNodes) != 1}" />
                 <p:menuitem value="Cancel Request" icon="ui-icon-close" update=":CancelReqForm"
-                            oncomplete="cancelReq.show()" title="Cancel Request" rendered="#{requestManager.myRequest}"
+                            oncomplete="cancelReq.show()" title="Cancel Request"
                             disabled="#{requestManager.selectedEventProcessed()}"/>
             </p:contextMenu>
 
@@ -101,27 +101,11 @@
                     <h:outputText value="Request to Add Name"/>
                 </f:facet>
                 <p:panelGrid columns="2" style="text-align: left">
-                    <h:outputLabel for="ipart" value="Category:" />
-<!--                    <p:selectOneMenu id="ipart" value="#{requestManager.category}" converter="mmCategoryConverter">
-                    	<p:ajax listener="#{requestManager.loadParentCandidates()}" update="iparent" />
-                        <f:selectItems value="#{menuManager.categories}" var="acat"
-                                       itemLabel="#{acat.description}" itemValue="#{acat}" />
-                    </p:selectOneMenu>-->
-
-                    <h:outputLabel id="icbparent" value="Parent:" />
-                    <p:selectOneMenu id="iparent" value="#{requestManager.newParentID}"
-                    				disabled="#{!requestManager.isParentSelectable()}">
-                        <f:selectItems value="#{requestManager.parentCandidates}" var="prnt"
-                                       itemLabel="#{prnt.name}" itemValue="#{prnt.id}" />
-                    </p:selectOneMenu>
-
                     <h:outputLabel for="icode" value="Name:" />
                     <h:inputText id="icode" value="#{requestManager.newCode}" required="true"  label="Short identifier for the name" />
 
                     <h:outputLabel for="idesc" value="Full Name:" />
-                    <p:inputTextarea id="idesc" value="#{requestManager.newDescription}"
-                                     rows="4" cols="60"
-                                     required="true"  label="A description of the name"/>
+                    <p:inputText id="idesc" value="#{requestManager.newDescription}" required="true"  label="A description of the name"/>
 
                     <h:outputLabel for="icomm" value="Comment:" />
                     <p:inputTextarea id="icomm" rows="5" cols="60" counter="icounter" maxlength="254"
@@ -160,29 +144,6 @@
                     </f:facet>
 
                     <p:row>
-                        <p:column><h:outputLabel for="mpart" value="#{msgs.nameElementCategory}:" /></p:column>
-                        <p:column><h:outputText value="#{requestManager.selectedName.nameCategory}" /></p:column>
-                        <p:column>
-<!--                            <h:selectOneMenu id="mpart" value="#{requestManager.category}"
-                                             converter="mmCategoryConverter">
-	                    	<p:ajax listener="#{requestManager.loadParentCandidates()}" update="mparent" />
-                                <f:selectItems value="#{menuManager.categories}" var="mcat"
-                                               itemLabel="#{mcat.description}" itemValue="#{mcat}" />
-                            </h:selectOneMenu>-->
-                        </p:column>
-                    </p:row>
-                    <p:row>
-                    	<p:column><h:outputLabel for="mparent" value="Parent:" /></p:column>
-                        <p:column><h:outputText value="#{requestManager.selectedName.parent.name}" /></p:column>
-                        <p:column>
-                            <h:selectOneMenu id="mparent" value="#{requestManager.newParentID}"
-                            				disabled="#{!requestManager.isParentSelectable()}">
-                                <f:selectItems value="#{requestManager.parentCandidates}" var="mprnt"
-                                               itemValue="#{mprnt.id}" itemLabel="#{mprnt.name}"  />
-                            </h:selectOneMenu>
-                        </p:column>
-                    </p:row>
-                    <p:row>
                         <p:column><h:outputLabel for="mcode" value="Name:" /> </p:column>
                         <p:column><h:outputText value="#{requestManager.selectedName.name}" /></p:column>
                         <p:column><p:inputText id="mcode" value="#{requestManager.newCode}" required="true" /></p:column>
@@ -190,9 +151,7 @@
                     <p:row>
                         <p:column><h:outputLabel for="mdesc" value="Full name:" /></p:column>
                         <p:column><h:outputText value="#{requestManager.selectedName.fullName}"/></p:column>
-                        <p:column><p:inputTextarea id="mdesc" rows="4" cols="40"
-                                                   value="#{requestManager.newDescription}"
-                                                   required="true" /></p:column>
+                        <p:column><p:inputText id="mdesc" value="#{requestManager.newDescription}" required="true" /></p:column>
                     </p:row>
                     <p:row>
                         <p:column><h:outputLabel for="mcomm" value="Comment:" /></p:column>
