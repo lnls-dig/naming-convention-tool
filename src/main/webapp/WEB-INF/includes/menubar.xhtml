@@ -14,21 +14,9 @@
 
         <p:menubar id="mainMenu">
             <p:menuitem value="Home" icon="ui-icon-home" title="Home" url="index.xhtml" />
-            <p:submenu label="Sections" icon="ui-icon-comment">
-                <p:menuitem value="Submit Request" title="Submit a Change Request" url="parts-request-sub.xhtml?type=section" icon="ui-icon-suitcase" disabled="#{not userManager.editor}" />
-                <p:menuitem value="My Requests" title="Check status of your requests" url="parts-request-sub.xhtml?type=section&amp;option=user" icon="ui-icon-comment" disabled="#{not userManager.editor}" />
-            </p:submenu>
-
-            <p:submenu label="Device Types" icon="ui-icon-comment">
-                <p:menuitem value="Submit Request" title="Submit a Change Request" url="parts-request-sub.xhtml?type=deviceType" icon="ui-icon-suitcase" disabled="#{not userManager.editor}" />
-                <p:menuitem value="My Requests" title="Check status of your requests" url="parts-request-sub.xhtml?type=deviceType&amp;option=user" icon="ui-icon-comment" disabled="#{not userManager.editor}" />
-            </p:submenu>
-
-            <p:submenu label="Devices" icon="ui-icon-comment">
-                <p:menuitem value="Manage Devices" title="Manage Devices" url="nc-dev-edit.xhtml" icon="ui-icon-suitcase" disabled="#{not userManager.editor}" />
-                <p:menuitem value="List Devices" title="Show All Active Devices" url="nc-report.xhtml" icon="ui-icon-print" />
-            </p:submenu>
-
+            <p:menuitem value="Sections" title="Sections" url="parts-request-sub.xhtml?type=section" icon="ui-icon-folder-open" />
+            <p:menuitem value="Device Types" title="Device Types" url="parts-request-sub.xhtml?type=deviceType" icon="ui-icon-lightbulb" />
+            <p:menuitem value="Devices" title="Devices" url="nc-dev-edit.xhtml" icon="ui-icon-wrench" />
             <p:menuitem value="Reports" title="Reports" icon="ui-icon-print" url="reports.xhtml" disabled="false" />
 
             <p:submenu label="Admin" icon="ui-icon-note">

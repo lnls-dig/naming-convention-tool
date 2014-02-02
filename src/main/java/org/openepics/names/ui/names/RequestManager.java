@@ -56,7 +56,6 @@ public class RequestManager implements Serializable {
 
     private List<NamePartView> filteredNames;
     private List<NamePartView> historyEvents;
-    private boolean myRequest = false;
 
     private TreeNode root;
     private TreeNode[] selectedNodes;
@@ -256,10 +255,6 @@ public class RequestManager implements Serializable {
 
     public void setNewComment(String newComment) {
         this.newComment = newComment;
-    }
-
-    public boolean isMyRequest() {
-        return myRequest;
     }
 
     public List<NamePartView> getHistoryEvents() {

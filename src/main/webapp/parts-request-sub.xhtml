@@ -30,7 +30,7 @@
                                 update=":ReqSubForm:historyTable" title="View History" oncomplete="nameDetail.show()"
                                 disabled="#{fn:length(requestManager.selectedNodes) != 1}" />
                     <p:menuitem value="Cancel" icon="ui-icon-close" update=":CancelReqForm:cancelReq"
-                                oncomplete="cancelReq.show()" title="Cancel Request" rendered="#{requestManager.myRequest}"
+                                oncomplete="cancelReq.show()" title="Cancel Request"
                                 disabled="#{requestManager.selectedEventProcessed()}" />
                 </p:submenu>
             </p:menu>
@@ -48,7 +48,7 @@
                             update=":ReqSubForm:historyTable" oncomplete="nameDetail.show()"
                             disabled="#{fn:length(requestManager.selectedNodes) != 1}" />
                 <p:menuitem value="Cancel Request" icon="ui-icon-close" update=":CancelReqForm"
-                            oncomplete="cancelReq.show()" title="Cancel Request" rendered="#{requestManager.myRequest}"
+                            oncomplete="cancelReq.show()" title="Cancel Request"
                             disabled="#{requestManager.selectedEventProcessed()}"/>
             </p:contextMenu>
 
