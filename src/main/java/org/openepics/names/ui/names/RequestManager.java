@@ -69,28 +69,27 @@ public class RequestManager implements Serializable {
     private String newComment;
 
     private List<NamePartView> parentCandidates;
+    private NamePartType namePartType;
 
     @PostConstruct
     public void init() {
         final @Nullable String typeParam = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
-        final @Nullable String optionParam = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("option");
 
-        final NamePartType type;
         if (typeParam == null) {
-            type = NamePartType.SECTION;
+            namePartType = NamePartType.SECTION;
         } else if (typeParam.equals("section")) {
-            type = NamePartType.SECTION;
+            namePartType = NamePartType.SECTION;
         } else if (typeParam.equals("deviceType")) {
-            type = NamePartType.DEVICE_TYPE;
+            namePartType = NamePartType.DEVICE_TYPE;
         } else {
             throw new IllegalStateException();
         }
         
         final List<NamePartRevision> approvedRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(true), new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == type; }
+            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
         }));
         final List<NamePartRevision> pendingRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentPendingRevisions(true), new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == type; }
+            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
         }));
 
         root = namePartApprovalTree(approvedRevisions, pendingRevisions);
@@ -113,7 +112,6 @@ public class RequestManager implements Serializable {
     public void onAdd() {
         try {
             final NamePartView parent = getSelectedName();
-            final NamePartType namePartType = namePartService.nameHierarchy().getSectionLevels().contains(parent.getNameEvent().getNameCategory()) ? NamePartType.SECTION : NamePartType.DEVICE_TYPE;
             final NamePartRevision newRequest = namePartService.addNamePart(newCode, newDescription, namePartType, parent.getNamePart(), newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {

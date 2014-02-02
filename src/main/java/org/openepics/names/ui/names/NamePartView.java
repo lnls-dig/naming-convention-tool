@@ -74,6 +74,10 @@ public class NamePartView {
         }
     }
 
+    public int getLevel() {
+        return getParent() == null ? 0 : getParent().getLevel() + 1;
+    }
+
     public List<NamePartView> getChildren() { throw new IllegalStateException(); } // TODO
 
     public @Nullable Change getPendingChange() {
@@ -93,8 +97,6 @@ public class NamePartView {
     }
 
     public boolean isDeleted() { return baseRevision().isDeleted(); }
-
-    public String getNameCategory() { return baseRevision().getNameCategory().getDescription(); }
 
     public @Nullable NamePartRevision getPendingRevision() { return pendingRevision; }
 

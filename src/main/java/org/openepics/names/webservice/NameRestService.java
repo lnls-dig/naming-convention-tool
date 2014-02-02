@@ -25,7 +25,6 @@ public class NameRestService extends Application {
     private Set<Class<?>> getRestResourceClasses() {
         Set<Class<?>> resources = new java.util.HashSet<Class<?>>();
         resources.add(org.openepics.names.webservice.DeviceNameResource.class);
-        resources.add(org.openepics.names.webservice.NameElementCategoryResource.class);
         resources.add(org.openepics.names.webservice.NameElementResource.class);
         resources.add(org.openepics.names.webservice.NameReleaseResource.class);
         // following code can be used to customize Jersey 1.x JSON provider:

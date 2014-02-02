@@ -60,7 +60,7 @@ public class RequestProcManager implements Serializable {
 
     @PostConstruct
     public void init() {
-        events = namePartService.approvedOrPendingNames(null, true);
+        events = namePartService.approvedOrPendingNames(true);
         pendingNames = events.size() > 0 ? new ArrayList<NamePartView>() : null;
         for (NamePart entry : events) {
             final List<NamePartRevision> history = namePartService.revisions(entry);
