@@ -14,10 +14,14 @@
 
         <p:menubar id="mainMenu">
             <p:menuitem value="Home" icon="ui-icon-home" title="Home" url="index.xhtml" />
-            <p:menuitem value="Browse" icon="ui-icon-arrow-4-diag" title="Browse All Names" url="names.xhtml" />
-            <p:submenu label="Name Parts" icon="ui-icon-comment">
-                <p:menuitem value="Submit Request" title="Submit a Change Request" url="parts-request-sub.xhtml" icon="ui-icon-suitcase" disabled="#{not userManager.editor}" />
-                <p:menuitem value="My Requests" title="Check status of your requests" url="parts-request-sub.xhtml?option=user" icon="ui-icon-comment" disabled="#{not userManager.editor}" />
+            <p:submenu label="Sections" icon="ui-icon-comment">
+                <p:menuitem value="Submit Request" title="Submit a Change Request" url="parts-request-sub.xhtml?type=section" icon="ui-icon-suitcase" disabled="#{not userManager.editor}" />
+                <p:menuitem value="My Requests" title="Check status of your requests" url="parts-request-sub.xhtml?type=section&amp;option=user" icon="ui-icon-comment" disabled="#{not userManager.editor}" />
+            </p:submenu>
+
+            <p:submenu label="Device Types" icon="ui-icon-comment">
+                <p:menuitem value="Submit Request" title="Submit a Change Request" url="parts-request-sub.xhtml?type=deviceType" icon="ui-icon-suitcase" disabled="#{not userManager.editor}" />
+                <p:menuitem value="My Requests" title="Check status of your requests" url="parts-request-sub.xhtml?type=deviceType&amp;option=user" icon="ui-icon-comment" disabled="#{not userManager.editor}" />
             </p:submenu>
 
             <p:submenu label="Devices" icon="ui-icon-comment">

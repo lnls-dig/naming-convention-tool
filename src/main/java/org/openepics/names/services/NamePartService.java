@@ -39,7 +39,7 @@ public class NamePartService {
 
         final NameCategory nameCategory = childNameCategory(nameType, parentBaseRevision != null ? parentBaseRevision.getNameCategory() : null);
 
-        final NamePart namePart = new NamePart(UUID.randomUUID().toString());
+        final NamePart namePart = new NamePart(UUID.randomUUID().toString(), nameType);
         final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, false, nameCategory, parent, name, fullName);
 
         em.persist(namePart);

@@ -16,6 +16,8 @@
 package org.openepics.names.ui.names;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
@@ -32,7 +34,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameHierarchy;
-import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
@@ -60,35 +61,36 @@ public class RequestManager implements Serializable {
     private TreeNode root;
     private TreeNode[] selectedNodes;
 
-    // Input parameters from input page
-    private NameCategory category;
-    private String newParentID;
     private String newCode;
     private String newDescription;
     private String newComment;
 
-    private List<NamePartView> parentCandidates;
-
     @PostConstruct
     public void init() {
-        final String option = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("option");
+        final @Nullable String typeParam = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
+        final @Nullable String optionParam = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("option");
 
-        final List<NamePart> validNameParts;
-        if (option == null) {
-            validNameParts = namePartService.approvedOrPendingNames();
-            myRequest = false;
-        } else if ("user".equals(option)) {
-            validNameParts = namePartService.namesWithChangesProposedByCurrentUser();
-            myRequest = true;
+        final NamePartType type;
+        if (typeParam == null) {
+            type = NamePartType.SECTION;
+        } else if (typeParam.equals("section")) {
+            type = NamePartType.SECTION;
+        } else if (typeParam.equals("deviceType")) {
+            type = NamePartType.DEVICE_TYPE;
         } else {
-            validNameParts = Lists.newArrayList();
+            throw new IllegalStateException();
         }
 
-        root = namePartApprovalTree(namePartService.currentApprovedRevisions(true), namePartService.currentPendingRevisions(true));
+        final List<NamePartRevision> approvedRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(true), new Predicate<NamePartRevision>() {
+            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == type; }
+        }));
+        final List<NamePartRevision> pendingRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentPendingRevisions(true), new Predicate<NamePartRevision>() {
+            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == type; }
+        }));
+
+        root = namePartApprovalTree(approvedRevisions, pendingRevisions);
 
         newCode = newDescription = newComment = null;
-        category = null;
-        newParentID = null;
     }
 
     public void onModify() {
@@ -103,8 +105,9 @@ public class RequestManager implements Serializable {
 
     public void onAdd() {
         try {
-            final NamePartType namePartType = namePartService.nameHierarchy().getSectionLevels().contains(category) ? NamePartType.SECTION : NamePartType.DEVICE_TYPE;
-            final NamePartRevision newRequest = namePartService.addNamePart(newCode, newDescription, namePartType, namePartService.namePartWithId(newParentID), newComment);
+            final NamePartView parent = getSelectedName();
+            final NamePartType namePartType = namePartService.nameHierarchy().getSectionLevels().contains(parent.getNameEvent().getNameCategory()) ? NamePartType.SECTION : NamePartType.DEVICE_TYPE;
+            final NamePartRevision newRequest = namePartService.addNamePart(newCode, newDescription, namePartType, parent.getNamePart(), newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {
             init();
@@ -231,22 +234,6 @@ public class RequestManager implements Serializable {
         this.filteredNames = filteredNames;
     }
 
-    public NameCategory getCategory() {
-        return category;
-    }
-
-    public void setCategory(NameCategory category) {
-        this.category = category;
-    }
-
-    public String getNewParentID() {
-        return newParentID;
-    }
-
-    public void setNewParentID(String newParentID) {
-        this.newParentID = newParentID;
-    }
-
     public String getNewCode() {
         return newCode;
     }
@@ -279,10 +266,6 @@ public class RequestManager implements Serializable {
         return historyEvents;
     }
 
-    public List<NamePartView> getParentCandidates() {
-        return parentCandidates;
-    }
-
     public TreeNode getRoot() {
         return root;
     }
@@ -293,23 +276,6 @@ public class RequestManager implements Serializable {
 
     public void setSelectedNodes(TreeNode[] selectedNodes) {
         this.selectedNodes = selectedNodes;
-    }
-
-    public void loadParentCandidates() {
-        if (category != null) {
-            final @Nullable NameCategory parentCategory = getParentCategory(category);
-            if (parentCategory != null) {
-                parentCandidates = Lists.transform(namePartService.namesWithCategory(parentCategory), new Function<NamePart, NamePartView>() {
-                    @Override public NamePartView apply(NamePart namePart) { return viewFactory.getView(namePart); }
-                });
-            } else {
-                parentCandidates = ImmutableList.<NamePartView>of();
-            }
-        }
-    }
-
-    public boolean isParentSelectable() {
-        return category != null && getParentCategory(category) != null;
     }
 
     private @Nullable NameCategory getParentCategory(NameCategory nameCategory) {
