@@ -38,6 +38,7 @@ import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.ViewFactory;
 import org.openepics.names.ui.names.NamePartView.Change;
+import org.openepics.names.ui.names.NamePartView.DeleteChange;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
@@ -59,6 +60,8 @@ public class RequestManager implements Serializable {
 
     private TreeNode root;
     private TreeNode[] selectedNodes;
+
+    private TreeNode deleteCandidates;
 
     // Input parameters from input page
     private NameCategory category;
@@ -89,6 +92,8 @@ public class RequestManager implements Serializable {
         newCode = newDescription = newComment = null;
         category = null;
         newParentID = null;
+        selectedNodes = null;
+        deleteCandidates = null;
     }
 
     public void onModify() {
@@ -185,8 +190,9 @@ public class RequestManager implements Serializable {
     public void onDelete() {
         try {
             if (getSelectedName() == null) return;
-            final NamePartRevision newRequest = namePartService.deleteNamePart(getSelectedName().getNamePart(), newComment);
-            showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
+            for (TreeNode nodeToDelete : normalizedSelection())
+                namePartService.deleteNamePart(((NamePartView)(nodeToDelete.getData())).getNamePart(), newComment);
+            showMessage(FacesMessage.SEVERITY_INFO, "Success", "The data you requested was successfully deleted.");
         } finally {
             init();
         }
@@ -293,6 +299,10 @@ public class RequestManager implements Serializable {
 
     public void setSelectedNodes(TreeNode[] selectedNodes) {
         this.selectedNodes = selectedNodes;
+    }
+
+    public TreeNode getDeleteCandidates() {
+        return deleteCandidates;
     }
 
     public void loadParentCandidates() {
@@ -425,5 +435,70 @@ public class RequestManager implements Serializable {
                 nprt.addChildToParent(parentId, pair);
             }
         }
+    }
+
+    public boolean isDeleteNames() {
+        return deleteCandidates == null || deleteCandidates.getChildCount() > 0;
+    }
+
+    public void prepareDeleteView() {
+        if (selectedNodes == null || selectedNodes.length == 0) {
+            deleteCandidates = null;
+            return;
+        }
+        List<TreeNode> normalizedViewSelection = normalizedSelection();
+        final HashMap<String, TreeNode> processed = new HashMap<>();
+        deleteCandidates = new DefaultTreeNode("root", null);
+        for (TreeNode selected : normalizedViewSelection) {
+            addToDeleteView(selected, processed);
+        }
+    }
+
+    /**
+     * A list of all delete candidates which do not have an ancestor selected as well or are not already proposed
+     * for deletion.
+     * @return List of TreeNode.
+     */
+    private List<TreeNode> normalizedSelection() {
+        final List<TreeNode> normalizedSelection = new ArrayList<>();
+        for (TreeNode node : selectedNodes) {
+            final Change change = ((NamePartView)node.getData()).getPendingChange();
+            if (!(change instanceof DeleteChange) && !isAncestorSelected(node)) normalizedSelection.add(node);
+        }
+        return normalizedSelection;
+    }
+
+    private boolean isAncestorSelected(TreeNode node) {
+        TreeNode parent = node.getParent();
+        while (parent != null) {
+            if (isSelected(parent)) return true;
+            parent = parent.getParent();
+        }
+        return false;
+    }
+
+    private boolean isSelected(TreeNode node) {
+        for (TreeNode searchNode : selectedNodes)
+            if (node == searchNode) return true;
+        return false;
+    }
+
+    private TreeNode addToDeleteView(TreeNode mainTableNode, HashMap<String, TreeNode> processedDialogNodes) {
+        final TreeNode mainTableNodeParent = mainTableNode.getParent();
+
+        final TreeNode dialogParent;
+
+        if (!(mainTableNodeParent.getData() instanceof NamePartView)) {
+            dialogParent = deleteCandidates;
+        } else {
+            final String parentUuid = ((NamePartView)(mainTableNodeParent.getData())).getNamePart().getUuid();
+            dialogParent = processedDialogNodes.containsKey(parentUuid) ? processedDialogNodes.get(parentUuid) : addToDeleteView(mainTableNodeParent, processedDialogNodes);
+        }
+
+        NamePartView npv = (NamePartView)(mainTableNode.getData());
+        final TreeNode dialogDeleteNode = new DefaultTreeNode(new DeleteNamePartView(npv.getName(), npv.getFullName(), mainTableNode.isSelected()), dialogParent);
+        processedDialogNodes.put(npv.getNamePart().getUuid(), dialogDeleteNode);
+
+        return dialogDeleteNode;
     }
 }
