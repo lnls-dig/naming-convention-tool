@@ -15,15 +15,13 @@ public class NameElement {
     private Integer id;
     private String code;
     private String description;
-    private Integer category;
-    
-    NameElement() {       
+
+    NameElement() {
     }
-    
-    NameElement(Integer id, String code, Integer category, String desc) {
+
+    NameElement(Integer id, String code, String desc) {
         this.id = id;
         this.code = code;
-        this.category = category;
         this.description = desc;
     }
 
@@ -50,14 +48,4 @@ public class NameElement {
     public void setDescription(String description) {
         this.description = description;
     }
-
-    public Integer getCategory() {
-        return category;
-    }
-
-    public void setCategory(Integer category) {
-        this.category = category;
-    }
-    
-    
 }

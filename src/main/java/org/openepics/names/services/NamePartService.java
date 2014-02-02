@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
@@ -33,33 +32,19 @@ public class NamePartService {
     }
 
     public NamePartRevision addNamePart(String name, String fullName, NamePartType nameType, @Nullable NamePart parent, @Nullable UserAccount user, String comment) {
+        Preconditions.checkArgument(parent == null || parent.getNamePartType() == nameType);
+
         final @Nullable NamePartRevision parentBaseRevision = parent != null ? approvedOrElsePendingRevision(parent) : null;
         final @Nullable NamePartRevision parentPendingRevision = parent != null ? pendingRevision(parent) : null;
         Preconditions.checkState((parentBaseRevision == null || !parentBaseRevision.isDeleted()) && (parentPendingRevision == null || !parentPendingRevision.isDeleted()));
 
-        final NameCategory nameCategory = childNameCategory(nameType, parentBaseRevision != null ? parentBaseRevision.getNameCategory() : null);
-
         final NamePart namePart = new NamePart(UUID.randomUUID().toString(), nameType);
-        final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, false, nameCategory, parent, name, fullName);
+        final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, false, parent, name, fullName);
 
         em.persist(namePart);
         em.persist(newRevision);
 
         return newRevision;
-    }
-
-    private NameCategory childNameCategory(NamePartType nameType, @Nullable NameCategory parentCategory) {
-        if (parentCategory != null) {
-            return As.notNull(nameHierarchy().getSubCategory(parentCategory));
-        } else {
-            if (nameType == NamePartType.SECTION) {
-                return nameHierarchy().getSectionLevels().get(0);
-            } else if (nameType == NamePartType.DEVICE_TYPE) {
-                return nameHierarchy().getDeviceTypeLevels().get(0);
-            } else {
-                throw new IllegalStateException();
-            }
-        }
     }
 
     public NamePartRevision modifyNamePart(NamePart namePart, String name, String fullName, @Nullable UserAccount user, String comment) {
@@ -73,10 +58,7 @@ public class NamePartService {
             cancelPendingRevision(pendingRevision, user);
         }
 
-        final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, false, baseRevision.getNameCategory(), baseRevision.getParent(), name, fullName);
-
-        final NamePart parent = baseRevision.getParent();
-        final NamePartRevision approvedParentRevision = approvedRevision(parent);
+        final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, false, baseRevision.getParent(), name, fullName);
 
         em.persist(newRevision);
 
@@ -97,7 +79,7 @@ public class NamePartService {
             }
 
             if (approvedRevision != null) {
-                final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, true, approvedRevision.getNameCategory(), approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getFullName());
+                final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, true, approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getFullName());
                 em.persist(newRevision);
                 return newRevision;
             } else {
@@ -177,7 +159,7 @@ public class NamePartService {
         }
 
         if (approvedRevision != null) {
-            final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, true, approvedRevision.getNameCategory(), approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getFullName());
+            final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, true, approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getFullName());
             newRevision.setStatus(NamePartRevisionStatus.PENDING_PARENT);
             em.persist(newRevision);
         }
@@ -210,7 +192,7 @@ public class NamePartService {
         return approvedNames(false);
     }
 
-    public List<NamePart> approvedOrPendingNames(@Nullable NameCategory category, boolean includeDeleted) {
+    public List<NamePart> approvedOrPendingNames(boolean includeDeleted) {
         if (includeDeleted)
             return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :approved OR r2.status = :pending OR r2.status = :pending_parent))", NamePart.class).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("pending_parent", NamePartRevisionStatus.PENDING_PARENT).getResultList();
         else {
@@ -219,7 +201,7 @@ public class NamePartService {
     }
 
     public List<NamePart> approvedOrPendingNames() {
-        return approvedOrPendingNames(null, false);
+        return approvedOrPendingNames(false);
     }
 
     public List<NamePartRevision> currentApprovedRevisions(boolean includeDeleted) {
@@ -242,16 +224,8 @@ public class NamePartService {
         return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :status1 OR r2.status = :status2) AND r2.requestedBy = :requestedBy)", NamePart.class).setParameter("status1", NamePartRevisionStatus.PENDING).setParameter("status2", NamePartRevisionStatus.REJECTED).setParameter("requestedBy", user).getResultList();
     }
 
-    public List<NamePart> namesWithCategory(NameCategory category) {
-        throw new IllegalStateException(); // TODO
-    }
-
     public List<NamePartRevision> revisions(NamePart namePart) {
         return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart ORDER BY r.id", NamePartRevision.class).setParameter("namePart", namePart).getResultList();
-    }
-
-    public List<NameCategory> nameCategories() {
-        return em.createNamedQuery("SELECT nameCategory FROM NameCategory nameCategory", NameCategory.class).getResultList();
     }
 
     public List<NamePart> siblings(NamePart namePart) {

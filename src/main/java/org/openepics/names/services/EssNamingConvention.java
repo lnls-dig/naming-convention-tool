@@ -1,8 +1,10 @@
 package org.openepics.names.services;
 
-import javax.annotation.Nullable;
+import com.google.common.collect.Lists;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Alternative;
+import org.openepics.names.model.NamePartType;
 import org.openepics.names.ui.DeviceView;
 import org.openepics.names.ui.names.NamePartView;
 
@@ -14,11 +16,14 @@ import org.openepics.names.ui.names.NamePartView;
 @Stateless
 public class EssNamingConvention implements NamingConvention {
     @Override public String getNamingConventionName(DeviceView deviceName) {
-        final NamePartView supersection = getParentForCategory(deviceName.getSection(), "SUP");
-        final NamePartView section = getParentForCategory(deviceName.getSection(), "SECT");
-        final NamePartView subsection = getParentForCategory(deviceName.getSection(), "SUB");
-        final NamePartView discipline = getParentForCategory(deviceName.getDeviceType(), "DSCP");
-        final NamePartView genericDeviceType = getParentForCategory(deviceName.getDeviceType(), "GDEV");
+        final List<NamePartView> sectionPath = namePartPath(deviceName.getSection());
+        final List<NamePartView> deviceTypePath = namePartPath(deviceName.getSection());
+
+        final NamePartView supersection = sectionPath.get(0);
+        final NamePartView section = sectionPath.get(1);
+        final NamePartView subsection = sectionPath.get(2);
+        final NamePartView discipline = deviceTypePath.get(0);
+        final NamePartView genericDeviceType = deviceTypePath.get(2);
         if (supersection.getName().equals("Acc")) {
             return section.getName() + "-" + discipline.getName() + ":" + genericDeviceType.getName() + "-" + subsection.getName() + deviceName.getQualifier();
         } else {
@@ -31,11 +36,18 @@ public class EssNamingConvention implements NamingConvention {
     }
 
     @Override public boolean isNameValid(NamePartView namePart) {
-        final @Nullable NamePartView supersection = getParentForCategory(namePart, "SUP");
-        if (supersection != null && supersection.getName().equals("Acc") && namePart.getNameCategory().equals("SUB")) {
-            return namePart.getName().matches("^[0-9][0-9][1-9]$");
-        } else {
+        if (namePart.getNamePart().getNamePartType() == NamePartType.SECTION) {
+            final List<NamePartView> sectionPath = namePartPath(namePart);
+            final NamePartView supersection = sectionPath.get(0);
+            if (supersection != null && supersection.getName().equals("Acc") && sectionPath.indexOf(namePart) == 2) {
+                return namePart.getName().matches("^[0-9][0-9][1-9]$");
+            } else {
+                return namePart.getName().matches("^[a-zA-Z][a-zA-Z0-9]*$");
+            }
+        } else if (namePart.getNamePart().getNamePartType() == NamePartType.DEVICE_TYPE) {
             return namePart.getName().matches("^[a-zA-Z][a-zA-Z0-9]*$");
+        } else {
+            throw new IllegalStateException();
         }
     }
 
@@ -43,9 +55,14 @@ public class EssNamingConvention implements NamingConvention {
         return deviceName.getQualifier().matches("^[a-zA-Z][a-zA-Z0-9]*$");
     }
 
-    private @Nullable NamePartView getParentForCategory(NamePartView namePart, String categoryName) {
-        if (namePart.getNameCategory().equals(categoryName)) return namePart;
-        else if (namePart.getParent() != null) return getParentForCategory(namePart.getParent(), categoryName);
-        else return null;
+    private List<NamePartView> namePartPath(NamePartView namePart) {
+        final List<NamePartView> parts = Lists.newArrayList();
+        NamePartView currentNamePart = namePart;
+        do {
+            parts.add(0, currentNamePart);
+            currentNamePart = currentNamePart.getParent();
+        } while (currentNamePart != null);
+
+        return parts;
     }
 }

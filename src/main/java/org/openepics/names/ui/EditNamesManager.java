@@ -17,7 +17,6 @@ import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
 import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
-import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
@@ -46,34 +45,6 @@ public class EditNamesManager implements Serializable {
 
     @PostConstruct
     public void init() {
-        final NameCategory topSectionCategory = namePartService.nameHierarchy().getSectionLevels().get(0);
-        final List<NamePartView> topSections =
-                Lists.transform(namePartService.approvedOrPendingNames(topSectionCategory, false),
-                        new Function<NamePart, NamePartView>() {
-                            @Override public NamePartView apply(NamePart namePart) {
-                                return viewFactory.getView(namePart);
-                            }
-                        });
-        sectionLevels = new ArrayList<>();
-        sectionLevels.add(new NamePartSelectionView(topSections));
-        for (int i = 1; i < namePartService.nameHierarchy().getSectionLevels().size(); i++) {
-            sectionLevels.add(new NamePartSelectionView(new ArrayList<NamePartView>()));
-        }
-
-        final NameCategory topDeviceTypeCategory = namePartService.nameHierarchy().getDeviceTypeLevels().get(0);
-        final List<NamePartView> topDeviceTypes =
-                Lists.transform(namePartService.approvedOrPendingNames(topDeviceTypeCategory, false),
-                        new Function<NamePart, NamePartView>() {
-                            @Override public NamePartView apply(NamePart namePart) {
-                                return viewFactory.getView(namePart);
-                            }
-                        });
-        deviceTypeLevels = new ArrayList<>();
-        deviceTypeLevels.add(new NamePartSelectionView(topDeviceTypes));
-        for (int i = 1; i < namePartService.nameHierarchy().getDeviceTypeLevels().size(); i++) {
-            deviceTypeLevels.add(new NamePartSelectionView(new ArrayList<NamePartView>()));
-        }
-
         loadDeviceNames();
     }
 
@@ -137,60 +108,6 @@ public class EditNamesManager implements Serializable {
                         return ViewFactory.getView(f);
                     }
                 });
-    }
-
-    public void loadSelectedName() {
-        if (selectedDeviceName != null) {
-            NameHierarchy hierarchy = namePartService.nameHierarchy();
-
-            if (sectionLevels.size() != hierarchy.getSectionLevels().size())
-                throw new IllegalStateException("Section levels do not match hierarchy.");
-
-            if (deviceTypeLevels.size() != hierarchy.getDeviceTypeLevels().size())
-                throw new IllegalStateException("Device type levels do not match hierarchy.");
-
-            fillDropDowns(selectedDeviceName.getSection(), hierarchy.getSectionLevels(), sectionLevels);
-            fillDropDowns(selectedDeviceName.getDeviceType(), hierarchy.getDeviceTypeLevels(), deviceTypeLevels);
-        }
-    }
-
-    private void fillDropDowns(NamePartView namePart, List<NameCategory> hierarchyLevels, List<NamePartSelectionView> dropdownsToFill) {
-        NamePartView currentNamePart = namePart;
-        for (int i = hierarchyLevels.size() - 1; i >= 0; i--) {
-            NamePartSelectionView currentDropdown = dropdownsToFill.get(i);
-            if (currentNamePart.getNameCategory().equals(hierarchyLevels.get(i))) {
-                // if the current name part category equals the category at the current level
-                // then we know how to fill the current drop-down and we know what element is selected
-                final NamePartView parent = currentNamePart.getParent();
-                if (i > 0) {
-                    // not at the top of hierarchy.
-                    currentDropdown.setOptions(parent.getChildren());
-                } else {
-                    // at the top of the hierarchy
-                    currentDropdown.setOptions(
-                            Lists.transform(namePartService.approvedOrPendingNames(currentNamePart.getNameEvent().getNameCategory(), false),
-                                    new Function<NamePart, NamePartView>() {
-                                        @Override public NamePartView apply(NamePart f) {
-                                            return viewFactory.getView(f);
-                                        }
-                            }));
-                }
-                currentDropdown.setSelected(currentNamePart);
-                currentNamePart = parent;
-            } else {
-                // the drop-down we are currently populating does not match the currently
-                // selected name part, but is the selected name part the parent of the populating drop-down?
-                // E.g.: name is for Generic device, but we start filling at specific device.
-                if (currentNamePart.getNameCategory().equals(hierarchyLevels.get(i - 1))) {
-                    // we can fill this drop-down according to current name part
-                    currentDropdown.setOptions(currentNamePart.getChildren());
-                    currentDropdown.setSelected(null);
-                } else {
-                    // we don not know how to fill this dropdown
-                    currentDropdown.clear();
-                }
-            }
-        }
     }
 
     public DeviceView getSelectedDeviceName() { return selectedDeviceName; }

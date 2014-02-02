@@ -32,8 +32,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import org.openepics.names.model.NameCategory;
-import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
@@ -64,27 +62,27 @@ public class RequestManager implements Serializable {
     private String newDescription;
     private String newComment;
 
+    private NamePartType namePartType;
+
     @PostConstruct
     public void init() {
         final @Nullable String typeParam = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
-        final @Nullable String optionParam = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("option");
 
-        final NamePartType type;
         if (typeParam == null) {
-            type = NamePartType.SECTION;
+            namePartType = NamePartType.SECTION;
         } else if (typeParam.equals("section")) {
-            type = NamePartType.SECTION;
+            namePartType = NamePartType.SECTION;
         } else if (typeParam.equals("deviceType")) {
-            type = NamePartType.DEVICE_TYPE;
+            namePartType = NamePartType.DEVICE_TYPE;
         } else {
             throw new IllegalStateException();
         }
 
         final List<NamePartRevision> approvedRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(true), new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == type; }
+            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
         }));
         final List<NamePartRevision> pendingRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentPendingRevisions(true), new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == type; }
+            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
         }));
 
         root = namePartApprovalTree(approvedRevisions, pendingRevisions);
@@ -105,7 +103,6 @@ public class RequestManager implements Serializable {
     public void onAdd() {
         try {
             final NamePartView parent = getSelectedName();
-            final NamePartType namePartType = namePartService.nameHierarchy().getSectionLevels().contains(parent.getNameEvent().getNameCategory()) ? NamePartType.SECTION : NamePartType.DEVICE_TYPE;
             final NamePartRevision newRequest = namePartService.addNamePart(newCode, newDescription, namePartType, parent.getNamePart(), newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {
@@ -271,17 +268,6 @@ public class RequestManager implements Serializable {
 
     public void setSelectedNodes(TreeNode[] selectedNodes) {
         this.selectedNodes = selectedNodes;
-    }
-
-    private @Nullable NameCategory getParentCategory(NameCategory nameCategory) {
-        final NameHierarchy nameHierarchy = namePartService.nameHierarchy();
-        final int sectionIndex = nameHierarchy.getSectionLevels().indexOf(nameCategory);
-        final int deviceTypeIndex = nameHierarchy.getDeviceTypeLevels().indexOf(nameCategory);
-        if (sectionIndex >= 0) {
-            return sectionIndex > 0 ? nameHierarchy.getSectionLevels().get(sectionIndex - 1) : null;
-        } else {
-            return deviceTypeIndex > 0 ? nameHierarchy.getDeviceTypeLevels().get(deviceTypeIndex - 1) : null;
-        }
     }
 
     private class NamePartRevisionPair {

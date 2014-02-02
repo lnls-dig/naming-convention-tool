@@ -37,7 +37,7 @@ public class NameElementResource {
         final List<NameElement> nameElements = new ArrayList<NameElement>();
         for (NamePart namePart : nameParts) {
             final NamePartRevision namePartRevision = namePartService.approvedRevision(namePart);
-            nameElements.add(new NameElement(namePartRevision.getId(), namePartRevision.getName(), namePartRevision.getNameCategory().getId(), namePartRevision.getFullName()));
+            nameElements.add(new NameElement(namePartRevision.getId(), namePartRevision.getName(), namePartRevision.getFullName()));
         }
         return nameElements;
     }

@@ -6,7 +6,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
@@ -104,8 +103,8 @@ public class RestrictedNamePartService {
         return namePartService.approvedNames();
     }
 
-    public List<NamePart> approvedOrPendingNames(@Nullable NameCategory category, boolean includeDeleted) {
-        return namePartService.approvedOrPendingNames(category, includeDeleted);
+    public List<NamePart> approvedOrPendingNames(boolean includeDeleted) {
+        return namePartService.approvedOrPendingNames(includeDeleted);
     }
 
     public List<NamePart> approvedOrPendingNames() {
@@ -124,16 +123,8 @@ public class RestrictedNamePartService {
         return namePartService.namesWithChangesProposedByUser(sessionService.user());
     }
 
-    public List<NamePart> namesWithCategory(NameCategory category) {
-        return namePartService.namesWithCategory(category);
-    }
-
     public List<NamePartRevision> revisions(NamePart namePart) {
         return namePartService.revisions(namePart);
-    }
-
-    public List<NameCategory> nameCategories() {
-        return namePartService.nameCategories();
     }
 
     public List<NamePart> siblings(NamePart namePart) {

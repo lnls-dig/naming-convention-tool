@@ -61,10 +61,6 @@ public class NamePartRevision extends Persistable {
     @Column(name = "deleted")
     private boolean deleted;
 
-    @JoinColumn(name = "name_category_id", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private NameCategory nameCategory;
-
     @JoinColumn(name = "parent_id", referencedColumnName = "id")
     @ManyToOne(optional = true)
     private NamePart parent;
@@ -101,13 +97,12 @@ public class NamePartRevision extends Persistable {
     protected NamePartRevision() {
     }
 
-    public NamePartRevision(NamePart namePart, @Nullable UserAccount requestedBy, Date requestDate, @Nullable String requestorComment, boolean deleted, NameCategory nameCategory, NamePart parent, String name, String fullName) {
+    public NamePartRevision(NamePart namePart, @Nullable UserAccount requestedBy, Date requestDate, @Nullable String requestorComment, boolean deleted, NamePart parent, String name, String fullName) {
         this.namePart = namePart;
         this.requestedBy = requestedBy;
         this.requestDate = requestDate;
         this.requestorComment = requestorComment;
         this.deleted = deleted;
-        this.nameCategory = nameCategory;
         this.parent = parent;
         this.name = name;
         this.fullName = fullName;
@@ -126,8 +121,6 @@ public class NamePartRevision extends Persistable {
     public @Nullable String getRequestorComment() { return requestorComment; }
 
     public boolean isDeleted() { return deleted; }
-
-    public NameCategory getNameCategory() { return nameCategory; }
 
     public NamePart getParent() { return parent; }
 
