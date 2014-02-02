@@ -53,7 +53,6 @@ public class RequestManager implements Serializable {
     @Inject private RestrictedNamePartService namePartService;
     @Inject private ViewFactory viewFactory;
 
-    private NamePartView selectedName;
     private List<NamePartView> filteredNames;
     private List<NamePartView> historyEvents;
     private boolean myRequest = false;
@@ -90,12 +89,12 @@ public class RequestManager implements Serializable {
         newCode = newDescription = newComment = null;
         category = null;
         newParentID = null;
-        selectedName = null;
     }
 
     public void onModify() {
         try {
-            final NamePartRevision newRequest = namePartService.modifyNamePart(selectedName.getNamePart(), newCode, newDescription, newComment);
+            if (getSelectedName() == null) return;
+            final NamePartRevision newRequest = namePartService.modifyNamePart(getSelectedName().getNamePart(), newCode, newDescription, newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {
             init();
@@ -116,7 +115,7 @@ public class RequestManager implements Serializable {
      * Has the selectedName been processed?
      */
     public boolean selectedEventProcessed() {
-        return selectedName == null ? false : selectedName.getPendingChange() == null;
+        return getSelectedName() == null ? false : getSelectedName().getPendingChange() == null;
     }
 
     public String getRequestType(NamePartView req) {
@@ -183,7 +182,8 @@ public class RequestManager implements Serializable {
 
     public void onDelete() {
         try {
-            final NamePartRevision newRequest = namePartService.deleteNamePart(selectedName.getNamePart(), newComment);
+            if (getSelectedName() == null) return;
+            final NamePartRevision newRequest = namePartService.deleteNamePart(getSelectedName().getNamePart(), newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {
             init();
@@ -192,7 +192,8 @@ public class RequestManager implements Serializable {
 
     public void onCancel() {
         try {
-            namePartService.cancelChangesForNamePart(selectedName.getNamePart(), newComment);
+            if (getSelectedName() == null) return;
+            namePartService.cancelChangesForNamePart(getSelectedName().getNamePart(), newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request has been cancelled.", "Request Number: ");
         } finally {
             init();
@@ -205,7 +206,8 @@ public class RequestManager implements Serializable {
     }
 
     public void findHistory() {
-        historyEvents = Lists.newArrayList(Lists.transform(namePartService.revisions(selectedName.getNamePart()), new Function<NamePartRevision, NamePartView>() {
+        if (getSelectedName() == null) return;
+        historyEvents = Lists.newArrayList(Lists.transform(namePartService.revisions(getSelectedName().getNamePart()), new Function<NamePartRevision, NamePartView>() {
             @Override public NamePartView apply(NamePartRevision revision) {
                 return viewFactory.getView(revision);
             }
