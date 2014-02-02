@@ -26,7 +26,7 @@ public class ViewFactory {
     }
 
     public NamePartView getView(NamePartRevision namePartRevision) {
-        throw new IllegalStateException();
+        return new NamePartView(namePartService, namePartRevision, null);
     }
 
     public NamePartView getView(@Nullable NamePartRevision approvedRevision, @Nullable NamePartRevision pendingRevision) {

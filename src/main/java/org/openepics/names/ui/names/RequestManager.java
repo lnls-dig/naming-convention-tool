@@ -119,11 +119,13 @@ public class RequestManager implements Serializable {
     }
 
     public String getRequestType(NamePartView req) {
+        // TODO after checking the parts-request-proc.xhtml, remove everything related to 'Change'
         final Change change = req.getPendingChange();
         if (change instanceof NamePartView.AddChange) return "Add request";
         else if (change instanceof NamePartView.ModifyChange) return "Modify request";
         else if (change instanceof NamePartView.DeleteChange) return "Delete request";
-        else throw new IllegalStateException();
+        else if (req.isDeleted()) return "Deleted" ;
+        else return "";
     }
 
     public String getNewName(NamePartView req) {
@@ -206,7 +208,10 @@ public class RequestManager implements Serializable {
     }
 
     public void findHistory() {
-        if (getSelectedName() == null) return;
+        if (getSelectedName() == null) {
+            historyEvents = null;
+            return;
+        }
         historyEvents = Lists.newArrayList(Lists.transform(namePartService.revisions(getSelectedName().getNamePart()), new Function<NamePartRevision, NamePartView>() {
             @Override public NamePartView apply(NamePartRevision revision) {
                 return viewFactory.getView(revision);

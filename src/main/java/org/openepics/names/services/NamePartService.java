@@ -247,7 +247,7 @@ public class NamePartService {
     }
 
     public List<NamePartRevision> revisions(NamePart namePart) {
-        return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart ORDER BY r.id", NamePartRevision.class).getResultList();
+        return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart ORDER BY r.id", NamePartRevision.class).setParameter("namePart", namePart).getResultList();
     }
 
     public List<NameCategory> nameCategories() {

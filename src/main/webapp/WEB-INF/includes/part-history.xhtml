@@ -27,9 +27,6 @@
             <p:column id="nameDesc" headerText="Full Name">
                 <h:outputText value="#{nevent.fullName}" />
             </p:column>
-            <p:column id="parentName" headerText="Parent Path">
-                <h:outputText value="#{fn:length(nevent.namePath) > 1 ? requestManager.getNewPath(nevent) : '-' }" />
-            </p:column>
             <p:column id="type" headerText="Type" >
                 <h:outputText value="#{requestManager.getRequestType(nevent)}" />
             </p:column>
@@ -45,7 +42,7 @@
                 <h:outputText value="#{nevent.nameEvent.requestorComment}" />
             </p:column>
 
-            <p:column id="status" headerText="Status"   >
+            <p:column id="status" headerText="Status" >
                 <h:outputText value="#{namesManager.nameStatus(nevent.nameEvent)}" title="status"/>
             </p:column>
             <p:column id="By" headerText="Proc By" >
