@@ -19,8 +19,9 @@
                     style="width: 8%; z-index: 100;">
                 <p:submenu label="Device Names">
                     <p:menuitem value="Add" icon="ui-icon-plus" update=":AddDeviceNameForm"
-                            oncomplete="addDeviceName.show()" title="Add Device Name"
-                            rendered="#{userManager.editor}" />
+                                oncomplete="addDeviceName.show()" title="Add Device Name"
+                                actionListener="#{editNamesManager.prepareFormTrees()}"
+                                rendered="#{userManager.editor}" />
                     <p:menuitem value="Delete" icon="ui-icon-trash"
                             update=":delDeviceNameForm" oncomplete="delDeviceName.show()"
                             title="Delete Device Name" rendered="#{userManager.editor}"

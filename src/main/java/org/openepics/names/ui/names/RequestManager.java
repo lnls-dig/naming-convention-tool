@@ -24,7 +24,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -32,11 +31,10 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import org.openepics.names.model.NameCategory;
-import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
+import org.openepics.names.ui.NamePartTreeBuilder;
 import org.openepics.names.ui.ViewFactory;
 import org.openepics.names.ui.names.NamePartView.Change;
 import org.openepics.names.ui.names.NamePartView.DeleteChange;
@@ -54,6 +52,7 @@ public class RequestManager implements Serializable {
 
     @Inject private RestrictedNamePartService namePartService;
     @Inject private ViewFactory viewFactory;
+    @Inject private NamePartTreeBuilder namePartTreeBuilder;
 
     private List<NamePartView> filteredNames;
     private List<NamePartView> historyEvents;
@@ -67,7 +66,6 @@ public class RequestManager implements Serializable {
     private String newDescription;
     private String newComment;
 
-    private List<NamePartView> parentCandidates;
     private NamePartType namePartType;
 
     @PostConstruct
@@ -91,7 +89,7 @@ public class RequestManager implements Serializable {
             @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
         }));
 
-        root = namePartApprovalTree(approvedRevisions, pendingRevisions);
+        root = namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, true);
 
         newCode = newDescription = newComment = null;
         selectedNodes = null;
@@ -281,121 +279,6 @@ public class RequestManager implements Serializable {
 
     public TreeNode getDeleteCandidates() {
         return deleteCandidates;
-    }
-
-    private @Nullable NameCategory getParentCategory(NameCategory nameCategory) {
-        final NameHierarchy nameHierarchy = namePartService.nameHierarchy();
-        final int sectionIndex = nameHierarchy.getSectionLevels().indexOf(nameCategory);
-        final int deviceTypeIndex = nameHierarchy.getDeviceTypeLevels().indexOf(nameCategory);
-        if (sectionIndex >= 0) {
-            return sectionIndex > 0 ? nameHierarchy.getSectionLevels().get(sectionIndex - 1) : null;
-        } else {
-            return deviceTypeIndex > 0 ? nameHierarchy.getDeviceTypeLevels().get(deviceTypeIndex - 1) : null;
-        }
-    }
-
-    private class NamePartRevisionPair {
-        private String uuid;
-        private NamePartRevision approved;
-        private NamePartRevision pending;
-
-        private NamePartRevisionPair approved(NamePartRevision approved) {
-            this.approved = approved;
-            this.uuid = approved.getNamePart().getUuid();
-            return this;
-        }
-
-        private NamePartRevisionPair pending(NamePartRevision pending) {
-            this.pending = pending;
-            this.uuid = pending.getNamePart().getUuid();
-            return this;
-        }
-
-        private @Nullable String getParentUuid() {
-            if (approved != null)
-                return approved.getParent() != null ? approved.getParent().getUuid() : null;
-            return pending.getParent() != null ? pending.getParent().getUuid() : null;
-        }
-    }
-
-    private class NamePartRevisionTree {
-        private class NamePartRevisionTreeNode {
-            private final NamePartRevisionPair node;
-            private final List<NamePartRevisionTreeNode> children;
-
-            private NamePartRevisionTreeNode(NamePartRevisionPair pair) {
-                node = pair;
-                children = new ArrayList<>();
-            }
-        }
-
-        private final NamePartRevisionTreeNode root;
-        private final HashMap<String, NamePartRevisionTreeNode> inventory;
-
-        private NamePartRevisionTree() {
-            root = new NamePartRevisionTreeNode(null);
-            inventory = new HashMap<>();
-        }
-
-        private boolean hasNode(NamePartRevisionPair pair) {
-            return inventory.containsKey(pair.uuid);
-        }
-
-        private void addChildToParent(@Nullable String parentUuid, NamePartRevisionPair pair) {
-            final NamePartRevisionTreeNode newNode = new NamePartRevisionTreeNode(pair);
-            if (parentUuid != null)
-                inventory.get(parentUuid).children.add(newNode);
-            else
-                root.children.add(newNode);
-            inventory.put(pair.uuid, newNode);
-        }
-
-        private TreeNode asViewTree() {
-            return asViewTree(new DefaultTreeNode("root", null), root);
-        }
-
-        private TreeNode asViewTree(TreeNode parentNode, NamePartRevisionTreeNode nprNode) {
-            for (NamePartRevisionTreeNode child : nprNode.children) {
-                TreeNode node = new DefaultTreeNode(viewFactory.getView(child.node.approved, child.node.pending), parentNode);
-                if (child.node.pending == null || (child.node.pending != null) && !child.node.pending.isDeleted())
-                    asViewTree(node, child);
-            }
-            return parentNode;
-        }
-    }
-
-    private TreeNode namePartApprovalTree(List<NamePartRevision> approved, List<NamePartRevision> pending) {
-        final Map<String, NamePartRevisionPair> completeNamePartList = new HashMap<>();
-
-        for (NamePartRevision approvedNPR : approved)
-            completeNamePartList.put(approvedNPR.getNamePart().getUuid(), new NamePartRevisionPair().approved(approvedNPR));
-
-        for (NamePartRevision pendingNPR : pending) {
-            final NamePartRevisionPair pair = completeNamePartList.get(pendingNPR.getNamePart().getUuid());
-            if(pair != null)
-                pair.pending(pendingNPR);
-            else
-                completeNamePartList.put(pendingNPR.getNamePart().getUuid(), new NamePartRevisionPair().pending(pendingNPR));
-        }
-
-        NamePartRevisionTree nprt = new NamePartRevisionTree();
-        for (NamePartRevisionPair pair : completeNamePartList.values())
-            addNamePartRevisionNode(nprt, pair, completeNamePartList);
-
-        return nprt.asViewTree();
-    }
-
-    private void addNamePartRevisionNode(NamePartRevisionTree nprt, NamePartRevisionPair pair, Map<String, NamePartRevisionPair> allPairs ) {
-        if(!nprt.hasNode(pair)) {
-            final String parentId = pair.getParentUuid();
-            if (parentId == null) {
-                nprt.addChildToParent(null, pair);
-            } else {
-                // adding existing parent is a NOP
-                addNamePartRevisionNode(nprt, allPairs.get(parentId), allPairs);
-                nprt.addChildToParent(parentId, pair);
-            }
-        }
     }
 
     public boolean isDeleteNames() {
