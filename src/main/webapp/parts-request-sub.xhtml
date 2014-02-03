@@ -190,9 +190,9 @@
 
                     <p:row>
                         <p:column colspan="2" rendered="#{requestManager.deleteNames}">
-                            <p:tree value="#{requestManager.deleteCandidates}" var="candidate">
+                            <p:tree value="#{requestManager.deleteCandidates}" var="candidate" style="width: 100%; height: 150px;">
                                 <p:treeNode>
-                                    <h:outputText styleClass="#{candidate.delete ? 'Processing DeleteProcessing' : ''}"
+                                    <h:outputText styleClass="#{candidate.delete ? 'Processing Delete-Processing' : ''}"
                                                   value="#{candidate.fullName} (#{candidate.name})" />
                                 </p:treeNode>
                             </p:tree>

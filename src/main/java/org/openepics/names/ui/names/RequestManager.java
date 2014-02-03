@@ -34,7 +34,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import org.openepics.names.model.NameCategory;
 import org.openepics.names.model.NameHierarchy;
-import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
@@ -84,7 +83,7 @@ public class RequestManager implements Serializable {
         } else {
             throw new IllegalStateException();
         }
-        
+
         final List<NamePartRevision> approvedRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(true), new Predicate<NamePartRevision>() {
             @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
         }));
@@ -459,6 +458,7 @@ public class RequestManager implements Serializable {
 
         NamePartView npv = (NamePartView)(mainTableNode.getData());
         final TreeNode dialogDeleteNode = new DefaultTreeNode(new DeleteNamePartView(npv.getName(), npv.getFullName(), mainTableNode.isSelected()), dialogParent);
+        dialogDeleteNode.setExpanded(true);
         processedDialogNodes.put(npv.getNamePart().getUuid(), dialogDeleteNode);
 
         return dialogDeleteNode;
