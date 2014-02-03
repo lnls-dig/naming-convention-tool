@@ -33,11 +33,11 @@ public class ViewFactory {
         return new NamePartView(namePartService, approvedRevision, pendingRevision);
     }
 
-    public static DeviceView getView(Device device) {
+    public DeviceView getView(Device device) {
         throw new IllegalStateException();
     }
 
-    public static DeviceView getView(DeviceRevision deviceRevision) {
+    public DeviceView getView(DeviceRevision deviceRevision) {
         throw new IllegalStateException();
     }
 }

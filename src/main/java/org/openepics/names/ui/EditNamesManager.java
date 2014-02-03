@@ -20,6 +20,7 @@ import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
+import org.openepics.names.ui.names.NamePartView;
 import org.primefaces.model.TreeNode;
 
 @ManagedBean
@@ -29,6 +30,7 @@ public class EditNamesManager implements Serializable {
     @Inject private RestrictedNamePartService namePartService;
     @Inject private RestrictedDeviceService deviceService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
+    @Inject private ViewFactory viewFactory;
 
     private DeviceView selectedDeviceName;
 
@@ -55,16 +57,19 @@ public class EditNamesManager implements Serializable {
     public void onAdd() {
         // TODO solve generically and for specific + generic device
         try {
-            /*
-            final NamePartView subsection = sectionLevels.get(sectionLevels.size()-1).getSelected();
-            final NamePartView genDevice = deviceTypeLevels.get(2).getSelected();
-
-            if (subsection == null || genDevice == null) {
+            if (selectedSection == null || selectedDeviceType == null) {
                 showMessage(FacesMessage.SEVERITY_ERROR, "Error", "Required field missing");
                 return;
             }
-            deviceService.createDevice(subsection.getNamePart(), genDevice.getNamePart(), null);
-            */
+
+            final NamePartView subsection = (NamePartView)(selectedSection.getData());
+            final NamePartView device = (NamePartView)(selectedDeviceType.getData());
+
+            if (subsection == null || device == null) {
+                showMessage(FacesMessage.SEVERITY_ERROR, "Error", "Required field missing");
+                return;
+            }
+            deviceService.createDevice(subsection.getNamePart(), device.getNamePart(), null);
             showMessage(FacesMessage.SEVERITY_INFO, "Device Name successfully added.", "Name: [TODO]");
         } finally {
             init();
@@ -99,7 +104,7 @@ public class EditNamesManager implements Serializable {
         List<Device> allDeviceNames = deviceService.devices(showDeletedNames);
         this.allDeviceNames = allDeviceNames.isEmpty() ? null : new ArrayList<DeviceView>();
         for (Device dev : allDeviceNames) {
-            this.allDeviceNames.add(ViewFactory.getView(dev));
+            this.allDeviceNames.add(viewFactory.getView(dev));
         }
     }
 
@@ -113,7 +118,7 @@ public class EditNamesManager implements Serializable {
                 new Function<DeviceRevision, DeviceView>(){
                     @Override
                     public DeviceView apply(DeviceRevision f) {
-                        return ViewFactory.getView(f);
+                        return viewFactory.getView(f);
                     }
                 });
     }
