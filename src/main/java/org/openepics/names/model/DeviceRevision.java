@@ -60,6 +60,7 @@ public class DeviceRevision extends Persistable {
         this.section = section;
         this.deviceType = deviceType;
         this.qualifier = qualifier;
+        this.deleted = deleted;
     }
 
     public Device getDevice() { return device; }
