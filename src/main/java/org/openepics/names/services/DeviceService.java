@@ -72,7 +72,7 @@ public class DeviceService {
         }
     }
 
-    private DeviceRevision currentRevision(Device device) {
-        return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device = :device ORDER BY r.id DESC", DeviceRevision.class).setParameter("device", device).getSingleResult();
+    public DeviceRevision currentRevision(Device device) {
+        return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device = :device ORDER BY r.id DESC", DeviceRevision.class).setParameter("device", device).getResultList().get(0);
     }
 }
