@@ -71,8 +71,8 @@ public class EditNamesManager implements Serializable {
                 showMessage(FacesMessage.SEVERITY_ERROR, "Error", "Required field missing");
                 return;
             }
-            deviceService.createDevice(subsection.getNamePart(), device.getNamePart(), null);
-            showMessage(FacesMessage.SEVERITY_INFO, "Device Name successfully added.", "Name: [TODO]");
+            DeviceRevision rev = deviceService.createDevice(subsection.getNamePart(), device.getNamePart(), deviceQuantifier);
+            showMessage(FacesMessage.SEVERITY_INFO, "Device Name successfully added.", "Name: [TODO]" + viewFactory.getView(rev).getConventionName());
         } finally {
             init();
         }
@@ -181,6 +181,7 @@ public class EditNamesManager implements Serializable {
 
         sections = namePartTreeBuilder.namePartApprovalTree(approvedSectionRevisions, emptyPending, false, 2, selectedDeviceName.getSection().getNamePart());
         deviceTypes = namePartTreeBuilder.namePartApprovalTree(approvedDeviceTypeRevisions, emptyPending, false, 2, selectedDeviceName.getDeviceType().getNamePart());
+        deviceQuantifier = selectedDeviceName.getQualifier();
     }
 
     public boolean isFormFilled() {

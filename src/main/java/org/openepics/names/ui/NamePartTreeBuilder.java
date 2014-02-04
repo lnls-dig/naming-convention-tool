@@ -115,7 +115,7 @@ public class NamePartTreeBuilder {
         private void selectNode(TreeNode node) {
             node.setSelected(true);
             TreeNode treeNode = node;
-            while(node.getParent() != null) {
+            while(treeNode.getParent() != null) {
                 treeNode.setExpanded(true);
                 treeNode = treeNode.getParent();
             }
