@@ -46,14 +46,16 @@
                             <p:ajax event="unselect" update=":#{formId}:bsub" />
 
                             <p:treeNode>
-                                <h:outputText value="#{devType.fullName} (#{devType.name})" />
+                                <h:outputText value="#{devType.fullName}" />
+                                <h:outputText value=" (#{devType.name})" rendered="#{not empty devType.name}" />
                             </p:treeNode>
                         </p:tree>
                     </p:column>
                 </p:row>
                 <p:row>
                     <p:column>
-                        <h:outputLabel value="Device quantifier: " />
+                        <h:outputLabel value="Device quantifier:" />
+                        <p:spacer width="5" />
                         <h:inputText id="quantifier" required="true" value="#{editNamesManager.deviceQuantifier}" />
                         <p:button icon="ui-icon-refresh" style="float: right; height: 1.5em; width: 1.5em;"/>
                     </p:column>

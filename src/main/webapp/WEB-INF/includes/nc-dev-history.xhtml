@@ -29,14 +29,14 @@
             <p:column id="histNameDscp" headerText="Discipline">
                 <h:outputText value="#{ncname.deviceTypePath}" />
             </p:column>
-            <p:column id="histStatus" headerText="Status">
-                <h:outputText value="#{ncname.status}" />
+            <p:column id="histStatus" headerText="Deleted" style="width: 5em; text-align: center;">
+                <p:selectBooleanCheckbox disabled="true" value="#{ncname.device.deleted}" />
             </p:column>
             <p:column id="histReqBy" headerText="By" sortBy="#{ncname.requestedBy}">
                 <h:outputText value="#{ncname.requestedBy.username}" />
             </p:column>
-            <p:column id="histReqDate" headerText="Date" sortBy="#{ncname.deviceName.requestDate}">
-                <h:outputText value="#{ncname.deviceName.requestDate}">
+            <p:column id="histReqDate" headerText="Date" sortBy="#{ncname.device.requestDate}">
+                <h:outputText value="#{ncname.device.requestDate}">
                     <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" />
                 </h:outputText>
             </p:column>
