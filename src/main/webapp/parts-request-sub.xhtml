@@ -31,8 +31,8 @@
                                 update=":ReqSubForm:historyTable" title="View History" oncomplete="nameDetail.show()"
                                 disabled="#{fn:length(requestManager.selectedNodes) != 1}" />
                     <p:menuitem value="Cancel" icon="ui-icon-close" update=":CancelReqForm:cancelReq"
-                                oncomplete="cancelReq.show()" title="Cancel Request"
-                                disabled="#{requestManager.selectedEventProcessed()}" />
+                                oncomplete="cancelReq.show()" title="Cancel changes"
+                                disabled="#{fn:length(requestManager.selectedNodes) lt 1}" />
                 </p:submenu>
             </p:menu>
 
@@ -48,9 +48,9 @@
                 <p:menuitem value="History" icon="ui-icon-search" actionListener="#{requestManager.findHistory()}"
                             update=":ReqSubForm:historyTable" oncomplete="nameDetail.show()"
                             disabled="#{fn:length(requestManager.selectedNodes) != 1}" />
-                <p:menuitem value="Cancel Request" icon="ui-icon-close" update=":CancelReqForm"
-                            oncomplete="cancelReq.show()" title="Cancel Request"
-                            disabled="#{requestManager.selectedEventProcessed()}"/>
+                <p:menuitem value="Cancel" icon="ui-icon-close" update=":CancelReqForm"
+                            oncomplete="cancelReq.show()" title="Cancel request"
+                            disabled="#{fn:length(requestManager.selectedNodes) lt 1}"/>
             </p:contextMenu>
 
             <p:treeTable id="namePartsTree" value="#{requestManager.root}" var="namePart"
@@ -232,15 +232,9 @@
         <h:form id="CancelReqForm" >
             <p:dialog id="cancelReq"  widgetVar="cancelReq">
                 <f:facet name="header">
-                    <h:outputText value="Cancel Request"/>
+                    <h:outputText value="Cancel request"/>
                 </f:facet>
                 <p:panelGrid id="pgrid" columns="2" style="text-align: left">
-                    <h:outputText  value="Category:" />
-                    <h:outputText value="#{requestManager.selectedName.nameCategory}" />
-
-                    <h:outputText value="Code:" />
-                    <h:outputText value="#{requestManager.selectedName.name}" />
-
                     <h:outputText value="Description:" />
                     <h:outputText value="#{requestManager.selectedName.fullName}"/>
 

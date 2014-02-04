@@ -15,6 +15,7 @@ import org.openepics.names.services.restricted.RestrictedDeviceService;
 @ViewScoped
 public class DeviceNamesManager implements Serializable {
 
+    @Inject private ViewFactory viewFactory;
     @Inject private RestrictedDeviceService deviceService;
 
     private List<DeviceView> allDeviceNames;
@@ -31,7 +32,7 @@ public class DeviceNamesManager implements Serializable {
         final List<Device> allDeviceNames = deviceService.devices();
         this.allDeviceNames = allDeviceNames.isEmpty() ? null : new ArrayList<DeviceView>();
         for (Device dev : allDeviceNames) {
-            this.allDeviceNames.add(ViewFactory.getView(dev));
+            this.allDeviceNames.add(viewFactory.getView(dev));
         }
     }
 
@@ -39,7 +40,7 @@ public class DeviceNamesManager implements Serializable {
         final List<Device> activeDeviceNames = deviceService.devices(); // TODO
         this.activeDeviceNames = activeDeviceNames.isEmpty() ? null : new ArrayList<DeviceView>();
         for (Device dev : activeDeviceNames) {
-            this.activeDeviceNames.add(ViewFactory.getView(dev));
+            this.activeDeviceNames.add(viewFactory.getView(dev));
         }
     }
 
@@ -55,7 +56,7 @@ public class DeviceNamesManager implements Serializable {
         final List<DeviceRevision> historyDeviceNames = deviceService.revisions(null); // TODO
         this.historyDeviceNames = historyDeviceNames.isEmpty() ? null : new ArrayList<DeviceView>();
         for (DeviceRevision dev : historyDeviceNames) {
-            this.historyDeviceNames.add(ViewFactory.getView(dev.getDevice()));
+            this.historyDeviceNames.add(viewFactory.getView(dev.getDevice()));
         }
     }
 

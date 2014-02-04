@@ -90,7 +90,7 @@ public class NamePartView {
                 return new AddChange(pendingRevision.getStatus());
             } else {
                 final @Nullable String newName = !pendingRevision.getName().equals(currentRevision.getName()) ? pendingRevision.getName() : null;
-                final @Nullable String newFullName = !pendingRevision.getName().equals(currentRevision.getName()) ? pendingRevision.getName() : null;
+                final @Nullable String newFullName = !pendingRevision.getFullName().equals(currentRevision.getFullName()) ? pendingRevision.getFullName() : null;
                 return new ModifyChange(pendingRevision.getStatus(), newName, newFullName);
             }
         }

@@ -19,11 +19,6 @@
             <p:menuitem value="Devices" title="Devices" url="nc-dev-edit.xhtml" icon="ui-icon-wrench" />
             <p:menuitem value="Reports" title="Reports" icon="ui-icon-print" url="reports.xhtml" disabled="false" />
 
-            <p:submenu label="Admin" icon="ui-icon-note">
-                <p:menuitem value="Process Requests" title="Accept/Reject Requests" url="parts-request-proc.xhtml" icon="ui-icon-wrench" disabled="#{not userManager.superUser}" />
-                <p:menuitem value="Publish Names" title="Release a new version of Naming Convention" url="publish.xhtml" icon="ui-icon-note" disabled="#{not userManager.superUser}" />
-            </p:submenu>
-
             <p:menuitem value="Preferences" title="Preferences" icon="ui-icon-gear" url="preferences.xhtml" />
 
             <p:submenu label="Help" icon="ui-icon-help">

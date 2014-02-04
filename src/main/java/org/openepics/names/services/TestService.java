@@ -250,6 +250,8 @@ public class TestService {
     }
 
     private NamePart addDeviceType(@Nullable NamePart parent, String longName, String shortName) {
-        return namePartService.addNamePart(shortName, longName, NamePartType.DEVICE_TYPE, parent, null, "Test data").getNamePart();
+        final NamePartRevision newRevision = namePartService.addNamePart(shortName, longName, NamePartType.DEVICE_TYPE, parent, null, "Test data");
+        namePartService.approveNamePartRevision(newRevision, null);
+        return newRevision.getNamePart();
     }
 }
