@@ -18,9 +18,9 @@
             <p:menu id="ncReqMenu" styleClass="fixedPosition box"
                     style="width: 8%; z-index: 100;">
                 <p:submenu label="Device Names">
-                    <p:menuitem value="Add" icon="ui-icon-plus" update=":AddDeviceNameForm"
+                    <p:menuitem value="Add" icon="ui-icon-plus" update=":addDeviceNameForm"
                                 oncomplete="addDeviceName.show()" title="Add Device Name"
-                                actionListener="#{editNamesManager.prepareFormTrees()}"
+                                action="#{editNamesManager.prepareForAdd()}"
                                 rendered="#{userManager.editor}" />
                     <p:menuitem value="Delete" icon="ui-icon-trash"
                             update=":delDeviceNameForm" oncomplete="delDeviceName.show()"
@@ -28,7 +28,7 @@
                 disabled="#{empty editNamesManager.selectedDeviceName || editNamesManager.selectedDeviceName.status == 'DELETED' || editNamesManager.selectedDeviceName.requestedBy.username != userManager.user.username}" />
                     <p:menuitem value="Modify" icon="ui-icon-pencil"
                             update=":modDeviceNameForm" oncomplete="modDeviceName.show()"
-                            action="#{editNamesManager.loadSelectedName()}"
+                            action="#{editNamesManager.prepareForModify()}"
                             title="Modify Device Name" rendered="#{userManager.editor}"
                 disabled="#{empty editNamesManager.selectedDeviceName || editNamesManager.selectedDeviceName.requestedBy.username != userManager.user.username}" />
                     <p:menuitem value="History" icon="ui-icon-search"
@@ -41,14 +41,15 @@
 
             <p:contextMenu id="ncCntxtMenu" for="ncCrTable">
                 <p:menuitem value="Add" icon="ui-icon-plus"
-                        oncomplete="addDeviceName.show()"
-                        rendered="#{userManager.editor}" />
+                            action="#{editNamesManager.prepareForAdd()}"
+                            oncomplete="addDeviceName.show()"
+                            rendered="#{userManager.editor}" />
                 <p:menuitem value="Delete" update=":delDeviceNameForm"
-                        icon="ui-icon-trash" oncomplete="delDeviceName.show()"
+                            icon="ui-icon-trash" oncomplete="delDeviceName.show()"
                         rendered="#{userManager.editor}"
-                disabled="#{empty editNamesManager.selectedDeviceName || editNamesManager.selectedDeviceName.status == 'DELETED' || editNamesManager.selectedDeviceName.requestedBy.username != userManager.user.username}" />
+                disabled="#{empty editNamesManager.selectedDeviceName || editNamesManager.selectedDeviceName.device.deleted || editNamesManager.selectedDeviceName.requestedBy.username != userManager.user.username}" />
                 <p:menuitem value="Modify" update=":modDeviceNameForm"
-                        action="#{editNamesManager.loadSelectedName()}"
+                            action="#{editNamesManager.prepareForModify()}"
                         icon="ui-icon-pencil" oncomplete="modDeviceName.show()"
                         rendered="#{userManager.editor}"
                         disabled="#{empty editNamesManager.selectedDeviceName || editNamesManager.selectedDeviceName.requestedBy.username != userManager.user.username}" />
@@ -101,9 +102,8 @@
         </h:form>
 
         <ui:include src="/WEB-INF/includes/dev-add-mod-form.xhtml" >
-            <ui:param name="formId" value="AddDeviceNameForm" />
+            <ui:param name="formId" value="addDeviceNameForm" />
             <ui:param name="dialogTitle" value="Add Device Name" />
-            <ui:param name="showExistingValue" value="#{false}" />
             <ui:param name="widgetName" value="addDeviceName" />
             <ui:param name="submitHandler" value="onAdd" />
         </ui:include>
@@ -111,7 +111,6 @@
         <ui:include src="/WEB-INF/includes/dev-add-mod-form.xhtml" >
             <ui:param name="formId" value="modDeviceNameForm" />
             <ui:param name="dialogTitle" value="Modify Device Name" />
-            <ui:param name="showExistingValue" value="#{true}" />
             <ui:param name="widgetName" value="modDeviceName" />
             <ui:param name="submitHandler" value="onModify" />
         </ui:include>

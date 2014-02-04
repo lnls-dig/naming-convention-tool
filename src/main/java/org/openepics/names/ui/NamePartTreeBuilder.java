@@ -14,7 +14,9 @@ import javax.annotation.Nullable;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
+import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
+import org.openepics.names.ui.names.NamePartView;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
@@ -66,13 +68,15 @@ public class NamePartTreeBuilder {
         private final NamePartRevisionTreeNode root;
         private final HashMap<String, NamePartRevisionTreeNode> inventory;
         private final boolean expandedTree;
-        final private int selectableLevel;
+        private final int selectableLevel;
+        private final NamePart selected;
 
-        private NamePartRevisionTree(boolean expandedTree, int selectableLevel) {
+        private NamePartRevisionTree(boolean expandedTree, int selectableLevel, NamePart selected) {
             root = new NamePartRevisionTreeNode(null);
             inventory = new HashMap<>();
             this.expandedTree = expandedTree;
             this.selectableLevel = selectableLevel;
+            this.selected = selected;
         }
 
         private boolean hasNode(NamePartRevisionPair pair) {
@@ -97,19 +101,36 @@ public class NamePartTreeBuilder {
                 TreeNode node = new DefaultTreeNode(viewFactory.getView(child.node.approved, child.node.pending), parentNode);
                 node.setExpanded(expandedTree);
                 node.setSelectable(level >= selectableLevel);
+                if (isSelected(node)) selectNode(node);
                 if (child.node.pending == null || (child.node.pending != null) && !child.node.pending.isDeleted())
                     asViewTree(node, child, level+1);
             }
             return parentNode;
         }
+
+        private boolean isSelected(TreeNode node) {
+            return (selected != null) && (selected.equals(((NamePartView)(node.getData())).getNamePart()));
+        }
+
+        private void selectNode(TreeNode node) {
+            node.setSelected(true);
+            TreeNode treeNode = node;
+            while(node.getParent() != null) {
+                treeNode.setExpanded(true);
+                treeNode = treeNode.getParent();
+            }
+        }
     }
 
     public TreeNode namePartApprovalTree(List<NamePartRevision> approved, List<NamePartRevision> pending, boolean expandedTree) {
-        return namePartApprovalTree(approved, pending, expandedTree, 0);
+        return namePartApprovalTree(approved, pending, expandedTree, 0, null);
     }
 
-
     public TreeNode namePartApprovalTree(List<NamePartRevision> approved, List<NamePartRevision> pending, boolean expandedTree, int selectableLevel) {
+        return namePartApprovalTree(approved, pending, expandedTree, selectableLevel, null);
+    }
+
+    public TreeNode namePartApprovalTree(List<NamePartRevision> approved, List<NamePartRevision> pending, boolean expandedTree, int selectableLevel, NamePart selected) {
         final Map<String, NamePartRevisionPair> completeNamePartList = new HashMap<>();
 
         for (NamePartRevision approvedNPR : approved)
@@ -123,7 +144,7 @@ public class NamePartTreeBuilder {
                 completeNamePartList.put(pendingNPR.getNamePart().getUuid(), new NamePartRevisionPair().pending(pendingNPR));
         }
 
-        NamePartRevisionTree nprt = new NamePartRevisionTree(expandedTree, selectableLevel);
+        NamePartRevisionTree nprt = new NamePartRevisionTree(expandedTree, selectableLevel, selected);
         for (NamePartRevisionPair pair : completeNamePartList.values())
             addNamePartRevisionNode(nprt, pair, completeNamePartList);
 
@@ -142,6 +163,4 @@ public class NamePartTreeBuilder {
             }
         }
     }
-
-
 }

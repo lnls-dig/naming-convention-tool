@@ -44,6 +44,8 @@ public class EditNamesManager implements Serializable {
 
     private boolean showDeletedNames = true;
 
+    private String deviceQuantifier;
+
     public EditNamesManager() {}
 
     @PostConstruct
@@ -141,7 +143,10 @@ public class EditNamesManager implements Serializable {
     public void setSelectedDeviceType(TreeNode selectedDeviceType) { this.selectedDeviceType = selectedDeviceType; }
     public TreeNode getSelectedDeviceType() { return this.selectedDeviceType; }
 
-    public void prepareFormTrees() {
+    public String getDeviceQuantifier() { return deviceQuantifier; }
+    public void setDeviceQuantifier(String deviceQuantifier) { this.deviceQuantifier = deviceQuantifier; }
+
+    public void prepareForAdd() {
         final List<NamePartRevision> currentApprovedRevisions = namePartService.currentApprovedRevisions(false);
 
         final List<NamePartRevision> approvedSectionRevisions = ImmutableList.copyOf(Collections2.filter(currentApprovedRevisions, new Predicate<NamePartRevision>() {
@@ -154,6 +159,28 @@ public class EditNamesManager implements Serializable {
         final List<NamePartRevision> emptyPending = new ArrayList<>();
         sections = namePartTreeBuilder.namePartApprovalTree(approvedSectionRevisions, emptyPending, false, 2);
         deviceTypes = namePartTreeBuilder.namePartApprovalTree(approvedDeviceTypeRevisions, emptyPending, false, 2);
+    }
+
+    public void prepareForModify() {
+        if (selectedDeviceName == null) {
+            sections = null;
+            deviceTypes = null;
+            return;
+        }
+
+        final List<NamePartRevision> currentApprovedRevisions = namePartService.currentApprovedRevisions(false);
+
+        final List<NamePartRevision> approvedSectionRevisions = ImmutableList.copyOf(Collections2.filter(currentApprovedRevisions, new Predicate<NamePartRevision>() {
+            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.SECTION; }
+        }));
+        final List<NamePartRevision> approvedDeviceTypeRevisions = ImmutableList.copyOf(Collections2.filter(currentApprovedRevisions, new Predicate<NamePartRevision>() {
+            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.DEVICE_TYPE; }
+        }));
+
+        final List<NamePartRevision> emptyPending = new ArrayList<>();
+
+        sections = namePartTreeBuilder.namePartApprovalTree(approvedSectionRevisions, emptyPending, false, 2, selectedDeviceName.getSection().getNamePart());
+        deviceTypes = namePartTreeBuilder.namePartApprovalTree(approvedDeviceTypeRevisions, emptyPending, false, 2, selectedDeviceName.getDeviceType().getNamePart());
     }
 
     public boolean isFormFilled() {
