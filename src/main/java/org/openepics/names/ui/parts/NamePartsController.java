@@ -13,7 +13,7 @@
  *   http://frib.msu.edu
  *
  */
-package org.openepics.names.ui.names;
+package org.openepics.names.ui.parts;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -31,10 +31,11 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
+import org.openepics.names.model.NameRelease;
+import org.openepics.names.services.ReleaseService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
-import org.openepics.names.ui.NamePartTreeBuilder;
-import org.openepics.names.ui.ViewFactory;
-import org.openepics.names.ui.names.NamePartView.Change;
+import org.openepics.names.ui.common.ViewFactory;
+import org.openepics.names.ui.parts.NamePartView.Change;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
@@ -45,11 +46,12 @@ import org.primefaces.model.TreeNode;
  */
 @ManagedBean
 @ViewScoped
-public class RequestManager implements Serializable {
+public class NamePartsController implements Serializable {
 
     @Inject private RestrictedNamePartService namePartService;
     @Inject private ViewFactory viewFactory;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
+    @Inject private ReleaseService releaseService;
 
     private List<NamePartView> historyEvents;
 
@@ -220,6 +222,46 @@ public class RequestManager implements Serializable {
         return ret.toString();
     }
 
+    public String nameStatus(NamePartRevision nreq) {
+        switch (nreq.getStatus()) {
+            case PENDING:
+                return "In-Process";
+            case CANCELLED:
+                return "Cancelled";
+            case REJECTED:
+                return "Rejected";
+            case APPROVED:
+                final @Nullable NameRelease latestRelease = releaseService.getLatestRelease();
+                final boolean processedBeforeLatestRelease = latestRelease != null && nreq.getProcessDate() != null && nreq.getProcessDate().before(latestRelease.getReleaseDate());
+                if (nreq.isDeleted()) {
+                    return "Deleted";
+                } else {
+                    return processedBeforeLatestRelease ? "Published" : "Unpublished";
+                }
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
+    public String nameViewClass(NamePartView entry) {
+        switch (entry.getNameEvent().getStatus()) {
+            case PENDING: return "Processing";
+            case CANCELLED: return "default";
+            case REJECTED: return "default";
+            case APPROVED: return isPublished(entry) ? "Published" : "Approved";
+            default: throw new IllegalStateException();
+        }
+    }
+
+    private boolean isPublished(NamePartView entry) {
+        if (entry.getNameEvent().getProcessDate() == null) {
+            return false;
+        }
+
+        List<NameRelease> releases = releaseService.getAllReleases();
+        return (releases.size() > 0 && !releases.get(0).getReleaseDate().before(entry.getNameEvent().getProcessDate()));
+    }
+
     public void findHistory() {
         if (getSelectedName() == null) {
             historyEvents = null;
@@ -272,6 +314,12 @@ public class RequestManager implements Serializable {
     public boolean canCancel() { return cancelView != null; }
 
     public boolean canShowHistory() { return selectedNodes.length == 1; }
+
+    public void updateOperationViews() {
+        deleteView = deleteView(root, SelectionMode.MANUAL);
+        approveView = approveView(root, SelectionMode.MANUAL);
+        cancelView = cancelView(root, SelectionMode.MANUAL);
+    }
 
     private enum SelectionMode { MANUAL, AUTO, DISABLED }
 
@@ -409,12 +457,6 @@ public class RequestManager implements Serializable {
         } else {
             return null;
         }
-    }
-
-    public void updateOperationViews() {
-        deleteView = deleteView(root, SelectionMode.MANUAL);
-        approveView = approveView(root, SelectionMode.MANUAL);
-        cancelView = cancelView(root, SelectionMode.MANUAL);
     }
 
     private void showMessage(FacesMessage.Severity severity, String summary, String message) {

@@ -22,7 +22,7 @@
                 <p:row>
                     <p:column><h:outputLabel for="status" value="Request Status" /></p:column>
                     <p:column>
-                        <p:selectOneMenu id="status" value="#{reportManager.eventStatus}"  >
+                        <p:selectOneMenu id="status" value="#{reportController.eventStatus}"  >
                             <f:selectItem itemLabel="Any" itemValue="%" />
                             <f:selectItem itemLabel="Approved" itemValue="a" />
                             <f:selectItem itemLabel="Being Processed" itemValue="p" />
@@ -34,7 +34,7 @@
                 <p:row>
                     <p:column><h:outputLabel for="etype" value="Request Type" /></p:column>
                     <p:column>
-                        <p:selectOneMenu id="etype" value="#{reportManager.eventType}">
+                        <p:selectOneMenu id="etype" value="#{reportController.eventType}">
                             <f:selectItem itemLabel="Any" itemValue="%" />
                             <f:selectItem itemLabel="Add Name" itemValue="i" />
                             <f:selectItem itemLabel="Delete Name" itemValue="d" />
@@ -44,26 +44,26 @@
                 </p:row>
                 <p:row rendered="false">
                     <p:column>Request Period</p:column>
-                    <p:column><p:calendar  id="sdate" showOn="button" value="#{reportManager.startDate}"  disabled="true" /> </p:column>
-                    <p:column><p:calendar  id="edate" showOn="button" value="#{reportManager.endDate}" disabled="true" /> </p:column>
+                    <p:column><p:calendar  id="sdate" showOn="button" value="#{reportController.startDate}"  disabled="true" /> </p:column>
+                    <p:column><p:calendar  id="edate" showOn="button" value="#{reportController.endDate}" disabled="true" /> </p:column>
                 </p:row>
                 <p:row rendered="false">
                     <p:column>Revision Period</p:column>
                     <p:column>
-                        <p:selectOneMenu id="srev" value="#{reportManager.startRev}"  >
+                        <p:selectOneMenu id="srev" value="#{reportController.startRev}"  >
                             <f:selectItem itemLabel="Any" itemValue="%" />
                             <f:selectItem itemLabel="R003" itemValue="a" />
                         </p:selectOneMenu>
                     </p:column>
                     <p:column>
-                        <p:selectOneMenu id="erev" value="#{reportManager.endRev}"  >
+                        <p:selectOneMenu id="erev" value="#{reportController.endRev}"  >
                             <f:selectItem itemLabel="Any" itemValue="%" />
                             <f:selectItem itemLabel="R003" itemValue="a" />
                         </p:selectOneMenu>
                     </p:column>
                 </p:row>
             </p:panelGrid>
-            <p:commandButton id="repButton" value="Generate"  action="#{reportManager.onGenReport}"
+            <p:commandButton id="repButton" value="Generate"  action="#{reportController.onGenReport}"
                              update=":RepDataForm:reportTable" onclick="reportPnl.show()" />
             <p:blockUI block=":RepDataForm:reportPnl" trigger="repButton" >
                 <p:graphicImage value="/resources/images/ajax-loader.gif" style="background-color: transparent" />
@@ -78,7 +78,7 @@
                 </f:facet>
                 <f:facet name="footer">
                 </f:facet>
-                <p:dataTable id="reportTable" var="nevent" value="#{reportManager.events}"
+                <p:dataTable id="reportTable" var="nevent" value="#{reportController.events}"
                              paginator="false"  resizableColumns="true"
                              rowKey="#{nevent.id}"  scrollable="true"  scrollHeight="600"
                              emptyMessage="There are no naming events matching your criteria."
@@ -113,7 +113,7 @@
                     	<f:facet name="header">
                     		<h:outputText value="Type" />
                     	</f:facet>
-                        <h:outputText value="#{requestManager.requestType(nevent.revisionType)}" />
+                        <h:outputText value="#{namePartsController.requestType(nevent.revisionType)}" />
                     </p:column>
                     <p:column id="reqBy" >
                     	<f:facet name="header">
@@ -139,7 +139,7 @@
                     	<f:facet name="header">
                     		<h:outputText value="Status" />
                     	</f:facet>
-                        <h:outputText value="#{namesManager.nameStatus(nevent)}" title="status"/>
+                        <h:outputText value="#{namePartsController.nameStatus(nevent)}" title="status"/>
                     </p:column>
                     <p:column id="By" >
                     	<f:facet name="header">

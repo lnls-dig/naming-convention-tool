@@ -19,8 +19,8 @@
                 </p:row>
                 <p:row>
                     <p:column>
-                        <p:tree value="#{editNamesManager.sections}" selectionMode="single" var="section"
-                                selection="#{editNamesManager.selectedSection}" style="width: 100%; height: 150px;">
+                        <p:tree value="#{devicesController.sections}" selectionMode="single" var="section"
+                                selection="#{devicesController.selectedSection}" style="width: 100%; height: 150px;">
 
                             <p:ajax event="select" update=":#{formId}:bsub" />
                             <p:ajax event="unselect" update=":#{formId}:bsub" />
@@ -39,8 +39,8 @@
                 </p:row>
                 <p:row>
                     <p:column>
-                        <p:tree value="#{editNamesManager.deviceTypes}" selectionMode="single" var="devType"
-                                selection="#{editNamesManager.selectedDeviceType}" style="width: 100%; height: 150px;">
+                        <p:tree value="#{devicesController.deviceTypes}" selectionMode="single" var="devType"
+                                selection="#{devicesController.selectedDeviceType}" style="width: 100%; height: 150px;">
 
                             <p:ajax event="select" update=":#{formId}:bsub" />
                             <p:ajax event="unselect" update=":#{formId}:bsub" />
@@ -56,7 +56,7 @@
                     <p:column>
                         <h:outputLabel value="Device quantifier:" />
                         <p:spacer width="5" />
-                        <h:inputText id="quantifier" required="true" value="#{editNamesManager.deviceQuantifier}" />
+                        <h:inputText id="quantifier" required="true" value="#{devicesController.deviceQuantifier}" />
                         <p:button icon="ui-icon-refresh" style="float: right; height: 1.5em; width: 1.5em;"/>
                     </p:column>
                 </p:row>
@@ -65,8 +65,8 @@
 
             <p:commandButton id="bsub" value="Submit" style="float: left"
                     update=":ManageNameForm" oncomplete="#{widgetName}.hide()"
-                    action="#{editNamesManager[submitHandler]}"
-                    disabled="#{!editNamesManager.isFormFilled()}"/>
+                    action="#{devicesController[submitHandler]}"
+                    disabled="#{!devicesController.isFormFilled()}"/>
             <p:commandButton value="Cancel" style="float: right"
                     onclick="#{widgetName}.hide()" />
         </p:dialog>

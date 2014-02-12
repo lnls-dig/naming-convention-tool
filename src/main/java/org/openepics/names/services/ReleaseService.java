@@ -15,8 +15,10 @@
  */
 package org.openepics.names.services;
 
+import com.google.common.base.Preconditions;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -43,15 +45,19 @@ public class ReleaseService {
         return em.createQuery("SELECT n FROM NameRelease n ORDER BY n.releaseDate DESC", NameRelease.class).getResultList();
     }
 
+    public @Nullable NameRelease getLatestRelease() {
+        final List<NameRelease> releases = getAllReleases();
+        return !releases.isEmpty() ? releases.get(0) : null;
+    }
+
     /**
      * Publish a new release of the naming system.
      *
      * @author Vasu V <vuppala@frib.msu.org>
      */
-    public NameRelease createNewRelease(NameRelease newRelease) throws Exception {
-        if (!sessionService.isEditor()) {
-            throw new Exception("You are not authorized to perform this operation.");
-        }
+    public NameRelease createNewRelease(NameRelease newRelease) {
+        Preconditions.checkState(!sessionService.isEditor());
+        
         newRelease.setReleaseDate(new Date());
         newRelease.setReleasedBy(sessionService.user());
         em.persist(newRelease);

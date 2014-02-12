@@ -1,4 +1,4 @@
-package org.openepics.names.ui;
+package org.openepics.names.ui.common;
 
 import javax.faces.context.ExceptionHandler;
 import javax.faces.context.ExceptionHandlerFactory;

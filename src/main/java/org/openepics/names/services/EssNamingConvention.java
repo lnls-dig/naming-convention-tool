@@ -5,8 +5,8 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Alternative;
 import org.openepics.names.model.NamePartType;
-import org.openepics.names.ui.DeviceView;
-import org.openepics.names.ui.names.NamePartView;
+import org.openepics.names.ui.devices.DeviceView;
+import org.openepics.names.ui.parts.NamePartView;
 
 /**
  *

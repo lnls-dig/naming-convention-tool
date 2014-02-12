@@ -13,18 +13,16 @@
  *   http://frib.msu.edu
  *
  */
-package org.openepics.names.ui;
+package org.openepics.names.ui.reports;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import org.openepics.names.model.NameRelease;
 import org.openepics.names.services.ReleaseService;
 
@@ -35,50 +33,31 @@ import org.openepics.names.services.ReleaseService;
  */
 @ManagedBean
 @ViewScoped
-public class PublicationManager implements Serializable {
+public class PublicationController implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    @Inject private ReleaseService releaseService;
 
-    @EJB
-    private ReleaseService releaseService;
-    private static final Logger logger = Logger.getLogger("org.openepics.names.ui.PublicationManager");
     private List<NameRelease> releases;
     private NameRelease selectedRelease;
     private NameRelease inputRelease = new NameRelease();
     private NameRelease latestRelease;
 
-    /**
-     * Creates a new instance of PublicationManager
-     */
-    public PublicationManager() {
-    }
 
     @PostConstruct
     public void init() {
-        logger.log(Level.INFO, "init publication manager");
-        try {
-            releases = releaseService.getAllReleases();
-            if (releases != null && !releases.isEmpty()) {
-                latestRelease = releases.get(0); // releases are assumed in descending order of release date
-            } else {
-                logger.log(Level.INFO, "No release information in the database.");
-            }
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Could not initialize Publication Manager: " + e.getMessage(), e);
+        releases = releaseService.getAllReleases();
+        if (releases != null && !releases.isEmpty()) {
+            latestRelease = releases.get(0); // releases are assumed in descending order of release date
         }
     }
 
     public void onAdd() {
         try {
-            logger.log(Level.INFO, "Adding a new Release");
             if (inputRelease.getReleaseId() == null) {
                 showMessage(FacesMessage.SEVERITY_ERROR, "Release ID is empty", " ");
             }
             inputRelease = releaseService.createNewRelease(inputRelease);
             showMessage(FacesMessage.SEVERITY_INFO, "A new Release was successfully published.", " ");
-        } catch (Exception e) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage());
-            logger.log(Level.SEVERE, "Error adding publication: " + e.getMessage(), e);
         } finally {
             init();
         }

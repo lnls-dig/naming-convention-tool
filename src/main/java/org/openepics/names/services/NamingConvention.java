@@ -1,7 +1,7 @@
 package org.openepics.names.services;
 
-import org.openepics.names.ui.DeviceView;
-import org.openepics.names.ui.names.NamePartView;
+import org.openepics.names.ui.devices.DeviceView;
+import org.openepics.names.ui.parts.NamePartView;
 
 /**
  *

@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package org.openepics.names.ui;
+package org.openepics.names.ui.parts;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
@@ -19,7 +19,8 @@ import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.ui.names.NamePartView;
+import org.openepics.names.ui.common.ViewFactory;
+import org.openepics.names.ui.parts.NamePartView;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 

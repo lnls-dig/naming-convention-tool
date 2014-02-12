@@ -8,11 +8,8 @@
                 xmlns:h="http://java.sun.com/jsf/html">
 
     <ui:define name="content">
-        <h:outputText value="You must be a device editor to perform this action."
-                rendered="#{not userManager.editor}" />
-        <h:form id="ManageNameForm" rendered="#{userManager.editor}">
-            <p:growl id="ncRequestMsgs" showDetail="true" sticky="false"
-                    life="30000" />
+        <h:form id="ManageNameForm">
+            <p:growl id="ncRequestMsgs" showDetail="true" sticky="false" life="30000" />
 
             <!-- =================== Menus ============================ -->
             <p:menu id="ncReqMenu" styleClass="fixedPosition box"
@@ -20,50 +17,50 @@
                 <p:submenu label="Device Names">
                     <p:menuitem value="Add" icon="ui-icon-plus" update=":addDeviceNameForm"
                                 oncomplete="addDeviceName.show()" title="Add Device Name"
-                                action="#{editNamesManager.prepareForAdd()}"
+                                action="#{devicesController.prepareForAdd()}"
                                 rendered="#{userManager.editor}" />
                     <p:menuitem value="Delete" icon="ui-icon-trash"
                             update=":delDeviceNameForm" oncomplete="delDeviceName.show()"
                             title="Delete Device Name" rendered="#{userManager.editor}"
-                disabled="#{empty editNamesManager.selectedDeviceName || editNamesManager.selectedDeviceName.device.deleted || editNamesManager.selectedDeviceName.requestedBy.username != userManager.user.username}" />
+                disabled="#{empty devicesController.selectedDeviceName || devicesController.selectedDeviceName.device.deleted || devicesController.selectedDeviceName.requestedBy.username != userManager.user.username}" />
                     <p:menuitem value="Modify" icon="ui-icon-pencil"
                             update=":modDeviceNameForm" oncomplete="modDeviceName.show()"
-                            action="#{editNamesManager.prepareForModify()}"
+                            action="#{devicesController.prepareForModify()}"
                             title="Modify Device Name" rendered="#{userManager.editor}"
-                disabled="#{empty editNamesManager.selectedDeviceName || editNamesManager.selectedDeviceName.device.deleted || editNamesManager.selectedDeviceName.requestedBy.username != userManager.user.username}" />
+                disabled="#{empty devicesController.selectedDeviceName || devicesController.selectedDeviceName.device.deleted || devicesController.selectedDeviceName.requestedBy.username != userManager.user.username}" />
                     <p:menuitem value="History" icon="ui-icon-search"
-                            actionListener="#{editNamesManager.loadHistory()}"
+                            actionListener="#{devicesController.loadHistory()}"
                             update=":ManageNameForm:historyTable" title="View History"
                             oncomplete="nameDetail.show()"
-                            disabled="#{empty editNamesManager.selectedDeviceName}" />
+                            disabled="#{empty devicesController.selectedDeviceName}" />
                 </p:submenu>
             </p:menu>
 
             <p:contextMenu id="ncCntxtMenu" for="ncCrTable">
                 <p:menuitem value="Add" icon="ui-icon-plus"
-                            action="#{editNamesManager.prepareForAdd()}"
+                            action="#{devicesController.prepareForAdd()}"
                             oncomplete="addDeviceName.show()"
                             rendered="#{userManager.editor}" />
                 <p:menuitem value="Delete" update=":delDeviceNameForm"
                             icon="ui-icon-trash" oncomplete="delDeviceName.show()"
                         rendered="#{userManager.editor}"
-                disabled="#{empty editNamesManager.selectedDeviceName || editNamesManager.selectedDeviceName.device.deleted || editNamesManager.selectedDeviceName.requestedBy.username != userManager.user.username}" />
+                disabled="#{empty devicesController.selectedDeviceName || devicesController.selectedDeviceName.device.deleted || devicesController.selectedDeviceName.requestedBy.username != userManager.user.username}" />
                 <p:menuitem value="Modify" update=":modDeviceNameForm"
-                            action="#{editNamesManager.prepareForModify()}"
+                            action="#{devicesController.prepareForModify()}"
                         icon="ui-icon-pencil" oncomplete="modDeviceName.show()"
                         rendered="#{userManager.editor}"
-                disabled="#{empty editNamesManager.selectedDeviceName || editNamesManager.selectedDeviceName.device.deleted || editNamesManager.selectedDeviceName.requestedBy.username != userManager.user.username}" />
+                disabled="#{empty devicesController.selectedDeviceName || devicesController.selectedDeviceName.device.deleted || devicesController.selectedDeviceName.requestedBy.username != userManager.user.username}" />
                 <p:menuitem value="History" icon="ui-icon-search"
-                        actionListener="#{requestManager.findHistory()}"
+                        actionListener="#{namePartsController.findHistory()}"
                         update=":ManageNameForm:historyTable" oncomplete="nameDetail.show()"
-                        disabled="#{empty editNamesManager.selectedDeviceName}" />
+                        disabled="#{empty devicesController.selectedDeviceName}" />
             </p:contextMenu>
 
             <!-- ===================Data Table============================ -->
-            <p:dataTable id="ncCrTable" var="deviceName" value="#{editNamesManager.allDeviceNames}"
+            <p:dataTable id="ncCrTable" var="deviceName" value="#{devicesController.allDeviceNames}"
                          paginator="true" rows="50" resizableColumns="true" rowKey="#{deviceName.id}"
                          emptyMessage="There are no NC Names" rowStyleClass="#{deviceName.device.deleted ? 'Deleted' : ''}"
-                         selection="#{editNamesManager.selectedDeviceName}" style="width: 90%">
+                         selection="#{devicesController.selectedDeviceName}" style="width: 90%">
                 <f:facet name="header">
                     <h:outputText value="Existing Device Names" />
                 </f:facet>
@@ -87,28 +84,28 @@
                     <f:facet name="header">
                         <h:outputText value="Status" />
                         <br />
-                        <p:selectBooleanButton value="#{editNamesManager.showDeletedNames}" onLabel="Deleted" offLabel="Deleted" onIcon="ui-icon-check" offIcon="ui-icon-close">
-                            <p:ajax update="ncCrTable"  listener="#{editNamesManager.loadDeviceNames}"/>
+                        <p:selectBooleanButton value="#{devicesController.showDeletedNames}" onLabel="Deleted" offLabel="Deleted" onIcon="ui-icon-check" offIcon="ui-icon-close">
+                            <p:ajax update="ncCrTable"  listener="#{devicesController.loadDeviceNames}"/>
                         </p:selectBooleanButton>
                     </f:facet>
                     <h:outputText value="#{deviceName.device.deleted ? 'Deleted' : ''}" />
                 </p:column>
             </p:dataTable>
 
-            <ui:include src="/WEB-INF/includes/nc-dev-history.xhtml" >
-                <ui:param name="historyHandler" value="#{editNamesManager.historyEvents}" />
+            <ui:include src="/WEB-INF/includes/devices-history.xhtml" >
+                <ui:param name="historyHandler" value="#{devicesController.historyEvents}" />
             </ui:include>
 
         </h:form>
 
-        <ui:include src="/WEB-INF/includes/dev-add-mod-form.xhtml" >
+        <ui:include src="/WEB-INF/includes/devices-add-mod-form.xhtml" >
             <ui:param name="formId" value="addDeviceNameForm" />
             <ui:param name="dialogTitle" value="Add Device Name" />
             <ui:param name="widgetName" value="addDeviceName" />
             <ui:param name="submitHandler" value="onAdd" />
         </ui:include>
 
-        <ui:include src="/WEB-INF/includes/dev-add-mod-form.xhtml" >
+        <ui:include src="/WEB-INF/includes/devices-add-mod-form.xhtml" >
             <ui:param name="formId" value="modDeviceNameForm" />
             <ui:param name="dialogTitle" value="Modify Device Name" />
             <ui:param name="widgetName" value="modDeviceName" />
@@ -125,17 +122,17 @@
                     <p:row>
                         <p:column style="width: 128px">
                             <h:outputText
-                                    value="#{editNamesManager.selectedDeviceName.section.fullName}" />
+                                    value="#{devicesController.selectedDeviceName.section.fullName}" />
                         </p:column>
                         <p:column style="width: 128px">
                             <h:outputText
-                                    value="#{editNamesManager.selectedDeviceName.deviceType.fullName}" />
+                                    value="#{devicesController.selectedDeviceName.deviceType.fullName}" />
                         </p:column>
                     </p:row>
 
                     <p:row>
                         <p:column colspan="4">
-                            <h:outputText value="#{editNamesManager.selectedDeviceName.conventionName}" />
+                            <h:outputText value="#{devicesController.selectedDeviceName.conventionName}" />
                         </p:column>
                     </p:row>
                 </p:panelGrid>
@@ -143,7 +140,7 @@
 
                 <p:commandButton value="Submit" style="float: left"
                         update=":ManageNameForm" oncomplete="delDeviceName.hide()"
-                        action="#{editNamesManager.onDelete()}" />
+                        action="#{devicesController.onDelete()}" />
                 <p:commandButton value="Cancel" style="float: right"
                         onclick="delDeviceName.hide()" />
             </p:dialog>

@@ -1,4 +1,4 @@
-package org.openepics.names.ui;
+package org.openepics.names.ui.devices;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -6,7 +6,8 @@ import java.util.List;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.UserAccount;
 import org.openepics.names.services.NamingConvention;
-import org.openepics.names.ui.names.NamePartView;
+import org.openepics.names.ui.common.ViewFactory;
+import org.openepics.names.ui.parts.NamePartView;
 
 /**
  * @author Marko Kolar <marko.kolar@cosylab.com>

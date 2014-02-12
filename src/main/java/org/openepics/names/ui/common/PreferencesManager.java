@@ -13,7 +13,7 @@
  *   http://frib.msu.edu
  * 
  */
-package org.openepics.names.ui;
+package org.openepics.names.ui.common;
 
 import java.io.Serializable;
 import java.util.Map;

@@ -13,7 +13,7 @@
  *   http://frib.msu.edu
  *
  */
-package org.openepics.names.ui;
+package org.openepics.names.ui.reports;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -34,13 +34,13 @@ import org.openepics.names.services.restricted.RestrictedNamePartService;
  */
 @ManagedBean
 @ViewScoped
-public class ReportManager implements Serializable {
+public class ReportController implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Inject private RestrictedNamePartService namePartService;
 
-    private static final Logger logger = Logger.getLogger("org.openepics.names.ui.ReportManager");
+    private static final Logger logger = Logger.getLogger("org.openepics.names.ui.ReportController");
     private List<NamePartRevision> events;
     // Search Parameters
     private NamePartRevisionStatus revisionStatus;
@@ -50,7 +50,7 @@ public class ReportManager implements Serializable {
     /**
      * Creates a new instance of ReportManager
      */
-    public ReportManager() {
+    public ReportController() {
     }
 
     public void onGenReport() {

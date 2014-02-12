@@ -33,7 +33,7 @@ public class RestrictedNamePartService {
         Preconditions.checkState(sessionService.isLoggedIn());
         return namePartService.addNamePart(name, fullName, nameType, parent, sessionService.user(), comment);
 
-//        if (userManager.isEditor() && !nameCategory.isApprovalNeeded() && (parentBaseRevision == null || parentBaseRevision.getStatus() == NamePartRevisionStatus.APPROVED)) {
+//        if (sessionService.isEditor() && !nameCategory.isApprovalNeeded() && (parentBaseRevision == null || parentBaseRevision.getStatus() == NamePartRevisionStatus.APPROVED)) {
 //            autoApprove(newRevision);
 //        }
     }
@@ -42,7 +42,7 @@ public class RestrictedNamePartService {
         Preconditions.checkState(sessionService.isLoggedIn());
         return namePartService.modifyNamePart(namePart, name, fullName, sessionService.user(), comment);
 
-//        if (userManager.isEditor() && !baseRevision.getNameCategory().isApprovalNeeded() && isOriginalCreator(userManager.user(), namePart) && approvedParentRevision != null) {
+//        if (sessionService.isEditor() && !baseRevision.getNameCategory().isApprovalNeeded() && isOriginalCreator(sessionService.user(), namePart) && approvedParentRevision != null) {
 //            autoApprove(newRevision);
 //        }
     }
@@ -51,7 +51,7 @@ public class RestrictedNamePartService {
         Preconditions.checkState(sessionService.isLoggedIn());
         return namePartService.deleteNamePart(namePart, sessionService.user(), comment);
 
-//        if (userManager.isEditor() && !approvedRevision.getNameCategory().isApprovalNeeded() && isOriginalCreator(userManager.user(), namePart)) {
+//        if (sessionService.isEditor() && !approvedRevision.getNameCategory().isApprovalNeeded() && isOriginalCreator(sessionService.user(), namePart)) {
 //            autoApprove(newRevision);
 //        }
     }

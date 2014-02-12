@@ -1,8 +1,8 @@
 package org.openepics.names.services;
 
 import javax.ejb.Stateless;
-import org.openepics.names.ui.DeviceView;
-import org.openepics.names.ui.names.NamePartView;
+import org.openepics.names.ui.devices.DeviceView;
+import org.openepics.names.ui.parts.NamePartView;
 
 /**
  *

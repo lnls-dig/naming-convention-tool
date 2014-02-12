@@ -1,4 +1,4 @@
-package org.openepics.names.ui.names;
+package org.openepics.names.ui.parts;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;

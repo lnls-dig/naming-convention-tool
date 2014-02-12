@@ -1,4 +1,4 @@
-package org.openepics.names.ui;
+package org.openepics.names.ui.common;
 
 import java.util.Iterator;
 import javax.faces.FacesException;

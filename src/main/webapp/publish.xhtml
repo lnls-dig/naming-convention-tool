@@ -24,11 +24,11 @@
                 <p:menuitem value="Delete"  icon="ui-icon-trash"   disabled="true"/>
                 <p:menuitem value="Modify"  icon="ui-icon-pencil"  disabled="true"/>
             </p:contextMenu>
-            <p:dataTable id="releaseTable" var="release" value="#{publicationManager.releases}"
+            <p:dataTable id="releaseTable" var="release" value="#{publicationController.releases}"
                          paginator="true" rows="25" resizableColumns="true"
                          rowKey="#{release.releaseId}"
                          emptyMessage="There are no releases."
-                         selection="#{publicationManager.selectedRelease}"
+                         selection=publicationControllerger.selectedRelease}"
                          style="width: 90%">
                 <f:facet name="header">
                     <h:outputText value="Releases" />
@@ -65,17 +65,17 @@
                 <p:panelGrid columns="2" style="text-align: left">
 
                     <h:outputLabel for="relid" value="Release ID:" />
-                    <h:inputText id="relid" value="#{publicationManager.inputRelease.releaseId}"
+                    <h:inputText id="relid" valpublicationControlleranager.inputRelease.releaseId}"
                                  required="true" label="Release's unique name" />
 
                     <h:outputLabel for="relurl" value="Document URL:" />
-                    <p:inputTextarea id="relurl" value="#{publicationManager.inputRelease.docUrl}"
+                    <p:inputTextarea id="relurl" publicationControlleronManager.inputRelease.docUrl}"
                                      rows="4" cols="60"
                                      required="true"  label="URL of the published document"/>
 
                     <h:outputLabel for="reldesc" value="Description:" />
                     <p:inputTextarea id="reldesc" rows="5" cols="60" counter="icounter" maxlength="254"
-                                     value="#{publicationManager.inputRelease.description}"
+                                  publicationControllerationManager.inputRelease.description}"
                                      counterTemplate="{0} characters remaining." autoResize="false"
                                      required="true"  label="A description of the release" />
                 </p:panelGrid>
@@ -88,7 +88,7 @@
                 <p:commandButton value="Submit" style="float: left"
                                  update=":publishForm"
                                  oncomplete="addRelease.hide()"
-                                 action="#{publicationManager.onAdd()}"/>
+                            publicationControllerlicationManager.onAdd()}"/>
                 <p:commandButton  value="Cancel" style="float: right"
                                   onclick="addRelease.hide()"  />
             </p:dialog>
