@@ -20,7 +20,6 @@ import javax.inject.Inject;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.ui.common.ViewFactory;
-import org.openepics.names.ui.parts.NamePartView;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
@@ -114,7 +113,8 @@ public class NamePartTreeBuilder {
                 @Override public int compare(TreeNode left, TreeNode right) {
                     final NamePartView leftView = (NamePartView) left.getData();
                     final NamePartView rightView = (NamePartView) right.getData();
-                    return leftView.getFullName().compareTo(rightView.getFullName());
+                    final AlphanumComparator alphanumComparator = new AlphanumComparator();
+                    return alphanumComparator.compare(leftView.getFullName(), rightView.getFullName());
                 }
             });
             for (TreeNode child : children) {
