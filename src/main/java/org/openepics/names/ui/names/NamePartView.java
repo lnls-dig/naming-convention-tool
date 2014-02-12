@@ -59,14 +59,14 @@ public class NamePartView {
         this.pendingRevision = pendingRevision;
     }
 
-    public NamePart getNamePart() { return baseRevision().getNamePart(); }
+    public NamePart getNamePart() { return getCurrentOrElsePendingRevision().getNamePart(); }
 
-    public NamePartRevision getNameEvent() { return baseRevision(); }
+    public NamePartRevision getNameEvent() { return getCurrentOrElsePendingRevision(); }
 
-    public Integer getId() { return baseRevision().getId(); }
+    public Integer getId() { return getCurrentOrElsePendingRevision().getId(); }
 
     public @Nullable NamePartView getParent() {
-        final @Nullable NamePart parent = baseRevision().getParent();
+        final @Nullable NamePart parent = getCurrentOrElsePendingRevision().getParent();
         if (parent != null) {
             return new NamePartView(namePartService, namePartService.approvedRevision(parent), namePartService.pendingRevision(parent));
         } else {
@@ -96,13 +96,13 @@ public class NamePartView {
         }
     }
 
-    public boolean isDeleted() { return baseRevision().isDeleted(); }
+    public boolean isDeleted() { return getCurrentOrElsePendingRevision().isDeleted(); }
 
     public @Nullable NamePartRevision getPendingRevision() { return pendingRevision; }
 
-    public String getName() { return baseRevision().getName(); }
+    public String getName() { return getCurrentOrElsePendingRevision().getName(); }
 
-    public String getFullName() { return baseRevision().getFullName(); }
+    public String getFullName() { return getCurrentOrElsePendingRevision().getFullName(); }
 
     public List<String> getNamePath() {
         final ImmutableList.Builder<String> pathElements = ImmutableList.builder();
@@ -120,7 +120,11 @@ public class NamePartView {
         return pathElements.build().reverse();
     }
 
-    private NamePartRevision baseRevision() {
+    public NamePartRevision getPendingOrElseCurrentRevision() {
+        return pendingRevision != null ? pendingRevision : currentRevision;
+    }
+
+    private NamePartRevision getCurrentOrElsePendingRevision() {
         return currentRevision != null ? currentRevision : pendingRevision;
     }
 }

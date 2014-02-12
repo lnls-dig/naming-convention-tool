@@ -6,7 +6,10 @@
 
 package org.openepics.names.ui;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,17 +96,28 @@ public class NamePartTreeBuilder {
         }
 
         private TreeNode asViewTree() {
-            return asViewTree(new DefaultTreeNode("root", null), root, 0);
+            return asViewTree(new DefaultTreeNode(null, null), root, 0);
         }
 
         private TreeNode asViewTree(TreeNode parentNode, NamePartRevisionTreeNode nprNode, int level) {
+            final List<TreeNode> children = Lists.newArrayList();
             for (NamePartRevisionTreeNode child : nprNode.children) {
-                TreeNode node = new DefaultTreeNode(viewFactory.getView(child.node.approved, child.node.pending), parentNode);
+                final TreeNode node = new DefaultTreeNode(viewFactory.getView(child.node.approved, child.node.pending), null);
                 node.setExpanded(expandedTree);
                 node.setSelectable(level >= selectableLevel);
                 if (isSelected(node)) selectNode(node);
-                if (child.node.pending == null || (child.node.pending != null) && !child.node.pending.isDeleted())
-                    asViewTree(node, child, level+1);
+                asViewTree(node, child, level+1);
+                children.add(node);
+            }
+            Collections.sort(children, new Comparator<TreeNode>() {
+                @Override public int compare(TreeNode left, TreeNode right) {
+                    final NamePartView leftView = (NamePartView) left.getData();
+                    final NamePartView rightView = (NamePartView) right.getData();
+                    return leftView.getFullName().compareTo(rightView.getFullName());
+                }
+            });
+            for (TreeNode child : children) {
+                child.setParent(parentNode);
             }
             return parentNode;
         }

@@ -18,11 +18,11 @@
             <p:column id="id" headerText="Id" rendered="false" >
                 <h:outputText value="#{nevent.id}" />
             </p:column>
-            <p:column id="nameCode" headerText="Name" >
-                <h:outputText value="#{nevent.name}" />
-            </p:column>
-            <p:column id="nameDesc" headerText="Full Name">
+            <p:column id="nameDesc" headerText="Name">
                 <h:outputText value="#{nevent.fullName}" />
+            </p:column>
+            <p:column id="nameCode" headerText="Mnemonic" >
+                <h:outputText value="#{nevent.name}" />
             </p:column>
             <p:column id="type" headerText="Type" >
                 <h:outputText value="#{requestManager.getRequestType(nevent)}" />

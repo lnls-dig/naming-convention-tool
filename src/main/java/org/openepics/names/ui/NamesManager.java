@@ -90,7 +90,7 @@ public class NamesManager implements Serializable {
                     return processedBeforeLatestRelease ? "Published" : "Unpublished";
                 }
             default:
-                return "unknown";
+                throw new IllegalStateException();
         }
     }
 

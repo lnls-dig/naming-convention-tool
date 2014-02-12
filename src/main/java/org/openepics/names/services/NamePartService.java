@@ -95,12 +95,22 @@ public class NamePartService {
         final @Nullable NamePartRevision pendingRevision = pendingRevision(namePart);
 
         if (pendingRevision != null && pendingRevision.getStatus() == NamePartRevisionStatus.PENDING) {
-            pendingRevision.setStatus(NamePartRevisionStatus.CANCELLED);
-            pendingRevision.setProcessedBy(user);
-            pendingRevision.setProcessDate(new Date());
-            pendingRevision.setProcessorComment(comment);
-
-            return pendingRevision;
+            final @Nullable NamePartRevision parentApprovedRevision = approvedRevision(pendingRevision.getParent());
+            final @Nullable NamePartRevision parentPendingRevision = pendingRevision(pendingRevision.getParent());
+            if ((parentApprovedRevision == null || !parentApprovedRevision.isDeleted()) && (parentPendingRevision == null || !parentPendingRevision.isDeleted())) {
+                pendingRevision.setStatus(NamePartRevisionStatus.CANCELLED);
+                pendingRevision.setProcessedBy(user);
+                pendingRevision.setProcessDate(new Date());
+                pendingRevision.setProcessorComment(comment);
+                if (approvedRevision == null || pendingRevision.isDeleted()) {
+                    for (NamePart child : approvedAndProposedChildren(pendingRevision.getNamePart())) {
+                        cancelChildNamePart(child, user);
+                    }
+                }
+                return pendingRevision;
+            } else {
+                throw new IllegalStateException();
+            }
         } else if (approvedRevision != null && pendingRevision == null) {
             return approvedRevision;
         } else {
@@ -110,10 +120,21 @@ public class NamePartService {
 
     public void approveNamePartRevision(NamePartRevision namePartRevision, @Nullable UserAccount user) {
         if (namePartRevision.getStatus() == NamePartRevisionStatus.PENDING) {
-            namePartRevision.setStatus(NamePartRevisionStatus.APPROVED);
-            namePartRevision.setProcessedBy(user);
-            namePartRevision.setProcessDate(new Date());
-            namePartRevision.setProcessorComment(null);
+            final @Nullable NamePartRevision parentApprovedRevision = approvedRevision(namePartRevision.getParent());
+            final @Nullable NamePartRevision parentPendingRevision = pendingRevision(namePartRevision.getParent());
+            if ((parentApprovedRevision != null && !parentApprovedRevision.isDeleted()) && (parentPendingRevision == null || !parentPendingRevision.isDeleted())) {
+                namePartRevision.setStatus(NamePartRevisionStatus.APPROVED);
+                namePartRevision.setProcessedBy(user);
+                namePartRevision.setProcessDate(new Date());
+                namePartRevision.setProcessorComment(null);
+                if (namePartRevision.isDeleted()) {
+                    for (NamePart child : approvedAndProposedChildren(namePartRevision.getNamePart())) {
+                        approveChildNamePart(child, user);
+                    }
+                }
+            } else {
+                throw new IllegalStateException();
+            }
         } else if (namePartRevision.getStatus() == NamePartRevisionStatus.APPROVED) {
             Marker.doNothing();
         } else {
@@ -160,8 +181,37 @@ public class NamePartService {
 
         if (approvedRevision != null) {
             final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, true, approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getFullName());
-            newRevision.setStatus(NamePartRevisionStatus.PENDING_PARENT);
             em.persist(newRevision);
+        }
+    }
+
+    private void approveChildNamePart(NamePart namePart, @Nullable UserAccount user) {
+        final NamePartRevision pendingRevision = As.notNull(pendingRevision(namePart));
+
+        if (pendingRevision != null) {
+            pendingRevision.setStatus(NamePartRevisionStatus.APPROVED);
+            pendingRevision.setProcessedBy(user);
+            pendingRevision.setProcessDate(new Date());
+            pendingRevision.setProcessorComment(null);
+        }
+
+        for (NamePart child : approvedAndProposedChildren(namePart)) {
+            approveChildNamePart(child, user);
+        }
+    }
+
+    private void cancelChildNamePart(NamePart namePart, @Nullable UserAccount user) {
+        final NamePartRevision pendingRevision = As.notNull(pendingRevision(namePart));
+
+        if (pendingRevision != null) {
+            pendingRevision.setStatus(NamePartRevisionStatus.CANCELLED);
+            pendingRevision.setProcessedBy(user);
+            pendingRevision.setProcessDate(new Date());
+            pendingRevision.setProcessorComment(null);
+        }
+
+        for (NamePart child : approvedAndProposedChildren(namePart)) {
+            cancelChildNamePart(child, user);
         }
     }
 
@@ -173,7 +223,7 @@ public class NamePartService {
     }
 
     private Iterable<NamePart> approvedAndProposedChildren(NamePart namePart) {
-        return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.parent = :namePart AND r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :approved OR r2.status = :pending OR r2.status = :pending_parent)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePart.class).setParameter("namePart", namePart).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("pending_parent", NamePartRevisionStatus.PENDING_PARENT).getResultList();
+        return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.parent = :namePart AND r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :approved OR r2.status = :pending)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePart.class).setParameter("namePart", namePart).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
     }
 
     public NameHierarchy nameHierarchy() {
@@ -194,9 +244,9 @@ public class NamePartService {
 
     public List<NamePart> approvedOrPendingNames(boolean includeDeleted) {
         if (includeDeleted)
-            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :approved OR r2.status = :pending OR r2.status = :pending_parent))", NamePart.class).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("pending_parent", NamePartRevisionStatus.PENDING_PARENT).getResultList();
+            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :approved OR r2.status = :pending))", NamePart.class).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
         else {
-            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :approved OR r2.status = :pending OR r2.status = :pending_parent)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePart.class).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("pending_parent", NamePartRevisionStatus.PENDING_PARENT).getResultList();
+            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :approved OR r2.status = :pending)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePart.class).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
         }
     }
 
@@ -214,9 +264,9 @@ public class NamePartService {
 
     public List<NamePartRevision> currentPendingRevisions(boolean includeDeleted) {
         if (includeDeleted)
-            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :pending OR r2.status = :pending_parent))", NamePartRevision.class).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("pending_parent", NamePartRevisionStatus.PENDING_PARENT).getResultList();
+            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :pending))", NamePartRevision.class).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
         else {
-            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :pending OR r2.status = :pending_parent)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePartRevision.class).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("pending_parent", NamePartRevisionStatus.PENDING_PARENT).getResultList();
+            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :pending)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePartRevision.class).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
         }
     }
 
@@ -228,18 +278,14 @@ public class NamePartService {
         return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart ORDER BY r.id", NamePartRevision.class).setParameter("namePart", namePart).getResultList();
     }
 
-    public List<NamePart> siblings(NamePart namePart) {
-        throw new IllegalStateException(); // TODO
-    }
-
     public @Nullable NamePartRevision approvedRevision(NamePart namePart) {
         return JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND r.status = :status ORDER BY r.id DESC", NamePartRevision.class).setParameter("namePart", namePart).setParameter("status", NamePartRevisionStatus.APPROVED).setMaxResults(1));
     }
 
     public @Nullable NamePartRevision pendingRevision(NamePart namePart) {
-        final @Nullable NamePartRevision lastPendingOrApprovedRevision = JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND (r.status = :status1 OR r.status = :status2 OR r.status = :status3) ORDER BY r.id DESC", NamePartRevision.class).setParameter("namePart", namePart).setParameter("status1", NamePartRevisionStatus.APPROVED).setParameter("status2", NamePartRevisionStatus.PENDING).setParameter("status3", NamePartRevisionStatus.PENDING_PARENT).setMaxResults(1));
+        final @Nullable NamePartRevision lastPendingOrApprovedRevision = JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND (r.status = :approved OR r.status = :pending) ORDER BY r.id DESC", NamePartRevision.class).setParameter("namePart", namePart).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setMaxResults(1));
         if (lastPendingOrApprovedRevision == null) return null;
-        else if (lastPendingOrApprovedRevision.getStatus() == NamePartRevisionStatus.PENDING || lastPendingOrApprovedRevision.getStatus() == NamePartRevisionStatus.PENDING_PARENT) return lastPendingOrApprovedRevision;
+        else if (lastPendingOrApprovedRevision.getStatus() == NamePartRevisionStatus.PENDING) return lastPendingOrApprovedRevision;
         else return null;
     }
 

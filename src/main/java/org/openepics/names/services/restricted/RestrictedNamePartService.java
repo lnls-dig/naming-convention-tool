@@ -14,7 +14,6 @@ import org.openepics.names.model.NamePartType;
 import org.openepics.names.model.UserAccount;
 import org.openepics.names.services.NamePartService;
 import org.openepics.names.services.SessionService;
-import org.openepics.names.util.Marker;
 
 /**
  *
@@ -63,17 +62,7 @@ public class RestrictedNamePartService {
 
     public void approveNamePartRevision(NamePartRevision namePartRevision) {
         Preconditions.checkState(sessionService.isSuperUser());
-
-        if (namePartRevision.getStatus() == NamePartRevisionStatus.PENDING) {
-            namePartRevision.setStatus(NamePartRevisionStatus.APPROVED);
-            namePartRevision.setProcessedBy(sessionService.user());
-            namePartRevision.setProcessDate(new Date());
-            namePartRevision.setProcessorComment(null);
-        } else if (namePartRevision.getStatus() == NamePartRevisionStatus.APPROVED) {
-            Marker.doNothing();
-        } else {
-            throw new IllegalStateException();
-        }
+        namePartService.approveNamePartRevision(namePartRevision, sessionService.user());
     }
 
     public void rejectNamePartRevision(NamePartRevision namePartRevision, String comment) {
@@ -125,10 +114,6 @@ public class RestrictedNamePartService {
 
     public List<NamePartRevision> revisions(NamePart namePart) {
         return namePartService.revisions(namePart);
-    }
-
-    public List<NamePart> siblings(NamePart namePart) {
-        return namePartService.siblings(namePart);
     }
 
     public @Nullable NamePartRevision approvedRevision(NamePart namePart) {

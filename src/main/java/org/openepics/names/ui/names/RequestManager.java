@@ -54,13 +54,13 @@ public class RequestManager implements Serializable {
     @Inject private ViewFactory viewFactory;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
 
-    private List<NamePartView> filteredNames;
     private List<NamePartView> historyEvents;
 
     private TreeNode root;
     private TreeNode[] selectedNodes;
 
-    private TreeNode deleteCandidates;
+    private TreeNode deleteView;
+    private TreeNode cancelView;
 
     private String newCode;
     private String newDescription;
@@ -92,18 +92,9 @@ public class RequestManager implements Serializable {
         root = namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, true);
 
         newCode = newDescription = newComment = null;
-        selectedNodes = null;
-        deleteCandidates = null;
-    }
-
-    public void onModify() {
-        try {
-            if (getSelectedName() == null) return;
-            final NamePartRevision newRequest = namePartService.modifyNamePart(getSelectedName().getNamePart(), newCode, newDescription, newComment);
-            showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
-        } finally {
-            init();
-        }
+        selectedNodes = new TreeNode[0];
+        prepareDeleteView();
+        prepareCancelView();
     }
 
     public void onAdd() {
@@ -116,11 +107,60 @@ public class RequestManager implements Serializable {
         }
     }
 
-    /*
-     * Has the selectedName been processed?
-     */
-    public boolean selectedEventProcessed() {
-        return getSelectedName() == null ? false : getSelectedName().getPendingChange() == null;
+    public void onModify() {
+        try {
+            final NamePartRevision newRequest = namePartService.modifyNamePart(getSelectedName().getNamePart(), newCode, newDescription, newComment);
+            showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
+        } finally {
+            init();
+        }
+    }
+
+
+    public void onDelete() {
+        try {
+            for (TreeNode nodeToDelete : normalizedSelection()) {
+                namePartService.deleteNamePart(((NamePartView)(nodeToDelete.getData())).getNamePart(), newComment);
+            }
+            showMessage(FacesMessage.SEVERITY_INFO, "Success", "The data you requested was successfully deleted.");
+        } finally {
+            init();
+        }
+    }
+
+    public void onCancel() {
+        try {
+            namePartService.cancelChangesForNamePart(getSelectedName().getNamePart(), newComment);
+            showMessage(FacesMessage.SEVERITY_INFO, "Your request has been cancelled.", "Request Number: ");
+        } finally {
+            init();
+        }
+    }
+
+    public void onApprove() {
+        // TODO
+        try {
+            namePartService.approveNamePartRevisions(
+                    Lists.transform(null, new Function<NamePartView, NamePartRevision>() {
+                        @Override public NamePartRevision apply(NamePartView namePart) { return namePart.getPendingRevision(); }
+                    }), newComment);
+            showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully approved.", " ");
+        } finally {
+            init();
+        }
+    }
+
+    public void onReject() {
+        // TODO
+        try {
+            namePartService.rejectNamePartRevisions(
+                    Lists.transform(null, new Function<NamePartView, NamePartRevision>() {
+                        @Override public NamePartRevision apply(NamePartView namePart) { return namePart.getPendingRevision(); }
+                    }), newComment);
+            showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully rejected.", " ");
+        } finally {
+            init();
+        }
     }
 
     public String getRequestType(NamePartView req) {
@@ -135,19 +175,21 @@ public class RequestManager implements Serializable {
 
     public String getNewName(NamePartView req) {
         final Change change = req.getPendingChange();
-        if (change instanceof NamePartView.ModifyChange)
+        if (change instanceof NamePartView.ModifyChange) {
             return ((NamePartView.ModifyChange)change).getNewName();
-        else
+        } else {
             return req.getName();
+        }
 
     }
 
     public String getNewFullName(NamePartView req) {
         final Change change = req.getPendingChange();
-        if (change instanceof NamePartView.ModifyChange)
+        if (change instanceof NamePartView.ModifyChange) {
             return ((NamePartView.ModifyChange)change).getNewFullName();
-        else
+        } else {
             return req.getFullName();
+        }
     }
 
     public boolean isModified(NamePartView req) {
@@ -165,8 +207,7 @@ public class RequestManager implements Serializable {
         if (change instanceof NamePartView.AddChange) ret.append("Insert-");
         else if (change instanceof NamePartView.ModifyChange) ret.append("Modify-");
         else if (change instanceof NamePartView.DeleteChange) ret.append("Delete-");
-        // ERROR!!!! unknown class
-        else return "unknown";
+        else throw new IllegalStateException();
 
         switch (change.getStatus()) {
             case APPROVED:
@@ -182,35 +223,9 @@ public class RequestManager implements Serializable {
                 ret.append("Rejected");
                 break;
             default:
-                return "unknown";
+                throw new IllegalStateException();
         }
         return ret.toString();
-    }
-
-    public void onDelete() {
-        try {
-            if (getSelectedName() == null) return;
-            for (TreeNode nodeToDelete : normalizedSelection())
-                namePartService.deleteNamePart(((NamePartView)(nodeToDelete.getData())).getNamePart(), newComment);
-            showMessage(FacesMessage.SEVERITY_INFO, "Success", "The data you requested was successfully deleted.");
-        } finally {
-            init();
-        }
-    }
-
-    public void onCancel() {
-        try {
-            if (getSelectedName() == null) return;
-            namePartService.cancelChangesForNamePart(getSelectedName().getNamePart(), newComment);
-            showMessage(FacesMessage.SEVERITY_INFO, "Your request has been cancelled.", "Request Number: ");
-        } finally {
-            init();
-        }
-    }
-
-    private void showMessage(FacesMessage.Severity severity, String summary, String message) {
-        final FacesContext context = FacesContext.getCurrentInstance();
-        context.addMessage(null, new FacesMessage(severity, summary, message));
     }
 
     public void findHistory() {
@@ -225,77 +240,55 @@ public class RequestManager implements Serializable {
         }));
     }
 
-    public NamePartView getSelectedName() {
-        return selectedNodes == null || selectedNodes.length < 1 ? null : (NamePartView)(selectedNodes[0].getData());
+    public @Nullable NamePartView getSelectedName() {
+        return selectedNodes.length < 1 ? null : (NamePartView)(selectedNodes[0].getData());
     }
 
-    public List<NamePartView> getFilteredNames() {
-        return filteredNames;
-    }
+    public String getNewCode() { return newCode; }
+    public void setNewCode(String newCode) { this.newCode = newCode; }
 
-    public void setFilteredNames(List<NamePartView> filteredNames) {
-        this.filteredNames = filteredNames;
-    }
+    public String getNewDescription() { return newDescription; }
+    public void setNewDescription(String newDescription) { this.newDescription = newDescription; }
 
-    public String getNewCode() {
-        return newCode;
-    }
+    public String getNewComment() { return newComment; }
+    public void setNewComment(String newComment) { this.newComment = newComment; }
 
-    public void setNewCode(String newCode) {
-        this.newCode = newCode;
-    }
+    public List<NamePartView> getHistoryEvents() { return historyEvents; }
 
-    public String getNewDescription() {
-        return newDescription;
-    }
+    public TreeNode getRoot() { return root; }
 
-    public void setNewDescription(String newDescription) {
-        this.newDescription = newDescription;
-    }
-
-    public String getNewComment() {
-        return newComment;
-    }
-
-    public void setNewComment(String newComment) {
-        this.newComment = newComment;
-    }
-
-    public List<NamePartView> getHistoryEvents() {
-        return historyEvents;
-    }
-
-    public TreeNode getRoot() {
-        return root;
-    }
-
-    public TreeNode[] getSelectedNodes() {
-        return selectedNodes;
-    }
-
+    public TreeNode[] getSelectedNodes() { return selectedNodes; }
     public void setSelectedNodes(TreeNode[] selectedNodes) {
-        this.selectedNodes = selectedNodes;
+        if (this.selectedNodes != selectedNodes) {
+            this.selectedNodes = selectedNodes;
+            prepareDeleteView();
+            prepareCancelView();
+        }
     }
 
-    public TreeNode getDeleteCandidates() {
-        return deleteCandidates;
-    }
+    public TreeNode getDeleteView() { return deleteView; }
 
-    public boolean isDeleteNames() {
-        return deleteCandidates == null || deleteCandidates.getChildCount() > 0;
-    }
+    public TreeNode getCancelView() { return cancelView; }
+
+    public boolean canAdd() { return selectedNodes.length == 1 && !((NamePartView) selectedNodes[0].getData()).getPendingOrElseCurrentRevision().isDeleted(); }
+
+    public boolean canDelete() { return deleteView.getChildCount() > 0; }
+
+    public boolean canModify() { return selectedNodes.length == 1 && !((NamePartView) selectedNodes[0].getData()).getPendingOrElseCurrentRevision().isDeleted(); }
+
+    public boolean canCancel() { return cancelView != null; }
 
     public void prepareDeleteView() {
-        if (selectedNodes == null || selectedNodes.length == 0) {
-            deleteCandidates = null;
-            return;
-        }
-        List<TreeNode> normalizedViewSelection = normalizedSelection();
+        final List<TreeNode> normalizedSelection = normalizedSelection();
         final HashMap<String, TreeNode> processed = new HashMap<>();
-        deleteCandidates = new DefaultTreeNode("root", null);
-        for (TreeNode selected : normalizedViewSelection) {
+        deleteView = new DefaultTreeNode("root", null);
+        for (TreeNode selected : normalizedSelection) {
             addToDeleteView(selected, processed);
         }
+    }
+
+    public void prepareCancelView() {
+        cancelView = cancelView(root, false);
     }
 
     /**
@@ -322,8 +315,9 @@ public class RequestManager implements Serializable {
     }
 
     private boolean isSelected(TreeNode node) {
-        for (TreeNode searchNode : selectedNodes)
+        for (TreeNode searchNode : selectedNodes) {
             if (node == searchNode) return true;
+        }
         return false;
     }
 
@@ -333,7 +327,7 @@ public class RequestManager implements Serializable {
         final TreeNode dialogParent;
 
         if (!(mainTableNodeParent.getData() instanceof NamePartView)) {
-            dialogParent = deleteCandidates;
+            dialogParent = deleteView;
         } else {
             final String parentUuid = ((NamePartView)(mainTableNodeParent.getData())).getNamePart().getUuid();
             dialogParent = processedDialogNodes.containsKey(parentUuid) ? processedDialogNodes.get(parentUuid) : addToDeleteView(mainTableNodeParent, processedDialogNodes);
@@ -345,5 +339,35 @@ public class RequestManager implements Serializable {
         processedDialogNodes.put(npv.getNamePart().getUuid(), dialogDeleteNode);
 
         return dialogDeleteNode;
+    }
+
+    private void showMessage(FacesMessage.Severity severity, String summary, String message) {
+        final FacesContext context = FacesContext.getCurrentInstance();
+        context.addMessage(null, new FacesMessage(severity, summary, message));
+    }
+
+    private @Nullable TreeNode cancelView(TreeNode node, boolean cancelAny) {
+        final @Nullable NamePartView nodeView = (NamePartView) node.getData();
+        final boolean cancelNode = nodeView != null && (cancelAny || isSelected(node)) && (nodeView.getPendingChange() != null);
+        final boolean childrenCancelAny = cancelAny || (nodeView != null && isSelected(node) && !(nodeView.getPendingChange() instanceof NamePartView.ModifyChange));
+
+        final List<TreeNode> childViews = Lists.newArrayList();
+        for (TreeNode child : node.getChildren()) {
+            final TreeNode childView = cancelView(child, childrenCancelAny);
+            if (childView != null) {
+                childViews.add(childView);
+            }
+        }
+
+        if (cancelNode || !childViews.isEmpty()) {
+            final TreeNode result = new DefaultTreeNode(nodeView != null ? new DeleteNamePartView(nodeView.getName(), nodeView.getFullName(), cancelNode) : null, null);
+            result.setExpanded(true);
+            for (TreeNode childView : childViews) {
+                childView.setParent(result);
+            }
+            return result;
+        } else {
+            return null;
+        }
     }
 }

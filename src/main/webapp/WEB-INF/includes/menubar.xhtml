@@ -13,20 +13,18 @@
         <fc:logincomp display="false" updates=":menuform:mainMenu" />
 
         <p:menubar id="mainMenu">
-            <p:menuitem value="Home" icon="ui-icon-home" title="Home" url="index.xhtml" />
-            <p:menuitem value="Sections" title="Sections" url="parts-request-sub.xhtml?type=section" icon="ui-icon-folder-open" />
-            <p:menuitem value="Device Types" title="Device Types" url="parts-request-sub.xhtml?type=deviceType" icon="ui-icon-lightbulb" />
-            <p:menuitem value="Devices" title="Devices" url="nc-dev-edit.xhtml" icon="ui-icon-wrench" />
-            <p:menuitem value="Reports" title="Reports" icon="ui-icon-print" url="reports.xhtml" disabled="false" />
-
+            <p:menuitem value="Home" icon="ui-icon-home" url="index.xhtml" />
+            <p:menuitem value="Sections" icon="ui-icon-folder-open" url="parts.xhtml?type=section" />
+            <p:menuitem value="Device Types" icon="ui-icon-lightbulb" url="parts.xhtml?type=deviceType" />
+            <p:menuitem value="Devices" icon="ui-icon-wrench" url="devices.xhtml"/>
+            <p:menuitem value="Reports" icon="ui-icon-print" url="reports.xhtml" />
             <p:menuitem value="Preferences" title="Preferences" icon="ui-icon-gear" url="preferences.xhtml" />
-
             <p:submenu label="Help" icon="ui-icon-help">
-                <p:menuitem value=" Online Help" title="Online Help" icon="ui-icon-help" url="help.xhtml" />
-                <p:menuitem value=" API Manual" title="API Manual" icon="ui-icon-script" url="api-manual.xhtml" />
+                <p:menuitem value=" Online Help" icon="ui-icon-help" url="help.xhtml" />
+                <p:menuitem value=" API Manual" icon="ui-icon-script" url="api-manual.xhtml" />
                 <p:menuitem value=" Naming Document" title="Latest Naming System Document" icon="ui-icon-document" target="_blank" url="#{publicationManager.latestRelease eq null? '/' : publicationManager.latestRelease.docUrl}" disabled="#{publicationManager.latestRelease eq null}" />
                 <p:menuitem value=" Report Problems" title="Report Problems/Suggestions" icon="ui-icon-alert" target="_blank" url="https://controls.frib.msu.edu/controlshelp/" rendered="false" />
-                <p:menuitem value=" About" id="aboutMenu" icon="ui-icon-info" title="About Naming Convention Tool" />
+                <p:menuitem value=" About" title="About Naming Convention Tool" id="aboutMenu" icon="ui-icon-info" />
             </p:submenu>
 
             <f:facet name="options">
@@ -36,7 +34,6 @@
                 </p:commandButton>
                 <p:commandButton id="logoutBtn" value="Logout" icon="ui-icon-person" update=":menuform:mainMenu :menuform:menumsgs" action="#{loginManager.onLogout()}" immediate="true" rendered="#{userManager.loggedIn}" />
             </f:facet>
-
         </p:menubar>
     </h:form>
 </ui:composition>
