@@ -70,16 +70,6 @@ public class RestrictedNamePartService {
         namePartService.rejectNamePartRevision(namePartRevision, sessionService.user(), comment);
     }
 
-    public void approveNamePartRevisions(List<NamePartRevision> revisions, String comment) {
-        Preconditions.checkState(sessionService.isSuperUser());
-        namePartService.approveNamePartRevisions(revisions, sessionService.user(), comment);
-    }
-
-    public void rejectNamePartRevisions(List<NamePartRevision> revisions, String comment) {
-        Preconditions.checkState(sessionService.isSuperUser());
-        namePartService.rejectNamePartRevisions(revisions, sessionService.user(), comment);
-    }
-
     public NameHierarchy nameHierarchy() {
         return namePartService.nameHierarchy();
     }

@@ -78,8 +78,6 @@ public class NamePartView {
         return getParent() == null ? 0 : getParent().getLevel() + 1;
     }
 
-    public List<NamePartView> getChildren() { throw new IllegalStateException(); } // TODO
-
     public @Nullable Change getPendingChange() {
         if (pendingRevision == null) {
             return null;

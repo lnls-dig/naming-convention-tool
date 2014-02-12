@@ -19,10 +19,10 @@
                     <p:menuitem value="Add" title="Add Name" icon="ui-icon-plus" oncomplete="addName.show()" update=":addNameForm :ReqSubForm:namePartsTree" disabled="#{!requestManager.canAdd()}" />
                     <p:menuitem value="Delete" title="Delete Name" icon="ui-icon-trash" update=":DelNameForm:delName" oncomplete="delName.show()" disabled="#{!requestManager.canDelete()}" />
                     <p:menuitem value="Modify" title="Modify Name" icon="ui-icon-pencil" update=":ModNameForm:modName" oncomplete="modName.show()" disabled="#{!requestManager.canModify()}" />
-                    <p:menuitem value="History" title="View History" icon="ui-icon-search" actionListener="#{requestManager.findHistory()}" update=":ReqSubForm:historyTable" oncomplete="nameDetail.show()" disabled="#{fn:length(requestManager.selectedNodes) != 1}" />
-                    <p:menuitem value="Approve" title="Approve Request" icon="ui-icon-check" update=":ApproveForm" oncomplete="approveRequest.show()" />
-                    <p:menuitem value="Reject" title="Reject Request" icon="ui-icon-close" update=":RejectForm" oncomplete="rejectRequest.show()" />
+                    <p:menuitem value="Approve" title="Approve Request" icon="ui-icon-check" update=":ApproveForm" oncomplete="approveRequest.show()" disabled="#{!requestManager.canApprove()}" />
+                    <p:menuitem value="Reject" title="Reject Request" icon="ui-icon-close" update=":RejectForm" oncomplete="rejectRequest.show()" disabled="#{!requestManager.canCancel()}" />
                     <p:menuitem value="Cancel" title="Cancel changes" icon="ui-icon-close" update=":CancelReqForm:cancelReq" oncomplete="cancelReq.show()" disabled="#{!requestManager.canCancel()}" />
+                    <p:menuitem value="History" title="View History" icon="ui-icon-search" actionListener="#{requestManager.findHistory()}" update=":ReqSubForm:historyTable" oncomplete="nameDetail.show()" disabled="#{!requestManager.canShowHistory()}" />
                 </p:submenu>
             </p:menu>
 
@@ -146,7 +146,7 @@
                         <p:column colspan="2" rendered="#{requestManager.canDelete()}">
                             <p:tree value="#{requestManager.deleteView}" var="candidate" style="width: 100%; height: 150px;">
                                 <p:treeNode>
-                                    <h:outputText styleClass="#{candidate.delete ? 'Processing Delete-Processing' : ''}" value="#{candidate.fullName} (#{candidate.name})" />
+                                    <h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="#{candidate.namePartView.fullName} (#{candidate.namePartView.name})" />
                                 </p:treeNode>
                             </p:tree>
                         </p:column>
@@ -181,7 +181,7 @@
                         <p:column colspan="2">
                             <p:tree value="#{requestManager.cancelView}" var="candidate" style="width: 100%; height: 150px;">
                                 <p:treeNode>
-                                    <h:outputText styleClass="#{candidate.delete ? 'Processing Delete-Processing' : ''}" value="#{candidate.fullName} (#{candidate.name})" />
+                                    <h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="#{candidate.namePartView.fullName} (#{candidate.namePartView.name})" />
                                 </p:treeNode>
                             </p:tree>
                         </p:column>
@@ -212,6 +212,16 @@
                 </f:facet>
                 <p:panelGrid style="text-align: left" >
                     <p:row>
+                        <p:column colspan="2">
+                            <p:tree value="#{requestManager.approveView}" var="candidate" style="width: 100%; height: 150px;">
+                                <p:treeNode>
+                                    <h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="#{candidate.namePartView.fullName} (#{candidate.namePartView.name})" />
+                                </p:treeNode>
+                            </p:tree>
+                        </p:column>
+                    </p:row>
+
+                    <p:row>
                         <p:column><h:outputLabel for="acomm" value="Approval Comments (optional):" /></p:column>
                         <p:column>
                             <p:inputTextarea id="acomm" rows="5" cols="40" counter="counter" maxlength="254" value="#{requestManager.newComment}" counterTemplate="{0} characters remaining." autoResize="false"/>
@@ -232,7 +242,17 @@
                 <f:facet name="header">
                     <h:outputText value="Reject"/>
                 </f:facet>
-                <p:panelGrid style="text-align: left" >
+                <p:panelGrid style="text-align: left">
+                    <p:row>
+                        <p:column colspan="2">
+                            <p:tree value="#{requestManager.cancelView}" var="candidate" style="width: 100%; height: 150px;">
+                                <p:treeNode>
+                                    <h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="#{candidate.namePartView.fullName} (#{candidate.namePartView.name})" />
+                                </p:treeNode>
+                            </p:tree>
+                        </p:column>
+                    </p:row>
+
                     <p:row>
                         <p:column><h:outputLabel for="rcomm" value="Rejection Comments (optional):" /></p:column>
                         <p:column>

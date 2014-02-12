@@ -21,8 +21,6 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
@@ -37,7 +35,6 @@ import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.NamePartTreeBuilder;
 import org.openepics.names.ui.ViewFactory;
 import org.openepics.names.ui.names.NamePartView.Change;
-import org.openepics.names.ui.names.NamePartView.DeleteChange;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
@@ -60,6 +57,7 @@ public class RequestManager implements Serializable {
     private TreeNode[] selectedNodes;
 
     private TreeNode deleteView;
+    private TreeNode approveView;
     private TreeNode cancelView;
 
     private String newCode;
@@ -93,14 +91,13 @@ public class RequestManager implements Serializable {
 
         newCode = newDescription = newComment = null;
         selectedNodes = new TreeNode[0];
-        prepareDeleteView();
-        prepareCancelView();
+        updateOperationViews();
     }
 
     public void onAdd() {
         try {
             final NamePartView parent = getSelectedName();
-            final NamePartRevision newRequest = namePartService.addNamePart(newCode, newDescription, namePartType, parent.getNamePart(), newComment);
+            final NamePartRevision newRequest = namePartService.addNamePart(newCode, newDescription, namePartType, parent != null ? parent.getNamePart() : null, newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {
             init();
@@ -116,11 +113,10 @@ public class RequestManager implements Serializable {
         }
     }
 
-
     public void onDelete() {
         try {
-            for (TreeNode nodeToDelete : normalizedSelection()) {
-                namePartService.deleteNamePart(((NamePartView)(nodeToDelete.getData())).getNamePart(), newComment);
+            for (NamePartView namePartView : linearizedTargets(deleteView)) {
+                namePartService.deleteNamePart(namePartView.getNamePart(), newComment);
             }
             showMessage(FacesMessage.SEVERITY_INFO, "Success", "The data you requested was successfully deleted.");
         } finally {
@@ -130,7 +126,9 @@ public class RequestManager implements Serializable {
 
     public void onCancel() {
         try {
-            namePartService.cancelChangesForNamePart(getSelectedName().getNamePart(), newComment);
+            for (NamePartView namePartView : linearizedTargets(cancelView)) {
+                namePartService.cancelChangesForNamePart(namePartView.getNamePart(), newComment);
+            }
             showMessage(FacesMessage.SEVERITY_INFO, "Your request has been cancelled.", "Request Number: ");
         } finally {
             init();
@@ -140,10 +138,6 @@ public class RequestManager implements Serializable {
     public void onApprove() {
         // TODO
         try {
-            namePartService.approveNamePartRevisions(
-                    Lists.transform(null, new Function<NamePartView, NamePartRevision>() {
-                        @Override public NamePartRevision apply(NamePartView namePart) { return namePart.getPendingRevision(); }
-                    }), newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully approved.", " ");
         } finally {
             init();
@@ -151,12 +145,10 @@ public class RequestManager implements Serializable {
     }
 
     public void onReject() {
-        // TODO
         try {
-            namePartService.rejectNamePartRevisions(
-                    Lists.transform(null, new Function<NamePartView, NamePartRevision>() {
-                        @Override public NamePartRevision apply(NamePartView namePart) { return namePart.getPendingRevision(); }
-                    }), newComment);
+            for (NamePartView namePartView : linearizedTargets(cancelView)) {
+                namePartService.rejectNamePartRevision(namePartView.getNameEvent(), newComment);
+            }
             showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully rejected.", " ");
         } finally {
             init();
@@ -259,108 +251,74 @@ public class RequestManager implements Serializable {
 
     public TreeNode[] getSelectedNodes() { return selectedNodes; }
     public void setSelectedNodes(TreeNode[] selectedNodes) {
-        if (this.selectedNodes != selectedNodes) {
-            this.selectedNodes = selectedNodes;
-            prepareDeleteView();
-            prepareCancelView();
-        }
+        this.selectedNodes = selectedNodes != null ? selectedNodes : new TreeNode[0];
+        updateOperationViews();
     }
 
     public TreeNode getDeleteView() { return deleteView; }
 
+    public TreeNode getApproveView() { return approveView; }
+
     public TreeNode getCancelView() { return cancelView; }
 
-    public boolean canAdd() { return selectedNodes.length == 1 && !((NamePartView) selectedNodes[0].getData()).getPendingOrElseCurrentRevision().isDeleted(); }
+    public boolean canAdd() { return selectedNodes.length == 0 || (selectedNodes.length == 1 && !((NamePartView) selectedNodes[0].getData()).getPendingOrElseCurrentRevision().isDeleted()); }
 
-    public boolean canDelete() { return deleteView.getChildCount() > 0; }
+    public boolean canDelete() { return deleteView != null; }
 
     public boolean canModify() { return selectedNodes.length == 1 && !((NamePartView) selectedNodes[0].getData()).getPendingOrElseCurrentRevision().isDeleted(); }
 
+    public boolean canApprove() { return approveView != null; }
+
     public boolean canCancel() { return cancelView != null; }
 
-    public void prepareDeleteView() {
-        final List<TreeNode> normalizedSelection = normalizedSelection();
-        final HashMap<String, TreeNode> processed = new HashMap<>();
-        deleteView = new DefaultTreeNode("root", null);
-        for (TreeNode selected : normalizedSelection) {
-            addToDeleteView(selected, processed);
-        }
-    }
+    public boolean canShowHistory() { return selectedNodes.length == 1; }
 
-    public void prepareCancelView() {
-        cancelView = cancelView(root, false);
-    }
+    private enum SelectionMode { MANUAL, AUTO, DISABLED }
 
-    /**
-     * A list of all delete candidates which do not have an ancestor selected as well or are not already proposed
-     * for deletion.
-     * @return List of TreeNode.
-     */
-    private List<TreeNode> normalizedSelection() {
-        final List<TreeNode> normalizedSelection = new ArrayList<>();
-        for (TreeNode node : selectedNodes) {
-            final Change change = ((NamePartView)node.getData()).getPendingChange();
-            if (!(change instanceof DeleteChange) && !isAncestorSelected(node)) normalizedSelection.add(node);
-        }
-        return normalizedSelection;
-    }
-
-    private boolean isAncestorSelected(TreeNode node) {
-        TreeNode parent = node.getParent();
-        while (parent != null) {
-            if (isSelected(parent)) return true;
-            parent = parent.getParent();
-        }
-        return false;
-    }
-
-    private boolean isSelected(TreeNode node) {
-        for (TreeNode searchNode : selectedNodes) {
-            if (node == searchNode) return true;
-        }
-        return false;
-    }
-
-    private TreeNode addToDeleteView(TreeNode mainTableNode, HashMap<String, TreeNode> processedDialogNodes) {
-        final TreeNode mainTableNodeParent = mainTableNode.getParent();
-
-        final TreeNode dialogParent;
-
-        if (!(mainTableNodeParent.getData() instanceof NamePartView)) {
-            dialogParent = deleteView;
+    private List<NamePartView> linearizedTargets(TreeNode node) {
+        final @Nullable DeleteNamePartView nodeView = (DeleteNamePartView) node.getData();
+        if (nodeView != null && nodeView.isAffected()) {
+            return ImmutableList.of(nodeView.getNamePartView());
         } else {
-            final String parentUuid = ((NamePartView)(mainTableNodeParent.getData())).getNamePart().getUuid();
-            dialogParent = processedDialogNodes.containsKey(parentUuid) ? processedDialogNodes.get(parentUuid) : addToDeleteView(mainTableNodeParent, processedDialogNodes);
+            final List<NamePartView> childTargets = Lists.newArrayList();
+            for (TreeNode child : node.getChildren()) {
+                childTargets.addAll(linearizedTargets(child));
+            }
+            return childTargets;
         }
-
-        NamePartView npv = (NamePartView)(mainTableNode.getData());
-        final TreeNode dialogDeleteNode = new DefaultTreeNode(new DeleteNamePartView(npv.getName(), npv.getFullName(), mainTableNode.isSelected()), dialogParent);
-        dialogDeleteNode.setExpanded(true);
-        processedDialogNodes.put(npv.getNamePart().getUuid(), dialogDeleteNode);
-
-        return dialogDeleteNode;
     }
 
-    private void showMessage(FacesMessage.Severity severity, String summary, String message) {
-        final FacesContext context = FacesContext.getCurrentInstance();
-        context.addMessage(null, new FacesMessage(severity, summary, message));
-    }
-
-    private @Nullable TreeNode cancelView(TreeNode node, boolean cancelAny) {
+    private @Nullable TreeNode deleteView(TreeNode node, SelectionMode selectionMode) {
         final @Nullable NamePartView nodeView = (NamePartView) node.getData();
-        final boolean cancelNode = nodeView != null && (cancelAny || isSelected(node)) && (nodeView.getPendingChange() != null);
-        final boolean childrenCancelAny = cancelAny || (nodeView != null && isSelected(node) && !(nodeView.getPendingChange() instanceof NamePartView.ModifyChange));
+
+        final SelectionMode childrenSelectionMode;
+        if (selectionMode == SelectionMode.AUTO) {
+            childrenSelectionMode = SelectionMode.AUTO;
+        } else if (selectionMode == SelectionMode.MANUAL) {
+            if (nodeView != null && node.isSelected() && !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange)) {
+                childrenSelectionMode = SelectionMode.AUTO;
+            } else if (nodeView != null && nodeView.getPendingChange() instanceof NamePartView.AddChange) {
+                childrenSelectionMode = SelectionMode.DISABLED;
+            } else {
+                childrenSelectionMode = SelectionMode.MANUAL;
+            }
+        } else if (selectionMode == SelectionMode.DISABLED) {
+            childrenSelectionMode = SelectionMode.DISABLED;
+        } else {
+            throw new IllegalStateException();
+        }
 
         final List<TreeNode> childViews = Lists.newArrayList();
         for (TreeNode child : node.getChildren()) {
-            final TreeNode childView = cancelView(child, childrenCancelAny);
+            final TreeNode childView = deleteView(child, childrenSelectionMode);
             if (childView != null) {
                 childViews.add(childView);
             }
         }
 
-        if (cancelNode || !childViews.isEmpty()) {
-            final TreeNode result = new DefaultTreeNode(nodeView != null ? new DeleteNamePartView(nodeView.getName(), nodeView.getFullName(), cancelNode) : null, null);
+        final boolean affectNode = nodeView != null && (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected())) && !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange);
+        if (affectNode || !childViews.isEmpty()) {
+            final TreeNode result = new DefaultTreeNode(nodeView != null ? new DeleteNamePartView(nodeView, affectNode) : null, null);
             result.setExpanded(true);
             for (TreeNode childView : childViews) {
                 childView.setParent(result);
@@ -369,5 +327,98 @@ public class RequestManager implements Serializable {
         } else {
             return null;
         }
+    }
+
+    private @Nullable TreeNode approveView(TreeNode node, SelectionMode selectionMode) {
+        final @Nullable NamePartView nodeView = (NamePartView) node.getData();
+
+        final SelectionMode childrenSelectionMode;
+        if (selectionMode == SelectionMode.AUTO) {
+            childrenSelectionMode = SelectionMode.AUTO;
+        } else if (selectionMode == SelectionMode.MANUAL) {
+            if (nodeView != null && node.isSelected() && (nodeView.getPendingChange() instanceof NamePartView.DeleteChange)) {
+                childrenSelectionMode = SelectionMode.AUTO;
+            } else if (nodeView != null && nodeView.getPendingChange() instanceof NamePartView.AddChange && !node.isSelected()) {
+                childrenSelectionMode = SelectionMode.DISABLED;
+            } else {
+                childrenSelectionMode = SelectionMode.MANUAL;
+            }
+        } else if (selectionMode == SelectionMode.DISABLED) {
+            childrenSelectionMode = SelectionMode.DISABLED;
+        } else {
+            throw new IllegalStateException();
+        }
+
+        final List<TreeNode> childViews = Lists.newArrayList();
+        for (TreeNode child : node.getChildren()) {
+            final TreeNode childView = approveView(child, childrenSelectionMode);
+            if (childView != null) {
+                childViews.add(childView);
+            }
+        }
+
+        final boolean affectNode = nodeView != null && (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected())) && (nodeView.getPendingChange() != null);
+        if (affectNode || !childViews.isEmpty()) {
+            final TreeNode result = new DefaultTreeNode(nodeView != null ? new DeleteNamePartView(nodeView, affectNode) : null, null);
+            result.setExpanded(true);
+            for (TreeNode childView : childViews) {
+                childView.setParent(result);
+            }
+            return result;
+        } else {
+            return null;
+        }
+    }
+
+    private @Nullable TreeNode cancelView(TreeNode node, SelectionMode selectionMode) {
+        final @Nullable NamePartView nodeView = (NamePartView) node.getData();
+
+        final SelectionMode childrenSelectionMode;
+        if (selectionMode == SelectionMode.AUTO) {
+            childrenSelectionMode = SelectionMode.AUTO;
+        } else if (selectionMode == SelectionMode.MANUAL) {
+            if (nodeView != null && node.isSelected() && !(nodeView.getPendingChange() instanceof NamePartView.ModifyChange)) {
+                childrenSelectionMode = SelectionMode.AUTO;
+            } else if (nodeView != null && nodeView.getPendingChange() instanceof NamePartView.DeleteChange) {
+                childrenSelectionMode = SelectionMode.DISABLED;
+            } else {
+                childrenSelectionMode = SelectionMode.MANUAL;
+            }
+        } else if (selectionMode == SelectionMode.DISABLED) {
+            childrenSelectionMode = SelectionMode.DISABLED;
+        } else {
+            throw new IllegalStateException();
+        }
+
+        final List<TreeNode> childViews = Lists.newArrayList();
+        for (TreeNode child : node.getChildren()) {
+            final TreeNode childView = cancelView(child, childrenSelectionMode);
+            if (childView != null) {
+                childViews.add(childView);
+            }
+        }
+
+        final boolean affectNode = nodeView != null && (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected())) && (nodeView.getPendingChange() != null);
+        if (affectNode || !childViews.isEmpty()) {
+            final TreeNode result = new DefaultTreeNode(nodeView != null ? new DeleteNamePartView(nodeView, affectNode) : null, null);
+            result.setExpanded(true);
+            for (TreeNode childView : childViews) {
+                childView.setParent(result);
+            }
+            return result;
+        } else {
+            return null;
+        }
+    }
+
+    public void updateOperationViews() {
+        deleteView = deleteView(root, SelectionMode.MANUAL);
+        approveView = approveView(root, SelectionMode.MANUAL);
+        cancelView = cancelView(root, SelectionMode.MANUAL);
+    }
+
+    private void showMessage(FacesMessage.Severity severity, String summary, String message) {
+        final FacesContext context = FacesContext.getCurrentInstance();
+        context.addMessage(null, new FacesMessage(severity, summary, message));
     }
 }

@@ -95,7 +95,7 @@ public class NamePartService {
         final @Nullable NamePartRevision pendingRevision = pendingRevision(namePart);
 
         if (pendingRevision != null && pendingRevision.getStatus() == NamePartRevisionStatus.PENDING) {
-            if (canCancelChild(namePart)) {
+            if (canCancelChild(pendingRevision.getParent())) {
                 pendingRevision.setStatus(NamePartRevisionStatus.CANCELLED);
                 pendingRevision.setProcessedBy(user);
                 pendingRevision.setProcessDate(new Date());
@@ -168,18 +168,6 @@ public class NamePartService {
             Marker.doNothing();
         } else {
             throw new IllegalStateException();
-        }
-    }
-
-    public void approveNamePartRevisions(List<NamePartRevision> revisions, @Nullable UserAccount user, String comment) {
-        for (NamePartRevision revision : revisions) {
-            approveNamePartRevision(revision, user);
-        }
-    }
-
-    public void rejectNamePartRevisions(List<NamePartRevision> revisions, @Nullable UserAccount user, String comment) {
-        for (NamePartRevision revision : revisions) {
-            rejectNamePartRevision(revision, user, comment);
         }
     }
 

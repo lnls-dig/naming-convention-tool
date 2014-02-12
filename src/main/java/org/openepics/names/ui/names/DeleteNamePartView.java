@@ -11,25 +11,15 @@ package org.openepics.names.ui.names;
  * @author Miha Vitorovič <miha.vitorovic@cosylab.com>
  */
 public class DeleteNamePartView {
-    final private String fullName;
-    final private String name;
-    final boolean delete;
+    final private NamePartView namePartView;
+    final private boolean isAffected;
 
-    public DeleteNamePartView(String name, String fullName, boolean delete) {
-        this.name = name;
-        this.fullName = fullName;
-        this.delete = delete;
+    public DeleteNamePartView(NamePartView namePartView, boolean isAffected) {
+        this.namePartView = namePartView;
+        this.isAffected = isAffected;
     }
 
-    public String getFullName() {
-        return fullName;
-    }
+    public NamePartView getNamePartView() { return namePartView; }
 
-    public String getName() {
-        return name;
-    }
-
-    public boolean isDelete() {
-        return delete;
-    }
+    public boolean isAffected() { return isAffected; }
 }
