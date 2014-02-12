@@ -9,9 +9,7 @@
 
     <!-- ===================Name History============================ -->
     <!-- TODO: find better way to adjust width of the panel -->
-    <p:dialog id="nameDetail" widgetVar="nameDetail" width="900"
-            dynamic="true" maximizable="true" minimizable="true"
-            header="Name Details" footer="Event History">
+    <p:dialog id="nameDetail" widgetVar="nameDetail" width="900" dynamic="true" maximizable="true" minimizable="true" modal="true" header="Name Details" footer="Event History">
         <p:dataTable id="historyTable" var="ncname"
             value="#{historyHandler}" paginator="false" rows="50"
             resizableColumns="true" rowKey="#{ncname.id}"

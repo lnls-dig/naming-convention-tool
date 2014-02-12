@@ -52,7 +52,7 @@
 
         <!-- ===================Add Form================================= -->
         <h:form id="addNameForm" >
-            <p:dialog id="addName"  widgetVar="addName">
+            <p:dialog id="addName"  widgetVar="addName" modal="true">
                 <f:facet name="header">
                     <h:outputText value="Request to Add Name"/>
                 </f:facet>
@@ -88,7 +88,7 @@
 
         <!-- ===================Modify Form================================= -->
         <h:form id="ModNameForm" >
-            <p:dialog id="modName" widgetVar="modName">
+            <p:dialog id="modName" widgetVar="modName" modal="true">
                 <f:facet name="header">
                     <h:outputText value="Request to Change Name"/>
                 </f:facet>
@@ -136,7 +136,7 @@
 
         <!-- ===================Delete Form================================= -->
         <h:form id="DelNameForm" >
-            <p:dialog id="delName"  widgetVar="delName">
+            <p:dialog id="delName"  widgetVar="delName" modal="true">
                 <f:facet name="header">
                     <h:outputText value="Request to Delete/Retire Names"/>
                 </f:facet>
@@ -171,7 +171,7 @@
 
         <!-- ===================Cancel Form    ============================ -->
         <h:form id="CancelReqForm" >
-            <p:dialog id="cancelReq" widgetVar="cancelReq">
+            <p:dialog id="cancelReq" widgetVar="cancelReq" modal="true">
                 <f:facet name="header">
                     <h:outputText value="Cancel request"/>
                 </f:facet>
@@ -205,7 +205,7 @@
         </h:form>
 
         <h:form id="ApproveForm" >
-            <p:dialog id="approveRequest"  widgetVar="approveRequest">
+            <p:dialog id="approveRequest"  widgetVar="approveRequest" modal="true">
                 <f:facet name="header">
                     <h:outputText value="Approve"/>
                 </f:facet>
@@ -237,7 +237,7 @@
         </h:form>
 
         <h:form id="RejectForm">
-            <p:dialog id="rejectRequest"  widgetVar="rejectRequest">
+            <p:dialog id="rejectRequest"  widgetVar="rejectRequest" modal="true">
                 <f:facet name="header">
                     <h:outputText value="Reject"/>
                 </f:facet>

@@ -21,7 +21,7 @@ public class SessionService implements Serializable {
 
     public void init() {
         final Principal principal = FacesContext.getCurrentInstance().getExternalContext().getUserPrincipal();
-        user = userService.userWithName(principal.getName());
+        user = principal != null ? userService.userWithName(principal.getName()) : null;
     }
 
     public UserAccount user() { return user != null ? userService.emAttached(user) : null; }

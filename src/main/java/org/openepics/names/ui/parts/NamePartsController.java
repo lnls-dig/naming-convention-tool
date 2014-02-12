@@ -21,6 +21,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
@@ -68,6 +69,8 @@ public class NamePartsController implements Serializable {
 
     private NamePartType namePartType;
 
+    private NameRelease latestRelease;
+
     @PostConstruct
     public void init() {
         final @Nullable String typeParam = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
@@ -81,6 +84,8 @@ public class NamePartsController implements Serializable {
         } else {
             throw new IllegalStateException();
         }
+
+        latestRelease = releaseService.getLatestRelease();
 
         final List<NamePartRevision> approvedRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(true), new Predicate<NamePartRevision>() {
             @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
@@ -231,12 +236,10 @@ public class NamePartsController implements Serializable {
             case REJECTED:
                 return "Rejected";
             case APPROVED:
-                final @Nullable NameRelease latestRelease = releaseService.getLatestRelease();
-                final boolean processedBeforeLatestRelease = latestRelease != null && nreq.getProcessDate() != null && nreq.getProcessDate().before(latestRelease.getReleaseDate());
                 if (nreq.isDeleted()) {
                     return "Deleted";
                 } else {
-                    return processedBeforeLatestRelease ? "Published" : "Unpublished";
+                    return isPublished(nreq) ? "Published" : "Unpublished";
                 }
             default:
                 throw new IllegalStateException();
@@ -248,18 +251,18 @@ public class NamePartsController implements Serializable {
             case PENDING: return "Processing";
             case CANCELLED: return "default";
             case REJECTED: return "default";
-            case APPROVED: return isPublished(entry) ? "Published" : "Approved";
+            case APPROVED: return isPublished(entry.getNameEvent()) ? "Published" : "Approved";
             default: throw new IllegalStateException();
         }
     }
 
-    private boolean isPublished(NamePartView entry) {
-        if (entry.getNameEvent().getProcessDate() == null) {
+    private boolean isPublished(NamePartRevision namePartRevision) {
+        final Date processDate = namePartRevision.getProcessDate();
+        if (processDate != null) {
+            return latestRelease != null && latestRelease.getReleaseDate().before(processDate);
+        } else {
             return false;
         }
-
-        List<NameRelease> releases = releaseService.getAllReleases();
-        return (releases.size() > 0 && !releases.get(0).getReleaseDate().before(entry.getNameEvent().getProcessDate()));
     }
 
     public void findHistory() {
