@@ -50,21 +50,122 @@ public class TestService {
 
     private void fillSections() {
         final NamePart Acc = addSection(null, "Accelerator", "Acc");
-        addSection(Acc, "Ion Source", "ISrc");
-        addSection(Acc, "Low Energy Beam Transport", "LEBT");
-        addSection(Acc, "Radio Frequency Quadrupole", "RFQ");
-        addSection(Acc, "Medium Energy Beam Transport", "MEBT");
-        addSection(Acc, "Drift Tube Linac", "DTL");
-        addSection(Acc, "Spoke Linac", "Spk");
-        addSection(Acc, "Medium Beta Linac", "MBL");
-        addSection(Acc, "High Beta", "HBL");
-        addSection(Acc, "Upper High Beta", "UHB");
+        NamePart sect = addSection(Acc, "Ion Source", "ISrc");
+        addSection(sect, "ISrc-1", "1");
+
+        sect = addSection(Acc, "Low Energy Beam Transport", "LEBT");
+        addSection(sect, "LEBT-1", "1");
+        addSection(sect, "LEBT-2", "2");
+
+        sect = addSection(Acc, "Radio Frequency Quadrupole", "RFQ");
+        addSection(sect, "RFQ-1", "1");
+
+        sect = addSection(Acc, "Medium Energy Beam Transport", "MEBT");
+        addSection(sect, "MEBT-1", "1");
+        addSection(sect, "MEBT-2", "2");
+        addSection(sect, "MEBT-3", "3");
+        addSection(sect, "MEBT-3", "4");
+
+        sect = addSection(Acc, "Drift Tube Linac", "DTL");
+        addSection(sect, "DTL-1", "1");
+        addSection(sect, "DTL-2", "2");
+        addSection(sect, "DTL-3", "3");
+        addSection(sect, "DTL-3", "4");
+
+        sect = addSection(Acc, "Spoke Linac", "Spk");
+        addSection(sect, "Spk-1", "1");
+        addSection(sect, "Spk-2", "2");
+        addSection(sect, "Spk-3", "3");
+        addSection(sect, "Spk-4", "4");
+        addSection(sect, "Spk-5", "5");
+        addSection(sect, "Spk-6", "6");
+        addSection(sect, "Spk-7", "7");
+        addSection(sect, "Spk-8", "8");
+        addSection(sect, "Spk-9", "9");
+        addSection(sect, "Spk-10", "10");
+        addSection(sect, "Spk-11", "11");
+        addSection(sect, "Spk-12", "12");
+        addSection(sect, "Spk-13", "13");
+        addSection(sect, "Spk-14", "14");
+
+        sect = addSection(Acc, "Medium Beta Linac", "MBL");
+        addSection(sect, "MBL-1", "1");
+        addSection(sect, "MBL-2", "2");
+        addSection(sect, "MBL-3", "3");
+        addSection(sect, "MBL-4", "4");
+        addSection(sect, "MBL-5", "5");
+        addSection(sect, "MBL-6", "6");
+        addSection(sect, "MBL-7", "7");
+        addSection(sect, "MBL-8", "8");
+        addSection(sect, "MBL-9", "9");
+        addSection(sect, "MBL-10", "10");
+        addSection(sect, "MBL-11", "11");
+        addSection(sect, "MBL-12", "12");
+        addSection(sect, "MBL-13", "13");
+        addSection(sect, "MBL-14", "14");
+        addSection(sect, "MBL-15", "15");
+
+        sect = addSection(Acc, "High Beta", "HBL");
+        addSection(sect, "HBL-1", "1");
+        addSection(sect, "HBL-2", "2");
+        addSection(sect, "HBL-3", "3");
+        addSection(sect, "HBL-4", "4");
+        addSection(sect, "HBL-5", "5");
+        addSection(sect, "HBL-6", "6");
+        addSection(sect, "HBL-7", "7");
+        addSection(sect, "HBL-8", "8");
+        addSection(sect, "HBL-9", "9");
+        addSection(sect, "HBL-10", "10");
+        addSection(sect, "HBL-11", "11");
+        addSection(sect, "HBL-12", "12");
+        addSection(sect, "HBL-13", "13");
+        addSection(sect, "HBL-14", "14");
+        addSection(sect, "HBL-15", "15");
+        addSection(sect, "HBL-16", "16");
+        addSection(sect, "HBL-17", "17");
+        addSection(sect, "HBL-18", "18");
+        addSection(sect, "HBL-19", "19");
+        addSection(sect, "HBL-20", "20");
+        addSection(sect, "HBL-21", "21");
+        addSection(sect, "HBL-22", "22");
+        addSection(sect, "HBL-23", "23");
+        addSection(sect, "HBL-24", "24");
+        addSection(sect, "HBL-25", "25");
+        addSection(sect, "HBL-26", "26");
+        addSection(sect, "HBL-27", "27");
+        addSection(sect, "HBL-28", "28");
+        addSection(sect, "HBL-29", "29");
+        addSection(sect, "HBL-30", "30");
+
+        sect = addSection(Acc, "Upper High Beta", "UHB");
+        addSection(sect, "UBL-1", "1");
+        addSection(sect, "UBL-2", "2");
+        addSection(sect, "UBL-3", "3");
+        addSection(sect, "UBL-4", "4");
+        addSection(sect, "UBL-5", "5");
+        addSection(sect, "UBL-6", "6");
+
         addSection(Acc, "Dogleg", "DgLg");
         addSection(Acc, "Accelerator to Target", "A2T");
-        addSection(Acc, "Monolith beam Line", "MnBL");
-        addSection(Acc, "DumpLine", "DmpL");
-        addSection(Acc, "Bent Dump Line", "HEBD");
 
+        sect = addSection(Acc, "Monolith beam Line", "MnBL");
+        addSection(sect, "MnBL-1", "1");
+        addSection(sect, "MnBL-2", "2");
+        addSection(sect, "MnBL-3", "3");
+        addSection(sect, "MnBL-4", "4");
+        addSection(sect, "MnBL-5", "5");
+
+        addSection(Acc, "DumpLine", "DmpL");
+
+        sect = addSection(Acc, "Bent Dump Line", "HEBD");
+        addSection(sect, "HEBD-1", "1");
+        addSection(sect, "HEBD-2", "2");
+        addSection(sect, "HEBD-3", "3");
+        addSection(sect, "HEBD-4", "4");
+        addSection(sect, "HEBD-5", "5");
+        addSection(sect, "HEBD-6", "6");
+        addSection(sect, "HEBD-7", "7");
+        addSection(sect, "HEBD-8", "8");
 
         final NamePart TS = addSection(null, "Target Station", "TS");
 
