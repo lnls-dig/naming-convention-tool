@@ -72,14 +72,15 @@ public class NamePartTreeBuilder {
         private final HashMap<String, NamePartRevisionTreeNode> inventory;
         private final boolean expandedTree;
         private final int selectableLevel;
-        private final NamePart selected;
+        private final NamePart selectedNamePart;
+        private TreeNode selectedTreeNode;
 
         private NamePartRevisionTree(boolean expandedTree, int selectableLevel, NamePart selected) {
             root = new NamePartRevisionTreeNode(null);
             inventory = new HashMap<>();
             this.expandedTree = expandedTree;
             this.selectableLevel = selectableLevel;
-            this.selected = selected;
+            this.selectedNamePart = selected;
         }
 
         private boolean hasNode(NamePartRevisionPair pair) {
@@ -96,7 +97,14 @@ public class NamePartTreeBuilder {
         }
 
         private TreeNode asViewTree() {
-            return asViewTree(new DefaultTreeNode(null, null), root, 0);
+            TreeNode treeRoot = asViewTree(new DefaultTreeNode(null, null), root, 0);
+            TreeNode treeNode = selectedTreeNode;
+            while(treeNode.getParent() != null) {
+                treeNode.setExpanded(true);
+                treeNode = treeNode.getParent();
+            }
+
+            return treeRoot;
         }
 
         private TreeNode asViewTree(TreeNode parentNode, NamePartRevisionTreeNode nprNode, int level) {
@@ -105,7 +113,10 @@ public class NamePartTreeBuilder {
                 final TreeNode node = new DefaultTreeNode(viewFactory.getView(child.node.approved, child.node.pending), null);
                 node.setExpanded(expandedTree);
                 node.setSelectable(level >= selectableLevel);
-                if (isSelected(node)) selectNode(node);
+                if (isSelected(node)) {
+                    node.setSelected(true);
+                    selectedTreeNode = node;
+                }
                 asViewTree(node, child, level+1);
                 children.add(node);
             }
@@ -124,16 +135,7 @@ public class NamePartTreeBuilder {
         }
 
         private boolean isSelected(TreeNode node) {
-            return (selected != null) && (selected.equals(((NamePartView)(node.getData())).getNamePart()));
-        }
-
-        private void selectNode(TreeNode node) {
-            node.setSelected(true);
-            TreeNode treeNode = node;
-            while(treeNode.getParent() != null) {
-                treeNode.setExpanded(true);
-                treeNode = treeNode.getParent();
-            }
+            return (selectedNamePart != null) && (selectedNamePart.equals(((NamePartView)(node.getData())).getNamePart()));
         }
     }
 
