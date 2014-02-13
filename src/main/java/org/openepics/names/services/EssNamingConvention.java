@@ -17,7 +17,7 @@ import org.openepics.names.ui.parts.NamePartView;
 public class EssNamingConvention implements NamingConvention {
     @Override public String getNamingConventionName(DeviceView deviceName) {
         final List<NamePartView> sectionPath = namePartPath(deviceName.getSection());
-        final List<NamePartView> deviceTypePath = namePartPath(deviceName.getSection());
+        final List<NamePartView> deviceTypePath = namePartPath(deviceName.getDeviceType());
 
         final NamePartView supersection = sectionPath.get(0);
         final NamePartView section = sectionPath.get(1);
