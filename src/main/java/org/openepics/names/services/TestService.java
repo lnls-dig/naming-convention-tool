@@ -348,13 +348,13 @@ public class TestService {
 
     private NamePart addSection(@Nullable NamePart parent, String longName, String shortName) {
         final NamePartRevision newRevision = namePartService.addNamePart(shortName, longName, NamePartType.SECTION, parent, null, "Test data");
-        namePartService.approveNamePartRevision(newRevision, null);
+        namePartService.approveNamePartRevision(newRevision, null, null);
         return newRevision.getNamePart();
     }
 
     private NamePart addDeviceType(@Nullable NamePart parent, String longName, String shortName) {
         final NamePartRevision newRevision = namePartService.addNamePart(shortName, longName, NamePartType.DEVICE_TYPE, parent, null, "Test data");
-        namePartService.approveNamePartRevision(newRevision, null);
+        namePartService.approveNamePartRevision(newRevision, null, null);
         return newRevision.getNamePart();
     }
 }

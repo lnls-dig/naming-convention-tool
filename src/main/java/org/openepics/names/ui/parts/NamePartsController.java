@@ -143,8 +143,10 @@ public class NamePartsController implements Serializable {
     }
 
     public void onApprove() {
-        // TODO
         try {
+            for (NamePartView namePartView : linearizedTargets(approveView)) {
+                namePartService.approveNamePartRevision(namePartView.getPendingRevision(), newComment);
+            }
             showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully approved.", " ");
         } finally {
             init();
@@ -154,7 +156,7 @@ public class NamePartsController implements Serializable {
     public void onReject() {
         try {
             for (NamePartView namePartView : linearizedTargets(cancelView)) {
-                namePartService.rejectNamePartRevision(namePartView.getNameEvent(), newComment);
+                namePartService.rejectChangesForNamePart(namePartView.getNamePart(), newComment);
             }
             showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully rejected.", " ");
         } finally {
@@ -327,16 +329,17 @@ public class NamePartsController implements Serializable {
     private enum SelectionMode { MANUAL, AUTO, DISABLED }
 
     private List<NamePartView> linearizedTargets(TreeNode node) {
-        final @Nullable DeleteNamePartView nodeView = (DeleteNamePartView) node.getData();
+        final @Nullable OperationNamePartView nodeView = (OperationNamePartView) node.getData();
+        final List<NamePartView> targets = Lists.newArrayList();
         if (nodeView != null && nodeView.isAffected()) {
-            return ImmutableList.of(nodeView.getNamePartView());
-        } else {
-            final List<NamePartView> childTargets = Lists.newArrayList();
-            for (TreeNode child : node.getChildren()) {
-                childTargets.addAll(linearizedTargets(child));
-            }
-            return childTargets;
+            targets.add(nodeView.getNamePartView());
         }
+        if (nodeView == null || !(nodeView.getNamePartView().getPendingChange() instanceof NamePartView.DeleteChange)) {
+            for (TreeNode child : node.getChildren()) {
+                targets.addAll(linearizedTargets(child));
+            }
+        }
+        return targets;
     }
 
     private @Nullable TreeNode deleteView(TreeNode node, SelectionMode selectionMode) {
@@ -369,7 +372,7 @@ public class NamePartsController implements Serializable {
 
         final boolean affectNode = nodeView != null && (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected())) && !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange);
         if (affectNode || !childViews.isEmpty()) {
-            final TreeNode result = new DefaultTreeNode(nodeView != null ? new DeleteNamePartView(nodeView, affectNode) : null, null);
+            final TreeNode result = new DefaultTreeNode(nodeView != null ? new OperationNamePartView(nodeView, affectNode) : null, null);
             result.setExpanded(true);
             for (TreeNode childView : childViews) {
                 childView.setParent(result);
@@ -410,7 +413,7 @@ public class NamePartsController implements Serializable {
 
         final boolean affectNode = nodeView != null && (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected())) && (nodeView.getPendingChange() != null);
         if (affectNode || !childViews.isEmpty()) {
-            final TreeNode result = new DefaultTreeNode(nodeView != null ? new DeleteNamePartView(nodeView, affectNode) : null, null);
+            final TreeNode result = new DefaultTreeNode(nodeView != null ? new OperationNamePartView(nodeView, affectNode) : null, null);
             result.setExpanded(true);
             for (TreeNode childView : childViews) {
                 childView.setParent(result);
@@ -451,7 +454,7 @@ public class NamePartsController implements Serializable {
 
         final boolean affectNode = nodeView != null && (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected())) && (nodeView.getPendingChange() != null);
         if (affectNode || !childViews.isEmpty()) {
-            final TreeNode result = new DefaultTreeNode(nodeView != null ? new DeleteNamePartView(nodeView, affectNode) : null, null);
+            final TreeNode result = new DefaultTreeNode(nodeView != null ? new OperationNamePartView(nodeView, affectNode) : null, null);
             result.setExpanded(true);
             for (TreeNode childView : childViews) {
                 childView.setParent(result);

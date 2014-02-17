@@ -96,6 +96,8 @@ public class NamePartView {
 
     public boolean isDeleted() { return getCurrentOrElsePendingRevision().isDeleted(); }
 
+    public @Nullable NamePartRevision getCurrentRevision() { return currentRevision; }
+
     public @Nullable NamePartRevision getPendingRevision() { return pendingRevision; }
 
     public String getName() { return getCurrentOrElsePendingRevision().getName(); }

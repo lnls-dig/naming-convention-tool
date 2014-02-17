@@ -10,11 +10,11 @@ package org.openepics.names.ui.parts;
  *
  * @author Miha Vitorovič <miha.vitorovic@cosylab.com>
  */
-public class DeleteNamePartView {
+public class OperationNamePartView {
     final private NamePartView namePartView;
     final private boolean isAffected;
 
-    public DeleteNamePartView(NamePartView namePartView, boolean isAffected) {
+    public OperationNamePartView(NamePartView namePartView, boolean isAffected) {
         this.namePartView = namePartView;
         this.isAffected = isAffected;
     }

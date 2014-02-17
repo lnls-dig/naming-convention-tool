@@ -57,17 +57,17 @@ public class RestrictedNamePartService {
     }
 
     public NamePartRevision cancelChangesForNamePart(NamePart namePart, String comment) {
-        return namePartService.cancelChangesForNamePart(namePart, sessionService.user(), comment);
+        return namePartService.cancelChangesForNamePart(namePart, sessionService.user(), comment, false);
     }
 
-    public void approveNamePartRevision(NamePartRevision namePartRevision) {
+    public NamePartRevision rejectChangesForNamePart(NamePart namePart, String comment) {
         Preconditions.checkState(sessionService.isSuperUser());
-        namePartService.approveNamePartRevision(namePartRevision, sessionService.user());
+        return namePartService.cancelChangesForNamePart(namePart, sessionService.user(), comment, true);
     }
 
-    public void rejectNamePartRevision(NamePartRevision namePartRevision, String comment) {
+    public void approveNamePartRevision(NamePartRevision namePartRevision, String comment) {
         Preconditions.checkState(sessionService.isSuperUser());
-        namePartService.rejectNamePartRevision(namePartRevision, sessionService.user(), comment);
+        namePartService.approveNamePartRevision(namePartRevision, sessionService.user(), comment);
     }
 
     public NameHierarchy nameHierarchy() {
