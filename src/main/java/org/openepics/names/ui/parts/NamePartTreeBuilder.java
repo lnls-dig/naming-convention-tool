@@ -6,22 +6,25 @@
 
 package org.openepics.names.ui.parts;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.Nullable;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
+
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.ui.common.ViewFactory;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
+
+import com.google.common.collect.Lists;
 
 /**
  *
@@ -99,9 +102,14 @@ public class NamePartTreeBuilder {
         private TreeNode asViewTree() {
             TreeNode treeRoot = asViewTree(new DefaultTreeNode(null, null), root, 0);
             TreeNode treeNode = selectedTreeNode;
-            while(treeNode.getParent() != null) {
-                treeNode.setExpanded(true);
-                treeNode = treeNode.getParent();
+            if (treeNode != null && selectedNamePart != null) {
+	            while(treeNode.getParent() != null) {
+	                treeNode.setExpanded(true);
+	                treeNode = treeNode.getParent();
+	            }
+            } else if ((treeNode != null && selectedNamePart == null) 
+            			|| (treeNode == null && selectedNamePart != null)) {
+            	throw new IllegalStateException();
             }
 
             return treeRoot;
