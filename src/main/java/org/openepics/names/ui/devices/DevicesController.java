@@ -1,19 +1,16 @@
 package org.openepics.names.ui.devices;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+
 import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
@@ -24,6 +21,12 @@ import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.ui.parts.NamePartView;
 import org.primefaces.model.TreeNode;
+
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 @ManagedBean
 @ViewScoped
@@ -54,7 +57,8 @@ public class DevicesController implements Serializable {
     public void init() {
         sections = selectedSection = null;
         deviceTypes =  selectedDeviceType = null;
-
+        selectedDeviceName = null;
+        
         loadDeviceNames();
     }
 
@@ -68,7 +72,7 @@ public class DevicesController implements Serializable {
 
             final NamePartView subsection = (NamePartView)(selectedSection.getData());
             final NamePartView device = (NamePartView)(selectedDeviceType.getData());
-
+            
             if (subsection == null || device == null) {
                 showMessage(FacesMessage.SEVERITY_ERROR, "Error", "Required field missing");
                 return;
@@ -83,11 +87,11 @@ public class DevicesController implements Serializable {
     public void onModify() {
         // TODO solve generically and for specific + generic device
         try {
-            /*
-            final NamePartView subsection = sectionLevels.get(sectionLevels.size()-1).getSelected();
-            final NamePartView genDevice = deviceTypeLevels.get(2).getSelected();
-            deviceService.modifyDevice(selectedDeviceName.getDevice().getDevice(), subsection.getNamePart(), genDevice.getNamePart(), null);
-            */
+            
+        	final NamePartView subsection = (NamePartView)(selectedSection.getData());
+            final NamePartView device = (NamePartView)(selectedDeviceType.getData());
+            deviceService.modifyDevice(selectedDeviceName.getDevice().getDevice(), subsection.getNamePart(), device.getNamePart(), deviceQuantifier);
+            
             showMessage(FacesMessage.SEVERITY_INFO, "Device modified.", "Name: [TODO]");
         } finally {
             init();
@@ -100,7 +104,6 @@ public class DevicesController implements Serializable {
             showMessage(FacesMessage.SEVERITY_INFO, "Device successfully deleted.", "Name: [TODO]");
         } finally {
             init();
-            selectedDeviceName = null;
         }
     }
 
@@ -184,6 +187,23 @@ public class DevicesController implements Serializable {
         sections = namePartTreeBuilder.namePartApprovalTree(approvedSectionRevisions, emptyPending, false, 2, selectedDeviceName.getSection().getNamePart());
         deviceTypes = namePartTreeBuilder.namePartApprovalTree(approvedDeviceTypeRevisions, emptyPending, false, 2, selectedDeviceName.getDeviceType().getNamePart());
         deviceQuantifier = selectedDeviceName.getQualifier();
+        
+        selectedSection = findSelectedTreeNode(sections);
+        selectedDeviceType = findSelectedTreeNode(deviceTypes);
+      
+    }
+    
+    private TreeNode findSelectedTreeNode(TreeNode node) {
+    	if (node.isSelected()) {
+    		return node;
+    	} else if (node.getChildCount() > 0) {
+    		for (TreeNode child : node.getChildren()) {
+    			TreeNode temp = findSelectedTreeNode(child);
+    			if(temp != null) 
+    				return temp;
+    		}
+    	}
+    	return null;
     }
 
     public boolean isFormFilled() {

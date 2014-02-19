@@ -43,17 +43,14 @@
                             rendered="#{userManager.editor}" />
                 <p:menuitem value="Delete" update=":delDeviceNameForm"
                             icon="ui-icon-trash" oncomplete="delDeviceName.show()"
-                        rendered="#{userManager.editor}"
-                disabled="#{empty devicesController.selectedDeviceName || devicesController.selectedDeviceName.device.deleted || devicesController.selectedDeviceName.requestedBy.username != userManager.user.username}" />
+                        rendered="#{userManager.editor}"/> 
                 <p:menuitem value="Modify" update=":modDeviceNameForm"
                             action="#{devicesController.prepareForModify()}"
                         icon="ui-icon-pencil" oncomplete="modDeviceName.show()"
-                        rendered="#{userManager.editor}"
-                disabled="#{empty devicesController.selectedDeviceName || devicesController.selectedDeviceName.device.deleted || devicesController.selectedDeviceName.requestedBy.username != userManager.user.username}" />
+                        rendered="#{userManager.editor}" />
                 <p:menuitem value="History" icon="ui-icon-search"
-                        actionListener="#{namePartsController.findHistory()}"
-                        update=":ManageNameForm:historyTable" oncomplete="nameDetail.show()"
-                        disabled="#{empty devicesController.selectedDeviceName}" />
+                        actionListener="#{devicesController.loadHistory()}"
+                        update=":ManageNameForm:historyTable" oncomplete="nameDetail.show()"/>
             </p:contextMenu>
 
             <!-- ===================Data Table============================ -->
