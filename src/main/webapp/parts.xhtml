@@ -9,7 +9,9 @@
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions"
                 >
     <ui:define name="content">
+        
         <h:form id="ReqSubForm">
+            
             <!--<p:growl id="requestMsgs" showDetail="true" sticky="false"  life="30000" />-->
 
             <!-- =================== Menus      ============================ -->
@@ -24,7 +26,17 @@
                     <p:menuitem value="History" title="View History" icon="ui-icon-search" actionListener="#{namePartsController.findHistory()}" update=":ReqSubForm:historyTable" oncomplete="nameDetail.show()" disabled="#{!namePartsController.canShowHistory()}" />
                 </p:submenu>
             </p:menu>
-
+            <div align="left">
+            <h:outputText value="Display filter: " />  
+            <p:selectOneMenu value="#{namePartsController.viewFilter}">
+                <p:ajax listener="#{namePartsController.modifyDisplayView}" event="change" update="namePartsTree reqMenu" />  
+                <f:selectItem itemLabel="All" itemValue="1" />  
+                <f:selectItem itemLabel="All without modified" itemValue="2" />  
+                <f:selectItem itemLabel="Only modified" itemValue="3" />  
+                <f:selectItem itemLabel="Only modified by me" itemValue="4" itemDisabled="#{!userManager.isLoggedIn()}"/>
+                <f:selectItem itemLabel="All without modified, with deleted" itemValue="5" />  
+            </p:selectOneMenu>
+            </div>
             <p:treeTable id="namePartsTree" value="#{namePartsController.root}" var="namePart" selection="#{namePartsController.selectedNodes}" selectionMode="multiple" resizableColumns="true" rowStyleClass="#{namePartsController.nameViewClass(namePart)}" style="width: 90%; margin-top: 30px">
                 <p:ajax event="select" update=":ReqSubForm:reqMenu" />
                 <p:ajax event="unselect" update=":ReqSubForm:reqMenu" />

@@ -42,65 +42,57 @@
                 <p:column>Subsystem</p:column>
                 <p:column>Names in <h:outputLink value="names.xhtml?category=subsystem">Table 4</h:outputLink>.
                     May be omitted if subsystem is obvious from system name or device name.
-                    Up to 8 characters, but 4 is recommended.</p:column>
+                    Up to 4 characters.</p:column>
                 <p:column>Division Director</p:column>
             </p:row>
 
             <p:row>
                 <p:column>DDDD</p:column>
-                <p:column>Device Type</p:column>
-                <p:column>Names in <h:outputLink value="names.xhtml?category=subsystem">Table 5</h:outputLink>
-                    or IEEE 803 "Recommended Practice for Unique Identification in Power Plants and Related Facilities".
-                    Device type is required. Up to 4 characters. Devices in grey italics are reserved.</p:column>
+                <p:column>Device Identifier</p:column>
+                <p:column>Generic Device Type (GDev) mnemonic name from level 3 in device category structure.
+                 Up to 4 characters.</p:column>
                 <p:column>Control&nbsp;Account&nbsp;Manager</p:column>
             </p:row>
             <p:row>
-                <p:column>Q</p:column>
-                <p:column>Qualifier</p:column>
-                <p:column>Either "D", "N" or “C” depending on the meaning of the following device instance
-                    number (for beam line components: "D" for distance along beamline; for others: "N" for
-                    sequential number, “C” is for Cryogenic Systems). For each of the FRIB driver linac
-                    and ReA3, the RFQ input is set to have D=1000 (i.e. 100 m). All beam line
-                    components upstream from the RFQ input have D &lt; 1000, all downstream ones have
-                    D > 1000. The fragment separator has D=1000 at the production target. For Dual
-                    systems at the same distance, “D+1” can be used added to the original distance.
-                </p:column>
-                <p:column>Control Account Manager</p:column>
-            </p:row>
-            <p:row>
                 <p:column>IIII</p:column>
-                <p:column>Device Instance</p:column>
-                <p:column>Number as defined under Q (see above).
-                    If Q="N", the device instance should also be a number.
-                    Alphabetic characters subject to Controls Dept.
-                    CAM approval. 4 characters mandatory. If Q=”C” the device instance
-                    should be a number 5 characters long.  </p:column>
+                <p:column>Device Quantifier</p:column>
+                <p:column>The device quantifier shall be used to differentiate device names of 
+                the same generic device type (irrespective of discipline) within the same subsection.</p:column>
                 <p:column>Control Account Manager</p:column>
             </p:row>
             <p:row>
-                <p:column>TTTT</p:column>
+                <p:column>TTT</p:column>
                 <p:column>Signal  Type</p:column>
                 <p:column>Signal types are defined in <h:outputLink value="names.xhtml?category=signal-type">Table 6</h:outputLink>.
-                    Up to 4 characters.</p:column>
+                    Up to 3 characters.</p:column>
                 <p:column>Lead Engineer</p:column>
             </p:row>
             <p:row>
-                <p:column>XXXX</p:column>
-                <p:column>Signal Domain </p:column>
+                <p:column>III</p:column>
+                <p:column>Signal Instace </p:column>
                 <p:column>Codes shown in <h:outputLink value="names.xhtml?category=signal-domain">Table 7</h:outputLink>.
-                    Up to 4 characters.</p:column>
+                    Up to 3 characters.</p:column>
                 <p:column>Lead Engineer</p:column>
             </p:row>
             <p:row>
-                <p:column>CCCC</p:column>
-                <p:column>Additional Signal Description  </p:column>
-                <p:column>Use is optional. Up to 4 characters</p:column>
+                <p:column>XXX</p:column>
+                <p:column>Signal Suffix  </p:column>
+                <p:column>Use is optional. Up to 3 characters</p:column>
                 <p:column>Lead Engineer</p:column>
             </p:row>
         </p:panelGrid>
 
-        <h2 class="heading">Examples</h2>
-
+        <h2 class="heading">Naming Structures</h2>
+        <p:panel  styleClass="para">
+        The name format in combination with a set of syntax rules do not automatically ensure a meaningful
+         and consistent naming. For example, without a well defined structure and naming rules the system-subsystem
+          part of for example a vacuum pump in the High Beta Linac (HBL) could equally well be named HBL-Vac as Vac-HBL.
+            <br /> To overcome this ambiguity users of the naming convention will be guided by the following two questions
+             during the naming process:
+             <br /> 1. What kind of device is it? <br />   2. Which part of the facility does the device provide service to? <br />
+              The answers, which shall be selected from the device category structure and the logical area structure described below, will be used to generate the names according to the rules in section 4 and 5.
+        </p:panel>
+        
         <p:panelGrid style="text-align: left">
             <f:facet name="header">
                 <p:row>

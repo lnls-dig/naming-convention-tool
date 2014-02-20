@@ -15,14 +15,10 @@
  */
 package org.openepics.names.ui.parts;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -30,15 +26,24 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.model.NameRelease;
+import org.openepics.names.model.UserAccount;
 import org.openepics.names.services.ReleaseService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
+import org.openepics.names.ui.common.UserManager;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartView.Change;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
+
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 /**
  * Manages Change Requests (backing bean for request-sub.xhtml)
@@ -53,6 +58,7 @@ public class NamePartsController implements Serializable {
     @Inject private ViewFactory viewFactory;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private ReleaseService releaseService;
+    @Inject private UserManager userManager;
 
     private List<NamePartView> historyEvents;
 
@@ -62,21 +68,27 @@ public class NamePartsController implements Serializable {
     private TreeNode deleteView;
     private TreeNode approveView;
     private TreeNode cancelView;
+    private TreeNode modifyView;
 
     private String newCode;
     private String newDescription;
     private String newComment;
-
+    private int displayView = 1;
+    
     private NamePartType namePartType;
 
     private NameRelease latestRelease;
 
     @PostConstruct
     public void init() {
-        final @Nullable String typeParam = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
-
-        if (typeParam == null) {
-            namePartType = NamePartType.SECTION;
+        modifyDisplayView();
+    }
+    
+    private TreeNode getRootTreeNode(boolean withModifications) {
+    	final @Nullable String typeParam = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
+    	
+    	if (typeParam == null) {
+            
         } else if (typeParam.equals("section")) {
             namePartType = NamePartType.SECTION;
         } else if (typeParam.equals("deviceType")) {
@@ -90,15 +102,16 @@ public class NamePartsController implements Serializable {
         final List<NamePartRevision> approvedRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(true), new Predicate<NamePartRevision>() {
             @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
         }));
-        final List<NamePartRevision> pendingRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentPendingRevisions(true), new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
-        }));
-
-        root = namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, true);
-
-        newCode = newDescription = newComment = null;
-        selectedNodes = new TreeNode[0];
-        updateOperationViews();
+        final List<NamePartRevision> pendingRevisions;
+        if (withModifications)
+	        pendingRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentPendingRevisions(true), new Predicate<NamePartRevision>() {
+	            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
+	        }));
+        else {
+        	pendingRevisions = Lists.newArrayList();
+        }
+        
+        return namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, true);
     }
 
     public void onAdd() {
@@ -195,6 +208,37 @@ public class NamePartsController implements Serializable {
 
     public boolean isModified(NamePartView req) {
         return req.getPendingChange() instanceof NamePartView.ModifyChange;
+    }
+    
+    public void setViewFilter(int filter) {
+    	this.displayView = filter;
+    }
+    
+    public int getViewFilter() {
+    	return this.displayView;
+    }
+    
+    public void modifyDisplayView() {
+    	switch (displayView) {
+    	case 1:
+    		root = viewAll(getRootTreeNode(true), false);
+    		break;
+    	case 2:
+    		root = viewAll(getRootTreeNode(false), false);
+    		break;
+		case 3:
+			root = viewOnlyModified(getRootTreeNode(true), null);
+			break;
+		case 4:
+			root = viewOnlyModified(getRootTreeNode(true), userManager.getUser());
+			break;
+		case 5:
+			root = viewAll(getRootTreeNode(false), true);
+    		break;
+		}
+    	newCode = newDescription = newComment = null;
+        selectedNodes = new TreeNode[0];
+    	updateOperationViews();
     }
 
     public String getNameClass(NamePartView req) {
@@ -295,7 +339,7 @@ public class NamePartsController implements Serializable {
     public List<NamePartView> getHistoryEvents() { return historyEvents; }
 
     public TreeNode getRoot() { return root; }
-
+    
     public TreeNode[] getSelectedNodes() { return selectedNodes; }
     public void setSelectedNodes(TreeNode[] selectedNodes) {
         this.selectedNodes = selectedNodes != null ? selectedNodes : new TreeNode[0];
@@ -307,6 +351,8 @@ public class NamePartsController implements Serializable {
     public TreeNode getApproveView() { return approveView; }
 
     public TreeNode getCancelView() { return cancelView; }
+    
+    public TreeNode getModifyView() { return modifyView; }
 
     public boolean canAdd() { return selectedNodes.length == 0 || (selectedNodes.length == 1 && !((NamePartView) selectedNodes[0].getData()).getPendingOrElseCurrentRevision().isDeleted()); }
 
@@ -382,10 +428,10 @@ public class NamePartsController implements Serializable {
             return null;
         }
     }
-
+    
     private @Nullable TreeNode approveView(TreeNode node, SelectionMode selectionMode) {
         final @Nullable NamePartView nodeView = (NamePartView) node.getData();
-
+      
         final SelectionMode childrenSelectionMode;
         if (selectionMode == SelectionMode.AUTO) {
             childrenSelectionMode = SelectionMode.AUTO;
@@ -451,9 +497,9 @@ public class NamePartsController implements Serializable {
                 childViews.add(childView);
             }
         }
-
+        
         final boolean affectNode = nodeView != null && (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected())) && (nodeView.getPendingChange() != null);
-        if (affectNode || !childViews.isEmpty()) {
+        if (affectNode || !childViews.isEmpty() ) {
             final TreeNode result = new DefaultTreeNode(nodeView != null ? new OperationNamePartView(nodeView, affectNode) : null, null);
             result.setExpanded(true);
             for (TreeNode childView : childViews) {
@@ -464,6 +510,94 @@ public class NamePartsController implements Serializable {
             return null;
         }
     }
+    
+    private @Nullable TreeNode viewOnlyModified(TreeNode node, UserAccount user) {
+    	
+    	final List<TreeNode> modifiedChildren = Lists.newArrayList();
+    	
+    	if (node.getChildCount() > 0) {
+    		for (TreeNode child : node.getChildren()) {
+    			TreeNode temp = viewOnlyModified(child, user);
+    			if (temp != null) {
+    				modifiedChildren.add(temp);
+    			} 
+    		}
+    	} else {
+    		final @Nullable NamePartView nodeView = (NamePartView) node.getData();
+    		if(user == null) {
+	    		if (nodeView != null && nodeView.getPendingChange() != null) {
+	    			return node;
+	    		} else { 
+	    			return null;
+	    		}
+    		} else {
+    			if (nodeView != null && nodeView.getPendingChange() != null && nodeView.getPendingRevision().getRequestedBy().equals(user)) {
+	    			return node;
+	    		} else { 
+	    			return null;
+	    		}
+    		}
+    	}
+    	final List<TreeNode> children = Lists.newArrayList();
+    	children.addAll(node.getChildren());
+    	if (children.size() > 0) {
+    		for (TreeNode child : children) {
+    			if (!modifiedChildren.contains(child)) {
+    				node.getChildren().remove(child);
+    			}
+    		}
+    	}
+    	if (modifiedChildren.size() > 0) {
+    		return node;
+    	} else {
+    		return null;
+    	}
+	}
+    
+    private @Nullable TreeNode viewAll (TreeNode node, boolean withDeletetions) {
+    	final List<TreeNode> nonDeletedChildren = Lists.newArrayList();
+    	
+    	if (node.getChildCount() > 0) {
+    		for (TreeNode child : node.getChildren()) {
+    			TreeNode temp = viewAll(child, withDeletetions);
+    			if (temp != null) {
+    				nonDeletedChildren.add(temp);
+    			} 
+    		}
+    	} else {
+    		final @Nullable NamePartView nodeView = (NamePartView) node.getData();
+    		if (!withDeletetions) {
+	    		if (nodeView != null && !nodeView.isDeleted()) {
+	    			return node;
+	    		} else { 
+	    			return null;
+	    		}
+    		} else if (withDeletetions) {
+    			if (nodeView != null) {
+	    			return node;
+	    		} else { 
+	    			return null;
+	    		}
+    		} else {
+    			throw new IllegalStateException();
+    		}
+    	}
+    	final List<TreeNode> children = Lists.newArrayList();
+    	children.addAll(node.getChildren());
+    	if (children.size() > 0) {
+    		for (TreeNode child : children) {
+    			if (!nonDeletedChildren.contains(child)) {
+    				node.getChildren().remove(child);
+    			}
+    		}
+    	}
+    	if (nonDeletedChildren.size() > 0) {
+    		return node;
+    	} else {
+    		return null;
+    	}
+    }
+    	
 
     private void showMessage(FacesMessage.Severity severity, String summary, String message) {
         final FacesContext context = FacesContext.getCurrentInstance();
