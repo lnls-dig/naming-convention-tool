@@ -192,7 +192,9 @@
                         <p:column colspan="2">
                             <p:tree value="#{namePartsController.cancelView}" var="candidate" style="width: 100%; height: 150px;">
                                 <p:treeNode>
-                                    <h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="#{candidate.namePartView.fullName} (#{candidate.namePartView.name})" />
+                                    <h:outputText styleClass="#{namePartsController.getNameClass(candidate.namePartView)}" value="#{namePartsController.getOperationsNewFullName(candidate)}" />
+                                    <h:outputText value=" " rendered="#{candidate.affected}" />
+                                    <h:outputText value="(#{candidate.namePartView.fullName})" styleClass="#{namePartsController.getNameClass(candidate.namePartView)}-Old" rendered="#{candidate.affected}" />
                                 </p:treeNode>
                             </p:tree>
                         </p:column>
@@ -215,7 +217,8 @@
                 <p:commandButton value="Cancel" style="float: right" onclick="cancelReq.hide()"  />
             </p:dialog>
         </h:form>
-
+        
+        <!-- ===================    Approve Form    ============================ -->
         <h:form id="ApproveForm" >
             <p:dialog id="approveRequest"  widgetVar="approveRequest" modal="true">
                 <f:facet name="header">
@@ -226,7 +229,9 @@
                         <p:column colspan="2">
                             <p:tree value="#{namePartsController.approveView}" var="candidate" style="width: 100%; height: 150px;">
                                 <p:treeNode>
-                                    <h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="#{candidate.namePartView.fullName} (#{candidate.namePartView.name})" />
+                                    <h:outputText styleClass="#{namePartsController.getNameClass(candidate.namePartView)}" value="#{namePartsController.getOperationsNewFullName(candidate)}" />
+                                    <h:outputText value=" " rendered="#{candidate.affected}" />
+                                    <h:outputText value="(#{candidate.namePartView.fullName})" styleClass="#{namePartsController.getNameClass(candidate.namePartView)}-Old" rendered="#{candidate.affected}" />
                                 </p:treeNode>
                             </p:tree>
                         </p:column>
@@ -258,7 +263,9 @@
                         <p:column colspan="2">
                             <p:tree value="#{namePartsController.cancelView}" var="candidate" style="width: 100%; height: 150px;">
                                 <p:treeNode>
-                                    <h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="#{candidate.namePartView.fullName} (#{candidate.namePartView.name})" />
+                                    <h:outputText styleClass="#{namePartsController.getNameClass(candidate.namePartView)}" value="#{namePartsController.getOperationsNewFullName(candidate)}" />
+                                    <h:outputText value=" " rendered="#{candidate.affected}" />
+                                    <h:outputText value="(#{candidate.namePartView.fullName})" styleClass="#{namePartsController.getNameClass(candidate.namePartView)}-Old" rendered="#{candidate.affected}" />
                                 </p:treeNode>
                             </p:tree>
                         </p:column>

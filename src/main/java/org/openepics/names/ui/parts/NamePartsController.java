@@ -205,6 +205,16 @@ public class NamePartsController implements Serializable {
             return req.getFullName();
         }
     }
+    
+    public String getOperationsNewFullName(OperationNamePartView opReq) {
+    	NamePartView req = opReq.getNamePartView();
+        final Change change = req.getPendingChange();
+        if (change instanceof NamePartView.ModifyChange) {
+            return ((NamePartView.ModifyChange)change).getNewFullName();
+        } else {
+            return req.getFullName();
+        }
+    }
 
     public boolean isModified(NamePartView req) {
         return req.getPendingChange() instanceof NamePartView.ModifyChange;
@@ -387,7 +397,7 @@ public class NamePartsController implements Serializable {
         }
         return targets;
     }
-
+    
     private @Nullable TreeNode deleteView(TreeNode node, SelectionMode selectionMode) {
         final @Nullable NamePartView nodeView = (NamePartView) node.getData();
 
