@@ -190,6 +190,11 @@
     text-align: left;
 }
 
+.modificationDialog {
+	width: 30% !important;
+	max-height: 70%;
+}
+
 
 #bottom {
     position: relative;

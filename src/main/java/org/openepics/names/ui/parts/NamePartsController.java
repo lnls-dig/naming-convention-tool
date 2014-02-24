@@ -68,7 +68,6 @@ public class NamePartsController implements Serializable {
     private TreeNode deleteView;
     private TreeNode approveView;
     private TreeNode cancelView;
-    private TreeNode modifyView;
 
     private String newCode;
     private String newDescription;
@@ -362,8 +361,6 @@ public class NamePartsController implements Serializable {
 
     public TreeNode getCancelView() { return cancelView; }
     
-    public TreeNode getModifyView() { return modifyView; }
-
     public boolean canAdd() { return selectedNodes.length == 0 || (selectedNodes.length == 1 && !((NamePartView) selectedNodes[0].getData()).getPendingOrElseCurrentRevision().isDeleted()); }
 
     public boolean canDelete() { return deleteView != null; }
