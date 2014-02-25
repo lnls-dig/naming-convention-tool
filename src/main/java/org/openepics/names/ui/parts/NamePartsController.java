@@ -357,6 +357,20 @@ public class NamePartsController implements Serializable {
             }
         }));
     }
+    
+    public boolean hasPendingComment(NamePartView req) {
+    	return (isModified(req, true) || isModified(req, false)) && getPendingComment(req) != null && getPendingComment(req).length() > 0;
+    }
+    
+    public List<NamePartView> findHistory(NamePartView selectedName) {
+        
+    	List<NamePartView> historyEvents = Lists.newArrayList(Lists.transform(namePartService.revisions(selectedName.getNamePart()), new Function<NamePartRevision, NamePartView>() {
+            @Override public NamePartView apply(NamePartRevision revision) {
+                return viewFactory.getView(revision);
+            }
+        }));
+    	return historyEvents;
+    }
 
     public @Nullable NamePartView getSelectedName() {
     	if (selectedNodes != null)
@@ -436,6 +450,14 @@ public class NamePartsController implements Serializable {
         deleteView = deleteView(root, SelectionMode.MANUAL);
         approveView = approveView(root, SelectionMode.MANUAL);
         cancelView = cancelView(root, SelectionMode.MANUAL);
+    }
+    
+    public String getPendingComment (NamePartView selectedName) {
+    	List<NamePartView> historyEvents = findHistory(selectedName);
+    	if (historyEvents != null && historyEvents.size() > 0) {
+    		return historyEvents.get(historyEvents.size()-1).getNameEvent().getRequestorComment();
+    	}
+    	return null;
     }
 
     private enum SelectionMode { MANUAL, AUTO, DISABLED }
