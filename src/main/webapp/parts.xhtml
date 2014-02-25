@@ -9,9 +9,9 @@
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions"
                 >
     <ui:define name="content">
-        
-        <h:form id="ReqSubForm" style="width: 90%;">
-            
+
+        <h:form id="ReqSubForm">
+
             <!--<p:growl id="requestMsgs" showDetail="true" sticky="false"  life="30000" />-->
 
             <!-- =================== Menus      ============================ -->
@@ -20,20 +20,20 @@
                 <td align="left">
 	                <div>
 	                    <h:panelGrid columns="2" >
-	                        <h:outputText value="Display filter: "/>  
+	                        <h:outputText value="Display filter: "/>
 	                        <p:selectOneMenu value="#{namePartsController.viewFilter}">
-	                            <p:ajax listener="#{namePartsController.modifyDisplayView}" event="change" update="namePartsTree reqMenu" />  
-	                            <f:selectItem itemLabel="All" itemValue="1" />  
-	                            <f:selectItem itemLabel="All without modified" itemValue="2" />  
-	                            <f:selectItem itemLabel="Only modified" itemValue="3" />  
+	                            <p:ajax listener="#{namePartsController.modifyDisplayView}" event="change" update="namePartsTree reqMenu" />
+	                            <f:selectItem itemLabel="All" itemValue="1" />
+	                            <f:selectItem itemLabel="All without modified" itemValue="2" />
+	                            <f:selectItem itemLabel="Only modified" itemValue="3" />
 	                            <f:selectItem itemLabel="Only modified by me" itemValue="4" itemDisabled="#{!userManager.isLoggedIn()}"/>
-	                            <f:selectItem itemLabel="All without modified, with deleted" itemValue="5" />  
+	                            <f:selectItem itemLabel="All without modified, with deleted" itemValue="5" />
 	                        </p:selectOneMenu>
 	                    </h:panelGrid>
 	                </div>
                 </td>
                 <td align="right">
-	                <p:menuButton value="Actions" id="reqMenu" style="width: 8%">	                    
+	                <p:menuButton value="Actions" id="reqMenu" style="width: 8%">
 	                        <p:menuitem value="Add" actionListener="#{namePartsController.showAdd()}" title="Add Name" icon="ui-icon-plus" oncomplete="addName.show()" update=":addNameForm :ReqSubForm:namePartsTree" disabled="#{!namePartsController.canAdd()}" rendered="#{userManager.editor}" />
 	                        <p:menuitem value="Delete" title="Delete Name" icon="ui-icon-trash" update=":DelNameForm:delName" oncomplete="delName.show()" disabled="#{!namePartsController.canDelete()}" rendered="#{userManager.editor}" />
 	                        <p:menuitem value="Modify" actionListener="#{namePartsController.showModify()}" title="Modify Name" icon="ui-icon-pencil" update=":ModNameForm:modName" oncomplete="modName.show()" disabled="#{!namePartsController.canModify()}" rendered="#{userManager.editor}" />
@@ -45,8 +45,8 @@
                 </td>
              </tr>
           </table>
-           
-            <p:treeTable id="namePartsTree" value="#{namePartsController.root}" var="namePart" selection="#{namePartsController.selectedNodes}" selectionMode="multiple" resizableColumns="true" scrollable="true" scrollHeight="650" rowStyleClass="#{namePartsController.nameViewClass(namePart)}" style="margin-top: 5px">
+
+            <p:treeTable id="namePartsTree" value="#{namePartsController.root}" var="namePart" selection="#{namePartsController.selectedNodes}" selectionMode="multiple" resizableColumns="true" scrollable="true" scrollHeight="515" rowStyleClass="#{namePartsController.nameViewClass(namePart)}" style="margin-top: 5px">
                 <p:ajax event="select" update=":ReqSubForm:reqMenu" />
                 <p:ajax event="unselect" update=":ReqSubForm:reqMenu" />
 
@@ -62,12 +62,12 @@
                 </p:column>
                 <p:column id="status" headerText="Status" style="width: 15%">
                     <h:outputText value="#{namePartsController.nameStatus(namePart.nameEvent)}" styleClass="#{namePartsController.getNameClass(namePart,false)}" />
-                    
+
                     <h:outputLink id="pendingComment" value="#" rendered="#{namePartsController.hasPendingComment(namePart)}">
                         <h:outputText styleClass="ui-icon ui-icon-info" style="display:inline-block; margin-left:10px !important; vertical-align:bottom !important;"/>
                     </h:outputLink>
                     <p:tooltip for="pendingComment" value="#{namePartsController.getPendingComment(namePart)}" />
-                    
+
                 </p:column>
 
             </p:treeTable>
@@ -133,7 +133,7 @@
                         <p:column><h:outputText value="#{namePartsController.selectedName.pendingOrElseCurrentRevision.fullName}"/></p:column>
                         <p:column>
                             <p:inputText id="mdesc" value="#{namePartsController.newDescription}" required="true" requiredMessage="Please enter a name.">
-                                <p:ajax listener="#{namePartsController.checkForChanges()}" event="keyup" update="submitModify" /> 
+                                <p:ajax listener="#{namePartsController.checkForChanges()}" event="keyup" update="submitModify" />
                             </p:inputText>
                             <p:message for="mdesc" />
                         </p:column>
@@ -174,7 +174,7 @@
                 <p:panelGrid id="pgrid" style="text-align: left">
                     <p:row>
                         <p:column colspan="2" rendered="#{namePartsController.canDelete()}">
-                            <p:treeTable value="#{namePartsController.deleteView}" var="candidate" resizableColumns="true"  styleClass="previewTreeTable"> 
+                            <p:treeTable value="#{namePartsController.deleteView}" var="candidate" resizableColumns="true"  styleClass="previewTreeTable">
                                 <p:column headerText="Name" >
                                     <h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="#{candidate.namePartView.fullName}" />
                                 </p:column>
@@ -212,7 +212,7 @@
                 <p:panelGrid id="pgrid" style="text-align: left">
                     <p:row>
                         <p:column colspan="2">
-                            <p:treeTable value="#{namePartsController.cancelView}" var="candidate" resizableColumns="true" styleClass="previewTreeTable"> 
+                            <p:treeTable value="#{namePartsController.cancelView}" var="candidate" resizableColumns="true" styleClass="previewTreeTable">
                                 <p:column headerText="Name" >
                                     <h:outputText styleClass="#{namePartsController.getNameClass(candidate.namePartView,true)}" value="#{namePartsController.getOperationsNewFullName(candidate)}" />
                                     <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,true)}" />
@@ -223,7 +223,7 @@
                                     <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
                                     <h:outputText value="(#{candidate.namePartView.name})" styleClass="#{namePartsController.getNameClass(candidate.namePartView,false)}-Old" rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
                                 </p:column>
-                             </p:treeTable> 
+                             </p:treeTable>
                         </p:column>
                     </p:row>
 
@@ -244,7 +244,7 @@
                 <p:commandButton value="Cancel" style="float: right" onclick="cancelReq.hide()"  />
             </p:dialog>
         </h:form>
-        
+
         <!-- ===================    Approve Form    ============================ -->
         <h:form id="ApproveForm" >
             <p:dialog id="approveRequest"  widgetVar="approveRequest" modal="true" resizable="false">
@@ -254,7 +254,7 @@
                 <p:panelGrid style="text-align: left">
                     <p:row>
                         <p:column colspan="2">
-                            <p:treeTable value="#{namePartsController.approveView}" var="candidate" resizableColumns="true" styleClass="previewTreeTable"> 
+                            <p:treeTable value="#{namePartsController.approveView}" var="candidate" resizableColumns="true" styleClass="previewTreeTable">
                                 <p:column headerText="Name" >
                                     <h:outputText styleClass="#{namePartsController.getNameClass(candidate.namePartView,true)}" value="#{namePartsController.getOperationsNewFullName(candidate)}" />
                                     <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,true)}" />
@@ -265,7 +265,7 @@
 				                    <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
 				                    <h:outputText value="(#{candidate.namePartView.name})" styleClass="#{namePartsController.getNameClass(candidate.namePartView,false)}-Old" rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
 				                </p:column>
-                             </p:treeTable> 
+                             </p:treeTable>
                         </p:column>
                     </p:row>
 
@@ -293,7 +293,7 @@
                 <p:panelGrid style="text-align: left">
                     <p:row>
                         <p:column colspan="2">
-                            <p:treeTable value="#{namePartsController.cancelView}" var="candidate" resizableColumns="true" styleClass="previewTreeTable"> 
+                            <p:treeTable value="#{namePartsController.cancelView}" var="candidate" resizableColumns="true" styleClass="previewTreeTable">
                                 <p:column headerText="Name" >
                                     <h:outputText styleClass="#{namePartsController.getNameClass(candidate.namePartView,true)}" value="#{namePartsController.getOperationsNewFullName(candidate)}" />
                                     <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,true)}" />
@@ -304,7 +304,7 @@
                                     <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
                                     <h:outputText value="(#{candidate.namePartView.name})" styleClass="#{namePartsController.getNameClass(candidate.namePartView,false)}-Old" rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
                                 </p:column>
-                             </p:treeTable> 
+                             </p:treeTable>
                         </p:column>
                     </p:row>
 

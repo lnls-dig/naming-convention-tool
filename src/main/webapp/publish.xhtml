@@ -24,12 +24,7 @@
                 <p:menuitem value="Delete"  icon="ui-icon-trash"   disabled="true"/>
                 <p:menuitem value="Modify"  icon="ui-icon-pencil"  disabled="true"/>
             </p:contextMenu>
-            <p:dataTable id="releaseTable" var="release" value="#{publicationController.releases}"
-                         paginator="true" rows="25" resizableColumns="true"
-                         rowKey="#{release.releaseId}"
-                         emptyMessage="There are no releases."
-                         selection=publicationControllerger.selectedRelease}"
-                         style="width: 90%">
+            <p:dataTable id="releaseTable" var="release" value="#{publicationController.releases}" paginator="true" rows="25" resizableColumns="true" rowKey="#{release.releaseId}" emptyMessage="There are no releases." selection=publicationControllerger.selectedRelease}">
                 <f:facet name="header">
                     <h:outputText value="Releases" />
                 </f:facet>

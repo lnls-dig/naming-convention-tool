@@ -8,7 +8,7 @@
                 xmlns:h="http://java.sun.com/jsf/html">
 
     <ui:define name="content">
-        <h:form id="ManageNameForm" style="width: 90%;">
+        <h:form id="ManageNameForm">
             <p:growl id="ncRequestMsgs" showDetail="true" sticky="false" life="30000" />
 
             <!-- =================== Menus ============================ -->
@@ -41,7 +41,7 @@
                             rendered="#{userManager.editor}" />
                 <p:menuitem value="Delete" update=":delDeviceNameForm"
                             icon="ui-icon-trash" oncomplete="delDeviceName.show()"
-                        rendered="#{userManager.editor}"/> 
+                        rendered="#{userManager.editor}"/>
                 <p:menuitem value="Modify" update=":modDeviceNameForm"
                             action="#{devicesController.prepareForModify()}"
                         icon="ui-icon-pencil" oncomplete="modDeviceName.show()"
