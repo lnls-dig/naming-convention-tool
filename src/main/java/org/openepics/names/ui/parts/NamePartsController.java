@@ -36,6 +36,7 @@ import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.common.UserManager;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartView.Change;
+import org.openepics.names.ui.parts.NamePartView.ModifyChange;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
@@ -69,6 +70,7 @@ public class NamePartsController implements Serializable {
     private TreeNode approveView;
     private TreeNode cancelView;
 
+
     private String newCode;
     private String newDescription;
     private String newComment;
@@ -77,6 +79,9 @@ public class NamePartsController implements Serializable {
     private NamePartType namePartType;
 
     private NameRelease latestRelease;
+    
+    private boolean modify;
+    private boolean isDifferentThenCurrent;
 
     @PostConstruct
     public void init() {
@@ -188,7 +193,7 @@ public class NamePartsController implements Serializable {
 
     public String getNewName(NamePartView req) {
         final Change change = req.getPendingChange();
-        if (change instanceof NamePartView.ModifyChange) {
+        if (change instanceof NamePartView.ModifyChange && ((NamePartView.ModifyChange)change).getNewName() != null) {
             return ((NamePartView.ModifyChange)change).getNewName();
         } else {
             return req.getName();
@@ -198,7 +203,7 @@ public class NamePartsController implements Serializable {
 
     public String getNewFullName(NamePartView req) {
         final Change change = req.getPendingChange();
-        if (change instanceof NamePartView.ModifyChange) {
+        if (change instanceof NamePartView.ModifyChange  && ((NamePartView.ModifyChange)change).getNewFullName() != null) {
             return ((NamePartView.ModifyChange)change).getNewFullName();
         } else {
             return req.getFullName();
@@ -208,15 +213,24 @@ public class NamePartsController implements Serializable {
     public String getOperationsNewFullName(OperationNamePartView opReq) {
     	NamePartView req = opReq.getNamePartView();
         final Change change = req.getPendingChange();
-        if (change instanceof NamePartView.ModifyChange) {
+        if (change instanceof NamePartView.ModifyChange && ((NamePartView.ModifyChange)change).getNewFullName() != null
+        		&& !((NamePartView.ModifyChange)change).getNewFullName().equals("")) {
             return ((NamePartView.ModifyChange)change).getNewFullName();
         } else {
             return req.getFullName();
         }
     }
 
-    public boolean isModified(NamePartView req) {
-        return req.getPendingChange() instanceof NamePartView.ModifyChange;
+    public boolean isModified(NamePartView req, boolean isFullName) {
+    	if (req.getPendingChange() instanceof NamePartView.ModifyChange) {
+	    	ModifyChange modifyChange = (ModifyChange) req.getPendingChange();
+	    	if ((isFullName && modifyChange.getNewFullName() != null) ||
+	        		!isFullName && modifyChange.getNewName() != null) {
+	    			return true;
+	    	}
+	    	return false;
+    	}
+    	return false;
     }
     
     public void setViewFilter(int filter) {
@@ -246,12 +260,15 @@ public class NamePartsController implements Serializable {
     		break;
 		}
     	newCode = newDescription = newComment = null;
+    	modify = false;
         selectedNodes = new TreeNode[0];
     	updateOperationViews();
     }
 
-    public String getNameClass(NamePartView req) {
-        final Change change = req.getPendingChange();
+    public String getNameClass(NamePartView req, boolean isFullName) {
+    	
+    	
+    	final Change change = req.getPendingChange();
         if (change == null) {
             if (req.isDeleted()) return "Delete-Approved";
             return "Insert-Approved";
@@ -259,7 +276,15 @@ public class NamePartsController implements Serializable {
 
         StringBuilder ret = new StringBuilder();
         if (change instanceof NamePartView.AddChange) ret.append("Insert-");
-        else if (change instanceof NamePartView.ModifyChange) ret.append("Modify-");
+        else if (change instanceof NamePartView.ModifyChange) {
+        	ModifyChange modifyChange = (ModifyChange) change;
+        	if ((isFullName && modifyChange.getNewFullName() != null) ||
+            		!isFullName && modifyChange.getNewName() != null) {
+        		ret.append("Modify-");
+        	} else {
+        		return "Insert-Approved";
+        	}
+        }
         else if (change instanceof NamePartView.DeleteChange) ret.append("Delete-");
         else throw new IllegalStateException();
 
@@ -281,7 +306,8 @@ public class NamePartsController implements Serializable {
         }
         return ret.toString();
     }
-
+    
+   
     public String nameStatus(NamePartRevision nreq) {
         switch (nreq.getStatus()) {
             case PENDING:
@@ -333,16 +359,48 @@ public class NamePartsController implements Serializable {
     }
 
     public @Nullable NamePartView getSelectedName() {
-        return selectedNodes.length < 1 ? null : (NamePartView)(selectedNodes[0].getData());
+    	if (selectedNodes != null)
+    		return selectedNodes.length < 1 ? null : (NamePartView)(selectedNodes[0].getData());
+    	else 
+    		return null;
     }
 
-    public String getNewCode() { return newCode; }
+    public String getNewCode() { 
+    	newCode = (getSelectedName() == null || !modify) ? null : getSelectedName().getPendingOrElseCurrentRevision().getName();
+    	if (modify) 
+    		checkForChanges();
+    	return newCode; 
+    }
     public void setNewCode(String newCode) { this.newCode = newCode; }
 
-    public String getNewDescription() { return newDescription; }
+    public String getNewDescription() { 
+    	newDescription = (getSelectedName() == null || !modify) ? null : getSelectedName().getPendingOrElseCurrentRevision().getFullName();
+    	return newDescription; 
+    }
     public void setNewDescription(String newDescription) { this.newDescription = newDescription; }
+    
+    public void showModify() {
+    	modify = true;
+    }
+    
+    public void showAdd() {
+    	modify = false;
+    }
+    
+    public boolean canSaveModifications() {
+    	return !isDifferentThenCurrent;
+    }
+    
+    public void checkForChanges() {
+    	if (!newDescription.equals(getSelectedName().getPendingOrElseCurrentRevision().getFullName()) || !newCode.equals(getSelectedName().getPendingOrElseCurrentRevision().getName()))
+    		isDifferentThenCurrent = true;
+    	else
+    		isDifferentThenCurrent = false;
+    }
 
-    public String getNewComment() { return newComment; }
+    public String getNewComment() { 
+    	return newComment; 
+    }
     public void setNewComment(String newComment) { this.newComment = newComment; }
 
     public List<NamePartView> getHistoryEvents() { return historyEvents; }
@@ -350,6 +408,7 @@ public class NamePartsController implements Serializable {
     public TreeNode getRoot() { return root; }
     
     public TreeNode[] getSelectedNodes() { return selectedNodes; }
+    
     public void setSelectedNodes(TreeNode[] selectedNodes) {
         this.selectedNodes = selectedNodes != null ? selectedNodes : new TreeNode[0];
         updateOperationViews();
