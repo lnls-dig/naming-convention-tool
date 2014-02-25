@@ -78,7 +78,7 @@ public class DevicesController implements Serializable {
                 return;
             }
             DeviceRevision rev = deviceService.createDevice(subsection.getNamePart(), device.getNamePart(), deviceQuantifier);
-            showMessage(FacesMessage.SEVERITY_INFO, "Device Name successfully added.", "Name: [TODO]" + viewFactory.getView(rev).getConventionName());
+            showMessage(FacesMessage.SEVERITY_INFO, "Device Name successfully added.", "Name: " + viewFactory.getView(rev).getConventionName());
         } finally {
             init();
         }
