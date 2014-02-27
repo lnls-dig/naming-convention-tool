@@ -221,6 +221,13 @@ public class NamePartsController implements Serializable {
         }
     }
 
+    public boolean isDeletePending (NamePartView req) {
+    	if (req.getPendingChange() instanceof NamePartView.DeleteChange) {
+    		return true;
+    	}
+    	return false;
+    }
+    
     public boolean isModified(NamePartView req, boolean isFullName) {
     	if (req.getPendingChange() instanceof NamePartView.ModifyChange) {
 	    	ModifyChange modifyChange = (ModifyChange) req.getPendingChange();
@@ -228,7 +235,6 @@ public class NamePartsController implements Serializable {
 	        		!isFullName && modifyChange.getNewName() != null) {
 	    			return true;
 	    	}
-	    	return false;
     	}
     	return false;
     }
@@ -359,7 +365,7 @@ public class NamePartsController implements Serializable {
     }
     
     public boolean hasPendingComment(NamePartView req) {
-    	return (isModified(req, true) || isModified(req, false)) && getPendingComment(req) != null && getPendingComment(req).length() > 0;
+    	return (isModified(req, true) || isModified(req, false) || isDeletePending(req)) && getPendingComment(req) != null && getPendingComment(req).length() > 0;
     }
     
     public List<NamePartView> findHistory(NamePartView selectedName) {
@@ -452,7 +458,7 @@ public class NamePartsController implements Serializable {
         cancelView = cancelView(root, SelectionMode.MANUAL);
     }
     
-    public String getPendingComment (NamePartView selectedName) {
+    public String getPendingComment(NamePartView selectedName) {
     	List<NamePartView> historyEvents = findHistory(selectedName);
     	if (historyEvents != null && historyEvents.size() > 0) {
     		return historyEvents.get(historyEvents.size()-1).getNameEvent().getRequestorComment();

@@ -300,7 +300,7 @@ public class TestService {
     private void fillDeviceTypes() {
         final NamePart BMD = addDeviceType(null, "Beam Magnets and Deflectors", "BMD");
 
-        final NamePart Dipoles = addDeviceType(BMD, "Dipoles", null);
+        final NamePart Dipoles = addDeviceType(BMD, "Dipoles", "D");
         addDeviceType(Dipoles, "Chopper", "Chop");
         addDeviceType(Dipoles, "Horizontal Corrector", "CorH");
         addDeviceType(Dipoles, "Horizontal Dipole", "DH");
@@ -309,37 +309,37 @@ public class TestService {
         addDeviceType(Dipoles, "Vertical Dipole", "DV");
         addDeviceType(Dipoles, "Vertical Raster Magnet", "RstV");
 
-        final NamePart Misc = addDeviceType(BMD, "Misc", null);
+        final NamePart Misc = addDeviceType(BMD, "Misc", "Msc");
         addDeviceType(Misc, "Linac Warm Unit", "LWU");
         addDeviceType(Misc, "Proton Beam Window", "PBW");
 
-        final NamePart Octupoles = addDeviceType(BMD, "Octupoles", null);
+        final NamePart Octupoles = addDeviceType(BMD, "Octupoles", "Oct");
         addDeviceType(Octupoles, "Octupole, folding in horizontal plane", "OctH");
         addDeviceType(Octupoles, "Octupole, folding in vertical plane", "OctV");
 
-        final NamePart Quadrupoles = addDeviceType(BMD, "Quadrupoles", null);
+        final NamePart Quadrupoles = addDeviceType(BMD, "Quadrupoles", "Q");
         addDeviceType(Quadrupoles, "Horizontal Focusing Quadrupole", "QH");
         addDeviceType(Quadrupoles, "Vertical Focusing Quadrupole", "QV");
 
-        final NamePart Solenoids = addDeviceType(BMD, "Solenoids", null);
+        final NamePart Solenoids = addDeviceType(BMD, "Solenoids", "Sols");
         addDeviceType(Solenoids, "Solenoid", "Sol");
 
-        final NamePart Steerers = addDeviceType(BMD, "Steerers", null);
+        final NamePart Steerers = addDeviceType(BMD, "Steerers", "Strs");
         addDeviceType(Steerers, "Steerer", "Str");
 
 
         final NamePart Cryo = addDeviceType(null, "Cryogenics", "Cryo");
 
-        final NamePart CryogenicBoxes = addDeviceType(Cryo, "Cryogenic Boxes", null);
+        final NamePart CryogenicBoxes = addDeviceType(Cryo, "Cryogenic Boxes", "CBox");
         addDeviceType(CryogenicBoxes, "End Box", "EBox");
         addDeviceType(CryogenicBoxes, "Splitting Box", "SBox");
         addDeviceType(CryogenicBoxes, "Valve Box", "VBox");
 
-        final NamePart CryogenicLines = addDeviceType(Cryo, "Cryogenic Lines", null);
+        final NamePart CryogenicLines = addDeviceType(Cryo, "Cryogenic Lines", "CL");
         addDeviceType(CryogenicLines, "Distribution Line", "CDL");
         addDeviceType(CryogenicLines, "Transfer Line", "CTL");
 
-        final NamePart Indicators = addDeviceType(Cryo, "Indicators", null);
+        final NamePart Indicators = addDeviceType(Cryo, "Indicators", "Ind");
         addDeviceType(Indicators, "Flow Indicator", "CTL");
         addDeviceType(Indicators, "Level Indicator", "CTL");
         addDeviceType(Indicators, "Pressure Indicator", "CTL");

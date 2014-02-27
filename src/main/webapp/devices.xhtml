@@ -55,7 +55,7 @@
             <p:dataTable id="ncCrTable" var="deviceName" value="#{devicesController.allDeviceNames}"
                          resizableColumns="true" rowKey="#{deviceName.id}"
                          emptyMessage="There are no NC Names" rowStyleClass="#{deviceName.device.deleted ? 'Deleted' : ''}"
-                         selection="#{devicesController.selectedDeviceName}" scrollable="true" scrollHeight="610" style="padding-top: 10px">
+                         selection="#{devicesController.selectedDeviceName}" scrollable="true" scrollHeight="630" style="padding-top: 10px">
                 <f:facet name="header">
                     <h:outputText value="Existing Device Names" />
                 </f:facet>
