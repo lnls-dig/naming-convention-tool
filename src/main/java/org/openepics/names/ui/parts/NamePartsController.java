@@ -63,7 +63,9 @@ public class NamePartsController implements Serializable {
 
     private List<NamePartView> historyEvents;
 
-    private TreeNode root;
+    private TreeNode rootWithModifications;
+    private TreeNode rootWithoutModifications;
+    private TreeNode viewRoot;
     private TreeNode[] selectedNodes;
 
     private TreeNode deleteView;
@@ -85,6 +87,8 @@ public class NamePartsController implements Serializable {
 
     @PostConstruct
     public void init() {
+    	rootWithModifications = getRootTreeNode(true);
+    	rootWithoutModifications = getRootTreeNode(false);
         modifyDisplayView();
     }
     
@@ -250,19 +254,19 @@ public class NamePartsController implements Serializable {
     public void modifyDisplayView() {
     	switch (displayView) {
     	case 1:
-    		root = viewAll(getRootTreeNode(true), false);
+    		viewRoot = approvedAndProposedView(rootWithModifications, false);
     		break;
     	case 2:
-    		root = viewAll(getRootTreeNode(false), false);
+    		viewRoot = approvedAndProposedView(rootWithoutModifications, false);
     		break;
 		case 3:
-			root = viewOnlyModified(getRootTreeNode(true), null);
+			viewRoot = onlyProposedView(rootWithModifications, null);
 			break;
 		case 4:
-			root = viewOnlyModified(getRootTreeNode(true), userManager.getUser());
+			viewRoot = onlyProposedView(rootWithModifications, userManager.getUser());
 			break;
 		case 5:
-			root = viewAll(getRootTreeNode(false), true);
+			viewRoot = approvedAndProposedView(rootWithoutModifications, true);
     		break;
 		}
     	newCode = newDescription = newComment = null;
@@ -425,7 +429,9 @@ public class NamePartsController implements Serializable {
 
     public List<NamePartView> getHistoryEvents() { return historyEvents; }
 
-    public TreeNode getRoot() { return root; }
+    public TreeNode getRoot() { return rootWithModifications; }
+    
+    public TreeNode getViewRoot() { return viewRoot; }
     
     public TreeNode[] getSelectedNodes() { return selectedNodes; }
     
@@ -453,9 +459,9 @@ public class NamePartsController implements Serializable {
     public boolean canShowHistory() { return selectedNodes.length == 1; }
 
     public void updateOperationViews() {
-        deleteView = deleteView(root, SelectionMode.MANUAL);
-        approveView = approveView(root, SelectionMode.MANUAL);
-        cancelView = cancelView(root, SelectionMode.MANUAL);
+        deleteView = deleteView(viewRoot, SelectionMode.MANUAL);
+        approveView = approveView(viewRoot, SelectionMode.MANUAL);
+        cancelView = cancelView(viewRoot, SelectionMode.MANUAL);
     }
     
     public String getPendingComment(NamePartView selectedName) {
@@ -605,91 +611,83 @@ public class NamePartsController implements Serializable {
         }
     }
     
-    private @Nullable TreeNode viewOnlyModified(TreeNode node, UserAccount user) {
+    private @Nullable TreeNode onlyProposedView(TreeNode node, UserAccount user) {
     	
-    	final List<TreeNode> modifiedChildren = Lists.newArrayList();
+    	final List<TreeNode> childNodes = Lists.newArrayList();
     	
     	if (node.getChildCount() > 0) {
     		for (TreeNode child : node.getChildren()) {
-    			TreeNode temp = viewOnlyModified(child, user);
+    			TreeNode temp = onlyProposedView(child, user);
     			if (temp != null) {
-    				modifiedChildren.add(temp);
+    				childNodes.add(temp);
     			} 
     		}
-    	} else {
-    		final @Nullable NamePartView nodeView = (NamePartView) node.getData();
-    		if(user == null) {
-	    		if (nodeView != null && nodeView.getPendingChange() != null) {
-	    			return node;
-	    		} else { 
-	    			return null;
-	    		}
-    		} else {
-    			if (nodeView != null && nodeView.getPendingChange() != null && nodeView.getPendingRevision().getRequestedBy().equals(user)) {
-	    			return node;
-	    		} else { 
-	    			return null;
-	    		}
+    	} 
+		
+    	final @Nullable NamePartView nodeView = (NamePartView) node.getData();
+		if(user == null) {
+    		if ((nodeView != null && nodeView.getPendingChange() != null) || childNodes.size() > 0) {
+    			final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
+    			result.setExpanded(true);
+                for (TreeNode childView : childNodes) {
+                    childView.setParent(result);
+                }
+                return result;
+    		} else { 
+    			return null;
     		}
-    	}
-    	final List<TreeNode> children = Lists.newArrayList();
-    	children.addAll(node.getChildren());
-    	if (children.size() > 0) {
-    		for (TreeNode child : children) {
-    			if (!modifiedChildren.contains(child)) {
-    				node.getChildren().remove(child);
-    			}
+		} else {
+			if (nodeView != null && nodeView.getPendingChange() != null && nodeView.getPendingRevision().getRequestedBy().equals(user) || childNodes.size() > 0) {
+				final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
+    			result.setExpanded(true);
+                for (TreeNode childView : childNodes) {
+                    childView.setParent(result);
+                }
+                return result;
+    		} else { 
+    			return null;
     		}
-    	}
-    	if (modifiedChildren.size() > 0) {
-    		return node;
-    	} else {
-    		return null;
-    	}
-	}
+		}
+  	}
     
-    private @Nullable TreeNode viewAll (TreeNode node, boolean withDeletetions) {
-    	final List<TreeNode> nonDeletedChildren = Lists.newArrayList();
+    private @Nullable TreeNode approvedAndProposedView (TreeNode node, boolean withDeletetions) {
+    	final List<TreeNode> childNodes = Lists.newArrayList();
     	
     	if (node.getChildCount() > 0) {
     		for (TreeNode child : node.getChildren()) {
-    			TreeNode temp = viewAll(child, withDeletetions);
+    			TreeNode temp = approvedAndProposedView(child, withDeletetions);
     			if (temp != null) {
-    				nonDeletedChildren.add(temp);
+    				childNodes.add(temp);
     			} 
     		}
-    	} else {
-    		final @Nullable NamePartView nodeView = (NamePartView) node.getData();
-    		if (!withDeletetions) {
-	    		if (nodeView != null && !nodeView.isDeleted()) {
-	    			return node;
-	    		} else { 
-	    			return null;
-	    		}
-    		} else if (withDeletetions) {
-    			if (nodeView != null) {
-	    			return node;
-	    		} else { 
-	    			return null;
-	    		}
-    		} else {
-    			throw new IllegalStateException();
+    	} 
+    	
+		final @Nullable NamePartView nodeView = (NamePartView) node.getData();
+		if (!withDeletetions) {
+    		if ((nodeView != null && !nodeView.isDeleted()) || !childNodes.isEmpty()) {
+    			final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
+    			result.setExpanded(true);
+                for (TreeNode childView : childNodes) {
+                    childView.setParent(result);
+                }
+                return result;
+    		} else { 
+    			return null;
     		}
-    	}
-    	final List<TreeNode> children = Lists.newArrayList();
-    	children.addAll(node.getChildren());
-    	if (children.size() > 0) {
-    		for (TreeNode child : children) {
-    			if (!nonDeletedChildren.contains(child)) {
-    				node.getChildren().remove(child);
-    			}
+		} else if (withDeletetions) {
+			if (nodeView != null || !childNodes.isEmpty()) {
+				final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
+    			result.setExpanded(true);
+                for (TreeNode childView : childNodes) {
+                    childView.setParent(result);
+                }
+                return result;
+    		} else { 
+    			return null;
     		}
-    	}
-    	if (nonDeletedChildren.size() > 0) {
-    		return node;
-    	} else {
-    		return null;
-    	}
+		} else {
+			throw new IllegalStateException();
+		}    	
     }
     	
 

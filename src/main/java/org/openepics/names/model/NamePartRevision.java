@@ -65,10 +65,9 @@ public class NamePartRevision extends Persistable {
     @ManyToOne(optional = true)
     private NamePart parent;
 
-    @Basic(optional = false)
+    @Basic(optional = true)
     @Size(min = 1, max = 32)
-    @NotNull
-    @Column(name = "name")
+    @Column(name = "name", nullable = true)
     private String name;
 
     @Basic(optional = false)
