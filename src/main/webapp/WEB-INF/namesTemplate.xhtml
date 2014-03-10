@@ -10,6 +10,26 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <link href="resources/css/default.css" rel="stylesheet" type="text/css" />
         <link href="resources/css/cssLayout.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript">
+			$(window).resize(function() {
+				var menusHeight = $('#logoPanel').outerHeight()+$('#menu').outerHeight()+15;
+				$('#indexDiv').css({"height":window.innerHeight-menusHeight});
+				menusHeight = menusHeight+$('#filterTable').outerHeight() + $('#ReqSubForm\\:namePartsTree\\:nameDesc').outerHeight() + 7;
+				//$('.ui-treetable-scrollable-body').css({"height":window.innerHeight-menusHeight});	
+				//$('#ReqSubForm\\:namePartsTree\\:nameDesc').css({"width":"75%"});
+				//$('#ReqSubForm\\:namePartsTree\\:nameCode').css({"width":"10%"});
+				//$('#ReqSubForm\\:namePartsTree\\:status').css({"width":"15%"});
+				//$("[id^=ReqSubForm\\:namePartsTree_node_]").each(function() {$(this).css({"width":"200"});});	
+				//$('#ReqSubForm\\:namePartsTree_data').css({"width":"200"});
+			});
+
+    		$(window).ready(function() {
+        		var menusHeight = $('#logoPanel').outerHeight()+$('#menu').outerHeight()+15;
+				$('#indexDiv').css({"height":window.innerHeight-menusHeight});
+				menusHeight = menusHeight+$('#filterTable').outerHeight() + $('#ReqSubForm\\:namePartsTree\\:nameDesc').outerHeight() + 7;
+				//$('.ui-treetable-scrollable-body').css({"height":window.innerHeight-menusHeight});
+			});
+    	</script>
         <link rel="shortcut icon" href="resources/images/proteus.ico" />
         <title>Naming Convention Tool</title>
     </h:head>
@@ -17,7 +37,7 @@
     <h:body>
 
         <div id="full">
-            <p:panel styleClass="Logo">
+            <p:panel id="logoPanel" styleClass="Logo">
                 <h:outputText value="#{msgs.title}"  styleClass="title"/>
                 <h:panelGroup style="float:  right; font-size:  x-small">
                     <h:outputText value="Release: #{publicationController.latestRelease eq null? 'None' : publicationController.latestRelease.id} " />
@@ -30,7 +50,7 @@
                 <ui:include src="/WEB-INF/includes/menubar.xhtml"/>
             </div>
 
-            <div style="padding: 15px">
+            <div style="padding: 15px 15px 0px 15px" id="test">
                 <ui:insert name="content">Content</ui:insert>
             </div>
         </div>

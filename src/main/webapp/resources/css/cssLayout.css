@@ -163,6 +163,7 @@
     padding: 0px;
     text-align: left;
     border: none;
+    max-width: 1300px;
 }
 .menubar {
     /* color: LightSlateGray; */
