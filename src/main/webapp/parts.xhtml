@@ -46,7 +46,7 @@
              </tr>
           </table>
 		<div id="treeTable"> 
-            <p:treeTable id="namePartsTree" value="#{namePartsController.viewRoot}" var="namePart" selection="#{namePartsController.selectedNodes}" selectionMode="multiple" scrollable="true" scrollHeight="500" scrollWidth="auto" resizableColumns="false" rowStyleClass="#{namePartsController.nameViewClass(namePart)}" style="padding-top:5px;width:auto">
+            <p:treeTable id="namePartsTree" value="#{namePartsController.viewRoot}" var="namePart" selection="#{namePartsController.selectedNodes}" selectionMode="multiple" scrollable="true" scrollWidth="auto" resizableColumns="false" rowStyleClass="#{namePartsController.nameViewClass(namePart)}" style="padding-top:5px;">
                 <p:ajax event="select" update=":ReqSubForm:reqMenu" />
                 <p:ajax event="unselect" update=":ReqSubForm:reqMenu" />
 

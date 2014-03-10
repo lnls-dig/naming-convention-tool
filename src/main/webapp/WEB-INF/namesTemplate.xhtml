@@ -15,7 +15,7 @@
 				var menusHeight = $('#logoPanel').outerHeight()+$('#menu').outerHeight()+15;
 				$('#indexDiv').css({"height":window.innerHeight-menusHeight});
 				menusHeight = menusHeight+$('#filterTable').outerHeight() + $('#ReqSubForm\\:namePartsTree\\:nameDesc').outerHeight() + 7;
-				//$('.ui-treetable-scrollable-body').css({"height":window.innerHeight-menusHeight});	
+				$('.ui-treetable-scrollable-body').css({"height":window.innerHeight-menusHeight});	
 				//$('#ReqSubForm\\:namePartsTree\\:nameDesc').css({"width":"75%"});
 				//$('#ReqSubForm\\:namePartsTree\\:nameCode').css({"width":"10%"});
 				//$('#ReqSubForm\\:namePartsTree\\:status').css({"width":"15%"});
@@ -27,7 +27,7 @@
         		var menusHeight = $('#logoPanel').outerHeight()+$('#menu').outerHeight()+15;
 				$('#indexDiv').css({"height":window.innerHeight-menusHeight});
 				menusHeight = menusHeight+$('#filterTable').outerHeight() + $('#ReqSubForm\\:namePartsTree\\:nameDesc').outerHeight() + 7;
-				//$('.ui-treetable-scrollable-body').css({"height":window.innerHeight-menusHeight});
+				$('.ui-treetable-scrollable-body').css({"height":window.innerHeight-menusHeight});
 			});
     	</script>
         <link rel="shortcut icon" href="resources/images/proteus.ico" />
@@ -50,7 +50,7 @@
                 <ui:include src="/WEB-INF/includes/menubar.xhtml"/>
             </div>
 
-            <div style="padding: 15px 15px 0px 15px" id="test">
+            <div style="padding: 15px 15px 0px 15px">
                 <ui:insert name="content">Content</ui:insert>
             </div>
         </div>

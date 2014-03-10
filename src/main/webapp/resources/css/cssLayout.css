@@ -163,7 +163,6 @@
     padding: 0px;
     text-align: left;
     border: none;
-    max-width: 1300px;
 }
 .menubar {
     /* color: LightSlateGray; */
@@ -204,6 +203,10 @@
 
 #menuform .ui-menuitem {
     margin-right: 7px;
+}
+
+.textScreen {
+	max-width: 1100px;
 }
 
 /*
