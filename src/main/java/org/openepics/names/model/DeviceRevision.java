@@ -18,9 +18,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author <a href="mailto:jakob.battelino@cosylab.com">Jakob Battelino Prelog</a>
  */
 @Entity
-@Table(name = "device_name", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"section_id", "device_type_id", "qualifier"})
-})
+@Table(name = "device_name")
 @XmlRootElement
 public class DeviceRevision extends Persistable {
 

@@ -18,6 +18,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
 
+import org.openepics.names.model.Device;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.ui.common.ViewFactory;
@@ -150,7 +151,7 @@ public class NamePartTreeBuilder {
     public TreeNode namePartApprovalTree(List<NamePartRevision> approved, List<NamePartRevision> pending, boolean expandedTree) {
         return namePartApprovalTree(approved, pending, expandedTree, 0, null);
     }
-
+    
     public TreeNode namePartApprovalTree(List<NamePartRevision> approved, List<NamePartRevision> pending, boolean expandedTree, int selectableLevel) {
         return namePartApprovalTree(approved, pending, expandedTree, selectableLevel, null);
     }

@@ -40,6 +40,7 @@ public class TestService {
         em.persist(new UserAccount("jaba", Role.EDITOR));
         em.persist(new UserAccount("miha", Role.EDITOR));
         em.persist(new UserAccount("marko", Role.EDITOR));
+        em.persist(new UserAccount("apozar", Role.EDITOR));
     }
 
     private void fillHierarchy() {
