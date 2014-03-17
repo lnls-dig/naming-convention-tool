@@ -30,8 +30,8 @@ public class DeviceNameResource {
 
     @POST
     public Response create(@QueryParam("section_id") String sectionId, @QueryParam("device_type_id") String deviceTypeId) {
-       final NamePart section = namePartService.namePartWithId(sectionId);
-       final NamePart deviceType = namePartService.namePartWithId(deviceTypeId);
+       final NamePart section = null; // TODO: namePartService.namePartWithId(sectionId);
+       final NamePart deviceType = null; // TODO: namePartService.namePartWithId(deviceTypeId);
         deviceService.createDevice(section, deviceType, null, null);
         return Response.ok().build();
     }
@@ -40,7 +40,7 @@ public class DeviceNameResource {
     @Path("{id}")
     public Response remove(@PathParam("id") String id) {
         try {
-            final Device device = deviceService.deviceWithId(id);
+            final Device device = null; // TODO: deviceService.deviceWithId(id);
             deviceService.deleteDevice(device, null);
             return Response.ok().build();
         } catch (NoResultException e) {

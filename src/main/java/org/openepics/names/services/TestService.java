@@ -1,14 +1,10 @@
 package org.openepics.names.services;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.openepics.names.model.NameCategory;
-import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
@@ -28,7 +24,6 @@ public class TestService {
     public void fillDatabaseWithTestData() {
         if (namePartService.approvedNames().isEmpty()) {
             fillUserAccounts();
-            fillHierarchy();
             fillSections();
             fillDeviceTypes();
         }
@@ -41,12 +36,6 @@ public class TestService {
         em.persist(new UserAccount("miha", Role.EDITOR));
         em.persist(new UserAccount("marko", Role.EDITOR));
         em.persist(new UserAccount("apozar", Role.EDITOR));
-    }
-
-    private void fillHierarchy() {
-        final List<NameCategory> sectionLevels = ImmutableList.of(new NameCategory("SUP"), new NameCategory("SECT"), new NameCategory("SUB"));
-        final List<NameCategory> deviceTypeLevels = ImmutableList.of(new NameCategory("DSCP"), new NameCategory("CAT"), new NameCategory("GDEV"), new NameCategory("SDEV"));
-        em.persist(new NameHierarchy(sectionLevels, deviceTypeLevels));
     }
 
     private void fillSections() {

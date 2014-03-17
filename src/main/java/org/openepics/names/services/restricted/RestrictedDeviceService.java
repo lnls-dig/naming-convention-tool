@@ -19,10 +19,6 @@ public class RestrictedDeviceService {
     @Inject private SessionService sessionService;
     @Inject private DeviceService deviceService;
 
-    public Device deviceWithId(String uuid) {
-        return deviceService.deviceWithId(uuid);
-    }
-
     public List<Device> devices(boolean includeDeleted) {
         return deviceService.devices(includeDeleted);
     }

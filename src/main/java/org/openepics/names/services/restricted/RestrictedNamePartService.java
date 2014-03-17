@@ -6,7 +6,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import org.openepics.names.model.NameHierarchy;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
@@ -24,10 +23,6 @@ public class RestrictedNamePartService {
 
     @Inject private SessionService sessionService;
     @Inject private NamePartService namePartService;
-
-    public NamePart namePartWithId(String uuid) {
-        return namePartService.namePartWithId(uuid);
-    }
 
     public NamePartRevision addNamePart(String name, String fullName, NamePartType nameType, @Nullable NamePart parent, String comment) {
         Preconditions.checkState(sessionService.isLoggedIn());
@@ -68,10 +63,6 @@ public class RestrictedNamePartService {
     public void approveNamePartRevision(NamePartRevision namePartRevision, String comment) {
         Preconditions.checkState(sessionService.isSuperUser());
         namePartService.approveNamePartRevision(namePartRevision, sessionService.user(), comment);
-    }
-
-    public NameHierarchy nameHierarchy() {
-        return namePartService.nameHierarchy();
     }
 
     public List<NamePart> approvedNames(boolean includeDeleted) {

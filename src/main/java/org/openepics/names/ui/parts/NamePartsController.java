@@ -15,10 +15,13 @@
  */
 package org.openepics.names.ui.parts;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
-
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -26,12 +29,9 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
-import org.openepics.names.model.NameRelease;
 import org.openepics.names.model.UserAccount;
-import org.openepics.names.services.ReleaseService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.common.UserManager;
 import org.openepics.names.ui.common.ViewFactory;
@@ -39,12 +39,6 @@ import org.openepics.names.ui.parts.NamePartView.Change;
 import org.openepics.names.ui.parts.NamePartView.ModifyChange;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
-
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 /**
  * Manages Change Requests (backing bean for request-sub.xhtml)
@@ -58,7 +52,6 @@ public class NamePartsController implements Serializable {
     @Inject private RestrictedNamePartService namePartService;
     @Inject private ViewFactory viewFactory;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
-    @Inject private ReleaseService releaseService;
     @Inject private UserManager userManager;
 
     private List<NamePartView> historyEvents;
@@ -77,11 +70,9 @@ public class NamePartsController implements Serializable {
     private String newDescription;
     private String newComment;
     private int displayView = 1;
-    
+
     private NamePartType namePartType;
 
-    private NameRelease latestRelease;
-    
     private boolean modify;
     private boolean isDifferentThenCurrent;
 
@@ -91,12 +82,12 @@ public class NamePartsController implements Serializable {
     	rootWithoutModifications = getRootTreeNode(false);
         modifyDisplayView();
     }
-    
+
     private TreeNode getRootTreeNode(boolean withModifications) {
     	final @Nullable String typeParam = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
-    	
+
     	if (typeParam == null) {
-            
+
         } else if (typeParam.equals("section")) {
             namePartType = NamePartType.SECTION;
         } else if (typeParam.equals("deviceType")) {
@@ -104,8 +95,6 @@ public class NamePartsController implements Serializable {
         } else {
             throw new IllegalStateException();
         }
-
-        latestRelease = releaseService.getLatestRelease();
 
         final List<NamePartRevision> approvedRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(true), new Predicate<NamePartRevision>() {
             @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
@@ -118,7 +107,7 @@ public class NamePartsController implements Serializable {
         else {
         	pendingRevisions = Lists.newArrayList();
         }
-        
+
         return namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, true);
     }
 
@@ -143,7 +132,7 @@ public class NamePartsController implements Serializable {
 
     public void onDelete() {
         try {
-            for (NamePartView namePartView : linearizedTargets(deleteView)) {
+            for (NamePartView namePartView : linearizedTargetsForDelete(deleteView)) {
                 namePartService.deleteNamePart(namePartView.getNamePart(), newComment);
             }
             showMessage(FacesMessage.SEVERITY_INFO, "Success", "The data you requested was successfully deleted.");
@@ -213,7 +202,7 @@ public class NamePartsController implements Serializable {
             return req.getFullName();
         }
     }
-    
+
     public String getOperationsNewFullName(OperationNamePartView opReq) {
     	NamePartView req = opReq.getNamePartView();
         final Change change = req.getPendingChange();
@@ -231,7 +220,7 @@ public class NamePartsController implements Serializable {
     	}
     	return false;
     }
-    
+
     public boolean isModified(NamePartView req, boolean isFullName) {
     	if (req.getPendingChange() instanceof NamePartView.ModifyChange) {
 	    	ModifyChange modifyChange = (ModifyChange) req.getPendingChange();
@@ -242,15 +231,15 @@ public class NamePartsController implements Serializable {
     	}
     	return false;
     }
-    
+
     public void setViewFilter(int filter) {
     	this.displayView = filter;
     }
-    
+
     public int getViewFilter() {
     	return this.displayView;
     }
-    
+
     public void modifyDisplayView() {
     	switch (displayView) {
     	case 1:
@@ -276,8 +265,8 @@ public class NamePartsController implements Serializable {
     }
 
     public String getNameClass(NamePartView req, boolean isFullName) {
-    	
-    	
+
+
     	final Change change = req.getPendingChange();
         if (change == null) {
             if (req.isDeleted()) return "Delete-Approved";
@@ -316,24 +305,15 @@ public class NamePartsController implements Serializable {
         }
         return ret.toString();
     }
-    
-   
+
+
     public String nameStatus(NamePartRevision nreq) {
         switch (nreq.getStatus()) {
-            case PENDING:
-                return "In-Process";
-            case CANCELLED:
-                return "Cancelled";
-            case REJECTED:
-                return "Rejected";
-            case APPROVED:
-                if (nreq.isDeleted()) {
-                    return "Deleted";
-                } else {
-                    return isPublished(nreq) ? "Published" : "Unpublished";
-                }
-            default:
-                throw new IllegalStateException();
+            case PENDING: return "In-Process";
+            case CANCELLED: return "Cancelled";
+            case REJECTED: return "Rejected";
+            case APPROVED: return nreq.isDeleted() ? "Deleted" : "Approved";
+            default: throw new IllegalStateException();
         }
     }
 
@@ -342,17 +322,8 @@ public class NamePartsController implements Serializable {
             case PENDING: return "Processing";
             case CANCELLED: return "default";
             case REJECTED: return "default";
-            case APPROVED: return isPublished(entry.getNameEvent()) ? "Published" : "Approved";
+            case APPROVED: return "Approved";
             default: throw new IllegalStateException();
-        }
-    }
-
-    private boolean isPublished(NamePartRevision namePartRevision) {
-        final Date processDate = namePartRevision.getProcessDate();
-        if (processDate != null) {
-            return latestRelease != null && latestRelease.getReleaseDate().before(processDate);
-        } else {
-            return false;
         }
     }
 
@@ -367,13 +338,13 @@ public class NamePartsController implements Serializable {
             }
         }));
     }
-    
+
     public boolean hasPendingComment(NamePartView req) {
     	return (isModified(req, true) || isModified(req, false) || isDeletePending(req)) && getPendingComment(req) != null && getPendingComment(req).length() > 0;
     }
-    
+
     public List<NamePartView> findHistory(NamePartView selectedName) {
-        
+
     	List<NamePartView> historyEvents = Lists.newArrayList(Lists.transform(namePartService.revisions(selectedName.getNamePart()), new Function<NamePartRevision, NamePartView>() {
             @Override public NamePartView apply(NamePartRevision revision) {
                 return viewFactory.getView(revision);
@@ -385,36 +356,36 @@ public class NamePartsController implements Serializable {
     public @Nullable NamePartView getSelectedName() {
     	if (selectedNodes != null)
     		return selectedNodes.length < 1 ? null : (NamePartView)(selectedNodes[0].getData());
-    	else 
+    	else
     		return null;
     }
 
-    public String getNewCode() { 
+    public String getNewCode() {
     	newCode = (getSelectedName() == null || !modify) ? null : getSelectedName().getPendingOrElseCurrentRevision().getName();
-    	if (modify) 
+    	if (modify)
     		checkForChanges();
-    	return newCode; 
+    	return newCode;
     }
     public void setNewCode(String newCode) { this.newCode = newCode; }
 
-    public String getNewDescription() { 
+    public String getNewDescription() {
     	newDescription = (getSelectedName() == null || !modify) ? null : getSelectedName().getPendingOrElseCurrentRevision().getFullName();
-    	return newDescription; 
+    	return newDescription;
     }
     public void setNewDescription(String newDescription) { this.newDescription = newDescription; }
-    
+
     public void showModify() {
     	modify = true;
     }
-    
+
     public void showAdd() {
     	modify = false;
     }
-    
+
     public boolean canSaveModifications() {
     	return !isDifferentThenCurrent;
     }
-    
+
     public void checkForChanges() {
     	if (!newDescription.equals(getSelectedName().getPendingOrElseCurrentRevision().getFullName()) || !newCode.equals(getSelectedName().getPendingOrElseCurrentRevision().getName()))
     		isDifferentThenCurrent = true;
@@ -422,19 +393,19 @@ public class NamePartsController implements Serializable {
     		isDifferentThenCurrent = false;
     }
 
-    public String getNewComment() { 
-    	return newComment; 
+    public String getNewComment() {
+    	return newComment;
     }
     public void setNewComment(String newComment) { this.newComment = newComment; }
 
     public List<NamePartView> getHistoryEvents() { return historyEvents; }
 
     public TreeNode getRoot() { return rootWithModifications; }
-    
+
     public TreeNode getViewRoot() { return viewRoot; }
-    
+
     public TreeNode[] getSelectedNodes() { return selectedNodes; }
-    
+
     public void setSelectedNodes(TreeNode[] selectedNodes) {
         this.selectedNodes = selectedNodes != null ? selectedNodes : new TreeNode[0];
         updateOperationViews();
@@ -445,7 +416,7 @@ public class NamePartsController implements Serializable {
     public TreeNode getApproveView() { return approveView; }
 
     public TreeNode getCancelView() { return cancelView; }
-    
+
     public boolean canAdd() { return selectedNodes.length == 0 || (selectedNodes.length == 1 && !((NamePartView) selectedNodes[0].getData()).getPendingOrElseCurrentRevision().isDeleted()); }
 
     public boolean canDelete() { return deleteView != null; }
@@ -463,7 +434,7 @@ public class NamePartsController implements Serializable {
         approveView = approveView(viewRoot, SelectionMode.MANUAL);
         cancelView = cancelView(viewRoot, SelectionMode.MANUAL);
     }
-    
+
     public String getPendingComment(NamePartView selectedName) {
     	List<NamePartView> historyEvents = findHistory(selectedName);
     	if (historyEvents != null && historyEvents.size() > 0) {
@@ -480,6 +451,18 @@ public class NamePartsController implements Serializable {
         if (nodeView != null && nodeView.isAffected()) {
             targets.add(nodeView.getNamePartView());
         }
+        for (TreeNode child : node.getChildren()) {
+            targets.addAll(linearizedTargets(child));
+        }
+        return targets;
+    }
+
+    private List<NamePartView> linearizedTargetsForDelete(TreeNode node) {
+        final @Nullable OperationNamePartView nodeView = (OperationNamePartView) node.getData();
+        final List<NamePartView> targets = Lists.newArrayList();
+        if (nodeView != null && nodeView.isAffected()) {
+            targets.add(nodeView.getNamePartView());
+        }
         if (nodeView == null || !(nodeView.getNamePartView().getPendingChange() instanceof NamePartView.DeleteChange)) {
             for (TreeNode child : node.getChildren()) {
                 targets.addAll(linearizedTargets(child));
@@ -487,7 +470,7 @@ public class NamePartsController implements Serializable {
         }
         return targets;
     }
-    
+
     private @Nullable TreeNode deleteView(TreeNode node, SelectionMode selectionMode) {
         final @Nullable NamePartView nodeView = (NamePartView) node.getData();
 
@@ -528,10 +511,10 @@ public class NamePartsController implements Serializable {
             return null;
         }
     }
-    
+
     private @Nullable TreeNode approveView(TreeNode node, SelectionMode selectionMode) {
         final @Nullable NamePartView nodeView = (NamePartView) node.getData();
-      
+
         final SelectionMode childrenSelectionMode;
         if (selectionMode == SelectionMode.AUTO) {
             childrenSelectionMode = SelectionMode.AUTO;
@@ -597,7 +580,7 @@ public class NamePartsController implements Serializable {
                 childViews.add(childView);
             }
         }
-        
+
         final boolean affectNode = nodeView != null && (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected())) && (nodeView.getPendingChange() != null);
         if (affectNode || !childViews.isEmpty() ) {
             final TreeNode result = new DefaultTreeNode(nodeView != null ? new OperationNamePartView(nodeView, affectNode) : null, null);
@@ -610,86 +593,86 @@ public class NamePartsController implements Serializable {
             return null;
         }
     }
-    
+
     private @Nullable TreeNode onlyProposedView(TreeNode node, UserAccount user) {
-    	
-    	final List<TreeNode> childNodes = Lists.newArrayList();
-    	
-    	if (node.getChildCount() > 0) {
-    		for (TreeNode child : node.getChildren()) {
-    			TreeNode temp = onlyProposedView(child, user);
-    			if (temp != null) {
-    				childNodes.add(temp);
-    			} 
-    		}
-    	} 
-		
-    	final @Nullable NamePartView nodeView = (NamePartView) node.getData();
-		if(user == null) {
-    		if ((nodeView != null && nodeView.getPendingChange() != null) || childNodes.size() > 0) {
-    			final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
-    			result.setExpanded(true);
+
+        final List<TreeNode> childNodes = Lists.newArrayList();
+
+        if (node.getChildCount() > 0) {
+            for (TreeNode child : node.getChildren()) {
+                TreeNode temp = onlyProposedView(child, user);
+                if (temp != null) {
+                    childNodes.add(temp);
+                }
+            }
+        }
+
+        final @Nullable NamePartView nodeView = (NamePartView) node.getData();
+        if (user == null) {
+            if ((nodeView != null && nodeView.getPendingChange() != null) || childNodes.size() > 0) {
+                final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
+                result.setExpanded(true);
                 for (TreeNode childView : childNodes) {
                     childView.setParent(result);
                 }
                 return result;
-    		} else { 
-    			return null;
-    		}
-		} else {
-			if (nodeView != null && nodeView.getPendingChange() != null && nodeView.getPendingRevision().getRequestedBy().equals(user) || childNodes.size() > 0) {
-				final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
-    			result.setExpanded(true);
+            } else {
+                return null;
+            }
+        } else {
+            if (nodeView != null && nodeView.getPendingChange() != null && nodeView.getPendingRevision().getRequestedBy().equals(user) || childNodes.size() > 0) {
+                final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
+                result.setExpanded(true);
                 for (TreeNode childView : childNodes) {
                     childView.setParent(result);
                 }
                 return result;
-    		} else { 
-    			return null;
-    		}
-		}
-  	}
-    
-    private @Nullable TreeNode approvedAndProposedView (TreeNode node, boolean withDeletetions) {
-    	final List<TreeNode> childNodes = Lists.newArrayList();
-    	
-    	if (node.getChildCount() > 0) {
-    		for (TreeNode child : node.getChildren()) {
-    			TreeNode temp = approvedAndProposedView(child, withDeletetions);
-    			if (temp != null) {
-    				childNodes.add(temp);
-    			} 
-    		}
-    	} 
-    	
-		final @Nullable NamePartView nodeView = (NamePartView) node.getData();
-		if (!withDeletetions) {
-    		if ((nodeView != null && !nodeView.isDeleted()) || !childNodes.isEmpty()) {
-    			final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
-    			result.setExpanded(true);
-                for (TreeNode childView : childNodes) {
-                    childView.setParent(result);
-                }
-                return result;
-    		} else { 
-    			return null;
-    		}
-		} else if (withDeletetions) {
-			if (nodeView != null || !childNodes.isEmpty()) {
-				final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
-    			result.setExpanded(true);
-                for (TreeNode childView : childNodes) {
-                    childView.setParent(result);
-                }
-                return result;
-    		} else { 
-    			return null;
-    		}
-		} else {
-			throw new IllegalStateException();
-		}    	
+            } else {
+                return null;
+            }
+        }
     }
-    	
+
+    private @Nullable TreeNode approvedAndProposedView(TreeNode node, boolean withDeletetions) {
+        final List<TreeNode> childNodes = Lists.newArrayList();
+
+        if (node.getChildCount() > 0) {
+            for (TreeNode child : node.getChildren()) {
+                TreeNode temp = approvedAndProposedView(child, withDeletetions);
+                if (temp != null) {
+                    childNodes.add(temp);
+                }
+            }
+        }
+
+        final @Nullable NamePartView nodeView = (NamePartView) node.getData();
+        if (!withDeletetions) {
+            if ((nodeView != null && !nodeView.isDeleted()) || !childNodes.isEmpty()) {
+                final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
+                result.setExpanded(true);
+                for (TreeNode childView : childNodes) {
+                    childView.setParent(result);
+                }
+                return result;
+            } else {
+                return null;
+            }
+        } else if (withDeletetions) {
+            if (nodeView != null || !childNodes.isEmpty()) {
+                final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
+                result.setExpanded(true);
+                for (TreeNode childView : childNodes) {
+                    childView.setParent(result);
+                }
+                return result;
+            } else {
+                return null;
+            }
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
 
     private void showMessage(FacesMessage.Severity severity, String summary, String message) {
         final FacesContext context = FacesContext.getCurrentInstance();

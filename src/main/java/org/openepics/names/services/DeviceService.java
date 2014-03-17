@@ -21,10 +21,6 @@ public class DeviceService {
 
     @PersistenceContext private EntityManager em;
 
-    public Device deviceWithId(String uuid) {
-        throw new IllegalStateException(); // TODO
-    }
-
     public List<Device> devices(boolean includeDeleted) {
         if (includeDeleted)
             return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device)", Device.class).getResultList();
@@ -35,6 +31,14 @@ public class DeviceService {
 
     public List<Device> devices() {
         return devices(false);
+    }
+
+    public List<Device> devicesInSection(NamePart section) {
+        return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.section = :section AND r.deleted = false", Device.class).setParameter("section", section).getResultList();
+    }
+
+    public List<Device> devicesOfType(NamePart deviceType) {
+        return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deviceType = :deviceType AND r.deleted = false", Device.class).setParameter("deviceType", deviceType).getResultList();
     }
 
     public List<DeviceRevision> revisions(Device device) {

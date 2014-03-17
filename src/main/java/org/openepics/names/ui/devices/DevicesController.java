@@ -1,10 +1,15 @@
 package org.openepics.names.ui.devices;
 
+
 import java.io.IOException;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -12,8 +17,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-
-import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
@@ -29,12 +32,6 @@ import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 import org.primefaces.model.UploadedFile;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 @ManagedBean
 @ViewScoped
 public class DevicesController implements Serializable {
@@ -47,7 +44,7 @@ public class DevicesController implements Serializable {
     @Inject private ParserService parserService;
 
     private DeviceView selectedDeviceName;
- 
+
     private List<DeviceView> historyDeviceNames;
 
     private TreeNode sections;
@@ -57,12 +54,12 @@ public class DevicesController implements Serializable {
     private TreeNode viewRoot;
     private TreeNode[] selectedNodes;
     private TreeNode deleteView;
-    
+
     private boolean showDeletedNames = true;
 
     private String deviceQuantifier;
-    
-    private int displayView = 1;
+
+    private int displayView = 2;
 
     @PostConstruct
     public void init() {
@@ -81,7 +78,7 @@ public class DevicesController implements Serializable {
 
             final NamePartView subsection = (NamePartView)(selectedSection.getData());
             final NamePartView device = (NamePartView)(selectedDeviceType.getData());
-            
+
             if (subsection == null || device == null) {
                 showMessage(FacesMessage.SEVERITY_ERROR, "Error", "Required field missing");
                 return;
@@ -96,11 +93,11 @@ public class DevicesController implements Serializable {
     public void onModify() {
         // TODO solve generically and for specific + generic device
         try {
-            
+
         	final NamePartView subsection = (NamePartView)(selectedSection.getData());
             final NamePartView device = (NamePartView)(selectedDeviceType.getData());
             deviceService.modifyDevice(selectedDeviceName.getDevice().getDevice(), subsection.getNamePart(), device.getNamePart(), deviceQuantifier);
-            
+
             showMessage(FacesMessage.SEVERITY_INFO, "Device modified.", "Name: [TODO]");
         } finally {
             init();
@@ -117,14 +114,14 @@ public class DevicesController implements Serializable {
             init();
         }
     }
-    
+
     private List<DeviceView> linearizedTargets(TreeNode node) {
     	@Nullable OperationDeviceView nodeView = null;
-    
+
         if (node.getData() instanceof OperationDeviceView) {
 	    	nodeView = (OperationDeviceView) node.getData();
         }
-        
+
         final List<DeviceView> targets = Lists.newArrayList();
         if (nodeView != null && nodeView.isAffected()) {
             targets.add(nodeView.getDeviceView());
@@ -137,7 +134,7 @@ public class DevicesController implements Serializable {
         return targets;
     }
 
-    
+
     public void loadHistory() {
         if (selectedDeviceName == null) {
             showMessage(FacesMessage.SEVERITY_ERROR, "Error", "You must select a name first.");
@@ -154,8 +151,8 @@ public class DevicesController implements Serializable {
     }
 
     public DeviceView getSelectedDeviceName() { return selectedDeviceName; }
-    public void setSelectedDeviceName(DeviceView selectedDeviceName) { 
-    	this.selectedDeviceName = selectedDeviceName; 
+    public void setSelectedDeviceName(DeviceView selectedDeviceName) {
+    	this.selectedDeviceName = selectedDeviceName;
     }
 
     public List<DeviceView> getHistoryEvents() { return historyDeviceNames; }
@@ -173,17 +170,17 @@ public class DevicesController implements Serializable {
 
     public String getDeviceQuantifier() { return deviceQuantifier; }
     public void setDeviceQuantifier(String deviceQuantifier) { this.deviceQuantifier = deviceQuantifier; }
-    
+
     public TreeNode[] getSelectedNodes() { return selectedNodes; }
-    
+
     public void setViewFilter(int filter) {
         this.displayView = filter;
     }
-    
+
     public int getViewFilter() {
         return this.displayView;
     }
-    
+
     public void modifyDisplayView() {
         switch (displayView) {
         case 1:
@@ -197,7 +194,7 @@ public class DevicesController implements Serializable {
         deviceTypes =  selectedDeviceType = null;
         selectedDeviceName = null;
     }
-    
+
     public void setSelectedNodes(TreeNode[] selectedNodes) {
     	this.selectedNodes = selectedNodes != null ? selectedNodes : new TreeNode[0];
         selectedDeviceName = null;
@@ -209,38 +206,37 @@ public class DevicesController implements Serializable {
             } catch (ClassCastException e) {
             	selectedSection = this.selectedNodes[0];
             }
-            
         }
         deleteView = deleteView(viewRoot, SelectionMode.MANUAL);
     }
-    
+
     public TreeNode getViewRoot() { return viewRoot; }
-    
+
     public TreeNode getDeleteView() { return deleteView; }
-    
+
     public boolean canDelete() { return deleteView != null; }
-    
+
     public boolean canAdd() {
         if (selectedNodes != null && selectedNodes.length == 1 && selectedNodes[0].getData() instanceof NamePartView && ((NamePartView)selectedNodes[0].getData()).getLevel() == 2) {
             return true;
         }
         return false;
     }
-    
+
     public boolean canShowHistory() {
         if(selectedNodes != null && selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView) {
             return true;
         }
         return false;
     }
-    
+
     public boolean canModify() {
         if(selectedNodes != null && selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView && !((DeviceView)selectedNodes[0].getData()).getDevice().isDeleted()) {
             return true;
         }
         return false;
     }
-    
+
     public void prepareForAdd() {
         final List<NamePartRevision> currentApprovedRevisions = namePartService.currentApprovedRevisions(false);
 
@@ -273,12 +269,11 @@ public class DevicesController implements Serializable {
         sections = namePartTreeBuilder.namePartApprovalTree(approvedSectionRevisions, emptyPending, false, 2, selectedDeviceName.getSection().getNamePart());
         deviceTypes = namePartTreeBuilder.namePartApprovalTree(approvedDeviceTypeRevisions, emptyPending, false, 2, selectedDeviceName.getDeviceType().getNamePart());
         deviceQuantifier = selectedDeviceName.getQualifier();
-        
+
         selectedSection = findSelectedTreeNode(sections);
         selectedDeviceType = findSelectedTreeNode(deviceTypes);
-      
+
     }
-    
     
     public void handleFileUpload(FileUploadEvent event) {
         UploadedFile upFile = event.getFile();
@@ -302,7 +297,7 @@ public class DevicesController implements Serializable {
     	} else if (node.getChildCount() > 0) {
     		for (TreeNode child : node.getChildren()) {
     			TreeNode temp = findSelectedTreeNode(child);
-    			if(temp != null) 
+    			if(temp != null)
     				return temp;
     		}
     	}
@@ -317,9 +312,9 @@ public class DevicesController implements Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
         context.addMessage(null, new FacesMessage(severity, summary, message));
     }
-    
+
     private enum SelectionMode { MANUAL, AUTO, DISABLED }
-    
+
     private @Nullable TreeNode deleteView(TreeNode node, SelectionMode selectionMode) {
     	@Nullable NamePartView nodeView = null;
     	@Nullable DeviceView deviceNodeView = null;
