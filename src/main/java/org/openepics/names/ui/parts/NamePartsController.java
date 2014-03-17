@@ -30,6 +30,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import org.openepics.names.model.NamePartRevision;
+import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.model.UserAccount;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
@@ -86,9 +87,7 @@ public class NamePartsController implements Serializable {
     private TreeNode getRootTreeNode(boolean withModifications) {
     	final @Nullable String typeParam = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
 
-    	if (typeParam == null) {
-
-        } else if (typeParam.equals("section")) {
+    	if (typeParam.equals("section")) {
             namePartType = NamePartType.SECTION;
         } else if (typeParam.equals("deviceType")) {
             namePartType = NamePartType.DEVICE_TYPE;
@@ -100,12 +99,14 @@ public class NamePartsController implements Serializable {
             @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
         }));
         final List<NamePartRevision> pendingRevisions;
-        if (withModifications)
-	        pendingRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentPendingRevisions(true), new Predicate<NamePartRevision>() {
-	            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
-	        }));
-        else {
-        	pendingRevisions = Lists.newArrayList();
+        if (withModifications) {
+            pendingRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentPendingRevisions(true), new Predicate<NamePartRevision>() {
+                @Override public boolean apply(NamePartRevision revision) {
+                    return revision.getNamePart().getNamePartType() == namePartType;
+                }
+            }));
+        } else {
+            pendingRevisions = Lists.newArrayList();
         }
 
         return namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, true);
@@ -265,45 +266,44 @@ public class NamePartsController implements Serializable {
     }
 
     public String getNameClass(NamePartView req, boolean isFullName) {
-
-
     	final Change change = req.getPendingChange();
+
+        final String prefix;
         if (change == null) {
-            if (req.isDeleted()) return "Delete-Approved";
-            return "Insert-Approved";
+            prefix = req.isDeleted() ? "Delete" : "Insert";
+        } else if (change instanceof NamePartView.AddChange) {
+            prefix = "Insert";
+        } else if (change instanceof NamePartView.ModifyChange) {
+            final ModifyChange modifyChange = (ModifyChange) change;
+            if ((isFullName && modifyChange.getNewFullName() != null) || !isFullName && modifyChange.getNewName() != null) {
+                prefix = "Modify";
+            } else {
+                prefix = "Insert";
+            }
+        } else if (change instanceof NamePartView.DeleteChange) {
+            prefix = "Delete";
+        } else {
+            throw new IllegalStateException();
         }
 
-        StringBuilder ret = new StringBuilder();
-        if (change instanceof NamePartView.AddChange) ret.append("Insert-");
-        else if (change instanceof NamePartView.ModifyChange) {
-        	ModifyChange modifyChange = (ModifyChange) change;
-        	if ((isFullName && modifyChange.getNewFullName() != null) ||
-            		!isFullName && modifyChange.getNewName() != null) {
-        		ret.append("Modify-");
-        	} else {
-        		return "Insert-Approved";
-        	}
+        final String postfix;
+        if (change == null) {
+            postfix = "Approved";
+        } else if (change instanceof NamePartView.ModifyChange && !(isFullName && ((ModifyChange) change).getNewFullName() != null) || !isFullName && ((ModifyChange) change).getNewName() != null) {
+            postfix = "Approved";
+        } else if (change.getStatus() == NamePartRevisionStatus.APPROVED) {
+            postfix = "Approved";
+        } else if (change.getStatus() == NamePartRevisionStatus.CANCELLED) {
+            postfix = "Cancelled";
+        } else if (change.getStatus() == NamePartRevisionStatus.PENDING) {
+            postfix = "Processing";
+        } else if (change.getStatus() == NamePartRevisionStatus.REJECTED) {
+            postfix = "Rejected";
+        } else {
+            throw new IllegalStateException();
         }
-        else if (change instanceof NamePartView.DeleteChange) ret.append("Delete-");
-        else throw new IllegalStateException();
 
-        switch (change.getStatus()) {
-            case APPROVED:
-                ret.append("Approved");
-                break;
-            case CANCELLED:
-                ret.append("Cancelled");
-                break;
-            case PENDING:
-                ret.append("Processing");
-                break;
-            case REJECTED:
-                ret.append("Rejected");
-                break;
-            default:
-                throw new IllegalStateException();
-        }
-        return ret.toString();
+        return prefix + "-" + postfix;
     }
 
 
@@ -595,81 +595,46 @@ public class NamePartsController implements Serializable {
     }
 
     private @Nullable TreeNode onlyProposedView(TreeNode node, UserAccount user) {
-
         final List<TreeNode> childNodes = Lists.newArrayList();
-
-        if (node.getChildCount() > 0) {
-            for (TreeNode child : node.getChildren()) {
-                TreeNode temp = onlyProposedView(child, user);
-                if (temp != null) {
-                    childNodes.add(temp);
-                }
+        for (TreeNode child : node.getChildren()) {
+            final TreeNode childView = onlyProposedView(child, user);
+            if (childView != null) {
+                childNodes.add(childView);
             }
         }
 
         final @Nullable NamePartView nodeView = (NamePartView) node.getData();
-        if (user == null) {
-            if ((nodeView != null && nodeView.getPendingChange() != null) || childNodes.size() > 0) {
-                final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
-                result.setExpanded(true);
-                for (TreeNode childView : childNodes) {
-                    childView.setParent(result);
-                }
-                return result;
-            } else {
-                return null;
+        if (nodeView != null && nodeView.getPendingChange() != null && (user == null || nodeView.getPendingRevision().getRequestedBy().equals(user)) || childNodes.size() > 0) {
+            final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
+            result.setExpanded(true);
+            for (TreeNode childView : childNodes) {
+                childView.setParent(result);
             }
+            return result;
         } else {
-            if (nodeView != null && nodeView.getPendingChange() != null && nodeView.getPendingRevision().getRequestedBy().equals(user) || childNodes.size() > 0) {
-                final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
-                result.setExpanded(true);
-                for (TreeNode childView : childNodes) {
-                    childView.setParent(result);
-                }
-                return result;
-            } else {
-                return null;
-            }
+            return null;
         }
     }
 
     private @Nullable TreeNode approvedAndProposedView(TreeNode node, boolean withDeletetions) {
         final List<TreeNode> childNodes = Lists.newArrayList();
-
-        if (node.getChildCount() > 0) {
-            for (TreeNode child : node.getChildren()) {
-                TreeNode temp = approvedAndProposedView(child, withDeletetions);
-                if (temp != null) {
-                    childNodes.add(temp);
-                }
+        for (TreeNode child : node.getChildren()) {
+            final TreeNode childView = approvedAndProposedView(child, withDeletetions);
+            if (childView != null) {
+                childNodes.add(childView);
             }
         }
 
         final @Nullable NamePartView nodeView = (NamePartView) node.getData();
-        if (!withDeletetions) {
-            if ((nodeView != null && !nodeView.isDeleted()) || !childNodes.isEmpty()) {
-                final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
-                result.setExpanded(true);
-                for (TreeNode childView : childNodes) {
-                    childView.setParent(result);
-                }
-                return result;
-            } else {
-                return null;
+        if ((nodeView != null && (withDeletetions || !nodeView.isDeleted())) || !childNodes.isEmpty()) {
+            final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
+            result.setExpanded(true);
+            for (TreeNode childView : childNodes) {
+                childView.setParent(result);
             }
-        } else if (withDeletetions) {
-            if (nodeView != null || !childNodes.isEmpty()) {
-                final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
-                result.setExpanded(true);
-                for (TreeNode childView : childNodes) {
-                    childView.setParent(result);
-                }
-                return result;
-            } else {
-                return null;
-            }
+            return result;
         } else {
-            throw new IllegalStateException();
+            return null;
         }
     }
 
