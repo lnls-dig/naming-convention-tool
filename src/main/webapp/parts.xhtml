@@ -11,69 +11,66 @@
     <ui:define name="content">
 
         <h:form id="ReqSubForm">
-
-            <!--<p:growl id="requestMsgs" showDetail="true" sticky="false"  life="30000" />-->
-
             <!-- =================== Menus      ============================ -->
-        <table width="100%" id="filterTable">
-            <tr>
-                <td align="left">
-	                <div>
-	                    <h:panelGrid columns="2" >
-	                        <h:outputText value="Show: "/>
-	                        <p:selectOneMenu value="#{namePartsController.viewFilter}">
-	                            <p:ajax listener="#{namePartsController.modifyDisplayView}" event="change" update="namePartsTree reqMenu"  oncomplete="resizePanel()"/>
-	                            <f:selectItem itemLabel="Approved and Proposed" itemValue="1" />
-	                            <f:selectItem itemLabel="Approved Only" itemValue="2" />
-	                            <f:selectItem itemLabel="Proposed Only" itemValue="3" />
-	                            <f:selectItem itemLabel="Proposed by Me" itemValue="4" itemDisabled="#{!userManager.isLoggedIn()}"/>
-	                            <f:selectItem itemLabel="Archived" itemValue="5" />
-	                        </p:selectOneMenu>
-	                    </h:panelGrid>
-	                </div>
-                </td>
-                <td align="right">
-	                <p:menuButton value="Actions" id="reqMenu" style="width: 8%">
-	                        <p:menuitem value="Add" actionListener="#{namePartsController.showAdd()}" title="Add Name" icon="ui-icon-plus" oncomplete="addName.show()" update=":addNameForm:addName" disabled="#{!namePartsController.canAdd()}" rendered="#{userManager.editor}" />
-	                        <p:menuitem value="Delete" title="Delete Name" icon="ui-icon-trash" update=":DelNameForm:delName" oncomplete="delName.show()" disabled="#{!namePartsController.canDelete()}" rendered="#{userManager.editor}" />
-	                        <p:menuitem value="Modify" actionListener="#{namePartsController.showModify()}" title="Modify Name" icon="ui-icon-pencil" update=":ModNameForm:modName" oncomplete="modName.show()" disabled="#{!namePartsController.canModify()}" rendered="#{userManager.editor}" />
-	                        <p:menuitem value="Approve" title="Approve Request" icon="ui-icon-check" update=":ApproveForm" oncomplete="approveRequest.show()" disabled="#{!namePartsController.canApprove()}" rendered="#{userManager.superUser}" />
-	                        <p:menuitem value="Reject" title="Reject Request" icon="ui-icon-close" update=":RejectForm" oncomplete="rejectRequest.show()" disabled="#{!namePartsController.canCancel()}" rendered="#{userManager.superUser}" />
-	                        <p:menuitem value="Cancel" title="Cancel changes" icon="ui-icon-close" update=":CancelReqForm:cancelReq" oncomplete="cancelReq.show()" disabled="#{!namePartsController.canCancel()}" rendered="#{userManager.editor and !userManager.superUser}"/>
-	                        <p:menuitem value="History" title="View History" icon="ui-icon-search" actionListener="#{namePartsController.findHistory()}" update=":ReqSubForm:historyTable" oncomplete="nameDetail.show()" disabled="#{!namePartsController.canShowHistory()}" />
-	                </p:menuButton>
-                </td>
-             </tr>
-          </table>
-		<div id="treeTable"> 
-            <p:treeTable id="namePartsTree" value="#{namePartsController.viewRoot}" var="namePart" liveResize="true" selection="#{namePartsController.selectedNodes}" selectionMode="multiple" scrollable="true" scrollWidth="auto" resizableColumns="true" rowStyleClass="#{namePartsController.nameViewClass(namePart)}" style="padding-top:5px;">
-                <p:ajax event="select" update=":ReqSubForm:reqMenu" />
-                <p:ajax event="unselect" update=":ReqSubForm:reqMenu" />
+            <table width="100%" id="filterTable">
+                <tr>
+                    <td align="left">
+                        <div>
+                            <h:panelGrid columns="2" >
+                                <h:outputText value="Show: "/>
+                                <p:selectOneMenu value="#{namePartsController.viewFilter}">
+                                    <p:ajax listener="#{namePartsController.modifyDisplayView}" event="change" update="namePartsTree reqMenu"  oncomplete="resizePanel()"/>
+                                    <f:selectItem itemLabel="Approved and Proposed" itemValue="1" />
+                                    <f:selectItem itemLabel="Approved" itemValue="2" />
+                                    <f:selectItem itemLabel="Proposed" itemValue="3" />
+                                    <f:selectItem itemLabel="Proposed by Me" itemValue="4" itemDisabled="#{!userManager.isLoggedIn()}"/>
+                                    <f:selectItem itemLabel="Archived" itemValue="5" />
+                                </p:selectOneMenu>
+                            </h:panelGrid>
+                        </div>
+                    </td>
+                    <td align="right">
+                        <p:menuButton value="Actions" id="reqMenu" style="width: 8%">
+                            <p:menuitem value="Add" actionListener="#{namePartsController.showAdd()}" title="Add Name" icon="ui-icon-plus" oncomplete="addName.show()" update=":addNameForm:addName" disabled="#{!namePartsController.canAdd()}" rendered="#{userManager.editor}" />
+                            <p:menuitem value="Delete" title="Delete Name" icon="ui-icon-trash" update=":DelNameForm:delName" oncomplete="delName.show()" disabled="#{!namePartsController.canDelete()}" rendered="#{userManager.editor}" />
+                            <p:menuitem value="Modify" actionListener="#{namePartsController.showModify()}" title="Modify Name" icon="ui-icon-pencil" update=":ModNameForm:modName" oncomplete="modName.show()" disabled="#{!namePartsController.canModify()}" rendered="#{userManager.editor}" />
+                            <p:menuitem value="Approve" title="Approve Request" icon="ui-icon-check" update=":ApproveForm" oncomplete="approveRequest.show()" disabled="#{!namePartsController.canApprove()}" rendered="#{userManager.superUser}" />
+                            <p:menuitem value="Reject" title="Reject Request" icon="ui-icon-close" update=":RejectForm" oncomplete="rejectRequest.show()" disabled="#{!namePartsController.canCancel()}" rendered="#{userManager.superUser}" />
+                            <p:menuitem value="Cancel" title="Cancel changes" icon="ui-icon-close" update=":CancelReqForm:cancelReq" oncomplete="cancelReq.show()" disabled="#{!namePartsController.canCancel()}" rendered="#{userManager.editor and !userManager.superUser}"/>
+                            <p:menuitem value="History" title="View History" icon="ui-icon-search" actionListener="#{namePartsController.findHistory()}" update=":ReqSubForm:historyTable" oncomplete="nameDetail.show()" disabled="#{!namePartsController.canShowHistory()}" />
+                        </p:menuButton>
+                    </td>
+                </tr>
+            </table>
+            <div id="treeTable">
+                <p:treeTable id="namePartsTree" value="#{namePartsController.viewRoot}" var="namePart" liveResize="true" selection="#{namePartsController.selectedNodes}" selectionMode="multiple" scrollable="true" scrollWidth="auto" resizableColumns="true" rowStyleClass="#{namePartsController.nameViewClass(namePart)}" style="padding-top:5px;">
+                    <p:ajax event="select" update=":ReqSubForm:reqMenu" />
+                    <p:ajax event="unselect" update=":ReqSubForm:reqMenu" />
 
-                <p:column id="nameDesc" headerText="Name" filterBy="#{namePart.fullName}" filterMatchMode="contains" >
-                    <h:outputText value="#{namePartsController.getNewFullName(namePart)}" styleClass="#{namePartsController.getNameClass(namePart,true)}"/>
-                    <h:outputText value=" " rendered="#{namePartsController.isModified(namePart,true)}" />
-                    <h:outputText value="(#{namePart.fullName})" styleClass="#{namePartsController.getNameClass(namePart,true)}-Old" rendered="#{namePartsController.isModified(namePart,true)}" />
-                </p:column>
-                <p:column id="nameCode" headerText="Mnemonic" filterBy="#{namePart.name}" filterMatchMode="startsWith" style="width: 10%">
-                    <h:outputText value="#{namePartsController.getNewName(namePart)}" styleClass="#{namePartsController.getNameClass(namePart,false)}-New" />
-                    <h:outputText value=" " rendered="#{namePartsController.isModified(namePart,false)}" />
-                    <h:outputText value="(#{namePart.name})" styleClass="#{namePartsController.getNameClass(namePart,false)}-Old" rendered="#{namePartsController.isModified(namePart,false)}" />
-                </p:column>
-                <p:column id="status" headerText="Status" style="width: 15%">
-                    <h:outputText value="#{namePartsController.nameStatus(namePart.nameEvent)}" styleClass="#{namePartsController.getNameClass(namePart,false)}" />
+                    <p:column id="nameDesc" headerText="Name" filterBy="#{namePart.fullName}" filterMatchMode="contains" >
+                        <h:outputText value="#{namePartsController.getNewFullName(namePart)}" styleClass="#{namePartsController.getNameClass(namePart,true)}"/>
+                        <h:outputText value=" " rendered="#{namePartsController.isModified(namePart,true)}" />
+                        <h:outputText value="(#{namePart.fullName})" styleClass="#{namePartsController.getNameClass(namePart,true)}-Old" rendered="#{namePartsController.isModified(namePart,true)}" />
+                    </p:column>
+                    <p:column id="nameCode" headerText="Mnemonic" filterBy="#{namePart.name}" filterMatchMode="startsWith" style="width: 10%">
+                        <h:outputText value="#{namePartsController.getNewName(namePart)}" styleClass="#{namePartsController.getNameClass(namePart,false)}-New" />
+                        <h:outputText value=" " rendered="#{namePartsController.isModified(namePart,false)}" />
+                        <h:outputText value="(#{namePart.name})" styleClass="#{namePartsController.getNameClass(namePart,false)}-Old" rendered="#{namePartsController.isModified(namePart,false)}" />
+                    </p:column>
+                    <p:column id="status" headerText="Status" style="width: 15%">
+                        <h:outputText value="#{namePartsController.nameStatus(namePart.nameEvent)}" styleClass="#{namePartsController.getNameClass(namePart,false)}" />
 
-                    <h:outputLink id="pendingComment" value="#" rendered="#{namePartsController.hasPendingComment(namePart)}">
-                        <h:outputText styleClass="ui-icon ui-icon-info" style="display:inline-block; margin-left:10px !important; vertical-align:bottom !important;"/>
-                    </h:outputLink>
-                    <p:tooltip for="pendingComment">
-                    	<h:outputText value="#{namePartsController.getPendingComment(namePart)}" style="white-space: pre;" escape="false"/>
-                    </p:tooltip>
+                        <h:outputLink id="pendingComment" value="#" rendered="#{namePartsController.hasPendingComment(namePart)}">
+                            <h:outputText styleClass="ui-icon ui-icon-info" style="display:inline-block; margin-left:10px !important; vertical-align:bottom !important;"/>
+                        </h:outputLink>
+                        <p:tooltip for="pendingComment">
+                            <h:outputText value="#{namePartsController.getPendingComment(namePart)}" style="white-space: pre;" escape="false"/>
+                        </p:tooltip>
 
-                </p:column>
+                    </p:column>
 
-            </p:treeTable>
-			</div>
+                </p:treeTable>
+            </div>
             <ui:include src="/WEB-INF/includes/parts-history.xhtml" >
                 <ui:param name="historyHandler" value="#{namePartsController.historyEvents}" />
             </ui:include>
@@ -262,12 +259,12 @@
                                     <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,true)}" />
                                     <h:outputText value="(#{candidate.namePartView.fullName})" styleClass="#{namePartsController.getNameClass(candidate.namePartView,true)}-Old" rendered="#{namePartsController.isModified(candidate.namePartView,true)}" />
                                 </p:column>
-                                 <p:column headerText="Mnemonic" style="width: 30%">
-				                    <h:outputText value="#{namePartsController.getNewName(candidate.namePartView)}" styleClass="#{namePartsController.getNameClass(candidate.namePartView,false)}-New" />
-				                    <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
-				                    <h:outputText value="(#{candidate.namePartView.name})" styleClass="#{namePartsController.getNameClass(candidate.namePartView,false)}-Old" rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
-				                </p:column>
-                             </p:treeTable>
+                                <p:column headerText="Mnemonic" style="width: 30%">
+                                    <h:outputText value="#{namePartsController.getNewName(candidate.namePartView)}" styleClass="#{namePartsController.getNameClass(candidate.namePartView,false)}-New" />
+                                    <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
+                                    <h:outputText value="(#{candidate.namePartView.name})" styleClass="#{namePartsController.getNameClass(candidate.namePartView,false)}-Old" rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
+                                </p:column>
+                            </p:treeTable>
                         </p:column>
                     </p:row>
 

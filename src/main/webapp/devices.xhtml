@@ -9,8 +9,6 @@
 
     <ui:define name="content">
         <h:form id="ManageNameForm">
-            <p:growl id="ncRequestMsgs" showDetail="true" sticky="false" life="30000" />
-
             <!-- =================== Menus ============================ -->
             <table width="100%" id="filterTable">
             <tr>
@@ -20,8 +18,8 @@
                             <h:outputText value="Show: "/>
                                 <p:selectOneMenu value="#{devicesController.viewFilter}">
                                 <p:ajax listener="#{devicesController.modifyDisplayView}" event="change" update="devicesTree ncReqMenu" oncomplete="resizePanel()"/>
-                                <f:selectItem itemLabel="Active and Archived" itemValue="1" />
-                                <f:selectItem itemLabel="Active Only" itemValue="2" />
+                                <f:selectItem itemLabel="Active" itemValue="2" />
+                                <f:selectItem itemLabel="Archived" itemValue="1" />
                             </p:selectOneMenu>
                         </h:panelGrid>
                     </div>
@@ -42,7 +40,7 @@
                 <p:menuitem value="Modify" update=":modDeviceNameForm" action="#{devicesController.prepareForModify()}" icon="ui-icon-pencil" oncomplete="modDeviceName.show()" rendered="#{userManager.editor}" />
                 <p:menuitem value="History" icon="ui-icon-search" actionListener="#{devicesController.loadHistory()}" update=":ManageNameForm:historyTable" oncomplete="nameDetail.show()"/>
             </p:contextMenu> -->
-            
+
              <p:treeTable id="devicesTree" value="#{devicesController.viewRoot}" resizableColumns="true" liveResize="true" var="namePart" selection="#{devicesController.selectedNodes}" selectionMode="multiple" scrollable="true" scrollWidth="auto" rowStyleClass="Approved" style="padding-top:5px;">
                 <p:ajax event="select" update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />
                 <p:ajax event="unselect" update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />
@@ -56,7 +54,7 @@
                     <h:outputText value="#{namePart.deviceTypePath}" styleClass="#{namePart.device.deleted ? 'Deleted' : 'Insert-Approved-Old'}" rendered="#{namePart['class'].simpleName eq 'DeviceView'}"/>
                     <h:outputText value="" styleClass="Insert-Approved-Old" rendered="#{namePart['class'].simpleName eq 'NamePartView'}"/>
                 </p:column>
-            
+
 
             </p:treeTable>
 
@@ -116,7 +114,7 @@
             <ui:param name="submitHandler" value="onModify" />
         </ui:include>
 
-        
+
 		<h:form id="delDeviceNameForm" >
             <p:dialog id="delDeviceName"  widgetVar="delDeviceName" modal="true" resizable="false">
                 <f:facet name="header">
@@ -130,12 +128,12 @@
                                 	<h:outputText value="" style="display:inline-block; vertical-align:bottom !important" styleClass="ui-icon ui-icon-wrench" rendered="#{candidate['class'].simpleName eq 'OperationDeviceView'}"/>
                                 	<h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="#{candidate.deviceView.conventionName}" rendered="#{candidate['class'].simpleName eq 'OperationDeviceView'}" />
                                     <h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="#{candidate.namePartView.fullName}" rendered="#{candidate['class'].simpleName eq 'OperationNamePartView'}" />
-                
+
                                 </p:column>
                                 <p:column headerText="Device Type" style="width: 50%">
                                     <h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="#{candidate.deviceView.deviceTypePath}" rendered="#{candidate['class'].simpleName eq 'OperationDeviceView'}" />
                                     <h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="" rendered="#{candidate['class'].simpleName eq 'OperationNamePartView'}" />
-                            
+
                                 </p:column>
                             </p:treeTable>
                         </p:column>
@@ -144,7 +142,7 @@
                 <p:separator />
 				<p:commandButton value="Submit" style="float: left" update=":ManageNameForm" oncomplete="delDeviceName.hide() resizePanel()" action="#{devicesController.onDelete()}"/>
                 <p:commandButton value="Cancel" style="float: right" onclick="delDeviceName.hide()"  />
-                
+
             </p:dialog>
         </h:form>
     </ui:define>

@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.openepics.names.model.NameHierarchy;
+import org.openepics.names.model.Device;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
@@ -25,11 +26,8 @@ import org.openepics.names.util.Marker;
 @Stateless
 public class NamePartService {
 
+    @Inject private DeviceService deviceService;
     @PersistenceContext private EntityManager em;
-
-    public NamePart namePartWithId(String uuid) {
-        throw new IllegalStateException(); // TODO
-    }
 
     public NamePartRevision addNamePart(String name, String fullName, NamePartType nameType, @Nullable NamePart parent, @Nullable UserAccount user, String comment) {
         Preconditions.checkArgument(parent == null || parent.getNamePartType() == nameType);
@@ -55,7 +53,7 @@ public class NamePartService {
         Preconditions.checkState(pendingRevision == null || !pendingRevision.isDeleted());
 
         if (pendingRevision != null) {
-            cancelPendingRevision(pendingRevision, user);
+            updateRevisionStatus(pendingRevision, NamePartRevisionStatus.CANCELLED, user, null);
         }
 
         final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, false, baseRevision.getParent(), name, fullName);
@@ -71,11 +69,11 @@ public class NamePartService {
 
         if ((approvedRevision == null || !approvedRevision.isDeleted()) && (pendingRevision == null || !pendingRevision.isDeleted())) {
             if (pendingRevision != null) {
-                cancelPendingRevision(pendingRevision, user);
+                updateRevisionStatus(pendingRevision, NamePartRevisionStatus.CANCELLED, user, null);
             }
 
             for (NamePart child : approvedAndProposedChildren(namePart)) {
-                deleteChildNamePart(child, user, comment);
+                deleteNamePart(child, user, comment);
             }
 
             if (approvedRevision != null) {
@@ -96,10 +94,7 @@ public class NamePartService {
 
         if (pendingRevision != null && pendingRevision.getStatus() == NamePartRevisionStatus.PENDING) {
             if (canCancelChild(pendingRevision.getParent())) {
-                pendingRevision.setStatus(markAsRejected ? NamePartRevisionStatus.REJECTED : NamePartRevisionStatus.CANCELLED);
-                pendingRevision.setProcessedBy(user);
-                pendingRevision.setProcessDate(new Date());
-                pendingRevision.setProcessorComment(comment);
+                updateRevisionStatus(pendingRevision, markAsRejected ? NamePartRevisionStatus.REJECTED : NamePartRevisionStatus.CANCELLED, user, comment);
                 if (approvedRevision == null || pendingRevision.isDeleted()) {
                     for (NamePart child : approvedAndProposedChildren(pendingRevision.getNamePart())) {
                         cancelChildNamePart(child, user);
@@ -130,11 +125,9 @@ public class NamePartService {
         namePartRevision = emAttached(namePartRevision);
         if (namePartRevision.getStatus() == NamePartRevisionStatus.PENDING) {
             if (canApproveChild(namePartRevision.getParent())) {
-                namePartRevision.setStatus(NamePartRevisionStatus.APPROVED);
-                namePartRevision.setProcessedBy(user);
-                namePartRevision.setProcessDate(new Date());
-                namePartRevision.setProcessorComment(comment);
+                updateRevisionStatus(namePartRevision, NamePartRevisionStatus.APPROVED, user, comment);
                 if (namePartRevision.isDeleted()) {
+                    deleteAssociatedDeviecs(namePartRevision.getNamePart(), user);
                     for (NamePart child : approvedAndProposedChildren(namePartRevision.getNamePart())) {
                         approveChildNamePart(child, user);
                     }
@@ -152,43 +145,34 @@ public class NamePartService {
     private boolean canApproveChild(@Nullable NamePart parent) {
         if (parent != null) {
             final @Nullable NamePartRevision parentApprovedRevision = approvedRevision(parent);
-            final @Nullable NamePartRevision parentPendingRevision = pendingRevision(parent);
-            return (parentApprovedRevision != null && !parentApprovedRevision.isDeleted()) && (parentPendingRevision == null || !parentPendingRevision.isDeleted());
+            return (parentApprovedRevision != null && !parentApprovedRevision.isDeleted());
         } else {
             return true;
-        }
-    }
-
-    private void deleteChildNamePart(NamePart namePart, @Nullable UserAccount user, String comment) {
-        final @Nullable NamePartRevision approvedRevision = approvedRevision(namePart);
-        final @Nullable NamePartRevision pendingRevision = pendingRevision(namePart);
-
-        if (pendingRevision != null) {
-            cancelPendingRevision(pendingRevision, user);
-        }
-
-        for (NamePart child : approvedAndProposedChildren(namePart)) {
-            deleteChildNamePart(child, user, comment);
-        }
-
-        if (approvedRevision != null) {
-            final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, true, approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getFullName());
-            em.persist(newRevision);
         }
     }
 
     private void approveChildNamePart(NamePart namePart, @Nullable UserAccount user) {
         final NamePartRevision pendingRevision = As.notNull(pendingRevision(namePart));
 
-        if (pendingRevision != null) {
-            pendingRevision.setStatus(NamePartRevisionStatus.APPROVED);
-            pendingRevision.setProcessedBy(user);
-            pendingRevision.setProcessDate(new Date());
-            pendingRevision.setProcessorComment(null);
-        }
+        updateRevisionStatus(pendingRevision, NamePartRevisionStatus.APPROVED, user, null);
+        deleteAssociatedDeviecs(namePart, user);
 
         for (NamePart child : approvedAndProposedChildren(namePart)) {
             approveChildNamePart(child, user);
+        }
+    }
+
+    private void deleteAssociatedDeviecs(NamePart namePart, @Nullable UserAccount user) {
+        if (namePart.getNamePartType() == NamePartType.SECTION) {
+            for (Device device : deviceService.devicesInSection(namePart)) {
+                deviceService.deleteDevice(device, user);
+            }
+        } else if (namePart.getNamePartType() == NamePartType.DEVICE_TYPE) {
+            for (Device device : deviceService.devicesOfType(namePart)) {
+                deviceService.deleteDevice(device, user);
+            }
+        } else {
+            throw new IllegalStateException();
         }
     }
 
@@ -196,10 +180,7 @@ public class NamePartService {
         final NamePartRevision pendingRevision = As.notNull(pendingRevision(namePart));
 
         if (pendingRevision != null) {
-            pendingRevision.setStatus(NamePartRevisionStatus.CANCELLED);
-            pendingRevision.setProcessedBy(user);
-            pendingRevision.setProcessDate(new Date());
-            pendingRevision.setProcessorComment(null);
+            updateRevisionStatus(pendingRevision, NamePartRevisionStatus.CANCELLED, user, null);
         }
 
         for (NamePart child : approvedAndProposedChildren(namePart)) {
@@ -207,19 +188,15 @@ public class NamePartService {
         }
     }
 
-    private void cancelPendingRevision(NamePartRevision pendingRevision, @Nullable UserAccount user) {
-        pendingRevision.setStatus(NamePartRevisionStatus.CANCELLED);
+    private void updateRevisionStatus(NamePartRevision pendingRevision, NamePartRevisionStatus newStatus, @Nullable UserAccount user, @Nullable String comment) {
+        pendingRevision.setStatus(newStatus);
         pendingRevision.setProcessedBy(user);
         pendingRevision.setProcessDate(new Date());
-        pendingRevision.setProcessorComment(null);
+        pendingRevision.setProcessorComment(comment);
     }
 
     private Iterable<NamePart> approvedAndProposedChildren(NamePart namePart) {
         return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.parent = :namePart AND r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :approved OR r2.status = :pending)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePart.class).setParameter("namePart", namePart).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
-    }
-
-    public NameHierarchy nameHierarchy() {
-        return em.createQuery("SELECT nameHierarchy FROM NameHierarchy nameHierarchy", NameHierarchy.class).getSingleResult();
     }
 
     public List<NamePart> approvedNames(boolean includeDeleted) {

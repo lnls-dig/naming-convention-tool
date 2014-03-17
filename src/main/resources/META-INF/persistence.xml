@@ -6,17 +6,14 @@
     <class>org.openepics.names.model.AppInfo</class>
     <class>org.openepics.names.model.Device</class>
     <class>org.openepics.names.model.DeviceRevision</class>
-    <class>org.openepics.names.model.NameCategory</class>
-    <class>org.openepics.names.model.NameHierarchy</class>
     <class>org.openepics.names.model.NamePart</class>
     <class>org.openepics.names.model.NamePartRevision</class>
-    <class>org.openepics.names.model.NameRelease</class>
     <class>org.openepics.names.model.Persistable</class>
     <class>org.openepics.names.model.UserAccount</class>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <validation-mode>NONE</validation-mode>
     <properties>
-        <property name="hibernate.hbm2ddl.auto" value="update"/>
+      <property name="hibernate.hbm2ddl.auto" value="update"/>
     </properties>
   </persistence-unit>
 </persistence>

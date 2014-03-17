@@ -8,7 +8,6 @@
                 xmlns:h="http://java.sun.com/jsf/html">
 
     <h:form id="menuform">
-        <p:growl id="menumsgs" />
         <ui:include src="about.xhtml" />
         <fc:logincomp display="false" updates=":menuform:mainMenu" />
 
@@ -17,7 +16,6 @@
             <p:menuitem value="Logical Area Structure" icon="ui-icon-folder-open" url="parts.xhtml?type=section" />
             <p:menuitem value="Device Category Structure" icon="ui-icon-lightbulb" url="parts.xhtml?type=deviceType" />
             <p:menuitem value="Device Names" icon="ui-icon-wrench" url="devices.xhtml"/>
-            <p:menuitem value="Reports" icon="ui-icon-print" url="reports.xhtml" />
             <p:menuitem value="Preferences" title="Preferences" icon="ui-icon-gear" url="preferences.xhtml" />
             <p:submenu label="Help" icon="ui-icon-help">
                 <p:menuitem value=" Online Help" icon="ui-icon-help" url="help.xhtml" />
@@ -32,7 +30,7 @@
                 <p:commandButton id="loginBtn" type="button" value="Login" icon="ui-icon-person" onclick="loginWidget.show()" rendered="#{not userManager.loggedIn}">
                     <f:param value="Y" name="doAuthenticate" />
                 </p:commandButton>
-                <p:commandButton id="logoutBtn" value="Logout" icon="ui-icon-person" update=":menuform:mainMenu :menuform:menumsgs" action="#{loginManager.onLogout()}" immediate="true" rendered="#{userManager.loggedIn}" />
+                <p:commandButton id="logoutBtn" value="Logout" icon="ui-icon-person" update=":menuform:mainMenu" action="#{loginManager.onLogout()}" immediate="true" rendered="#{userManager.loggedIn}" />
             </f:facet>
         </p:menubar>
     </h:form>
