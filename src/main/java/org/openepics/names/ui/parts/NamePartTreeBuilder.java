@@ -137,6 +137,9 @@ public class NamePartTreeBuilder {
                     return alphanumComparator.compare(leftView.getFullName(), rightView.getFullName());
                 }
             });
+            if (level == 0) {
+                int a = 1;
+            }
             for (TreeNode child : children) {
                 child.setParent(parentNode);
             }

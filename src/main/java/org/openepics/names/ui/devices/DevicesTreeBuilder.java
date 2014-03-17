@@ -2,6 +2,7 @@ package org.openepics.names.ui.devices;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
@@ -35,12 +36,12 @@ public class DevicesTreeBuilder {
     private HashMap<Integer,List<Device>> allDevices;
 	
 	public TreeNode devicesTree(boolean withDeleted) {
-		final List<NamePartRevision> approvedRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(true), new Predicate<NamePartRevision>() {
+		final List<NamePartRevision> approvedRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(false), new Predicate<NamePartRevision>() {
             @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.SECTION; }
         }));
         final List<NamePartRevision> pendingRevisions = Lists.newArrayList();
         
-        TreeNode root = namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, true);
+        TreeNode root = namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, false);
         
         List<Device> devices = deviceService.devices(withDeleted);
         allDevices = new HashMap<>();
@@ -59,17 +60,14 @@ public class DevicesTreeBuilder {
 	}
 	
 	private TreeNode namePartTreeWithDevices(TreeNode node) {
-		final List<TreeNode> childNodes = Lists.newArrayList();
-    	
+	    	
     	if (node.getChildCount() > 0) {
     		for (TreeNode child : node.getChildren()) {
-    			TreeNode temp = namePartTreeWithDevices(child);
-    			if (temp != null) {
-    				childNodes.add(temp);
-    			} 
+    			namePartTreeWithDevices(child);
     		}
     	}
-    	NamePartView view = (NamePartView) node.getData();
+    	
+    	final @Nullable NamePartView view = (NamePartView) node.getData();    	
     	if (view != null && allDevices.containsKey(view.getId())) {
     		List<Device> devicesForSection = allDevices.get(view.getId());
     		for (Device device : devicesForSection) {

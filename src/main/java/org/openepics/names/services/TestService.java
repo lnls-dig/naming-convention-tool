@@ -66,13 +66,16 @@ public class TestService {
         addSection(MEBT, "MEBT-1", "1");
         addSection(MEBT, "MEBT-2", "2");
         addSection(MEBT, "MEBT-3", "3");
-        addSection(MEBT, "MEBT-3", "4");
+        addSection(MEBT, "MEBT-4", "4");
+        addSection(MEBT, "MEBT-5", "5");
+        addSection(MEBT, "MEBT-6", "6");
 
         final NamePart DTL = addSection(Acc, "Drift Tube Linac", "DTL");
         addSection(DTL, "DTL-1", "1");
         addSection(DTL, "DTL-2", "2");
         addSection(DTL, "DTL-3", "3");
-        addSection(DTL, "DTL-3", "4");
+        addSection(DTL, "DTL-4", "4");
+        addSection(DTL, "DTL-5", "5");
 
         final NamePart Spk = addSection(Acc, "Spoke Linac", "Spk");
         addSection(Spk, "Spk-1", "1");
@@ -88,7 +91,6 @@ public class TestService {
         addSection(Spk, "Spk-11", "11");
         addSection(Spk, "Spk-12", "12");
         addSection(Spk, "Spk-13", "13");
-        addSection(Spk, "Spk-14", "14");
 
         final NamePart MBL = addSection(Acc, "Medium Beta Linac", "MBL");
         addSection(MBL, "MBL-1", "1");
@@ -100,14 +102,8 @@ public class TestService {
         addSection(MBL, "MBL-7", "7");
         addSection(MBL, "MBL-8", "8");
         addSection(MBL, "MBL-9", "9");
-        addSection(MBL, "MBL-10", "10");
-        addSection(MBL, "MBL-11", "11");
-        addSection(MBL, "MBL-12", "12");
-        addSection(MBL, "MBL-13", "13");
-        addSection(MBL, "MBL-14", "14");
-        addSection(MBL, "MBL-15", "15");
 
-        final NamePart HBL = addSection(Acc, "High Beta", "HBL");
+        final NamePart HBL = addSection(Acc, "High Beta Linac", "HBL");
         addSection(HBL, "HBL-1", "1");
         addSection(HBL, "HBL-2", "2");
         addSection(HBL, "HBL-3", "3");
@@ -129,46 +125,70 @@ public class TestService {
         addSection(HBL, "HBL-19", "19");
         addSection(HBL, "HBL-20", "20");
         addSection(HBL, "HBL-21", "21");
-        addSection(HBL, "HBL-22", "22");
-        addSection(HBL, "HBL-23", "23");
-        addSection(HBL, "HBL-24", "24");
-        addSection(HBL, "HBL-25", "25");
-        addSection(HBL, "HBL-26", "26");
-        addSection(HBL, "HBL-27", "27");
-        addSection(HBL, "HBL-28", "28");
-        addSection(HBL, "HBL-29", "29");
-        addSection(HBL, "HBL-30", "30");
 
         final NamePart UHB = addSection(Acc, "Upper High Beta", "UHB");
-        addSection(UHB, "UBL-1", "1");
-        addSection(UHB, "UBL-2", "2");
-        addSection(UHB, "UBL-3", "3");
-        addSection(UHB, "UBL-4", "4");
-        addSection(UHB, "UBL-5", "5");
-        addSection(UHB, "UBL-6", "6");
+        addSection(UHB, "UHB-1", "1");
+        addSection(UHB, "UHB-2", "2");
+        addSection(UHB, "UHB-3", "3");
+        addSection(UHB, "UHB-4", "4");
+        addSection(UHB, "UHB-5", "5");
+        addSection(UHB, "UHB-6", "6");
+        addSection(UHB, "UHB-7", "7");
+        addSection(UHB, "UHB-8", "8");
+        addSection(UHB, "UHB-9", "9");
+        addSection(UHB, "UHB-10", "10");
+        addSection(UHB, "UHB-11", "11");
+        addSection(UHB, "UHB-12", "12");
+        addSection(UHB, "UHB-13", "13");
+        addSection(UHB, "UHB-14", "14");
+        addSection(UHB, "UHB-15", "15");
+        addSection(UHB, "UHB-16", "16");
+        addSection(UHB, "UHB-17", "17");
+        addSection(UHB, "UHB-18", "18");
+        addSection(UHB, "UHB-19", "19");
+        addSection(UHB, "UHB-20", "20");
+        addSection(UHB, "UHB-21", "21");
+        addSection(UHB, "UHB-22", "22");
 
         final NamePart DgLg = addSection(Acc, "Dogleg", "DgLg");
+        addSection(DgLg, "DgLg-1", "1");
+        addSection(DgLg, "DgLg-2", "2");
+        addSection(DgLg, "DgLg-3", "3");
+        addSection(DgLg, "DgLg-4", "4");
+        addSection(DgLg, "DgLg-5", "5");
+        addSection(DgLg, "DgLg-6", "6");
+        addSection(DgLg, "DgLg-7", "7");
+        addSection(DgLg, "DgLg-8", "8");
+        addSection(DgLg, "DgLg-9", "9");
+        addSection(DgLg, "DgLg-10", "10");
 
         final NamePart A2T = addSection(Acc, "Accelerator to Target", "A2T");
+        addSection(A2T, "A2T-1", "1");
+        addSection(A2T, "A2T-2", "2");
+        addSection(A2T, "A2T-3", "3");
+        addSection(A2T, "A2T-4", "4");
+        addSection(A2T, "A2T-5", "5");
+        addSection(A2T, "A2T-6", "6");
+        addSection(A2T, "A2T-7", "7");
+        addSection(A2T, "A2T-8", "8");
+        addSection(A2T, "A2T-9", "9");
+        addSection(A2T, "A2T-10", "10");
+        addSection(A2T, "A2T-11", "11");
+        addSection(A2T, "A2T-12", "12");
+        addSection(A2T, "A2T-13", "13");
+        addSection(A2T, "A2T-14", "14");
+        addSection(A2T, "A2T-15", "15");
+        addSection(A2T, "A2T-16", "16");
+        addSection(A2T, "A2T-17", "17");
+        addSection(A2T, "A2T-18", "18");
+        addSection(A2T, "A2T-19", "19");
+        addSection(A2T, "A2T-20", "20");
 
-        final NamePart MnBL = addSection(Acc, "Monolith beam Line", "MnBL");
-        addSection(MnBL, "MnBL-1", "1");
-        addSection(MnBL, "MnBL-2", "2");
-        addSection(MnBL, "MnBL-3", "3");
-        addSection(MnBL, "MnBL-4", "4");
-        addSection(MnBL, "MnBL-5", "5");
-
-        addSection(Acc, "DumpLine", "DmpL");
-
-        final NamePart HEBD = addSection(Acc, "Bent Dump Line", "HEBD");
-        addSection(HEBD, "HEBD-1", "1");
-        addSection(HEBD, "HEBD-2", "2");
-        addSection(HEBD, "HEBD-3", "3");
-        addSection(HEBD, "HEBD-4", "4");
-        addSection(HEBD, "HEBD-5", "5");
-        addSection(HEBD, "HEBD-6", "6");
-        addSection(HEBD, "HEBD-7", "7");
-        addSection(HEBD, "HEBD-8", "8");
+        final NamePart DmpL = addSection(Acc, "DumpLine", "DmpL");
+        addSection(DmpL, "DmpL-1", "1");
+        addSection(DmpL, "DmpL-2", "2");
+        addSection(DmpL, "DmpL-3", "3");
+        addSection(DmpL, "DmpL-4", "4");
 
         final NamePart TS = addSection(null, "Target Station", "TS");
 
@@ -341,10 +361,160 @@ public class TestService {
         addDeviceType(CryogenicLines, "Transfer Line", "CTL");
 
         final NamePart Indicators = addDeviceType(Cryo, "Indicators", null);
-        addDeviceType(Indicators, "Flow Indicator", "CTL");
-        addDeviceType(Indicators, "Level Indicator", "CTL");
-        addDeviceType(Indicators, "Pressure Indicator", "CTL");
-        addDeviceType(Indicators, "Temperature Indicator", "CTL");
+        addDeviceType(Indicators, "Flow Indicator", "FIn");
+        addDeviceType(Indicators, "Level Indicator", "LIn");
+        addDeviceType(Indicators, "Pressure Indicator", "PIn");
+        addDeviceType(Indicators, "Temperature Indicator", "TIn");
+        
+        final NamePart CryogenicMisc = addDeviceType(Cryo, "Misc", null);
+        addDeviceType(CryogenicMisc, "Absorber", "Abs");
+        addDeviceType(CryogenicMisc, "Adsorber", "Ads");
+        addDeviceType(CryogenicMisc, "Compressor", "Cmp");
+        addDeviceType(CryogenicMisc, "Fan", "Fan");
+        addDeviceType(CryogenicMisc, "Filter", "Flt");
+        addDeviceType(CryogenicMisc, "Heat Exchanger", "HX");
+        addDeviceType(CryogenicMisc, "Heat Pump", "HPmp");
+        addDeviceType(CryogenicMisc, "Heater", "Htr");
+        
+        final NamePart CryogenicSensors = addDeviceType(Cryo, "Sensors", null);
+        addDeviceType(CryogenicSensors, "Flow Sensor", "FSn");
+        addDeviceType(CryogenicSensors, "Level Sensor", "LSn");
+        addDeviceType(CryogenicSensors, "Postition Sensor", "PzSn");
+        addDeviceType(CryogenicSensors, "Pressure Sensor", "PSn");
+        addDeviceType(CryogenicSensors, "Temperature Sensor", "TSn");
+        
+        final NamePart CryogenicSwitches = addDeviceType(Cryo, "Switches", null);
+        addDeviceType(CryogenicSwitches, "Flow Switch", "FSw");
+        addDeviceType(CryogenicSwitches, "Limit Switch", "LSw");
+        
+        final NamePart CryogenicValves = addDeviceType(Cryo, "Valves", null);
+        addDeviceType(CryogenicValves, "Cryogenic Control Valve", "CCV");
+        addDeviceType(CryogenicValves, "Dumping Check Valve", "DChV");
+        addDeviceType(CryogenicValves, "Manual Valve", "MV");
+        addDeviceType(CryogenicValves, "Pressure Safety Valve", "PSV");
+        addDeviceType(CryogenicValves, "Shut off Check Valve", "SChV");
+        addDeviceType(CryogenicValves, "Vacuum Insulation Safety Valve", "VISV");
+        addDeviceType(CryogenicValves, "Warm Control Valve", "WCV");
+        
+        
+        final NamePart EMR = addDeviceType(null, "Electromagnetic Resonators", "EMR");
+
+        final NamePart EMRMisc = addDeviceType(EMR, "Misc", null);
+        addDeviceType(EMRMisc, "Cavity", "Cav");
+        addDeviceType(EMRMisc, "Cryo Module", "Cmd");
+        addDeviceType(EMRMisc, "DTL Tank", "Tnk");
+        addDeviceType(EMRMisc, "RFQ Module", "Mdl");
+        addDeviceType(EMRMisc, "Warm Intersection Cryo", "WIC");
+        
+        
+        final NamePart PBI = addDeviceType(null, "Proton Beam Instrumentation", "PBI");
+
+        final NamePart PBICollimators = addDeviceType(PBI, "Collimators", null);
+        addDeviceType(PBICollimators, "Collimator", "Coll");
+        addDeviceType(PBICollimators, "Slit", "Slit");
+        
+        final NamePart PBIDiagnostics = addDeviceType(PBI, "Diagnostics", null);
+        addDeviceType(PBIDiagnostics, "Beam Current Monitor", "BCM");
+        addDeviceType(PBIDiagnostics, "Beam Loss Monitor", "BLM");
+        addDeviceType(PBIDiagnostics, "Beam Position Monitor", "BPM");
+        addDeviceType(PBIDiagnostics, "Beam Shape Monitor", "BSM");
+        addDeviceType(PBIDiagnostics, "Emittance Monitor", "Emit");
+        addDeviceType(PBIDiagnostics, "Energy Degrader", "EDgr");
+        addDeviceType(PBIDiagnostics, "Grid", "Grid");
+        addDeviceType(PBIDiagnostics, "Halo Monitor", "Halo");
+        addDeviceType(PBIDiagnostics, "Imaging System", "Img");
+        addDeviceType(PBIDiagnostics, "Monochromator", "Mnch");
+        addDeviceType(PBIDiagnostics, "Neutron Loss Monitor", "NLM");
+        addDeviceType(PBIDiagnostics, "Non-invasive Profile Monitor", "NPM");
+        addDeviceType(PBIDiagnostics, "View Port", "VPrt");
+        addDeviceType(PBIDiagnostics, "Wire Scanner", "WS");
+        
+        final NamePart PBIDumps = addDeviceType(PBI, "Dumps", null);
+        addDeviceType(PBIDumps, "Beam Stop", "Stop");
+        addDeviceType(PBIDumps, "Chopper Dump", "ChpDm");
+        addDeviceType(PBIDumps, "Faraday Cup", "FC");
+        addDeviceType(PBIDumps, "Target Wheel", "Tgt");
+        addDeviceType(PBIDumps, "Tuning Dump", "TDmp");
+        
+        final NamePart PBIMisc = addDeviceType(PBI, "Misc", null);
+        addDeviceType(PBIMisc, "Beam Box", "BBox");
+        addDeviceType(PBIMisc, "Radiation Blockers", "RadBl");
+
+        
+        final NamePart Vac = addDeviceType(null, "Vacuum", "Vac");
+
+        final NamePart VacControllers = addDeviceType(Vac, "Controllers", null);
+        addDeviceType(VacControllers, "Fast Valve Controller", "FVC");
+        addDeviceType(VacControllers, "Gauge Controller", "GC");
+        addDeviceType(VacControllers, "Ion Pump Controller", "IPC");
+        addDeviceType(VacControllers, "Turbo Pump Controller", "TMPC");
+        
+        final NamePart VacFilters = addDeviceType(Vac, "Filters", null);
+        addDeviceType(VacFilters, "Vent Filter", "VF");
+        
+        final NamePart VacMisc= addDeviceType(Vac, "Misc", null);
+        addDeviceType(VacMisc, "Electrostatic Precipitator", "EP");
+        
+        final NamePart VacPumps= addDeviceType(Vac, "Pumps", null);
+        addDeviceType(VacPumps, "Ion Pump", "IP");
+        addDeviceType(VacPumps, "Neg Pump", "NP");
+        addDeviceType(VacPumps, "Scroll Pump", "SP");
+        addDeviceType(VacPumps, "Turbomolecular Pump", "TMP");
+        
+        final NamePart VacSensors= addDeviceType(Vac, "Sensors", null);
+        addDeviceType(VacSensors, "Gold Cathode Gauge", "GCG");
+        addDeviceType(VacSensors, "Penning Gauge", "PG");
+        addDeviceType(VacSensors, "Thermal Couple Gauge", "TC");
+        
+        final NamePart VacSwitches= addDeviceType(Vac, "Switches", null);
+        addDeviceType(VacSwitches, "Limit Switch", "LSw");
+        
+        final NamePart VacValves= addDeviceType(Vac, "Valves", null);
+        addDeviceType(VacValves, "Fast Valve", "FV");
+        addDeviceType(VacValves, "Gate Valve", "gV");
+        addDeviceType(VacValves, "Manual Vent Valve", "MVV");
+        addDeviceType(VacValves, "Pneumatic Gate Valve", "PGV");
+        addDeviceType(VacValves, "Pneumatic Vent Valve", "PVV");
+        addDeviceType(VacValves, "Sector Gate Valve", "SGV");
+        addDeviceType(VacValves, "Solenoid Vent Valve", "SVV");
+
+        
+        final NamePart WtrC = addDeviceType(null, "Water Cooling", "WtrC");
+
+        final NamePart WtrCIndicators = addDeviceType(WtrC, "Indicators", null);
+        addDeviceType(WtrCIndicators, "Flow Indicator", "FIn");
+        addDeviceType(WtrCIndicators, "Level Indicator", "LIn");
+        addDeviceType(WtrCIndicators, "Pressure Indicator", "PIn");
+        addDeviceType(WtrCIndicators, "Temperature Indicator", "TIn");
+        
+        final NamePart WtrCMisc = addDeviceType(WtrC, "Misc", null);
+        addDeviceType(WtrCMisc, "Absorber", "Abs");
+        addDeviceType(WtrCMisc, "Adsorber", "Ads");
+        addDeviceType(WtrCMisc, "Compressor", "Cmp");
+        addDeviceType(WtrCMisc, "Fan", "Fan");
+        addDeviceType(WtrCMisc, "Filter", "Flt");
+        addDeviceType(WtrCMisc, "Heat Exchanger", "HX");
+        addDeviceType(WtrCMisc, "Heat Pump", "HPmp");
+        addDeviceType(WtrCMisc, "Heater", "Htr");
+        addDeviceType(WtrCMisc, "Pump", "Pmp");
+        addDeviceType(WtrCMisc, "Water Treatment Units", "WTU");
+        
+        final NamePart WtrCSensors = addDeviceType(WtrC, "Sensors", null);
+        addDeviceType(WtrCSensors, "Flow Sensor", "FSn");
+        addDeviceType(WtrCSensors, "Level Sensor", "LSn");
+        addDeviceType(WtrCSensors, "Postition Sensor", "PzSn");
+        addDeviceType(WtrCSensors, "Pressure Sensor", "PSn");
+        addDeviceType(WtrCSensors, "Temperature Sensor", "TSn");
+        
+        final NamePart WtrCSwitches = addDeviceType(WtrC, "Switches", null);
+        addDeviceType(WtrCSwitches, "Flow Switch", "FSw");
+        addDeviceType(WtrCSwitches, "Limit Switch", "LSw");
+        
+        final NamePart WtrCValves= addDeviceType(WtrC, "Valves", null);
+        addDeviceType(WtrCValves, "Controlled Valve", "CV");
+        addDeviceType(WtrCValves, "Insulation Safety Valve", "ISV");
+        addDeviceType(WtrCValves, "Manual Valve", "MV");
+        addDeviceType(WtrCValves, "Pressure Safety Velve", "PSV");
     }
 
     private NamePart addSection(@Nullable NamePart parent, String longName, String shortName) {

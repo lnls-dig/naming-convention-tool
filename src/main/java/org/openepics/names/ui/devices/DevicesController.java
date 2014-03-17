@@ -1,5 +1,6 @@
 package org.openepics.names.ui.devices;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,14 +17,17 @@ import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
+import org.openepics.names.services.ParserService;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.ui.parts.NamePartView;
 import org.openepics.names.ui.parts.OperationNamePartView;
+import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
+import org.primefaces.model.UploadedFile;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -40,6 +44,7 @@ public class DevicesController implements Serializable {
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private DevicesTreeBuilder devicesTreeBuilder;
     @Inject private ViewFactory viewFactory;
+    @Inject private ParserService parserService;
 
     private DeviceView selectedDeviceName;
  
@@ -53,17 +58,17 @@ public class DevicesController implements Serializable {
     private TreeNode[] selectedNodes;
     private TreeNode deleteView;
     
-
     private boolean showDeletedNames = true;
 
     private String deviceQuantifier;
     
     private int displayView = 1;
 
-
     @PostConstruct
     public void init() {
+        long start = System.currentTimeMillis();
         modifyDisplayView();
+        System.out.println("GENERATING: "+ (double)(System.currentTimeMillis()-start)/1000.0);
     }
 
     public void onAdd() {
@@ -198,10 +203,13 @@ public class DevicesController implements Serializable {
         selectedDeviceName = null;
         selectedSection = null;
     	
-        try {
-        	selectedDeviceName = (DeviceView) selectedNodes[0].getData();
-        } catch (ClassCastException e) {
-        	selectedSection = selectedNodes[0];
+        if (this.selectedNodes.length > 0) {
+            try {
+            	selectedDeviceName = (DeviceView) this.selectedNodes[0].getData();
+            } catch (ClassCastException e) {
+            	selectedSection = this.selectedNodes[0];
+            }
+            
         }
         deleteView = deleteView(viewRoot, SelectionMode.MANUAL);
     }
@@ -271,6 +279,23 @@ public class DevicesController implements Serializable {
       
     }
     
+    
+    public void handleFileUpload(FileUploadEvent event) {
+        UploadedFile upFile = event.getFile();
+            
+        boolean isError = false;
+        try {
+            parserService.parseDeviceImportFile(upFile.getInputstream());
+        } catch (Exception e) {
+            isError = true;
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,"Parsing error!", e.getMessage()));
+        }
+        if (!isError) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,"Import successfull!",""));
+        }
+        
+    }
+   
     private TreeNode findSelectedTreeNode(TreeNode node) {
     	if (node.isSelected()) {
     		return node;
