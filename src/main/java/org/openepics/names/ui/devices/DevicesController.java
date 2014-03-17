@@ -2,14 +2,18 @@ package org.openepics.names.ui.devices;
 
 
 import java.io.IOException;
+import java.io.InputStream;
+
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -17,6 +21,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import javax.servlet.ServletContext;
+
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
@@ -28,9 +34,12 @@ import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.ui.parts.NamePartView;
 import org.openepics.names.ui.parts.OperationNamePartView;
 import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.DefaultTreeNode;
+import org.primefaces.model.StreamedContent;
 import org.primefaces.model.TreeNode;
 import org.primefaces.model.UploadedFile;
+
 
 @ManagedBean
 @ViewScoped
@@ -60,6 +69,8 @@ public class DevicesController implements Serializable {
     private String deviceQuantifier;
 
     private int displayView = 2;
+    
+    private StreamedContent downloadableNamesTemplate;
 
     @PostConstruct
     public void init() {
@@ -290,6 +301,17 @@ public class DevicesController implements Serializable {
         }
         
     }
+    
+    public void prepareTemplate() {
+        if (downloadableNamesTemplate == null) {
+            InputStream stream = ((ServletContext)FacesContext.getCurrentInstance().getExternalContext().getContext()).getResourceAsStream("/resources/excellTemplateFiles/NamingImportTemplate.xlsx");  
+            downloadableNamesTemplate = new DefaultStreamedContent(stream, "xlsx", "NamingImportTemplate.xlsx");  
+        }
+    }
+    
+    public StreamedContent getDownloadableNamesTemplate() {  
+        return downloadableNamesTemplate;  
+    } 
    
     private TreeNode findSelectedTreeNode(TreeNode node) {
     	if (node.isSelected()) {

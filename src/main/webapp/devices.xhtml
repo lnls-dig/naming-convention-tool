@@ -52,6 +52,7 @@
 								oncomplete="nameDetail.show()"
 								disabled="#{!devicesController.canShowHistory()}" />
 							<p:menuitem value="Batch Import" icon="ui-icon-folder-open"
+							    actionListener="#{devicesController.prepareTemplate()}"
 								title="Batch Import" update=":batchImportForm"
 								oncomplete="batchImport.show()" />
 						</p:menuButton></td>
@@ -171,19 +172,27 @@
 
 		<h:form id="batchImportForm" enctype="multipart/form-data">
 			<p:dialog id="batchImport" widgetVar="batchImport" modal="true"
-				resizable="false" width="40%">
+				resizable="false" width="35%">
 				<f:facet name="header">
 					<h:outputText value="Batch Import Device Names From Excell File" />
 				</f:facet>
 				
+                
+                
                  <h:outputText value="Select excell file to upload device names from" />
 	                    
 				 <p:fileUpload fileUploadListener="#{devicesController.handleFileUpload}" mode="advanced" dragDropSupport="false" showButtons="false"
 			                  update="messages" fileLimit="1" allowTypes="/(\.|\/)(xlsx|xls)$/"  />
 				
-				<p:messages id="messages" showDetail="true" autoUpdate="true" closable="true" />		
+				
 
 				<p:separator />
+				<h:outputText value="Batch import template file: " />
+				<p:commandButton id="downloadLink" value="Download" ajax="false" icon="ui-icon-disk">  
+                    <p:fileDownload value="#{devicesController.downloadableNamesTemplate}" />  
+                </p:commandButton>  
+                
+                <p:messages id="messages" showDetail="true" autoUpdate="true" closable="true" />        
 				
 				<p:commandButton value="Cancel" style="float: right"
 					onclick="batchImport.hide()" />
