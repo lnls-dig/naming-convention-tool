@@ -33,7 +33,7 @@ public class DevicesTreeBuilder {
     @Inject private DeviceService deviceService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private ViewFactory viewFactory;
-    private HashMap<Integer,List<Device>> allDevices;
+    private HashMap<Integer,List<Device>> allDevicesForSection = new HashMap<>();
 	
 	public TreeNode devicesTree(boolean withDeleted) {
 		final List<NamePartRevision> approvedRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(false), new Predicate<NamePartRevision>() {
@@ -41,35 +41,31 @@ public class DevicesTreeBuilder {
         }));
         final List<NamePartRevision> pendingRevisions = Lists.newArrayList();
         
-        TreeNode root = namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, false);
+        final TreeNode root = namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, false);
         
-        List<Device> devices = deviceService.devices(withDeleted);
-        allDevices = new HashMap<>();
+        final List<Device> devices = Lists.newArrayList();
+        devices.addAll(deviceService.devices(withDeleted));
+        
         for (Device device : devices) {
-        	List<Device> temp;
-        	if (allDevices.containsKey(deviceService.currentRevision(device).getSection().getId())) {
-        		temp = allDevices.get(deviceService.currentRevision(device).getSection().getId());
-        	} else {
-        		temp = Lists.newArrayList();
-        	}
-        	temp.add(device);
-    		allDevices.put(deviceService.currentRevision(device).getSection().getId(), temp);
+        	List<Device> devicesForCurrentSection = Lists.newArrayList();
+        	if (allDevicesForSection.containsKey(deviceService.currentRevision(device).getSection().getId())) {
+        		devicesForCurrentSection = allDevicesForSection.get(deviceService.currentRevision(device).getSection().getId());
+        	}        	
+        	devicesForCurrentSection.add(device);
+    		allDevicesForSection.put(deviceService.currentRevision(device).getSection().getId(), devicesForCurrentSection);
         }
         
         return namePartTreeWithDevices(root);
 	}
 	
 	private TreeNode namePartTreeWithDevices(TreeNode node) {
-	    	
-    	if (node.getChildCount() > 0) {
-    		for (TreeNode child : node.getChildren()) {
-    			namePartTreeWithDevices(child);
-    		}
-    	}
+	    for (TreeNode child : node.getChildren()) {
+			namePartTreeWithDevices(child);
+		}    	
     	
     	final @Nullable NamePartView view = (NamePartView) node.getData();    	
-    	if (view != null && allDevices.containsKey(view.getId())) {
-    		List<Device> devicesForSection = allDevices.get(view.getId());
+    	if (view != null && allDevicesForSection.containsKey(view.getId())) {
+    		List<Device> devicesForSection = allDevicesForSection.get(view.getId());
     		for (Device device : devicesForSection) {
     			final TreeNode child = new DefaultTreeNode(viewFactory.getView(device), null);
     			child.setParent(node);

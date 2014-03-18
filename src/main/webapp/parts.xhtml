@@ -20,11 +20,11 @@
                                 <h:outputText value="Show: "/>
                                 <p:selectOneMenu value="#{namePartsController.viewFilter}">
                                     <p:ajax listener="#{namePartsController.modifyDisplayView}" event="change" update="namePartsTree reqMenu"  oncomplete="resizePanel()"/>
-                                    <f:selectItem itemLabel="Approved and Proposed" itemValue="1" />
-                                    <f:selectItem itemLabel="Approved" itemValue="2" />
-                                    <f:selectItem itemLabel="Proposed" itemValue="3" />
-                                    <f:selectItem itemLabel="Proposed by Me" itemValue="4" itemDisabled="#{!userManager.isLoggedIn()}"/>
-                                    <f:selectItem itemLabel="Archived" itemValue="5" />
+                                    <f:selectItem itemLabel="Approved and Proposed" itemValue="0" />
+                                    <f:selectItem itemLabel="Approved" itemValue="1" />
+                                    <f:selectItem itemLabel="Proposed" itemValue="2" />
+                                    <f:selectItem itemLabel="Proposed by Me" itemValue="3" itemDisabled="#{!userManager.isLoggedIn()}"/>
+                                    <f:selectItem itemLabel="Archived" itemValue="4" />
                                 </p:selectOneMenu>
                             </h:panelGrid>
                         </div>

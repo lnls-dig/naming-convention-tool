@@ -68,7 +68,7 @@ public class DevicesController implements Serializable {
 
     private String deviceQuantifier;
 
-    private int displayView = 2;
+    private DevicesViewFilter displayView = DevicesViewFilter.ACTIVE;
     
     private StreamedContent downloadableNamesTemplate;
 
@@ -153,12 +153,12 @@ public class DevicesController implements Serializable {
             return;
         }
         historyDeviceNames = Lists.transform(deviceService.revisions(selectedDeviceName.getDevice().getDevice()),
-                new Function<DeviceRevision, DeviceView>(){
-                    @Override
-                    public DeviceView apply(DeviceRevision f) {
-                        return viewFactory.getView(f);
-                    }
-                });
+            new Function<DeviceRevision, DeviceView>(){
+                @Override
+                public DeviceView apply(DeviceRevision f) {
+                    return viewFactory.getView(f);
+                }
+            });
     }
 
     public DeviceView getSelectedDeviceName() { return selectedDeviceName; }
@@ -185,24 +185,24 @@ public class DevicesController implements Serializable {
     public TreeNode[] getSelectedNodes() { return selectedNodes; }
 
     public void setViewFilter(int filter) {
-        this.displayView = filter;
+        this.displayView = DevicesViewFilter.values()[filter];
     }
 
     public int getViewFilter() {
-        return this.displayView;
+        return this.displayView.ordinal();
     }
 
     public void modifyDisplayView() {
-        switch (displayView) {
-        case 1:
-            viewRoot = devicesTreeBuilder.devicesTree(true);
-            break;
-        case 2:
+        
+        if (displayView == DevicesViewFilter.ACTIVE) {
             viewRoot = devicesTreeBuilder.devicesTree(false);
-            break;
+        } else if (displayView == DevicesViewFilter.ARCHIVED) {
+            viewRoot = devicesTreeBuilder.devicesTree(true);
+        } else {
+            throw new IllegalStateException();
         }
-        sections = selectedSection = null;
-        deviceTypes =  selectedDeviceType = null;
+        
+        sections = selectedSection = deviceTypes =  selectedDeviceType = null;
         selectedDeviceName = null;
     }
 
@@ -315,7 +315,7 @@ public class DevicesController implements Serializable {
    
     private TreeNode findSelectedTreeNode(TreeNode node) {
     	if (node.isSelected()) {
-    		return node;
+    	    return node;
     	} else if (node.getChildCount() > 0) {
     		for (TreeNode child : node.getChildren()) {
     			TreeNode temp = findSelectedTreeNode(child);
@@ -350,11 +350,12 @@ public class DevicesController implements Serializable {
         if (selectionMode == SelectionMode.AUTO) {
             childrenSelectionMode = SelectionMode.AUTO;
         } else if (selectionMode == SelectionMode.MANUAL) {
-        	 if ((nodeView != null || deviceNodeView != null) && node.isSelected()) {
-                 childrenSelectionMode = SelectionMode.AUTO;
-             } else {
-                 childrenSelectionMode = SelectionMode.MANUAL;
-             }
+            if ((nodeView != null || deviceNodeView != null)
+                    && node.isSelected()) {
+                childrenSelectionMode = SelectionMode.AUTO;
+            } else {
+                childrenSelectionMode = SelectionMode.MANUAL;
+            }
         } else if (selectionMode == SelectionMode.DISABLED) {
             childrenSelectionMode = SelectionMode.DISABLED;
         } else {
@@ -385,5 +386,9 @@ public class DevicesController implements Serializable {
         } else {
             return null;
         }
+    }
+    
+    private enum DevicesViewFilter {
+        ACTIVE, ARCHIVED
     }
 }

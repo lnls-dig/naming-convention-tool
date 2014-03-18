@@ -3,3 +3,5 @@ src/main/java/resources
 .classpath
 .project
 .settings/
+.idea
+names.iml

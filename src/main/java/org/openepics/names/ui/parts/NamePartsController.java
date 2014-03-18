@@ -20,8 +20,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
 import java.io.Serializable;
 import java.util.List;
+
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -29,17 +31,21 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.model.NamePartType;
-import org.openepics.names.model.UserAccount;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
+import org.openepics.names.ui.common.OperationTreeNode;
+import org.openepics.names.ui.common.OperationsTreePreview;
 import org.openepics.names.ui.common.UserManager;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartView.Change;
 import org.openepics.names.ui.parts.NamePartView.ModifyChange;
+import org.openepics.names.util.Marker;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
+
 
 /**
  * Manages Change Requests (backing bean for request-sub.xhtml)
@@ -62,20 +68,21 @@ public class NamePartsController implements Serializable {
     private TreeNode viewRoot;
     private TreeNode[] selectedNodes;
 
-    private TreeNode deleteView;
-    private TreeNode approveView;
-    private TreeNode cancelView;
+    private OperationTreeNode deleteView;
+    private OperationTreeNode approveView;
+    private OperationTreeNode cancelView;
 
 
     private String newCode;
     private String newDescription;
     private String newComment;
-    private int displayView = 1;
+    private NamePartDisplayFilter displayView = NamePartDisplayFilter.APPROVED_AND_PROPOSED;
 
     private NamePartType namePartType;
 
     private boolean modify;
     private boolean isDifferentThenCurrent;
+    private boolean viewWithDeletions;
 
     @PostConstruct
     public void init() {
@@ -85,9 +92,11 @@ public class NamePartsController implements Serializable {
     }
 
     private TreeNode getRootTreeNode(boolean withModifications) {
-    	final @Nullable String typeParam = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
-
-    	if (typeParam.equals("section")) {
+    	final @Nullable String typeParam = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
+    	
+    	if (typeParam == null) {
+            Marker.doNothing();
+    	} else if (typeParam.equals("section")) {
             namePartType = NamePartType.SECTION;
         } else if (typeParam.equals("deviceType")) {
             namePartType = NamePartType.DEVICE_TYPE;
@@ -204,8 +213,7 @@ public class NamePartsController implements Serializable {
         }
     }
 
-    public String getOperationsNewFullName(OperationNamePartView opReq) {
-    	NamePartView req = opReq.getNamePartView();
+    public String getOperationsNewFullName(NamePartView req) {
         final Change change = req.getPendingChange();
         if (change instanceof NamePartView.ModifyChange && ((NamePartView.ModifyChange)change).getNewFullName() != null
         		&& !((NamePartView.ModifyChange)change).getNewFullName().equals("")) {
@@ -216,49 +224,41 @@ public class NamePartsController implements Serializable {
     }
 
     public boolean isDeletePending (NamePartView req) {
-    	if (req.getPendingChange() instanceof NamePartView.DeleteChange) {
-    		return true;
-    	}
-    	return false;
+    	return req.getPendingChange() instanceof NamePartView.DeleteChange;
     }
 
     public boolean isModified(NamePartView req, boolean isFullName) {
     	if (req.getPendingChange() instanceof NamePartView.ModifyChange) {
 	    	ModifyChange modifyChange = (ModifyChange) req.getPendingChange();
-	    	if ((isFullName && modifyChange.getNewFullName() != null) ||
-	        		!isFullName && modifyChange.getNewName() != null) {
-	    			return true;
+	    	if ((isFullName && modifyChange.getNewFullName() != null) || !isFullName && modifyChange.getNewName() != null) {
+	    		return true;
 	    	}
     	}
     	return false;
     }
 
-    public void setViewFilter(int filter) {
-    	this.displayView = filter;
-    }
+    public void setViewFilter(int filter) { displayView = NamePartDisplayFilter.values()[filter]; }
 
-    public int getViewFilter() {
-    	return this.displayView;
-    }
+    public int getViewFilter() { return this.displayView.ordinal(); }
 
     public void modifyDisplayView() {
-    	switch (displayView) {
-    	case 1:
-    		viewRoot = approvedAndProposedView(rootWithModifications, false);
-    		break;
-    	case 2:
-    		viewRoot = approvedAndProposedView(rootWithoutModifications, false);
-    		break;
-		case 3:
-			viewRoot = onlyProposedView(rootWithModifications, null);
-			break;
-		case 4:
-			viewRoot = onlyProposedView(rootWithModifications, userManager.getUser());
-			break;
-		case 5:
-			viewRoot = approvedAndProposedView(rootWithoutModifications, true);
-    		break;
-		}
+        if (displayView == NamePartDisplayFilter.APPROVED_AND_PROPOSED) {
+            viewWithDeletions = false;
+            viewRoot = approvedAndProposedView(rootWithModifications);
+        } else if (displayView == NamePartDisplayFilter.APPROVED) {
+            viewWithDeletions = false;
+            viewRoot = approvedAndProposedView(rootWithoutModifications);
+        } else if (displayView == NamePartDisplayFilter.PROPOSED) {
+            viewRoot = onlyProposedView(rootWithModifications);
+        } else if (displayView == NamePartDisplayFilter.PROPOSED_BY_ME) {
+            viewRoot = onlyProposedView(rootWithModifications);
+        } else if (displayView == NamePartDisplayFilter.ARCHIVED) {
+            viewWithDeletions = true;
+            viewRoot = approvedAndProposedView(rootWithoutModifications);
+        } else {
+            throw new IllegalStateException();
+        }
+        
     	newCode = newDescription = newComment = null;
     	modify = false;
         selectedNodes = new TreeNode[0];
@@ -354,16 +354,18 @@ public class NamePartsController implements Serializable {
     }
 
     public @Nullable NamePartView getSelectedName() {
-    	if (selectedNodes != null)
+    	if (selectedNodes != null) {
     		return selectedNodes.length < 1 ? null : (NamePartView)(selectedNodes[0].getData());
-    	else
+    	} else {
     		return null;
+    	}
     }
 
     public String getNewCode() {
     	newCode = (getSelectedName() == null || !modify) ? null : getSelectedName().getPendingOrElseCurrentRevision().getName();
-    	if (modify)
+    	if (modify) {
     		checkForChanges();
+    	}
     	return newCode;
     }
     public void setNewCode(String newCode) { this.newCode = newCode; }
@@ -374,23 +376,14 @@ public class NamePartsController implements Serializable {
     }
     public void setNewDescription(String newDescription) { this.newDescription = newDescription; }
 
-    public void showModify() {
-    	modify = true;
-    }
+    public void showModify() { modify = true; }
 
-    public void showAdd() {
-    	modify = false;
-    }
+    public void showAdd() { modify = false; }
 
-    public boolean canSaveModifications() {
-    	return !isDifferentThenCurrent;
-    }
+    public boolean canSaveModifications() { return !isDifferentThenCurrent; }
 
     public void checkForChanges() {
-    	if (!newDescription.equals(getSelectedName().getPendingOrElseCurrentRevision().getFullName()) || !newCode.equals(getSelectedName().getPendingOrElseCurrentRevision().getName()))
-    		isDifferentThenCurrent = true;
-    	else
-    		isDifferentThenCurrent = false;
+        isDifferentThenCurrent = (!newDescription.equals(getSelectedName().getPendingOrElseCurrentRevision().getFullName()) || !newCode.equals(getSelectedName().getPendingOrElseCurrentRevision().getName()));
     }
 
     public String getNewComment() {
@@ -430,217 +423,120 @@ public class NamePartsController implements Serializable {
     public boolean canShowHistory() { return selectedNodes.length == 1; }
 
     public void updateOperationViews() {
-        deleteView = deleteView(viewRoot, SelectionMode.MANUAL);
-        approveView = approveView(viewRoot, SelectionMode.MANUAL);
-        cancelView = cancelView(viewRoot, SelectionMode.MANUAL);
+        deleteView = deleteView(viewRoot);
+        approveView = approveView(viewRoot);
+        cancelView = cancelView(viewRoot);
     }
 
     public String getPendingComment(NamePartView selectedName) {
     	List<NamePartView> historyEvents = findHistory(selectedName);
     	if (historyEvents != null && historyEvents.size() > 0) {
-    		return historyEvents.get(historyEvents.size()-1).getNameEvent().getRequestorComment();
+    		return historyEvents.get(historyEvents.size() - 1).getNameEvent().getRequestorComment();
+    	} else {
+    	    return null;
     	}
-    	return null;
     }
 
-    private enum SelectionMode { MANUAL, AUTO, DISABLED }
-
-    private List<NamePartView> linearizedTargets(TreeNode node) {
-        final @Nullable OperationNamePartView nodeView = (OperationNamePartView) node.getData();
+    private List<NamePartView> linearizedTargets(OperationTreeNode node) {
+        final @Nullable NamePartView nodeView = (NamePartView) node.getData();
         final List<NamePartView> targets = Lists.newArrayList();
-        if (nodeView != null && nodeView.isAffected()) {
-            targets.add(nodeView.getNamePartView());
+        if (node.isAffected() && nodeView != null) {
+            targets.add(nodeView);
         }
         for (TreeNode child : node.getChildren()) {
-            targets.addAll(linearizedTargets(child));
+            targets.addAll(linearizedTargets((OperationTreeNode) child));
         }
         return targets;
     }
 
-    private List<NamePartView> linearizedTargetsForDelete(TreeNode node) {
-        final @Nullable OperationNamePartView nodeView = (OperationNamePartView) node.getData();
+    private List<NamePartView> linearizedTargetsForDelete(OperationTreeNode node) {
+        final @Nullable NamePartView nodeView = (NamePartView) node.getData();
         final List<NamePartView> targets = Lists.newArrayList();
-        if (nodeView != null && nodeView.isAffected()) {
-            targets.add(nodeView.getNamePartView());
+        if (node.isAffected() && nodeView != null) {
+            targets.add(nodeView);
         }
-        if (nodeView == null || !(nodeView.getNamePartView().getPendingChange() instanceof NamePartView.DeleteChange)) {
+        if (nodeView == null || !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange)) {
             for (TreeNode child : node.getChildren()) {
-                targets.addAll(linearizedTargets(child));
+                targets.addAll(linearizedTargets((OperationTreeNode) child));
             }
         }
         return targets;
     }
 
-    private @Nullable TreeNode deleteView(TreeNode node, SelectionMode selectionMode) {
-        final @Nullable NamePartView nodeView = (NamePartView) node.getData();
+    private @Nullable OperationTreeNode deleteView(TreeNode node) {
+        return new OperationsTreePreview<NamePartView>() {
+            @Override protected boolean nodeIsAffected(NamePartView nodeView) { return nodeView != null && !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange); }
+            @Override protected boolean selectionModeAuto(NamePartView nodeView) { return nodeView != null && !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange); }
+            @Override protected boolean selectionModeDisabled(NamePartView nodeView, boolean isSelected) { return nodeView != null && nodeView.getPendingChange() instanceof NamePartView.AddChange; }
+        }.apply(node);
+    }
 
-        final SelectionMode childrenSelectionMode;
-        if (selectionMode == SelectionMode.AUTO) {
-            childrenSelectionMode = SelectionMode.AUTO;
-        } else if (selectionMode == SelectionMode.MANUAL) {
-            if (nodeView != null && node.isSelected() && !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange)) {
-                childrenSelectionMode = SelectionMode.AUTO;
-            } else if (nodeView != null && nodeView.getPendingChange() instanceof NamePartView.AddChange) {
-                childrenSelectionMode = SelectionMode.DISABLED;
+    private @Nullable OperationTreeNode approveView(TreeNode node) {
+        return new OperationsTreePreview<NamePartView>() {
+            @Override protected boolean nodeIsAffected(NamePartView nodeView) { return nodeView != null && nodeView.getPendingChange() != null; }
+            @Override protected boolean selectionModeAuto(NamePartView nodeView) { return nodeView != null && (nodeView.getPendingChange() instanceof NamePartView.DeleteChange); }
+            @Override protected boolean selectionModeDisabled(NamePartView nodeView, boolean isSelected) { return nodeView != null && nodeView.getPendingChange() instanceof NamePartView.AddChange && !isSelected; }
+        }.apply(node);
+    }
+
+    private @Nullable OperationTreeNode cancelView(TreeNode node) {
+        return new OperationsTreePreview<NamePartView>() {
+            @Override protected boolean nodeIsAffected(NamePartView nodeView) { return nodeView != null && nodeView.getPendingChange() != null; }
+            @Override protected boolean selectionModeAuto(NamePartView nodeView) { return nodeView != null && !(nodeView.getPendingChange() instanceof NamePartView.ModifyChange); }
+            @Override protected boolean selectionModeDisabled(NamePartView nodeView, boolean isSelected) { return nodeView != null && nodeView.getPendingChange() instanceof NamePartView.DeleteChange; }
+        }.apply(node);
+    }
+
+    abstract class TreeViewFilter {
+        
+        protected abstract boolean addToTreeView(List<TreeNode> childNodes, @Nullable NamePartView nodeView);
+        
+        public TreeNode applyFilter(TreeNode node) {
+            final List<TreeNode> childNodes = Lists.newArrayList();
+            for (TreeNode child : node.getChildren()) {
+                final TreeNode childView = applyFilter(child);
+                if (childView != null) {
+                    childNodes.add(childView);
+                }
+            }
+            
+            final @Nullable NamePartView nodeView = (NamePartView) node.getData();
+            if (addToTreeView(childNodes, nodeView)) {
+                final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
+                result.setExpanded(true);
+                for (TreeNode childView : childNodes) {
+                    childView.setParent(result);
+                }
+                return result;
             } else {
-                childrenSelectionMode = SelectionMode.MANUAL;
+                return null;
             }
-        } else if (selectionMode == SelectionMode.DISABLED) {
-            childrenSelectionMode = SelectionMode.DISABLED;
-        } else {
-            throw new IllegalStateException();
-        }
-
-        final List<TreeNode> childViews = Lists.newArrayList();
-        for (TreeNode child : node.getChildren()) {
-            final TreeNode childView = deleteView(child, childrenSelectionMode);
-            if (childView != null) {
-                childViews.add(childView);
-            }
-        }
-
-        final boolean affectNode = nodeView != null && (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected())) && !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange);
-        if (affectNode || !childViews.isEmpty()) {
-            final TreeNode result = new DefaultTreeNode(nodeView != null ? new OperationNamePartView(nodeView, affectNode) : null, null);
-            result.setExpanded(true);
-            for (TreeNode childView : childViews) {
-                childView.setParent(result);
-            }
-            return result;
-        } else {
-            return null;
         }
     }
 
-    private @Nullable TreeNode approveView(TreeNode node, SelectionMode selectionMode) {
-        final @Nullable NamePartView nodeView = (NamePartView) node.getData();
-
-        final SelectionMode childrenSelectionMode;
-        if (selectionMode == SelectionMode.AUTO) {
-            childrenSelectionMode = SelectionMode.AUTO;
-        } else if (selectionMode == SelectionMode.MANUAL) {
-            if (nodeView != null && node.isSelected() && (nodeView.getPendingChange() instanceof NamePartView.DeleteChange)) {
-                childrenSelectionMode = SelectionMode.AUTO;
-            } else if (nodeView != null && nodeView.getPendingChange() instanceof NamePartView.AddChange && !node.isSelected()) {
-                childrenSelectionMode = SelectionMode.DISABLED;
-            } else {
-                childrenSelectionMode = SelectionMode.MANUAL;
+    private @Nullable TreeNode onlyProposedView(TreeNode node) {
+        return new TreeViewFilter() {
+            @Override protected boolean addToTreeView(List<TreeNode> childNodes, NamePartView nodeView) {
+                return nodeView != null && nodeView.getPendingChange() != null && (userManager.getUser() == null || nodeView.getPendingRevision().getRequestedBy().equals(userManager.getUser())) || childNodes.size() > 0;
             }
-        } else if (selectionMode == SelectionMode.DISABLED) {
-            childrenSelectionMode = SelectionMode.DISABLED;
-        } else {
-            throw new IllegalStateException();
-        }
-
-        final List<TreeNode> childViews = Lists.newArrayList();
-        for (TreeNode child : node.getChildren()) {
-            final TreeNode childView = approveView(child, childrenSelectionMode);
-            if (childView != null) {
-                childViews.add(childView);
-            }
-        }
-
-        final boolean affectNode = nodeView != null && (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected())) && (nodeView.getPendingChange() != null);
-        if (affectNode || !childViews.isEmpty()) {
-            final TreeNode result = new DefaultTreeNode(nodeView != null ? new OperationNamePartView(nodeView, affectNode) : null, null);
-            result.setExpanded(true);
-            for (TreeNode childView : childViews) {
-                childView.setParent(result);
-            }
-            return result;
-        } else {
-            return null;
-        }
+        }.applyFilter(node);        
     }
 
-    private @Nullable TreeNode cancelView(TreeNode node, SelectionMode selectionMode) {
-        final @Nullable NamePartView nodeView = (NamePartView) node.getData();
-
-        final SelectionMode childrenSelectionMode;
-        if (selectionMode == SelectionMode.AUTO) {
-            childrenSelectionMode = SelectionMode.AUTO;
-        } else if (selectionMode == SelectionMode.MANUAL) {
-            if (nodeView != null && node.isSelected() && !(nodeView.getPendingChange() instanceof NamePartView.ModifyChange)) {
-                childrenSelectionMode = SelectionMode.AUTO;
-            } else if (nodeView != null && nodeView.getPendingChange() instanceof NamePartView.DeleteChange) {
-                childrenSelectionMode = SelectionMode.DISABLED;
-            } else {
-                childrenSelectionMode = SelectionMode.MANUAL;
+    private @Nullable TreeNode approvedAndProposedView(TreeNode node) {
+        return new TreeViewFilter() {
+            @Override protected boolean addToTreeView(List<TreeNode> childNodes, NamePartView nodeView) {
+                return (nodeView != null && (viewWithDeletions || !nodeView.isDeleted())) || !childNodes.isEmpty();
             }
-        } else if (selectionMode == SelectionMode.DISABLED) {
-            childrenSelectionMode = SelectionMode.DISABLED;
-        } else {
-            throw new IllegalStateException();
-        }
-
-        final List<TreeNode> childViews = Lists.newArrayList();
-        for (TreeNode child : node.getChildren()) {
-            final TreeNode childView = cancelView(child, childrenSelectionMode);
-            if (childView != null) {
-                childViews.add(childView);
-            }
-        }
-
-        final boolean affectNode = nodeView != null && (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected())) && (nodeView.getPendingChange() != null);
-        if (affectNode || !childViews.isEmpty() ) {
-            final TreeNode result = new DefaultTreeNode(nodeView != null ? new OperationNamePartView(nodeView, affectNode) : null, null);
-            result.setExpanded(true);
-            for (TreeNode childView : childViews) {
-                childView.setParent(result);
-            }
-            return result;
-        } else {
-            return null;
-        }
-    }
-
-    private @Nullable TreeNode onlyProposedView(TreeNode node, UserAccount user) {
-        final List<TreeNode> childNodes = Lists.newArrayList();
-        for (TreeNode child : node.getChildren()) {
-            final TreeNode childView = onlyProposedView(child, user);
-            if (childView != null) {
-                childNodes.add(childView);
-            }
-        }
-
-        final @Nullable NamePartView nodeView = (NamePartView) node.getData();
-        if (nodeView != null && nodeView.getPendingChange() != null && (user == null || nodeView.getPendingRevision().getRequestedBy().equals(user)) || childNodes.size() > 0) {
-            final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
-            result.setExpanded(true);
-            for (TreeNode childView : childNodes) {
-                childView.setParent(result);
-            }
-            return result;
-        } else {
-            return null;
-        }
-    }
-
-    private @Nullable TreeNode approvedAndProposedView(TreeNode node, boolean withDeletetions) {
-        final List<TreeNode> childNodes = Lists.newArrayList();
-        for (TreeNode child : node.getChildren()) {
-            final TreeNode childView = approvedAndProposedView(child, withDeletetions);
-            if (childView != null) {
-                childNodes.add(childView);
-            }
-        }
-
-        final @Nullable NamePartView nodeView = (NamePartView) node.getData();
-        if ((nodeView != null && (withDeletetions || !nodeView.isDeleted())) || !childNodes.isEmpty()) {
-            final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
-            result.setExpanded(true);
-            for (TreeNode childView : childNodes) {
-                childView.setParent(result);
-            }
-            return result;
-        } else {
-            return null;
-        }
+        }.applyFilter(node);
     }
 
 
     private void showMessage(FacesMessage.Severity severity, String summary, String message) {
         final FacesContext context = FacesContext.getCurrentInstance();
         context.addMessage(null, new FacesMessage(severity, summary, message));
+    }
+    
+    private enum NamePartDisplayFilter {
+        APPROVED_AND_PROPOSED, APPROVED, PROPOSED, PROPOSED_BY_ME, ARCHIVED
     }
 }
