@@ -62,7 +62,7 @@
 			<p:treeTable id="devicesTree" value="#{devicesController.viewRoot}"
 				resizableColumns="true" liveResize="true" var="namePart"
 				selection="#{devicesController.selectedNodes}"
-				selectionMode="multiple" scrollable="true" scrollWidth="auto"
+				selectionMode="multiple" scrollable="true" scrollWidth="100%"
 				rowStyleClass="Approved" style="padding-top:5px;">
 				<p:ajax event="select"
 					update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />
@@ -176,27 +176,18 @@
 				<f:facet name="header">
 					<h:outputText value="Batch Import Device Names From Excell File" />
 				</f:facet>
-				
-                
-                
-                 <h:outputText value="Select excell file to upload device names from" />
-	                    
-				 <p:fileUpload fileUploadListener="#{devicesController.handleFileUpload}" mode="advanced" dragDropSupport="false" showButtons="false"
-			                  update="messages" fileLimit="1" allowTypes="/(\.|\/)(xlsx|xls)$/"  />
-				
-				
+				<h:outputText value="Select excell file to upload device names from" />
+				<div style="border: 1px solid #a8a8a8; padding: 5px">
+					<p:fileUpload fileUploadListener="#{devicesController.handleFileUpload}" mode="advanced" dragDropSupport="false" showButtons="false" update="messages" fileLimit="1" allowTypes="/(\.|\/)(xlsx|xls)$/" />
+					<p:separator />
+					
+					<p:commandButton id="downloadLink" value="Download Import Template" ajax="false" icon="ui-icon-disk">
+						<p:fileDownload	value="#{devicesController.downloadableNamesTemplate}" />
+					</p:commandButton>
 
-				<p:separator />
-				<h:outputText value="Batch import template file: " />
-				<p:commandButton id="downloadLink" value="Download" ajax="false" icon="ui-icon-disk">  
-                    <p:fileDownload value="#{devicesController.downloadableNamesTemplate}" />  
-                </p:commandButton>  
-                
-                <p:messages id="messages" showDetail="true" autoUpdate="true" closable="true" />        
-				
-				<p:commandButton value="Cancel" style="float: right"
-					onclick="batchImport.hide()" />
-
+					<p:messages id="messages" showDetail="true" autoUpdate="true" closable="true" />
+				</div>
+				<p:commandButton value="Cancel" style="float: right" onclick="batchImport.hide()" />
 			</p:dialog>
 		</h:form>
 	</ui:define>

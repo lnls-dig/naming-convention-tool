@@ -33,7 +33,7 @@ public class DevicesTreeBuilder {
     @Inject private DeviceService deviceService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private ViewFactory viewFactory;
-    private HashMap<Integer,List<Device>> allDevicesForSection = new HashMap<>();
+    private HashMap<Integer,List<Device>> allDevicesForSection;
 	
 	public TreeNode devicesTree(boolean withDeleted) {
 		final List<NamePartRevision> approvedRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(false), new Predicate<NamePartRevision>() {
@@ -46,6 +46,7 @@ public class DevicesTreeBuilder {
         final List<Device> devices = Lists.newArrayList();
         devices.addAll(deviceService.devices(withDeleted));
         
+        allDevicesForSection = new HashMap<>();
         for (Device device : devices) {
         	List<Device> devicesForCurrentSection = Lists.newArrayList();
         	if (allDevicesForSection.containsKey(deviceService.currentRevision(device).getSection().getId())) {

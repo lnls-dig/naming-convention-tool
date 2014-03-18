@@ -32,7 +32,7 @@ import com.google.common.collect.Table;
 
 
 @Stateless
-public class ParserService {
+public class ParsingService {
     @Inject private DeviceService deviceService;
     @Inject private NamePartService namePartService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
@@ -133,25 +133,22 @@ public class ParserService {
     
     
     private void addDeviceName(String section, String subsection, String discipline, String deviceType, String index, int rowCounter) throws Exception {
+    
+        NamePart sectionPart = sectionsTable.get(section, subsection);
+        if (sectionPart == null) {
+            throw new Exception("Error occured in row: "+rowCounter+ ". Logical area part was not fount in the database.");
+        }
+        NamePart typePart = typesTable.get(discipline, deviceType);
+        if (typePart == null) {
+            throw new Exception("Error occured in row: "+rowCounter+ ". Device category part was not fount in the database.");
+        }
         
-            NamePart sectionPart = sectionsTable.get(section, subsection);
-            if (sectionPart == null) {
-                throw new Exception("Error occured in row: "+rowCounter+ ". Logical area part was not fount in the database.");
+        for (DeviceRevision deviceRevision : allDevices) {
+            if (deviceRevision.getSection().equals(sectionPart) && deviceRevision.getDeviceType().equals(typePart) && deviceRevision.getQualifier().equals(index)) {
+                return;
             }
-            NamePart typePart = typesTable.get(discipline, deviceType);
-            if (typePart == null) {
-                throw new Exception("Error occured in row: "+rowCounter+ ". Device category part was not fount in the database.");
-            }
-            
-            for (DeviceRevision deviceRevision : allDevices) {
-                if (deviceRevision.getSection().equals(sectionPart) && deviceRevision.getDeviceType().equals(typePart) && deviceRevision.getQualifier().equals(index)) {
-                    return;
-                }
-            }
-            allDevices.add(deviceService.createDevice(sectionPart, typePart, index, userManager.getUser()));
-            
-        
-        
+        }
+        allDevices.add(deviceService.createDevice(sectionPart, typePart, index, userManager.getUser()));
     }
     
     private void populateSectionsTable(TreeNode node, int level) {
