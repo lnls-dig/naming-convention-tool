@@ -23,8 +23,8 @@
 									<p:ajax listener="#{devicesController.modifyDisplayView}"
 										event="change" update="devicesTree ncReqMenu"
 										oncomplete="resizePanel()" />
-									<f:selectItem itemLabel="Active and Archived" itemValue="1" />
-									<f:selectItem itemLabel="Active Only" itemValue="2" />
+									<f:selectItem itemLabel="Active" itemValue="0" />
+									<f:selectItem itemLabel="Archived" itemValue="1" />
 								</p:selectOneMenu>
 							</h:panelGrid>
 						</div>
