@@ -289,7 +289,7 @@ public class NamePartsController implements Serializable {
         final String postfix;
         if (change == null) {
             postfix = "Approved";
-        } else if (change instanceof NamePartView.ModifyChange && !(isFullName && ((ModifyChange) change).getNewFullName() != null) || !isFullName && ((ModifyChange) change).getNewName() != null) {
+        } else if (change instanceof NamePartView.ModifyChange && !((isFullName && ((ModifyChange) change).getNewFullName() != null) || !isFullName && ((ModifyChange) change).getNewName() != null)) {
             postfix = "Approved";
         } else if (change.getStatus() == NamePartRevisionStatus.APPROVED) {
             postfix = "Approved";
