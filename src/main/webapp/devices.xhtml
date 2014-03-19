@@ -178,7 +178,7 @@
 					<p:fileUpload fileUploadListener="#{devicesController.handleFileUpload}" mode="advanced" dragDropSupport="false" showButtons="false" update="messages" fileLimit="1" allowTypes="/(\.|\/)(xlsx|xls)$/" />
 					<p:separator />
 					
-					<p:commandButton id="downloadLink" value="Download Import Template" ajax="false" icon="ui-icon-disk">
+					<p:commandButton id="downloadLink" value="Download Import Template" ajax="false" icon="ui-icon-disk" onclick="PrimeFaces.monitorDownload(start, stop)">
 						<p:fileDownload	value="#{devicesController.downloadableNamesTemplate}" />
 					</p:commandButton>
 

@@ -30,14 +30,21 @@
     		$(window).ready(function() {
                 resizePanel();
             });
+
+    		function start() {  
+    		    statusDialog.show();  
+    		}  
+    		  
+    		function stop() {  
+    		    statusDialog.hide();  
+    		}  
     	</script>
         <link rel="shortcut icon" href="resources/images/proteus.ico" />
         <title>Naming Convention Tool</title>
     </h:head>
 
     <h:body>
-
-        <div id="full">
+         <div id="full">
             <p:panel id="logoPanel" styleClass="Logo">
                 <h:outputText value="#{msgs.title}"  styleClass="title"/>
                 <h:panelGroup style="float:  right; font-size:  x-small">
@@ -55,6 +62,9 @@
                 <ui:insert name="content">Content</ui:insert>
             </div>
         </div>
+        <p:dialog modal="true" widgetVar="statusDialog" showHeader="false" draggable="false" closable="false" resizable="false">  
+            <p:graphicImage value="/resources/images/ajax-loader.gif" />  
+        </p:dialog>  
     </h:body>
 
 </html>

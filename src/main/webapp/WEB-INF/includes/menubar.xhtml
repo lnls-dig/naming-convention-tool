@@ -16,6 +16,11 @@
             <p:menuitem value="Logical Area Structure" icon="ui-icon-folder-open" url="parts.xhtml?type=section" />
             <p:menuitem value="Device Category Structure" icon="ui-icon-lightbulb" url="parts.xhtml?type=deviceType" />
             <p:menuitem value="Device Names" icon="ui-icon-wrench" url="devices.xhtml"/>
+            <p:submenu label="Tools">
+                <p:menuitem value="Export Approved Data" ajax="false" icon="ui-icon-disk" immediate="true" onclick="PrimeFaces.monitorDownload(start, stop)">
+                    <p:fileDownload value="#{devicesController.allDataExport}" />
+                </p:menuitem>
+            </p:submenu>
             <p:menuitem value="Preferences" title="Preferences" icon="ui-icon-gear" url="preferences.xhtml" />
             <p:submenu label="Help" icon="ui-icon-help">
                 <p:menuitem value=" Online Help" icon="ui-icon-help" url="help.xhtml" />
