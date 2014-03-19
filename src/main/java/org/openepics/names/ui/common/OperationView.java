@@ -8,14 +8,16 @@ import java.util.List;
 /**
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
-public class OperationTreeNode extends DefaultTreeNode {
+public class OperationView<T> {
 
+    private final T data;
     private final boolean isAffected;
 
-    public OperationTreeNode(Object data, boolean isAffected) {
-        super(data, null);
+    public OperationView(T data, boolean isAffected) {
+        this.data = data;
         this.isAffected = isAffected;
     }
 
+    public T getNamePartView() { return data; }
     public boolean isAffected() { return isAffected; }
 }

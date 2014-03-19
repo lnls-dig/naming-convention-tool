@@ -29,6 +29,7 @@ import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.ParsingService;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
+import org.openepics.names.ui.common.OperationsTreePreview;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.ui.parts.NamePartView;
@@ -80,21 +81,10 @@ public class DevicesController implements Serializable {
     }
 
     public void onAdd() {
-        // TODO solve generically and for specific + generic device
         try {
-            if (selectedSection == null || selectedDeviceType == null) {
-                showMessage(FacesMessage.SEVERITY_ERROR, "Error", "Required field missing");
-                return;
-            }
-
-            final NamePartView subsection = (NamePartView)(selectedSection.getData());
-            final NamePartView device = (NamePartView)(selectedDeviceType.getData());
-
-            if (subsection == null || device == null) {
-                showMessage(FacesMessage.SEVERITY_ERROR, "Error", "Required field missing");
-                return;
-            }
-            DeviceRevision rev = deviceService.createDevice(subsection.getNamePart(), device.getNamePart(), deviceQuantifier);
+            final NamePartView subsection = (NamePartView) selectedSection.getData();
+            final NamePartView device = (NamePartView) selectedDeviceType.getData();
+            final DeviceRevision rev = deviceService.createDevice(subsection.getNamePart(), device.getNamePart(), deviceQuantifier);
             showMessage(FacesMessage.SEVERITY_INFO, "Device Name successfully added.", "Name: " + viewFactory.getView(rev).getConventionName());
         } finally {
             init();
@@ -102,13 +92,10 @@ public class DevicesController implements Serializable {
     }
 
     public void onModify() {
-        // TODO solve generically and for specific + generic device
         try {
-
         	final NamePartView subsection = (NamePartView)(selectedSection.getData());
             final NamePartView device = (NamePartView)(selectedDeviceType.getData());
             deviceService.modifyDevice(selectedDeviceName.getDevice().getDevice(), subsection.getNamePart(), device.getNamePart(), deviceQuantifier);
-
             showMessage(FacesMessage.SEVERITY_INFO, "Device modified.", "Name: [TODO]");
         } finally {
             init();
@@ -206,8 +193,9 @@ public class DevicesController implements Serializable {
         selectedDeviceName = null;
     }
 
-    public void setSelectedNodes(TreeNode[] selectedNodes) {
+    public void setSelectedNodes(@Nullable TreeNode[] selectedNodes) {
     	this.selectedNodes = selectedNodes != null ? selectedNodes : new TreeNode[0];
+
         selectedDeviceName = null;
         selectedSection = null;
     	
@@ -218,43 +206,26 @@ public class DevicesController implements Serializable {
             	selectedSection = this.selectedNodes[0];
             }
         }
-        deleteView = deleteView(viewRoot, SelectionMode.MANUAL);
+        deleteView = deleteView(viewRoot);
+    }
+
+    public @Nullable NamePartView getSelectedName() {
+        return (selectedNodes != null && selectedNodes.length > 0) ? (NamePartView)(selectedNodes[0].getData()) : null;
     }
 
     public TreeNode getViewRoot() { return viewRoot; }
-
     public TreeNode getDeleteView() { return deleteView; }
 
     public boolean canDelete() { return deleteView != null; }
-
-    public boolean canAdd() {
-        if (selectedNodes != null && selectedNodes.length == 1 && selectedNodes[0].getData() instanceof NamePartView && ((NamePartView)selectedNodes[0].getData()).getLevel() == 2) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean canShowHistory() {
-        if(selectedNodes != null && selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean canModify() {
-        if(selectedNodes != null && selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView && !((DeviceView)selectedNodes[0].getData()).getDevice().isDeleted()) {
-            return true;
-        }
-        return false;
-    }
+    public boolean canAdd() { return selectedNodes != null && selectedNodes.length == 1 && selectedNodes[0].getData() instanceof NamePartView && ((NamePartView)selectedNodes[0].getData()).getLevel() == 2; }
+    public boolean canShowHistory() { return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView; }
+    public boolean canModify() { return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView && !((DeviceView)selectedNodes[0].getData()).getDevice().isDeleted(); }
 
     public void prepareForAdd() {
         final List<NamePartRevision> currentApprovedRevisions = namePartService.currentApprovedRevisions(false);
-
         final List<NamePartRevision> approvedDeviceTypeRevisions = ImmutableList.copyOf(Collections2.filter(currentApprovedRevisions, new Predicate<NamePartRevision>() {
             @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.DEVICE_TYPE; }
         }));
-
         final List<NamePartRevision> emptyPending = new ArrayList<>();
         deviceTypes = namePartTreeBuilder.namePartApprovalTree(approvedDeviceTypeRevisions, emptyPending, false, 2);
     }
@@ -335,57 +306,12 @@ public class DevicesController implements Serializable {
         context.addMessage(null, new FacesMessage(severity, summary, message));
     }
 
-    private enum SelectionMode { MANUAL, AUTO, DISABLED }
-
-    private @Nullable TreeNode deleteView(TreeNode node, SelectionMode selectionMode) {
-    	@Nullable NamePartView nodeView = null;
-    	@Nullable DeviceView deviceNodeView = null;
-    	if(node.getData() instanceof NamePartView) {
-    		nodeView = (NamePartView) node.getData();
-    	} else {
-    		deviceNodeView = (DeviceView) node.getData();
-    	}
-
-        final SelectionMode childrenSelectionMode;
-        if (selectionMode == SelectionMode.AUTO) {
-            childrenSelectionMode = SelectionMode.AUTO;
-        } else if (selectionMode == SelectionMode.MANUAL) {
-            if ((nodeView != null || deviceNodeView != null)
-                    && node.isSelected()) {
-                childrenSelectionMode = SelectionMode.AUTO;
-            } else {
-                childrenSelectionMode = SelectionMode.MANUAL;
-            }
-        } else if (selectionMode == SelectionMode.DISABLED) {
-            childrenSelectionMode = SelectionMode.DISABLED;
-        } else {
-            throw new IllegalStateException();
-        }
-
-        final List<TreeNode> childViews = Lists.newArrayList();
-        for (TreeNode child : node.getChildren()) {
-            final TreeNode childView = deleteView(child, childrenSelectionMode);
-            if (childView != null) {
-                childViews.add(childView);
-            }
-        }
-
-        final boolean affectNode = (deviceNodeView != null && !deviceNodeView.getDevice().isDeleted()) && (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected()));
-        if (affectNode || !childViews.isEmpty()) {
-        	final TreeNode result;
-        	if (nodeView != null) {
-        		result = new DefaultTreeNode(nodeView != null ? new OperationNamePartView(nodeView, affectNode) : null, null);
-        	} else {
-        		result = new DefaultTreeNode(deviceNodeView != null ? new OperationDeviceView(deviceNodeView, affectNode) : null, null);
-        	}
-            result.setExpanded(true);
-            for (TreeNode childView : childViews) {
-                childView.setParent(result);
-            }
-            return result;
-        } else {
-            return null;
-        }
+    private @Nullable TreeNode deleteView(TreeNode node) {
+        return (new OperationsTreePreview<Object>() {
+            @Override protected boolean isAffected(Object nodeView) { return nodeView instanceof DeviceView && !(((DeviceView) nodeView).getDevice().isDeleted()); }
+            @Override protected boolean autoSelectChildren(Object nodeView) { return true; }
+            @Override protected boolean ignoreSelectedChildren(Object nodeView, boolean isSelected) { return false; }
+        }).apply(node);
     }
     
     private enum DevicesViewFilter {

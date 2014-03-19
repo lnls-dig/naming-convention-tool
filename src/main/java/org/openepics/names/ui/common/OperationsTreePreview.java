@@ -1,6 +1,8 @@
 package org.openepics.names.ui.common;
 
 import com.google.common.collect.Lists;
+import org.openepics.names.util.As;
+import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
 import javax.annotation.Nullable;
@@ -10,24 +12,24 @@ import java.util.List;
 * @author Marko Kolar <marko.kolar@cosylab.com>
 */
 public abstract class OperationsTreePreview<T> {
-    protected abstract boolean nodeIsAffected(@Nullable T nodeView);
-    protected abstract boolean selectionModeAuto(@Nullable T nodeView);
-    protected abstract boolean selectionModeDisabled(@Nullable T nodeView, boolean isSelected);
+    protected abstract boolean isAffected(T nodeView);
+    protected abstract boolean autoSelectChildren(T nodeView);
+    protected abstract boolean ignoreSelectedChildren(T nodeView, boolean isSelected);
 
-    public OperationTreeNode apply(TreeNode node) {
+    public @Nullable TreeNode apply(TreeNode node) {
         return view(node, SelectionMode.MANUAL);
     }
 
-    private OperationTreeNode view(TreeNode node, SelectionMode selectionMode) {
+    private @Nullable TreeNode view(TreeNode node, SelectionMode selectionMode) {
         final @Nullable T data = (T) node.getData();
 
         final SelectionMode childrenSelectionMode;
         if (selectionMode == SelectionMode.AUTO) {
             childrenSelectionMode = SelectionMode.AUTO;
         } else if (selectionMode == SelectionMode.MANUAL) {
-            if (node.isSelected() && selectionModeAuto(data)) {
+            if (node.isSelected() && data != null && autoSelectChildren(As.notNull(data))) {
                 childrenSelectionMode = SelectionMode.AUTO;
-            } else if (selectionModeDisabled(data, node.isSelected())) {
+            } else if (data != null && ignoreSelectedChildren(As.notNull(data), node.isSelected())) {
                 childrenSelectionMode = SelectionMode.DISABLED;
             } else {
                 childrenSelectionMode = SelectionMode.MANUAL;
@@ -46,9 +48,9 @@ public abstract class OperationsTreePreview<T> {
             }
         }
 
-        final boolean affectNode = (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected())) && nodeIsAffected(data);
+        final boolean affectNode = (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected())) && isAffected(data);
         if (affectNode || !childViews.isEmpty() ) {
-            final OperationTreeNode result = new OperationTreeNode(data, affectNode);
+            final TreeNode result = new DefaultTreeNode(new OperationView<T>(data, affectNode), null);
             result.setExpanded(true);
             for (TreeNode childView : childViews) {
                 childView.setParent(result);

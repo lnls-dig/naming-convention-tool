@@ -36,14 +36,10 @@ import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
-import org.openepics.names.ui.common.OperationTreeNode;
-import org.openepics.names.ui.common.OperationsTreePreview;
-import org.openepics.names.ui.common.UserManager;
-import org.openepics.names.ui.common.ViewFactory;
+import org.openepics.names.ui.common.*;
 import org.openepics.names.ui.parts.NamePartView.Change;
 import org.openepics.names.ui.parts.NamePartView.ModifyChange;
 import org.openepics.names.util.Marker;
-import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
 
@@ -68,9 +64,9 @@ public class NamePartsController implements Serializable {
     private TreeNode viewRoot;
     private TreeNode[] selectedNodes;
 
-    private OperationTreeNode deleteView;
-    private OperationTreeNode approveView;
-    private OperationTreeNode cancelView;
+    private TreeNode deleteView;
+    private TreeNode approveView;
+    private TreeNode cancelView;
 
 
     private String newCode;
@@ -110,9 +106,7 @@ public class NamePartsController implements Serializable {
         final List<NamePartRevision> pendingRevisions;
         if (withModifications) {
             pendingRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentPendingRevisions(true), new Predicate<NamePartRevision>() {
-                @Override public boolean apply(NamePartRevision revision) {
-                    return revision.getNamePart().getNamePartType() == namePartType;
-                }
+                @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
             }));
         } else {
             pendingRevisions = Lists.newArrayList();
@@ -185,13 +179,12 @@ public class NamePartsController implements Serializable {
     }
 
     public String getRequestType(NamePartView req) {
-        // TODO after checking the parts-request-proc.xhtml, remove everything related to 'Change'
         final Change change = req.getPendingChange();
         if (change instanceof NamePartView.AddChange) return "Add request";
         else if (change instanceof NamePartView.ModifyChange) return "Modify request";
         else if (change instanceof NamePartView.DeleteChange) return "Delete request";
         else if (req.isDeleted()) return "Deleted" ;
-        else return "";
+        else throw new IllegalStateException();
     }
 
     public String getNewName(NamePartView req) {
@@ -213,10 +206,10 @@ public class NamePartsController implements Serializable {
         }
     }
 
-    public String getOperationsNewFullName(NamePartView req) {
+    public String getOperationsNewFullName(OperationView<NamePartView> opReq) {
+        final NamePartView req = opReq.getNamePartView();
         final Change change = req.getPendingChange();
-        if (change instanceof NamePartView.ModifyChange && ((NamePartView.ModifyChange)change).getNewFullName() != null
-        		&& !((NamePartView.ModifyChange)change).getNewFullName().equals("")) {
+        if (change instanceof NamePartView.ModifyChange && ((NamePartView.ModifyChange)change).getNewFullName() != null && !((NamePartView.ModifyChange) change).getNewFullName().equals("")) {
             return ((NamePartView.ModifyChange)change).getNewFullName();
         } else {
             return req.getFullName();
@@ -229,12 +222,11 @@ public class NamePartsController implements Serializable {
 
     public boolean isModified(NamePartView req, boolean isFullName) {
     	if (req.getPendingChange() instanceof NamePartView.ModifyChange) {
-	    	ModifyChange modifyChange = (ModifyChange) req.getPendingChange();
-	    	if ((isFullName && modifyChange.getNewFullName() != null) || !isFullName && modifyChange.getNewName() != null) {
-	    		return true;
-	    	}
-    	}
-    	return false;
+	    	final ModifyChange modifyChange = (ModifyChange) req.getPendingChange();
+	    	return ((isFullName && modifyChange.getNewFullName() != null) || !isFullName && modifyChange.getNewName() != null);
+    	} else {
+    	    return false;
+        }
     }
 
     public void setViewFilter(int filter) { displayView = NamePartDisplayFilter.values()[filter]; }
@@ -306,7 +298,6 @@ public class NamePartsController implements Serializable {
         return prefix + "-" + postfix;
     }
 
-
     public String nameStatus(NamePartRevision nreq) {
         switch (nreq.getStatus()) {
             case PENDING: return "In-Process";
@@ -328,11 +319,7 @@ public class NamePartsController implements Serializable {
     }
 
     public void findHistory() {
-        if (getSelectedName() == null) {
-            historyEvents = null;
-            return;
-        }
-        historyEvents = Lists.newArrayList(Lists.transform(namePartService.revisions(getSelectedName().getNamePart()), new Function<NamePartRevision, NamePartView>() {
+        historyEvents = getSelectedName() == null ? null : Lists.newArrayList(Lists.transform(namePartService.revisions(getSelectedName().getNamePart()), new Function<NamePartRevision, NamePartView>() {
             @Override public NamePartView apply(NamePartRevision revision) {
                 return viewFactory.getView(revision);
             }
@@ -344,21 +331,13 @@ public class NamePartsController implements Serializable {
     }
 
     public List<NamePartView> findHistory(NamePartView selectedName) {
-
-    	List<NamePartView> historyEvents = Lists.newArrayList(Lists.transform(namePartService.revisions(selectedName.getNamePart()), new Function<NamePartRevision, NamePartView>() {
-            @Override public NamePartView apply(NamePartRevision revision) {
-                return viewFactory.getView(revision);
-            }
+    	return Lists.newArrayList(Lists.transform(namePartService.revisions(selectedName.getNamePart()), new Function<NamePartRevision, NamePartView>() {
+            @Override public NamePartView apply(NamePartRevision revision) { return viewFactory.getView(revision); }
         }));
-    	return historyEvents;
     }
 
     public @Nullable NamePartView getSelectedName() {
-    	if (selectedNodes != null) {
-    		return selectedNodes.length < 1 ? null : (NamePartView)(selectedNodes[0].getData());
-    	} else {
-    		return null;
-    	}
+    	return (selectedNodes != null && selectedNodes.length > 0) ? (NamePartView)(selectedNodes[0].getData()) : null;
     }
 
     public String getNewCode() {
@@ -405,21 +384,14 @@ public class NamePartsController implements Serializable {
     }
 
     public TreeNode getDeleteView() { return deleteView; }
-
     public TreeNode getApproveView() { return approveView; }
-
     public TreeNode getCancelView() { return cancelView; }
 
     public boolean canAdd() { return selectedNodes.length == 0 || (selectedNodes.length == 1 && !((NamePartView) selectedNodes[0].getData()).getPendingOrElseCurrentRevision().isDeleted()); }
-
     public boolean canDelete() { return deleteView != null; }
-
     public boolean canModify() { return selectedNodes.length == 1 && !((NamePartView) selectedNodes[0].getData()).getPendingOrElseCurrentRevision().isDeleted(); }
-
     public boolean canApprove() { return approveView != null; }
-
     public boolean canCancel() { return cancelView != null; }
-
     public boolean canShowHistory() { return selectedNodes.length == 1; }
 
     public void updateOperationViews() {
@@ -437,99 +409,67 @@ public class NamePartsController implements Serializable {
     	}
     }
 
-    private List<NamePartView> linearizedTargets(OperationTreeNode node) {
-        final @Nullable NamePartView nodeView = (NamePartView) node.getData();
+    private List<NamePartView> linearizedTargets(TreeNode node) {
+        final @Nullable OperationView<NamePartView> operationView = (OperationView<NamePartView>) node.getData();
         final List<NamePartView> targets = Lists.newArrayList();
-        if (node.isAffected() && nodeView != null) {
-            targets.add(nodeView);
+        if (operationView != null && operationView.isAffected()) {
+            targets.add(operationView.getNamePartView());
         }
         for (TreeNode child : node.getChildren()) {
-            targets.addAll(linearizedTargets((OperationTreeNode) child));
+            targets.addAll(linearizedTargets(child));
         }
         return targets;
     }
 
-    private List<NamePartView> linearizedTargetsForDelete(OperationTreeNode node) {
-        final @Nullable NamePartView nodeView = (NamePartView) node.getData();
+    private List<NamePartView> linearizedTargetsForDelete(TreeNode node) {
+        final @Nullable OperationView<NamePartView> operationView = (OperationView<NamePartView>) node.getData();
         final List<NamePartView> targets = Lists.newArrayList();
-        if (node.isAffected() && nodeView != null) {
-            targets.add(nodeView);
+        if (operationView != null && operationView.isAffected()) {
+            targets.add(operationView.getNamePartView());
         }
-        if (nodeView == null || !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange)) {
+        if (operationView == null || !(operationView.getNamePartView().getPendingChange() instanceof NamePartView.DeleteChange)) {
             for (TreeNode child : node.getChildren()) {
-                targets.addAll(linearizedTargets((OperationTreeNode) child));
+                targets.addAll(linearizedTargets(child));
             }
         }
         return targets;
     }
 
-    private @Nullable OperationTreeNode deleteView(TreeNode node) {
-        return new OperationsTreePreview<NamePartView>() {
-            @Override protected boolean nodeIsAffected(NamePartView nodeView) { return nodeView != null && !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange); }
-            @Override protected boolean selectionModeAuto(NamePartView nodeView) { return nodeView != null && !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange); }
-            @Override protected boolean selectionModeDisabled(NamePartView nodeView, boolean isSelected) { return nodeView != null && nodeView.getPendingChange() instanceof NamePartView.AddChange; }
-        }.apply(node);
+    private @Nullable TreeNode deleteView(TreeNode node) {
+        return (new OperationsTreePreview<NamePartView>() {
+            @Override protected boolean isAffected(NamePartView nodeView) { return !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange); }
+            @Override protected boolean autoSelectChildren(NamePartView nodeView) { return !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange); }
+            @Override protected boolean ignoreSelectedChildren(NamePartView nodeView, boolean isSelected) { return nodeView.getPendingChange() instanceof NamePartView.AddChange; }
+        }).apply(node);
     }
 
-    private @Nullable OperationTreeNode approveView(TreeNode node) {
-        return new OperationsTreePreview<NamePartView>() {
-            @Override protected boolean nodeIsAffected(NamePartView nodeView) { return nodeView != null && nodeView.getPendingChange() != null; }
-            @Override protected boolean selectionModeAuto(NamePartView nodeView) { return nodeView != null && (nodeView.getPendingChange() instanceof NamePartView.DeleteChange); }
-            @Override protected boolean selectionModeDisabled(NamePartView nodeView, boolean isSelected) { return nodeView != null && nodeView.getPendingChange() instanceof NamePartView.AddChange && !isSelected; }
-        }.apply(node);
+    private @Nullable TreeNode approveView(TreeNode node) {
+        return (new OperationsTreePreview<NamePartView>() {
+            @Override protected boolean isAffected(NamePartView nodeView) { return nodeView.getPendingChange() != null; }
+            @Override protected boolean autoSelectChildren(NamePartView nodeView) { return nodeView.getPendingChange() instanceof NamePartView.DeleteChange; }
+            @Override protected boolean ignoreSelectedChildren(NamePartView nodeView, boolean isSelected) { return nodeView.getPendingChange() instanceof NamePartView.AddChange && !isSelected; }
+        }).apply(node);
     }
 
-    private @Nullable OperationTreeNode cancelView(TreeNode node) {
-        return new OperationsTreePreview<NamePartView>() {
-            @Override protected boolean nodeIsAffected(NamePartView nodeView) { return nodeView != null && nodeView.getPendingChange() != null; }
-            @Override protected boolean selectionModeAuto(NamePartView nodeView) { return nodeView != null && !(nodeView.getPendingChange() instanceof NamePartView.ModifyChange); }
-            @Override protected boolean selectionModeDisabled(NamePartView nodeView, boolean isSelected) { return nodeView != null && nodeView.getPendingChange() instanceof NamePartView.DeleteChange; }
-        }.apply(node);
-    }
-
-    abstract class TreeViewFilter {
-        
-        protected abstract boolean addToTreeView(List<TreeNode> childNodes, @Nullable NamePartView nodeView);
-        
-        public TreeNode applyFilter(TreeNode node) {
-            final List<TreeNode> childNodes = Lists.newArrayList();
-            for (TreeNode child : node.getChildren()) {
-                final TreeNode childView = applyFilter(child);
-                if (childView != null) {
-                    childNodes.add(childView);
-                }
-            }
-            
-            final @Nullable NamePartView nodeView = (NamePartView) node.getData();
-            if (addToTreeView(childNodes, nodeView)) {
-                final TreeNode result = new DefaultTreeNode(nodeView != null ? viewFactory.getView(nodeView.getCurrentRevision(), nodeView.getPendingRevision()) : null, null);
-                result.setExpanded(true);
-                for (TreeNode childView : childNodes) {
-                    childView.setParent(result);
-                }
-                return result;
-            } else {
-                return null;
-            }
-        }
+    private @Nullable TreeNode cancelView(TreeNode node) {
+        return (new OperationsTreePreview<NamePartView>() {
+            @Override protected boolean isAffected(NamePartView nodeView) { return nodeView.getPendingChange() != null; }
+            @Override protected boolean autoSelectChildren(NamePartView nodeView) { return !(nodeView.getPendingChange() instanceof NamePartView.ModifyChange); }
+            @Override protected boolean ignoreSelectedChildren(NamePartView nodeView, boolean isSelected) { return nodeView.getPendingChange() instanceof NamePartView.DeleteChange; }
+        }).apply(node);
     }
 
     private @Nullable TreeNode onlyProposedView(TreeNode node) {
-        return new TreeViewFilter() {
-            @Override protected boolean addToTreeView(List<TreeNode> childNodes, NamePartView nodeView) {
-                return nodeView != null && nodeView.getPendingChange() != null && (userManager.getUser() == null || nodeView.getPendingRevision().getRequestedBy().equals(userManager.getUser())) || childNodes.size() > 0;
-            }
-        }.applyFilter(node);        
+        return (new TreeViewFilter() {
+            @Override protected boolean addToTreeView(NamePartView nodeView) { return nodeView.getPendingChange() != null && (userManager.getUser() == null || nodeView.getPendingRevision().getRequestedBy().equals(userManager.getUser())); }
+        }).apply(node);
     }
 
     private @Nullable TreeNode approvedAndProposedView(TreeNode node) {
-        return new TreeViewFilter() {
-            @Override protected boolean addToTreeView(List<TreeNode> childNodes, NamePartView nodeView) {
-                return (nodeView != null && (viewWithDeletions || !nodeView.isDeleted())) || !childNodes.isEmpty();
-            }
-        }.applyFilter(node);
+        return (new TreeViewFilter() {
+            @Override protected boolean addToTreeView(NamePartView nodeView) { return viewWithDeletions || !nodeView.isDeleted(); }
+        }).apply(node);
     }
-
 
     private void showMessage(FacesMessage.Severity severity, String summary, String message) {
         final FacesContext context = FacesContext.getCurrentInstance();
