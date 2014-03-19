@@ -1,11 +1,19 @@
-package org.openepics.names.services;
+package org.openepics.names.ui.devices;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
+import javax.imageio.stream.FileImageInputStream;
 import javax.inject.Inject;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -17,7 +25,10 @@ import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
+import org.openepics.names.services.restricted.RestrictedDeviceService;
+import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.common.UserManager;
+import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.ui.parts.NamePartView;
 import org.primefaces.model.TreeNode;
@@ -32,17 +43,17 @@ import com.google.common.collect.Table;
 
 
 @Stateless
-public class ParsingService {
-    @Inject private DeviceService deviceService;
-    @Inject private NamePartService namePartService;
+public class ExcellImport {
+    @Inject private RestrictedDeviceService deviceService;
+    @Inject private RestrictedNamePartService namePartService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
-    @Inject private UserManager userManager;
     
     private Table<String, String, NamePart> sectionsTable, typesTable;
     private List<DeviceRevision> allDevices;
+    private TreeNode sectionsTree, typesTree;
     
     public void parseDeviceImportFile(InputStream file) throws Exception {
-        buildNamePartTrees();
+        organizeDataFromDatabase(true);
         int rowCounter = 2;
         
         
@@ -109,28 +120,38 @@ public class ParsingService {
         }
     }
     
-    private void buildNamePartTrees() {
-        final List<NamePartRevision> approvedSectionsRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(false), new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.SECTION; }
-        }));        
-        
-        final List<NamePartRevision> pendingRevisions = Lists.newArrayList();        
-        sectionsTable = HashBasedTable.create();
-       
-        populateSectionsTable(namePartTreeBuilder.namePartApprovalTree(approvedSectionsRevisions, pendingRevisions, true),0);
-        final List<NamePartRevision> approvedTypeRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(false), new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.DEVICE_TYPE; }
-        }));
-        
-        typesTable = HashBasedTable.create();
-        populateTypesTable(namePartTreeBuilder.namePartApprovalTree(approvedTypeRevisions, pendingRevisions, true),0, "");
-        
+    
+    
+    private void organizeDataFromDatabase(boolean isImport) {
+        buildNamePartTrees();
+        buildMappingTables();
+               
         allDevices = Lists.newArrayList();
         for (Device device : deviceService.devices(false)) {
             allDevices.add(deviceService.currentRevision(device));
         }
     }
     
+    private void buildNamePartTrees() {
+        final List<NamePartRevision> approvedSectionsRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(false), new Predicate<NamePartRevision>() {
+            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.SECTION; }
+        })); 
+        
+        final List<NamePartRevision> pendingRevisions = Lists.newArrayList();  
+        sectionsTree = namePartTreeBuilder.namePartApprovalTree(approvedSectionsRevisions, pendingRevisions, true);
+        
+        final List<NamePartRevision> approvedTypeRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(false), new Predicate<NamePartRevision>() {
+            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.DEVICE_TYPE; }
+        }));
+        typesTree = namePartTreeBuilder.namePartApprovalTree(approvedTypeRevisions, pendingRevisions, true);
+    }
+    
+    private void buildMappingTables() {
+        sectionsTable = HashBasedTable.create();
+        populateSectionsTable(sectionsTree, 0);
+        typesTable = HashBasedTable.create();
+        populateTypesTable(typesTree, 0, "");
+    }    
     
     private void addDeviceName(String section, String subsection, String discipline, String deviceType, String index, int rowCounter) throws Exception {
     
@@ -148,7 +169,7 @@ public class ParsingService {
                 return;
             }
         }
-        allDevices.add(deviceService.createDevice(sectionPart, typePart, index, userManager.getUser()));
+        allDevices.add(deviceService.createDevice(sectionPart, typePart, index));
     }
     
     private void populateSectionsTable(TreeNode node, int level) {

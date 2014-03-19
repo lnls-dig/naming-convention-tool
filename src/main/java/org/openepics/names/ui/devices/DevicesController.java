@@ -26,10 +26,10 @@ import javax.servlet.ServletContext;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
-import org.openepics.names.services.ParsingService;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.common.ViewFactory;
+import org.openepics.names.ui.export.ExcellExport;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.ui.parts.NamePartView;
 import org.openepics.names.ui.parts.OperationNamePartView;
@@ -50,7 +50,8 @@ public class DevicesController implements Serializable {
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private DevicesTreeBuilder devicesTreeBuilder;
     @Inject private ViewFactory viewFactory;
-    @Inject private ParsingService parserService;
+    @Inject private ExcellImport excellImport;
+    @Inject private ExcellExport excellExport;
 
     private DeviceView selectedDeviceName;
 
@@ -69,14 +70,10 @@ public class DevicesController implements Serializable {
     private String deviceQuantifier;
 
     private DevicesViewFilter displayView = DevicesViewFilter.ACTIVE;
-    
-    private StreamedContent downloadableNamesTemplate;
 
     @PostConstruct
     public void init() {
-        long start = System.currentTimeMillis();
         modifyDisplayView();
-        System.out.println("GENERATING: "+ (double)(System.currentTimeMillis()-start)/1000.0);
     }
 
     public void onAdd() {
@@ -291,7 +288,7 @@ public class DevicesController implements Serializable {
             
         boolean isError = false;
         try {
-            parserService.parseDeviceImportFile(upFile.getInputstream());
+            excellImport.parseDeviceImportFile(upFile.getInputstream());
         } catch (Exception e) {
             isError = true;
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,"Parsing error!", e.getMessage()));
@@ -302,15 +299,14 @@ public class DevicesController implements Serializable {
         
     }
     
-    public void prepareTemplate() {
-        if (downloadableNamesTemplate == null) {
-            InputStream stream = ((ServletContext)FacesContext.getCurrentInstance().getExternalContext().getContext()).getResourceAsStream("/resources/excellTemplateFiles/NamingImportTemplate.xlsx");  
-            downloadableNamesTemplate = new DefaultStreamedContent(stream, "xlsx", "NamingImportTemplate.xlsx");  
-        }
-    }
-    
     public StreamedContent getDownloadableNamesTemplate() {  
-        return downloadableNamesTemplate;  
+        InputStream stream = ((ServletContext)FacesContext.getCurrentInstance().getExternalContext().getContext()).getResourceAsStream("/resources/excellTemplateFiles/NamingImportTemplate.xlsx");  
+        return new DefaultStreamedContent(stream, "xlsx", "NamingImportTemplate.xlsx");  
+    } 
+    
+    public StreamedContent getAllDataExport() {  
+        return new DefaultStreamedContent(excellExport.exportFile(), "xlsx", "export.xlsx");
+
     } 
    
     private TreeNode findSelectedTreeNode(TreeNode node) {

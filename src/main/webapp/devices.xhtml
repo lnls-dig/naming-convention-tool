@@ -52,9 +52,8 @@
 								oncomplete="nameDetail.show()"
 								disabled="#{!devicesController.canShowHistory()}" />
 							<p:menuitem value="Batch Import" icon="ui-icon-folder-open"
-							    actionListener="#{devicesController.prepareTemplate()}"
 								title="Batch Import" update=":batchImportForm"
-								oncomplete="batchImport.show()" />
+								oncomplete="batchImport.show()"/>
 						</p:menuButton></td>
 				</tr>
 			</table>
