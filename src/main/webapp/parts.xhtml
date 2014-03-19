@@ -255,14 +255,14 @@
                         <p:column colspan="2">
                             <p:treeTable value="#{namePartsController.approveView}" var="candidate" resizableColumns="true" liveResize="true" styleClass="previewTreeTable">
                                 <p:column headerText="Name" >
-                                    <h:outputText styleClass="#{namePartsController.getNameClass(candidate.namePartView,true)}" value="#{namePartsController.getOperationsNewFullName(candidate)}" />
+                                    <h:outputText styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.namePartView,true).concat('-New') : ''}" value="#{namePartsController.getOperationsNewFullName(candidate)}" />
                                     <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,true)}" />
-                                    <h:outputText value="(#{candidate.namePartView.fullName})" styleClass="#{namePartsController.getNameClass(candidate.namePartView,true)}-Old" rendered="#{namePartsController.isModified(candidate.namePartView,true)}" />
+                                    <h:outputText value="(#{candidate.namePartView.fullName})" styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.namePartView,true).concat('-Old') : ''}" rendered="#{namePartsController.isModified(candidate.namePartView,true)}" />
                                 </p:column>
                                 <p:column headerText="Mnemonic" style="width: 30%">
-                                    <h:outputText value="#{namePartsController.getNewName(candidate.namePartView)}" styleClass="#{namePartsController.getNameClass(candidate.namePartView,false)}-New" />
+                                    <h:outputText value="#{namePartsController.getNewName(candidate.namePartView)}" styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.namePartView,false).concat('-New') : ''}" />
                                     <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
-                                    <h:outputText value="(#{candidate.namePartView.name})" styleClass="#{namePartsController.getNameClass(candidate.namePartView,false)}-Old" rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
+                                    <h:outputText value="(#{candidate.namePartView.name})" styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.namePartView,false).concat('-Old') : ''}" rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
                                 </p:column>
                             </p:treeTable>
                         </p:column>

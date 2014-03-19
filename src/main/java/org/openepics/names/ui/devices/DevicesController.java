@@ -26,7 +26,7 @@ import javax.servlet.ServletContext;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
-import org.openepics.names.services.ParserService;
+import org.openepics.names.services.ParsingService;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.common.ViewFactory;
@@ -50,7 +50,7 @@ public class DevicesController implements Serializable {
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private DevicesTreeBuilder devicesTreeBuilder;
     @Inject private ViewFactory viewFactory;
-    @Inject private ParserService parserService;
+    @Inject private ParsingService parserService;
 
     private DeviceView selectedDeviceName;
 

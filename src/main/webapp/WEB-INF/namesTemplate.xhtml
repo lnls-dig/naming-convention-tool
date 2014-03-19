@@ -11,25 +11,25 @@
         <link href="resources/css/default.css" rel="stylesheet" type="text/css" />
         <link href="resources/css/cssLayout.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript">
-        function resizePanel() {
-            var menusHeight = $('#logoPanel').outerHeight()+$('#menu').outerHeight()+15;
-            $('#indexDiv').css({"height":window.innerHeight-menusHeight});
-            var headerHeight = $('#ReqSubForm\\:namePartsTree\\:nameDesc').outerHeight();
-            if (headerHeight == null) {
-                headerHeight = $('#ManageNameForm\\:devicesTree\\:devName').outerHeight();
-            }
-            
-            menusHeight = menusHeight+$('#filterTable').outerHeight() + headerHeight + 7;
-            $('.ui-treetable-scrollable-body').css({"height":window.innerHeight-menusHeight});  
-        }
+	        function resizePanel() {
+	            var menusHeight = $('#logoPanel').outerHeight()+$('#menu').outerHeight()+15;
+	            $('#indexDiv').css({"height":window.innerHeight-menusHeight});
+	            var headerHeight = $('#ReqSubForm\\:namePartsTree\\:nameDesc').outerHeight();
+	            if (headerHeight == null) {
+	                headerHeight = $('#ManageNameForm\\:devicesTree\\:devName').outerHeight();
+	            }
+	            
+	            menusHeight = menusHeight+$('#filterTable').outerHeight() + headerHeight + 7;
+	            $('.ui-treetable-scrollable-body').css({"height":window.innerHeight-menusHeight});  
+	        }
 
             $(window).resize(function() {
                 resizePanel();
                 });
 
-    		$(window).ready(function() {
-                resizePanel();
-            });
+    		//$(window).ready(function() {
+              //  resizePanel();
+            //});
     	</script>
         <link rel="shortcut icon" href="resources/images/proteus.ico" />
         <title>Naming Convention Tool</title>
