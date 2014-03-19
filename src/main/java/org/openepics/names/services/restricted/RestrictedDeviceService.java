@@ -30,6 +30,10 @@ public class RestrictedDeviceService {
     public List<DeviceRevision> revisions(Device device) {
         return deviceService.revisions(device);
     }
+    
+    public DeviceRevision currentRevision(Device device) {
+        return deviceService.currentRevision(device);
+    }
 
     public DeviceRevision createDevice(NamePart section, NamePart deviceType, String qualifier) {
         return deviceService.createDevice(section, deviceType, qualifier, sessionService.user());
