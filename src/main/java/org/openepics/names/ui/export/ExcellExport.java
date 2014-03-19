@@ -80,17 +80,11 @@ public class ExcellExport {
     }
     
     private void buildNamePartTrees() {
-        final List<NamePartRevision> approvedSectionsRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(false), new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.SECTION; }
-        })); 
+        final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
+        sectionsTree = namePartTreeBuilder.namePartApprovalTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true);
         
-        final List<NamePartRevision> pendingRevisions = Lists.newArrayList();  
-        sectionsTree = namePartTreeBuilder.namePartApprovalTree(approvedSectionsRevisions, pendingRevisions, true);
-        
-        final List<NamePartRevision> approvedTypeRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(false), new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.DEVICE_TYPE; }
-        }));
-        typesTree = namePartTreeBuilder.namePartApprovalTree(approvedTypeRevisions, pendingRevisions, true);
+        final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
+        typesTree = namePartTreeBuilder.namePartApprovalTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true);
     }
     
     private XSSFWorkbook excellExportWorkbook(TreeNode sectionsTree, TreeNode typesTree) {

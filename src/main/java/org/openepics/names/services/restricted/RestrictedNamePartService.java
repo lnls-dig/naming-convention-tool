@@ -81,12 +81,12 @@ public class RestrictedNamePartService {
         return namePartService.approvedOrPendingNames();
     }
 
-    public List<NamePartRevision> currentApprovedRevisions(boolean includeDeleted) {
-        return namePartService.currentApprovedRevisions(includeDeleted);
+    public List<NamePartRevision> currentApprovedRevisions(NamePartType type, boolean includeDeleted) {
+        return namePartService.currentApprovedRevisions(type, includeDeleted);
     }
 
-    public List<NamePartRevision> currentPendingRevisions(boolean includeDeleted) {
-        return namePartService.currentPendingRevisions(includeDeleted);
+    public List<NamePartRevision> currentPendingRevisions(NamePartType type, boolean includeDeleted) {
+        return namePartService.currentPendingRevisions(type, includeDeleted);
     }
 
     public List<NamePart> namesWithChangesProposedByCurrentUser() {

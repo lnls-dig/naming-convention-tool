@@ -223,19 +223,19 @@ public class NamePartService {
         return approvedOrPendingNames(false);
     }
 
-    public List<NamePartRevision> currentApprovedRevisions(boolean includeDeleted) {
+    public List<NamePartRevision> currentApprovedRevisions(NamePartType type, boolean includeDeleted) {
         if (includeDeleted)
-            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved)", NamePartRevision.class).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
+            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :approved)", NamePartRevision.class).setParameter("type", type).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
         else {
-            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) AND r.deleted = FALSE", NamePartRevision.class).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
+            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :approved) AND r.deleted = FALSE", NamePartRevision.class).setParameter("type", type).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
         }
     }
 
-    public List<NamePartRevision> currentPendingRevisions(boolean includeDeleted) {
+    public List<NamePartRevision> currentPendingRevisions(NamePartType type, boolean includeDeleted) {
         if (includeDeleted)
-            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :pending))", NamePartRevision.class).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
+            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :pending)", NamePartRevision.class).setParameter("type", type).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
         else {
-            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :pending)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePartRevision.class).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
+            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :pending) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePartRevision.class).setParameter("type", type).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
         }
     }
 

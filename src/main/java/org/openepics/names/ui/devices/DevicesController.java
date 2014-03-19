@@ -1,7 +1,6 @@
 package org.openepics.names.ui.devices;
 
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import com.google.common.base.Function;
@@ -33,10 +32,9 @@ import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.export.ExcellExport;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.ui.parts.NamePartView;
-import org.openepics.names.ui.parts.OperationNamePartView;
+import org.openepics.names.util.As;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.DefaultStreamedContent;
-import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.StreamedContent;
 import org.primefaces.model.TreeNode;
 import org.primefaces.model.UploadedFile;
@@ -54,20 +52,16 @@ public class DevicesController implements Serializable {
     @Inject private ExcellImport excellImport;
     @Inject private ExcellExport excellExport;
 
-    private DeviceView selectedDeviceName;
-
     private List<DeviceView> historyDeviceNames;
 
     private TreeNode sections;
     private TreeNode deviceTypes;
-    private TreeNode selectedSection;
-    private TreeNode selectedDeviceType;
     private TreeNode viewRoot;
-    private TreeNode[] selectedNodes;
+    private TreeNode[] selectedNodes = new TreeNode[0];
     private TreeNode deleteView;
 
-    private boolean showDeletedNames = true;
-
+    private TreeNode formSelectedSection;
+    private TreeNode formSelectedDeviceType;
     private String deviceQuantifier;
 
     private DevicesViewFilter displayView = DevicesViewFilter.ACTIVE;
@@ -79,9 +73,9 @@ public class DevicesController implements Serializable {
 
     public void onAdd() {
         try {
-            final NamePartView subsection = (NamePartView) selectedSection.getData();
-            final NamePartView device = (NamePartView) selectedDeviceType.getData();
-            final DeviceRevision rev = deviceService.createDevice(subsection.getNamePart(), device.getNamePart(), deviceQuantifier);
+            final NamePartView subsection = As.notNull(getFormSelectedSection());
+            final NamePartView deviceType = (NamePartView) formSelectedDeviceType.getData();
+            final DeviceRevision rev = deviceService.createDevice(subsection.getNamePart(), deviceType.getNamePart(), deviceQuantifier);
             showMessage(FacesMessage.SEVERITY_INFO, "Device Name successfully added.", "Name: " + viewFactory.getView(rev).getConventionName());
         } finally {
             init();
@@ -90,9 +84,9 @@ public class DevicesController implements Serializable {
 
     public void onModify() {
         try {
-        	final NamePartView subsection = (NamePartView)(selectedSection.getData());
-            final NamePartView device = (NamePartView)(selectedDeviceType.getData());
-            deviceService.modifyDevice(selectedDeviceName.getDevice().getDevice(), subsection.getNamePart(), device.getNamePart(), deviceQuantifier);
+        	final NamePartView subsection = (NamePartView)(formSelectedSection.getData());
+            final NamePartView deviceType = (NamePartView)(formSelectedDeviceType.getData());
+            deviceService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), subsection.getNamePart(), deviceType.getNamePart(), deviceQuantifier);
             showMessage(FacesMessage.SEVERITY_INFO, "Device modified.", "Name: [TODO]");
         } finally {
             init();
@@ -131,37 +125,18 @@ public class DevicesController implements Serializable {
 
 
     public void loadHistory() {
-        if (selectedDeviceName == null) {
-            showMessage(FacesMessage.SEVERITY_ERROR, "Error", "You must select a name first.");
-            historyDeviceNames = null;
-            return;
-        }
-        historyDeviceNames = Lists.transform(deviceService.revisions(selectedDeviceName.getDevice().getDevice()),
-            new Function<DeviceRevision, DeviceView>(){
-                @Override
-                public DeviceView apply(DeviceRevision f) {
-                    return viewFactory.getView(f);
-                }
-            });
-    }
-
-    public DeviceView getSelectedDeviceName() { return selectedDeviceName; }
-    public void setSelectedDeviceName(DeviceView selectedDeviceName) {
-    	this.selectedDeviceName = selectedDeviceName;
+        historyDeviceNames = Lists.transform(deviceService.revisions(As.notNull(getSelectedDevice()).getDevice().getDevice()), new Function<DeviceRevision, DeviceView>(){
+            @Override public DeviceView apply(DeviceRevision f) { return viewFactory.getView(f);}
+        });
     }
 
     public List<DeviceView> getHistoryEvents() { return historyDeviceNames; }
 
-    public boolean isShowDeletedNames() { return showDeletedNames; }
-    public void setShowDeletedNames(boolean showDeletedNames) { this.showDeletedNames = showDeletedNames; }
-
     public TreeNode getSections() { return sections; }
-    public void setSelectedSection(TreeNode selectedSection) { this.selectedSection = selectedSection; }
-    public TreeNode getSelectedSection() { return this.selectedSection; }
 
     public TreeNode getDeviceTypes() { return deviceTypes; }
-    public void setSelectedDeviceType(TreeNode selectedDeviceType) { this.selectedDeviceType = selectedDeviceType; }
-    public TreeNode getSelectedDeviceType() { return this.selectedDeviceType; }
+    public void setFormSelectedDeviceType(TreeNode formSelectedDeviceType) { this.formSelectedDeviceType = formSelectedDeviceType; }
+    public TreeNode getFormSelectedDeviceType() { return this.formSelectedDeviceType; }
 
     public String getDeviceQuantifier() { return deviceQuantifier; }
     public void setDeviceQuantifier(String deviceQuantifier) { this.deviceQuantifier = deviceQuantifier; }
@@ -177,7 +152,6 @@ public class DevicesController implements Serializable {
     }
 
     public void modifyDisplayView() {
-        
         if (displayView == DevicesViewFilter.ACTIVE) {
             viewRoot = devicesTreeBuilder.devicesTree(false);
         } else if (displayView == DevicesViewFilter.ARCHIVED) {
@@ -186,92 +160,58 @@ public class DevicesController implements Serializable {
             throw new IllegalStateException();
         }
         
-        sections = selectedSection = deviceTypes =  selectedDeviceType = null;
-        selectedDeviceName = null;
+        sections = deviceTypes =  formSelectedDeviceType = null;
     }
 
     public void setSelectedNodes(@Nullable TreeNode[] selectedNodes) {
     	this.selectedNodes = selectedNodes != null ? selectedNodes : new TreeNode[0];
 
-        selectedDeviceName = null;
-        selectedSection = null;
-    	
-        if (this.selectedNodes.length > 0) {
-            try {
-            	selectedDeviceName = (DeviceView) this.selectedNodes[0].getData();
-            } catch (ClassCastException e) {
-            	selectedSection = this.selectedNodes[0];
-            }
-        }
         deleteView = deleteView(viewRoot);
     }
 
-    public @Nullable NamePartView getSelectedName() {
-        return (selectedNodes != null && selectedNodes.length > 0) ? (NamePartView)(selectedNodes[0].getData()) : null;
-    }
+    public @Nullable DeviceView getSelectedDevice() { return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView ? (DeviceView) selectedNodes[0].getData() : null; }
+    public @Nullable NamePartView getFormSelectedSection() { return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof NamePartView ? (NamePartView) selectedNodes[0].getData() : null; }
 
     public TreeNode getViewRoot() { return viewRoot; }
     public TreeNode getDeleteView() { return deleteView; }
 
     public boolean canDelete() { return deleteView != null; }
-    public boolean canAdd() { return selectedNodes != null && selectedNodes.length == 1 && selectedNodes[0].getData() instanceof NamePartView && ((NamePartView)selectedNodes[0].getData()).getLevel() == 2; }
-    public boolean canShowHistory() { return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView; }
-    public boolean canModify() { return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView && !((DeviceView)selectedNodes[0].getData()).getDevice().isDeleted(); }
+    public boolean canAdd() { return getFormSelectedSection() != null && getFormSelectedSection().getLevel() == 2; }
+    public boolean canShowHistory() { return getSelectedDevice() != null; }
+    public boolean canModify() { return getSelectedDevice() != null && !getSelectedDevice().getDevice().isDeleted(); }
 
     public void prepareForAdd() {
-        final List<NamePartRevision> currentApprovedRevisions = namePartService.currentApprovedRevisions(false);
-        final List<NamePartRevision> approvedDeviceTypeRevisions = ImmutableList.copyOf(Collections2.filter(currentApprovedRevisions, new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.DEVICE_TYPE; }
-        }));
+        final List<NamePartRevision> approvedDeviceTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
         final List<NamePartRevision> emptyPending = new ArrayList<>();
         deviceTypes = namePartTreeBuilder.namePartApprovalTree(approvedDeviceTypeRevisions, emptyPending, false, 2);
     }
 
     public void prepareForModify() {
-        if (selectedDeviceName == null) {
-            sections = null;
-            deviceTypes = null;
-            return;
-        }
-
-        final List<NamePartRevision> currentApprovedRevisions = namePartService.currentApprovedRevisions(false);
-
-        final List<NamePartRevision> approvedSectionRevisions = ImmutableList.copyOf(Collections2.filter(currentApprovedRevisions, new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.SECTION; }
-        }));
-        final List<NamePartRevision> approvedDeviceTypeRevisions = ImmutableList.copyOf(Collections2.filter(currentApprovedRevisions, new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.DEVICE_TYPE; }
-        }));
+        final List<NamePartRevision> approvedSectionRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
+        final List<NamePartRevision> approvedDeviceTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
 
         final List<NamePartRevision> emptyPending = new ArrayList<>();
 
-        sections = namePartTreeBuilder.namePartApprovalTree(approvedSectionRevisions, emptyPending, false, 2, selectedDeviceName.getSection().getNamePart());
-        deviceTypes = namePartTreeBuilder.namePartApprovalTree(approvedDeviceTypeRevisions, emptyPending, false, 2, selectedDeviceName.getDeviceType().getNamePart());
-        deviceQuantifier = selectedDeviceName.getQualifier();
+        sections = namePartTreeBuilder.namePartApprovalTree(approvedSectionRevisions, emptyPending, false, 2, As.notNull(getSelectedDevice()).getSection().getNamePart());
+        deviceTypes = namePartTreeBuilder.namePartApprovalTree(approvedDeviceTypeRevisions, emptyPending, false, 2, As.notNull(getSelectedDevice()).getDeviceType().getNamePart());
+        deviceQuantifier = As.notNull(getSelectedDevice()).getQualifier();
 
-        selectedSection = findSelectedTreeNode(sections);
-        selectedDeviceType = findSelectedTreeNode(deviceTypes);
-
+        formSelectedSection = findSelectedTreeNode(sections);
+        formSelectedDeviceType = findSelectedTreeNode(deviceTypes);
     }
     
     public void handleFileUpload(FileUploadEvent event) {
-        UploadedFile upFile = event.getFile();
-            
-        boolean isError = false;
+        final UploadedFile upFile = event.getFile();
         try {
             excellImport.parseDeviceImportFile(upFile.getInputstream());
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,"Import successful!",""));
         } catch (Exception e) {
-            isError = true;
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,"Parsing error!", e.getMessage()));
         }
-        if (!isError) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,"Import successfull!",""));
-        }
-        
     }
     
     public StreamedContent getDownloadableNamesTemplate() {  
-        InputStream stream = ((ServletContext)FacesContext.getCurrentInstance().getExternalContext().getContext()).getResourceAsStream("/resources/excellTemplateFiles/NamingImportTemplate.xlsx");  
+        final InputStream stream = ((ServletContext)FacesContext.getCurrentInstance().getExternalContext().getContext()).getResourceAsStream("/resources/excellTemplateFiles/NamingImportTemplate.xlsx");
         return new DefaultStreamedContent(stream, "xlsx", "NamingImportTemplate.xlsx");  
     } 
     
@@ -293,9 +233,7 @@ public class DevicesController implements Serializable {
     	return null;
     }
 
-    public boolean isFormFilled() {
-        return selectedDeviceType != null && selectedSection != null;
-    }
+    public boolean isFormFilled() { return formSelectedSection != null && formSelectedDeviceType != null; }
 
     private void showMessage(FacesMessage.Severity severity, String summary, String message) {
         FacesContext context = FacesContext.getCurrentInstance();

@@ -36,9 +36,7 @@ public class DevicesTreeBuilder {
     private HashMap<Integer,List<Device>> allDevicesForSection;
 	
 	public TreeNode devicesTree(boolean withDeleted) {
-		final List<NamePartRevision> approvedRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(false), new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.SECTION; }
-        }));
+		final List<NamePartRevision> approvedRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
         final List<NamePartRevision> pendingRevisions = Lists.newArrayList();
         
         final TreeNode root = namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, false);

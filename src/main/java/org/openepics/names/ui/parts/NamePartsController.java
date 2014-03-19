@@ -100,18 +100,8 @@ public class NamePartsController implements Serializable {
             throw new IllegalStateException();
         }
 
-        final List<NamePartRevision> approvedRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(true), new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
-        }));
-        final List<NamePartRevision> pendingRevisions;
-        if (withModifications) {
-            pendingRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentPendingRevisions(true), new Predicate<NamePartRevision>() {
-                @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == namePartType; }
-            }));
-        } else {
-            pendingRevisions = Lists.newArrayList();
-        }
-
+        final List<NamePartRevision> approvedRevisions = namePartService.currentApprovedRevisions(namePartType, true);
+        final List<NamePartRevision> pendingRevisions = withModifications ? namePartService.currentPendingRevisions(namePartType, true) : Lists.<NamePartRevision>newArrayList();
         return namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, true);
     }
 

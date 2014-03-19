@@ -66,8 +66,7 @@ public class ExcellImport {
                 rowIterator.next();
             }
             long start = System.currentTimeMillis();
-            while (rowIterator.hasNext()) 
-            {
+            while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
                 Iterator<Cell> cellIterator = row.cellIterator();
                 int cellNumber = 0;
@@ -76,8 +75,7 @@ public class ExcellImport {
                 String discipline = "";
                 String deviceType = "";
                 String index = "";
-                while (cellIterator.hasNext()) 
-                {
+                while (cellIterator.hasNext()) {
                     Cell cell = cellIterator.next();
                     switch (cellNumber) {
                     case 0:
@@ -109,13 +107,10 @@ public class ExcellImport {
                 
                 addDeviceName(section,subsection,discipline,deviceType,index,rowCounter);
                 rowCounter++;
-                
             }
             System.out.println("TIME: "+ (System.currentTimeMillis() - start));
             file.close();
-        } 
-        catch (Exception e) 
-        {
+        } catch (Exception e) {
             throw e;
         }
     }
@@ -133,17 +128,11 @@ public class ExcellImport {
     }
     
     private void buildNamePartTrees() {
-        final List<NamePartRevision> approvedSectionsRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(false), new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.SECTION; }
-        })); 
+        final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
+        sectionsTree = namePartTreeBuilder.namePartApprovalTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true);
         
-        final List<NamePartRevision> pendingRevisions = Lists.newArrayList();  
-        sectionsTree = namePartTreeBuilder.namePartApprovalTree(approvedSectionsRevisions, pendingRevisions, true);
-        
-        final List<NamePartRevision> approvedTypeRevisions = ImmutableList.copyOf(Collections2.filter(namePartService.currentApprovedRevisions(false), new Predicate<NamePartRevision>() {
-            @Override public boolean apply(NamePartRevision revision) { return revision.getNamePart().getNamePartType() == NamePartType.DEVICE_TYPE; }
-        }));
-        typesTree = namePartTreeBuilder.namePartApprovalTree(approvedTypeRevisions, pendingRevisions, true);
+        final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
+        typesTree = namePartTreeBuilder.namePartApprovalTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true);
     }
     
     private void buildMappingTables() {
@@ -154,7 +143,7 @@ public class ExcellImport {
     }    
     
     private void addDeviceName(String section, String subsection, String discipline, String deviceType, String index, int rowCounter) throws Exception {
-    
+
         NamePart sectionPart = sectionsTable.get(section, subsection);
         if (sectionPart == null) {
             throw new Exception("Error occured in row: "+rowCounter+ ". Logical area part was not fount in the database.");
@@ -184,7 +173,6 @@ public class ExcellImport {
                 }  
             }            
         }
-        return;
     }
     
     private void populateTypesTable(TreeNode node, int level, String discipline) {
@@ -201,7 +189,6 @@ public class ExcellImport {
                 }  
             }            
         }
-        return;
     }
     
     
