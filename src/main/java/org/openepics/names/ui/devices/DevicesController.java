@@ -28,13 +28,16 @@ import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.common.OperationsTreePreview;
+import org.openepics.names.ui.common.TreeViewFilter;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.export.ExcelExport;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.ui.parts.NamePartView;
 import org.openepics.names.util.As;
+import org.primefaces.context.RequestContext;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.StreamedContent;
 import org.primefaces.model.TreeNode;
 import org.primefaces.model.UploadedFile;
@@ -57,12 +60,17 @@ public class DevicesController implements Serializable {
     private TreeNode sections;
     private TreeNode deviceTypes;
     private TreeNode viewRoot;
+    private TreeNode viewDevice;
+    
+
     private TreeNode[] selectedNodes = new TreeNode[0];
     private TreeNode deleteView;
 
     private TreeNode formSelectedSection;
     private TreeNode formSelectedDeviceType;
     private String deviceQuantifier;
+    private String deviceNameFilter, appliedDeviceNameFilter = "";
+    private String deviceTypeFilter, appliedDeviceTypeFilter = "";
 
     private DevicesViewFilter displayView = DevicesViewFilter.ACTIVE;
 
@@ -146,9 +154,61 @@ public class DevicesController implements Serializable {
     public void setViewFilter(int filter) {
         this.displayView = DevicesViewFilter.values()[filter];
     }
+    
+    public void setDeviceNameFilter(String filter) {
+        deviceNameFilter = filter;
+    }
+
+    public String getDeviceNameFilter() {
+        return deviceNameFilter;
+    }
+
+    public void setDeviceTypeFilter(String filter) {
+        deviceTypeFilter = filter;
+    }
+
+    public String getDeviceTypeFilter() {
+        return deviceTypeFilter;
+    }
 
     public int getViewFilter() {
         return this.displayView.ordinal();
+    }
+    
+    public TreeNode getViewDevice() {
+        return viewDevice;
+    }
+
+    public void setViewDevice(TreeNode viewDevice) {
+        this.viewDevice = viewDevice;
+    }
+    
+    public void cleanDeviceNameFilter() {
+        deviceNameFilter = "";
+    }
+     
+    public void cleanDeviceTypeFilter() {
+        deviceTypeFilter = "";
+    }
+    
+    public void checkForFilterChanges() {
+        final boolean filterHasChanged;
+        if (deviceNameFilter.equals(appliedDeviceNameFilter) && deviceTypeFilter.equals(appliedDeviceTypeFilter)) {
+            filterHasChanged = false;
+        } else {
+            if (!deviceNameFilter.equals(appliedDeviceNameFilter)) {
+                appliedDeviceNameFilter = deviceNameFilter;
+            }
+            if (!deviceTypeFilter.equals(appliedDeviceTypeFilter)) {
+                appliedDeviceTypeFilter = deviceTypeFilter;
+            }
+            filterHasChanged = true;
+        }
+        
+        if (filterHasChanged) {        
+            viewDevice = filteredView(viewRoot);
+            RequestContext.getCurrentInstance().update("ManageNameForm:devicesTree");
+        }        
     }
 
     public void modifyDisplayView() {
@@ -159,7 +219,7 @@ public class DevicesController implements Serializable {
         } else {
             throw new IllegalStateException();
         }
-        
+        viewDevice = filteredView(viewRoot);
         sections = deviceTypes =  formSelectedDeviceType = null;
     }
 
@@ -248,7 +308,30 @@ public class DevicesController implements Serializable {
         }).apply(node);
     }
     
+   private TreeNode filteredView(TreeNode node) {
+        final @Nullable TreeNode filteredView = (new TreeViewFilter<Object>() {
+
+            @Override
+            protected boolean addToTreeView(Object nodeView) {
+                if (appliedDeviceNameFilter.equals("") && appliedDeviceTypeFilter.equals("")) {
+                    return true;
+                } else if (!appliedDeviceNameFilter.equals("") && (nodeView instanceof DeviceView && ((DeviceView) nodeView).getConventionName().contains(appliedDeviceNameFilter) && appliedDeviceTypeFilter.equals(""))) {
+                    return true;
+                } else if (!appliedDeviceTypeFilter.equals("") && (nodeView instanceof DeviceView && ((DeviceView) nodeView).getDeviceTypePath().contains(appliedDeviceTypeFilter) && appliedDeviceNameFilter.equals(""))){
+                    return true;
+                } else if (!appliedDeviceNameFilter.equals("") && (nodeView instanceof DeviceView && ((DeviceView) nodeView).getConventionName().contains(appliedDeviceNameFilter) && !appliedDeviceTypeFilter.equals("") && (nodeView instanceof DeviceView && ((DeviceView) nodeView).getDeviceTypePath().contains(appliedDeviceTypeFilter)))) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }).apply(node);
+        
+        return filteredView != null ? filteredView : new DefaultTreeNode(null, null); 
+    }
+    
     private enum DevicesViewFilter {
         ACTIVE, ARCHIVED
     }
+    
 }

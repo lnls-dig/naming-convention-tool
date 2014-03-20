@@ -11,10 +11,13 @@ import org.openepics.names.model.Device;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.DeviceService;
+import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
+import org.openepics.names.ui.common.OperationView;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.ui.parts.NamePartView;
+import org.openepics.names.util.As;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
@@ -30,16 +33,16 @@ import java.util.HashMap;
 public class DevicesTreeBuilder {
 	
     @Inject private RestrictedNamePartService namePartService;
-    @Inject private DeviceService deviceService;
+    @Inject private RestrictedDeviceService deviceService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private ViewFactory viewFactory;
     private HashMap<Integer,List<Device>> allDevicesForSection;
 	
 	public TreeNode devicesTree(boolean withDeleted) {
-		final List<NamePartRevision> approvedRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
+		final List<NamePartRevision> approvedRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, withDeleted);
         final List<NamePartRevision> pendingRevisions = Lists.newArrayList();
         
-        final TreeNode root = namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, false);
+        final TreeNode root = namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, true);
         
         final List<Device> devices = Lists.newArrayList();
         devices.addAll(deviceService.devices(withDeleted));
@@ -66,7 +69,7 @@ public class DevicesTreeBuilder {
     	if (view != null && allDevicesForSection.containsKey(view.getId())) {
     		List<Device> devicesForSection = allDevicesForSection.get(view.getId());
     		for (Device device : devicesForSection) {
-    			final TreeNode child = new DefaultTreeNode(viewFactory.getView(device), null);
+		    	final TreeNode child = new DefaultTreeNode(viewFactory.getView(device), null);
                 node.getChildren().add(child);
     			child.setParent(node);
     		}

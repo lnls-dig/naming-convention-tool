@@ -12,9 +12,9 @@ import java.util.List;
 /**
 * @author Marko Kolar <marko.kolar@cosylab.com>
 */
-public abstract class TreeViewFilter {
+public abstract class TreeViewFilter<T> {
 
-    protected abstract boolean addToTreeView(@Nullable NamePartView nodeView);
+    protected abstract boolean addToTreeView(@Nullable T nodeView);
 
     public TreeNode apply(TreeNode node) {
         final List<TreeNode> childNodes = Lists.newArrayList();
@@ -25,7 +25,7 @@ public abstract class TreeViewFilter {
             }
         }
 
-        final @Nullable NamePartView nodeView = (NamePartView) node.getData();
+        final @Nullable T nodeView = (T) node.getData();
         if (!childNodes.isEmpty() || (nodeView != null && addToTreeView(As.notNull(nodeView)))) {
             final TreeNode result = new DefaultTreeNode(nodeView, null);
             result.setExpanded(true);

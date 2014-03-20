@@ -454,13 +454,13 @@ public class NamePartsController implements Serializable {
     }
 
     private @Nullable TreeNode onlyProposedView(TreeNode node) {
-        return (new TreeViewFilter() {
+        return (new TreeViewFilter<NamePartView>() {
             @Override protected boolean addToTreeView(NamePartView nodeView) { return nodeView.getPendingChange() != null && (userManager.getUser() == null || nodeView.getPendingRevision().getRequestedBy().equals(userManager.getUser())); }
         }).apply(node);
     }
 
     private @Nullable TreeNode approvedAndProposedView(TreeNode node) {
-        return (new TreeViewFilter() {
+        return (new TreeViewFilter<NamePartView>() {
             @Override protected boolean addToTreeView(NamePartView nodeView) { return viewWithDeletions || !nodeView.isDeleted(); }
         }).apply(node);
     }

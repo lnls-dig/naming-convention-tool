@@ -13,21 +13,43 @@
 			<!-- =================== Menus ============================ -->
 			<table width="100%" id="filterTable">
 				<tr>
-					<td align="left">
+					<td align="left" width="10%">
 						<div>
 							<h:panelGrid columns="2">
-								<h:outputText value="Show: " />
-								<p:selectOneMenu value="#{devicesController.viewFilter}">
-									<p:ajax listener="#{devicesController.modifyDisplayView}"
-										event="change" update="devicesTree ncReqMenu"
-										oncomplete="resizePanel()" />
-									<f:selectItem itemLabel="Active" itemValue="0" />
-									<f:selectItem itemLabel="Archived" itemValue="1" />
-								</p:selectOneMenu>
+								 <h:outputText value="Show: " />
+                                <p:selectOneMenu value="#{devicesController.viewFilter}">
+                                    <p:ajax listener="#{devicesController.modifyDisplayView}"
+                                        event="change" update="devicesTree ncReqMenu"
+                                        oncomplete="resizePanel()" />
+                                    <f:selectItem itemLabel="Active" itemValue="0" />
+                                    <f:selectItem itemLabel="Archived" itemValue="1" />
+                                </p:selectOneMenu>
 							</h:panelGrid>
 						</div>
 					</td>
-					<td align="right"><p:menuButton id="ncReqMenu" value="Actions"
+					<td align="left" width="60%">
+                        <div>
+                            <h:panelGrid columns="3">
+                                <h:outputText value="Fiter by device name: " />
+                                <p:inputText id="deviceNameFilter" value="#{devicesController.deviceNameFilter}">
+                                    <p:poll listener="#{devicesController.checkForFilterChanges()}" interval="1" oncomplete="resizePanel()"/>
+                                </p:inputText>
+                                <p:commandButton value="Clear Filter" actionListener="#{devicesController.cleanDeviceNameFilter()}" update="deviceNameFilter" />
+                            </h:panelGrid>
+                        </div>
+                    </td>
+                    <td align="left" width="20%">
+                        <div>
+                            <h:panelGrid columns="3">
+                                <h:outputText value="Fiter by device type: " />
+                                <p:inputText id="deviceTypeFilter" value="#{devicesController.deviceTypeFilter}">
+                                    <p:poll listener="#{devicesController.checkForFilterChanges()}" interval="1" oncomplete="resizePanel()"/>
+                                </p:inputText>
+                                <p:commandButton value="Clear Filter" actionListener="#{devicesController.cleanDeviceTypeFilter()}" update="deviceTypeFilter" />
+                            </h:panelGrid>
+                        </div>
+                    </td>
+					<td align="right" width="10%"><p:menuButton id="ncReqMenu" value="Actions"
 							style="width: 8%; z-index: 100;">
 							<p:menuitem value="Add" icon="ui-icon-plus"
 								update=":addDeviceNameForm" oncomplete="addDeviceName.show()"
@@ -51,15 +73,15 @@
 								disabled="#{!devicesController.canShowHistory()}" />
 							<p:menuitem value="Batch Import" icon="ui-icon-folder-open"
 								title="Batch Import" update=":batchImportForm"
-								oncomplete="batchImport.show()"/>
+								oncomplete="batchImport.show()" rendered="#{userManager.editor}"/>
 						</p:menuButton></td>
 				</tr>
 			</table>
 			
-			<p:treeTable id="devicesTree" value="#{devicesController.viewRoot}"
+			<p:treeTable id="devicesTree" value="#{devicesController.viewDevice}"
 				resizableColumns="true" liveResize="true" var="namePart"
 				selection="#{devicesController.selectedNodes}"
-				selectionMode="multiple" scrollable="true"
+				selectionMode="multiple" scrollable="true" scrollWidth="auto"
 				rowStyleClass="Approved" style="padding-top:5px;">
 				<p:ajax event="select"
 					update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />
