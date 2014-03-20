@@ -53,6 +53,7 @@ public abstract class OperationsTreePreview<T> {
             final TreeNode result = new DefaultTreeNode(new OperationView<T>(data, affectNode), null);
             result.setExpanded(true);
             for (TreeNode childView : childViews) {
+                result.getChildren().add(childView);
                 childView.setParent(result);
             }
             return result;

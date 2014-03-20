@@ -141,6 +141,7 @@ public class NamePartTreeBuilder {
                 int a = 1;
             }
             for (TreeNode child : children) {
+                parentNode.getChildren().add(child);
                 child.setParent(parentNode);
             }
             return parentNode;

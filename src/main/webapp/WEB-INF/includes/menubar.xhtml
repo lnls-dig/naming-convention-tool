@@ -25,8 +25,6 @@
             <p:submenu label="Help" icon="ui-icon-help">
                 <p:menuitem value=" Online Help" icon="ui-icon-help" url="help.xhtml" />
                 <p:menuitem value=" API Manual" icon="ui-icon-script" url="api-manual.xhtml" />
-                <p:menuitem value=" Naming Document" title="Latest Naming System Document" icon="ui-icon-document" target="_blank" url="#{publicationController.latestRelease eq null? '/' : publicationController.latestRelease.docUrl}" disabled="#{publicationController.latestRelease eq null}" />
-                <p:menuitem value=" Report Problems" title="Report Problems/Suggestions" icon="ui-icon-alert" target="_blank" url="https://controls.frib.msu.edu/controlshelp/" rendered="false" />
                 <p:menuitem value=" About" title="About Naming Convention Tool" id="aboutMenu" icon="ui-icon-info" />
             </p:submenu>
 

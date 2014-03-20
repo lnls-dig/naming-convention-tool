@@ -40,6 +40,7 @@ import org.openepics.names.ui.common.*;
 import org.openepics.names.ui.parts.NamePartView.Change;
 import org.openepics.names.ui.parts.NamePartView.ModifyChange;
 import org.openepics.names.util.Marker;
+import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
 
@@ -170,11 +171,14 @@ public class NamePartsController implements Serializable {
 
     public String getRequestType(NamePartView req) {
         final Change change = req.getPendingChange();
-        if (change instanceof NamePartView.AddChange) return "Add request";
-        else if (change instanceof NamePartView.ModifyChange) return "Modify request";
-        else if (change instanceof NamePartView.DeleteChange) return "Delete request";
-        else if (req.isDeleted()) return "Deleted" ;
-        else throw new IllegalStateException();
+        if (change != null) {
+            if (change instanceof NamePartView.AddChange) return "Add request";
+            else if (change instanceof NamePartView.ModifyChange) return "Modify request";
+            else if (change instanceof NamePartView.DeleteChange) return "Delete request";
+            else throw new IllegalStateException();
+        } else {
+            return req.isDeleted() ? "Deleted" : "";
+        }
     }
 
     public String getNewName(NamePartView req) {
@@ -233,7 +237,7 @@ public class NamePartsController implements Serializable {
         } else if (displayView == NamePartDisplayFilter.PROPOSED) {
             viewRoot = onlyProposedView(rootWithModifications);
         } else if (displayView == NamePartDisplayFilter.PROPOSED_BY_ME) {
-            viewRoot = onlyProposedView(rootWithModifications);
+            viewRoot = onlyProposedView(rootWithModifications); // TODO
         } else if (displayView == NamePartDisplayFilter.ARCHIVED) {
             viewWithDeletions = true;
             viewRoot = approvedAndProposedView(rootWithoutModifications);
@@ -373,9 +377,9 @@ public class NamePartsController implements Serializable {
         updateOperationViews();
     }
 
-    public TreeNode getDeleteView() { return deleteView; }
-    public TreeNode getApproveView() { return approveView; }
-    public TreeNode getCancelView() { return cancelView; }
+    public TreeNode getDeleteView() { return deleteView != null ? deleteView : new DefaultTreeNode(); }
+    public TreeNode getApproveView() { return approveView != null ? approveView : new DefaultTreeNode(); }
+    public TreeNode getCancelView() { return cancelView != null ? cancelView : new DefaultTreeNode(); }
 
     public boolean canAdd() { return selectedNodes.length == 0 || (selectedNodes.length == 1 && !((NamePartView) selectedNodes[0].getData()).getPendingOrElseCurrentRevision().isDeleted()); }
     public boolean canDelete() { return deleteView != null; }

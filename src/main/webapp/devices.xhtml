@@ -130,26 +130,26 @@
 									<h:outputText value=""
 										style="display:inline-block; vertical-align:bottom !important"
 										styleClass="ui-icon ui-icon-wrench"
-										rendered="#{candidate['class'].simpleName eq 'OperationDeviceView'}" />
+										rendered="#{candidate.namePartView['class'].simpleName eq 'DeviceView'}" />
 									<h:outputText
 										styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}"
-										value="#{candidate.deviceView.conventionName}"
-										rendered="#{candidate['class'].simpleName eq 'OperationDeviceView'}" />
+										value="#{candidate.namePartView.conventionName}"
+										rendered="#{candidate.namePartView['class'].simpleName eq 'DeviceView'}" />
 									<h:outputText
 										styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}"
 										value="#{candidate.namePartView.fullName}"
-										rendered="#{candidate['class'].simpleName eq 'OperationNamePartView'}" />
+										rendered="#{candidate.namePartView['class'].simpleName eq 'NamePartView'}" />
 
 								</p:column>
 								<p:column headerText="Device Type" style="width: 50%">
 									<h:outputText
 										styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}"
-										value="#{candidate.deviceView.deviceTypePath}"
-										rendered="#{candidate['class'].simpleName eq 'OperationDeviceView'}" />
+										value="#{candidate.namePartView.deviceTypePath}"
+										rendered="#{candidate.namePartView['class'].simpleName eq 'DeviceView'}" />
 									<h:outputText
 										styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}"
 										value=""
-										rendered="#{candidate['class'].simpleName eq 'OperationNamePartView'}" />
+										rendered="#{candidate.namePartView['class'].simpleName eq 'NamePartView'}" />
 
 								</p:column>
 							</p:treeTable>
@@ -159,7 +159,7 @@
 				<p:separator />
 				<p:commandButton value="Submit" style="float: left"
 					update=":ManageNameForm"
-					oncomplete="delDeviceName.hide() resizePanel()"
+					oncomplete="delDeviceName.hide(); resizePanel()"
 					action="#{devicesController.onDelete()}" />
 				<p:commandButton value="Cancel" style="float: right"
 					onclick="delDeviceName.hide()" />

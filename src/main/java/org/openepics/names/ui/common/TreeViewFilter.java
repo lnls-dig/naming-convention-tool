@@ -30,6 +30,7 @@ public abstract class TreeViewFilter {
             final TreeNode result = new DefaultTreeNode(nodeView, null);
             result.setExpanded(true);
             for (TreeNode childView : childNodes) {
+                result.getChildren().add(childView);
                 childView.setParent(result);
             }
             return result;

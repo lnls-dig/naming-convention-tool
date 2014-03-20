@@ -67,6 +67,7 @@ public class DevicesTreeBuilder {
     		List<Device> devicesForSection = allDevicesForSection.get(view.getId());
     		for (Device device : devicesForSection) {
     			final TreeNode child = new DefaultTreeNode(viewFactory.getView(device), null);
+                node.getChildren().add(child);
     			child.setParent(node);
     		}
     	}

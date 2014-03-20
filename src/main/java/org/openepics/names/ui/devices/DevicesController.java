@@ -223,14 +223,15 @@ public class DevicesController implements Serializable {
     private TreeNode findSelectedTreeNode(TreeNode node) {
     	if (node.isSelected()) {
     	    return node;
-    	} else if (node.getChildCount() > 0) {
+    	} else {
     		for (TreeNode child : node.getChildren()) {
     			TreeNode temp = findSelectedTreeNode(child);
-    			if(temp != null)
+    			if (temp != null) {
     				return temp;
+                }
     		}
+            return null;
     	}
-    	return null;
     }
 
     public boolean isFormFilled() { return formSelectedSection != null && formSelectedDeviceType != null; }
