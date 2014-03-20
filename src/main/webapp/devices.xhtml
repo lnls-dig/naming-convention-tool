@@ -59,7 +59,7 @@
 			<p:treeTable id="devicesTree" value="#{devicesController.viewRoot}"
 				resizableColumns="true" liveResize="true" var="namePart"
 				selection="#{devicesController.selectedNodes}"
-				selectionMode="multiple" scrollable="true" scrollWidth="100%"
+				selectionMode="multiple" scrollable="true"
 				rowStyleClass="Approved" style="padding-top:5px;">
 				<p:ajax event="select"
 					update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />

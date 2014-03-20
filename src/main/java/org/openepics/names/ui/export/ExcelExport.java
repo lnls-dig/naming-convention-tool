@@ -36,7 +36,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 
 @Stateless
-public class ExcellExport {
+public class ExcelExport {
     
     @Inject private RestrictedDeviceService deviceService;
     @Inject private RestrictedNamePartService namePartService;
@@ -51,27 +51,25 @@ public class ExcellExport {
         
         XSSFWorkbook workbook = excellExportWorkbook(sectionsTree, typesTree); 
                  
-        File f;
-        InputStream in = null;
+        InputStream inputStream = null;
         try {
-            f = File.createTempFile("temp", "xlsx");
-            FileOutputStream out = new FileOutputStream(f);
-            workbook.write(out);          
-            out.close();
-            in = new FileInputStream(f);
-            f.delete();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            final File temporaryFile = File.createTempFile("temp", "xlsx");
+            FileOutputStream outputStream = new FileOutputStream(temporaryFile);
+            workbook.write(outputStream);          
+            outputStream.close();
+            inputStream = new FileInputStream(temporaryFile);
+            temporaryFile.delete();
+        } catch (IOException neverHappens) {
         }
-        return in;
-            
-            
-       
+        return inputStream;       
     }
     
     private void organizeDataFromDatabase() {
-        buildNamePartTrees();
+        final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
+        sectionsTree = namePartTreeBuilder.namePartApprovalTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true);
+        
+        final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
+        typesTree = namePartTreeBuilder.namePartApprovalTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true);
                        
         allDevices = Lists.newArrayList();
         for (Device device : deviceService.devices(false)) {
@@ -79,16 +77,8 @@ public class ExcellExport {
         }
     }
     
-    private void buildNamePartTrees() {
-        final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
-        sectionsTree = namePartTreeBuilder.namePartApprovalTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true);
-        
-        final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
-        typesTree = namePartTreeBuilder.namePartApprovalTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true);
-    }
-    
     private XSSFWorkbook excellExportWorkbook(TreeNode sectionsTree, TreeNode typesTree) {
-        XSSFWorkbook workbook = new XSSFWorkbook();
+        final XSSFWorkbook workbook = new XSSFWorkbook();
         
         XSSFSheet sheet = workbook.createSheet("SuperSection");
         Row row = sheet.createRow(0);
@@ -161,38 +151,32 @@ public class ExcellExport {
     private void namePartExcellSheet(XSSFSheet sheet, int maxLevel, int currentLevel, TreeNode node, List<String> rowData) {
         for(TreeNode child : node.getChildren()) {
             final @Nullable NamePartView childView = (NamePartView) child.getData();
-           
             if (childView != null) {
                 if (currentLevel == 1) {
-                    rowData = new ArrayList<String>();
+                    rowData = Lists.newArrayList();
                 }
+                
                 if (currentLevel < maxLevel) {
-                    ArrayList<String> ancestorInfo = Lists.newArrayList();
-                    ancestorInfo.addAll(rowData);
+                    final ArrayList<String> ancestorInfo = Lists.newArrayList(rowData);
                     ancestorInfo.add(childView.getFullName());
                     ancestorInfo.add(childView.getName());                    
-                    namePartExcellSheet(sheet, maxLevel, currentLevel+1, child,ancestorInfo);
+                    namePartExcellSheet(sheet, maxLevel, currentLevel+1, child, ancestorInfo);
                 } else if (maxLevel == currentLevel) {
-                    ArrayList<String> ancestorInfo = Lists.newArrayList();
-                    ancestorInfo.addAll(rowData);
-                    ancestorInfo.add(childView.getNamePart().getUuid());
-                    ancestorInfo.add(childView.getFullName());
-                    ancestorInfo.add(childView.getName());
-                    
-                    Row row = sheet.createRow(sheet.getLastRowNum()+1);
                     int cellCounter = 0;
-                    for (String sectionInfo : ancestorInfo) {
+                    final Row row = sheet.createRow(sheet.getLastRowNum()+1);
+                    for (String sectionInfo : rowData) {
                         row.createCell(cellCounter++).setCellValue(sectionInfo);
                     }
+                    row.createCell(cellCounter++).setCellValue(childView.getNamePart().getUuid());
+                    row.createCell(cellCounter++).setCellValue(childView.getFullName());
+                    row.createCell(cellCounter++).setCellValue(childView.getName());
                 } else {
                     throw new IllegalStateException();
                 }
             } else {
                 return;
             }
-        }
-        return;
-        
+        }        
     }
     
     private void deviceNameExcellSheet(XSSFSheet sheet) {

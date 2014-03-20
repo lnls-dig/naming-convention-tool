@@ -29,7 +29,7 @@ import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.common.OperationsTreePreview;
 import org.openepics.names.ui.common.ViewFactory;
-import org.openepics.names.ui.export.ExcellExport;
+import org.openepics.names.ui.export.ExcelExport;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.ui.parts.NamePartView;
 import org.openepics.names.util.As;
@@ -49,8 +49,8 @@ public class DevicesController implements Serializable {
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private DevicesTreeBuilder devicesTreeBuilder;
     @Inject private ViewFactory viewFactory;
-    @Inject private ExcellImport excellImport;
-    @Inject private ExcellExport excellExport;
+    @Inject private ExcelImport excelImport;
+    @Inject private ExcelExport excelExport;
 
     private List<DeviceView> historyDeviceNames;
 
@@ -203,7 +203,7 @@ public class DevicesController implements Serializable {
     public void handleFileUpload(FileUploadEvent event) {
         final UploadedFile upFile = event.getFile();
         try {
-            excellImport.parseDeviceImportFile(upFile.getInputstream());
+            excelImport.parseDeviceImportFile(upFile.getInputstream());
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,"Import successful!",""));
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,"Parsing error!", e.getMessage()));
@@ -216,8 +216,7 @@ public class DevicesController implements Serializable {
     } 
     
     public StreamedContent getAllDataExport() {  
-        return new DefaultStreamedContent(excellExport.exportFile(), "xlsx", "export.xlsx");
-
+        return new DefaultStreamedContent(excelExport.exportFile(), "xlsx", "export.xlsx");
     } 
    
     private TreeNode findSelectedTreeNode(TreeNode node) {

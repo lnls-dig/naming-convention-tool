@@ -1,19 +1,10 @@
 package org.openepics.names.ui.devices;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
-import javax.imageio.stream.FileImageInputStream;
 import javax.inject.Inject;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -27,47 +18,40 @@ import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
-import org.openepics.names.ui.common.UserManager;
-import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.ui.parts.NamePartView;
 import org.primefaces.model.TreeNode;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 
 
 
 @Stateless
-public class ExcellImport {
+public class ExcelImport {
     @Inject private RestrictedDeviceService deviceService;
     @Inject private RestrictedNamePartService namePartService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     
     private Table<String, String, NamePart> sectionsTable, typesTable;
     private List<DeviceRevision> allDevices;
-    private TreeNode sectionsTree, typesTree;
     
     public void parseDeviceImportFile(InputStream file) throws Exception {
         organizeDataFromDatabase(true);
-        int rowCounter = 2;
-        
+        int rowNumber = 2;        
         
         try {
-            XSSFWorkbook workbook = new XSSFWorkbook(file);
-            XSSFSheet sheet = workbook.getSheetAt(0);
+            final XSSFWorkbook workbook = new XSSFWorkbook(file);
+            final XSSFSheet sheet = workbook.getSheetAt(0);
  
             Iterator<Row> rowIterator = sheet.iterator();
             if (rowIterator.hasNext()) {
                 rowIterator.next();
             }
-            long start = System.currentTimeMillis();
+           
             while (rowIterator.hasNext()) {
-                Row row = rowIterator.next();
+                final Row row = rowIterator.next();
                 Iterator<Cell> cellIterator = row.cellIterator();
                 int cellNumber = 0;
                 String section = "";
@@ -104,11 +88,9 @@ public class ExcellImport {
                     }
                     cellNumber++;
                 }
-                
-                addDeviceName(section,subsection,discipline,deviceType,index,rowCounter);
-                rowCounter++;
+                addDeviceName(section,subsection,discipline,deviceType,index,rowNumber);
+                rowNumber++;
             }
-            System.out.println("TIME: "+ (System.currentTimeMillis() - start));
             file.close();
         } catch (Exception e) {
             throw e;
@@ -118,8 +100,13 @@ public class ExcellImport {
     
     
     private void organizeDataFromDatabase(boolean isImport) {
-        buildNamePartTrees();
-        buildMappingTables();
+        sectionsTable = HashBasedTable.create();
+        final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
+        populateSectionsTable(namePartTreeBuilder.namePartApprovalTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true), 0);
+        
+        typesTable = HashBasedTable.create();
+        final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
+        populateTypesTable(namePartTreeBuilder.namePartApprovalTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true), 0, "");
                
         allDevices = Lists.newArrayList();
         for (Device device : deviceService.devices(false)) {
@@ -127,28 +114,13 @@ public class ExcellImport {
         }
     }
     
-    private void buildNamePartTrees() {
-        final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
-        sectionsTree = namePartTreeBuilder.namePartApprovalTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true);
-        
-        final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
-        typesTree = namePartTreeBuilder.namePartApprovalTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true);
-    }
-    
-    private void buildMappingTables() {
-        sectionsTable = HashBasedTable.create();
-        populateSectionsTable(sectionsTree, 0);
-        typesTable = HashBasedTable.create();
-        populateTypesTable(typesTree, 0, "");
-    }    
-    
     private void addDeviceName(String section, String subsection, String discipline, String deviceType, String index, int rowCounter) throws Exception {
-
-        NamePart sectionPart = sectionsTable.get(section, subsection);
+        final NamePart sectionPart = sectionsTable.get(section, subsection);
         if (sectionPart == null) {
             throw new Exception("Error occured in row: "+rowCounter+ ". Logical area part was not fount in the database.");
         }
-        NamePart typePart = typesTable.get(discipline, deviceType);
+        
+        final NamePart typePart = typesTable.get(discipline, deviceType);
         if (typePart == null) {
             throw new Exception("Error occured in row: "+rowCounter+ ". Device category part was not fount in the database.");
         }
@@ -176,7 +148,6 @@ public class ExcellImport {
     }
     
     private void populateTypesTable(TreeNode node, int level, String discipline) {
-        
         if (node.getChildCount() > 0) {
             for (TreeNode childNode : node.getChildren()) {
                 final @Nullable NamePartView childView = (NamePartView) childNode.getData();
@@ -190,7 +161,4 @@ public class ExcellImport {
             }            
         }
     }
-    
-    
-
 }
