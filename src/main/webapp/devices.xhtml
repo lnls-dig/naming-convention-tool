@@ -197,14 +197,14 @@
 				</f:facet>
 				<h:outputText value="Select excell file to upload device names from" />
 				<div style="border: 1px solid #a8a8a8; padding: 5px">
-					<p:fileUpload fileUploadListener="#{devicesController.handleFileUpload}" mode="advanced" dragDropSupport="false" showButtons="false" update="messages" fileLimit="1" allowTypes="/(\.|\/)(xlsx|xls)$/" />
+					<p:fileUpload id="fileUpload" fileUploadListener="#{devicesController.handleFileUpload}" update="messages" mode="advanced" dragDropSupport="false" fileLimit="1" allowTypes="/(\.|\/)(xlsx|xls)$/" />
 					<p:separator />
 					
 					<p:commandButton id="downloadLink" value="Download Import Template" ajax="false" icon="ui-icon-disk" onclick="PrimeFaces.monitorDownload(start, stop)">
 						<p:fileDownload	value="#{devicesController.downloadableNamesTemplate}" />
 					</p:commandButton>
 
-					<p:messages id="messages" showDetail="true" autoUpdate="true" closable="true" />
+					<p:messages id="messages" showDetail="true" autoUpdate="false" closable="true" />
 				</div>
 				<p:commandButton value="Cancel" style="float: right" onclick="batchImport.hide()" />
 			</p:dialog>

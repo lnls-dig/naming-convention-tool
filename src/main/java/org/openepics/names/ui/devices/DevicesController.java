@@ -271,8 +271,7 @@ public class DevicesController implements Serializable {
     }
     
     public StreamedContent getDownloadableNamesTemplate() {  
-        final InputStream stream = ((ServletContext)FacesContext.getCurrentInstance().getExternalContext().getContext()).getResourceAsStream("/resources/excellTemplateFiles/NamingImportTemplate.xlsx");
-        return new DefaultStreamedContent(stream, "xlsx", "NamingImportTemplate.xlsx");  
+        return new DefaultStreamedContent(this.getClass().getResourceAsStream("NamingImportTemplate.xlsx"), "xlsx", "NamingImportTemplate.xlsx");  
     } 
     
     public StreamedContent getAllDataExport() {  

@@ -1,11 +1,14 @@
 package org.openepics.names.services;
 
+import java.io.IOException;
+
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
 import org.openepics.names.model.AppInfo;
 
 /**
@@ -17,17 +20,17 @@ import org.openepics.names.model.AppInfo;
 public class ApplicationService {
 
     @PersistenceContext private EntityManager em;
-    @Inject private TestService testService;
+    @Inject private InitialDataImportService importService;
 
     public AppInfo appInfo() {
         return em.createQuery("SELECT a FROM AppInfo a", AppInfo.class).getSingleResult();
     }
 
     @PostConstruct
-    private void init() {
+    private void init() throws IOException {
         if (em.createQuery("SELECT a FROM AppInfo a", AppInfo.class).getResultList().size() != 1) {
             em.persist(new AppInfo());
-            testService.fillDatabaseWithTestData();
+            importService.fillDatabaseWithInitialData();
         }
     }
 }

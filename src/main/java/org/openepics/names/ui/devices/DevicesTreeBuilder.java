@@ -42,7 +42,7 @@ public class DevicesTreeBuilder {
 		final List<NamePartRevision> approvedRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, withDeleted);
         final List<NamePartRevision> pendingRevisions = Lists.newArrayList();
         
-        final TreeNode root = namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, true);
+        final TreeNode root = namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, false);
         
         final List<Device> devices = Lists.newArrayList();
         devices.addAll(deviceService.devices(withDeleted));
