@@ -21,8 +21,21 @@ public class DeviceNameElement {
     private String deviceType;
     private String instanceIndex;
     private String name;
+    
+    
+    
 
-    DeviceNameElement() {
+    public DeviceNameElement(String uuid, String section, String subSection,
+            String discipline, String deviceType, String instanceIndex,
+            String name) {
+        super();
+        this.uuid = uuid;
+        this.section = section;
+        this.subSection = subSection;
+        this.discipline = discipline;
+        this.deviceType = deviceType;
+        this.instanceIndex = instanceIndex;
+        this.name = name;
     }
 
     public String getUuid() {
@@ -52,34 +65,4 @@ public class DeviceNameElement {
     public String getName() {
         return name;
     }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public void setSection(String section) {
-        this.section = section;
-    }
-
-    public void setSubSection(String subSection) {
-        this.subSection = subSection;
-    }
-
-    public void setDiscipline(String discipline) {
-        this.discipline = discipline;
-    }
-
-    public void setDeviceType(String deviceType) {
-        this.deviceType = deviceType;
-    }
-
-    public void setInstanceIndex(String instanceIndex) {
-        this.instanceIndex = instanceIndex;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    
 }

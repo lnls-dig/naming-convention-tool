@@ -68,36 +68,13 @@ public class InitialDataImportService {
         }
        
         while (rowIterator.hasNext()) {
-            final Row row = rowIterator.next();
-            final Iterator<Cell> cellIterator = row.cellIterator();
-            int cellNumber = 0;
-            
-            int parent = 0;
-            int id = 0;
-            String fullName = "";
-            String name = "";
-            String comment = "";
-            String type = "";
-            while (cellIterator.hasNext()) {
-                Cell cell = cellIterator.next();
-                if (cellNumber == 0) {
-                    parent = (int)cell.getNumericCellValue();
-                } else if (cellNumber == 1) {
-                    id = (int)cell.getNumericCellValue();
-                } else if (cellNumber == 2) {
-                    fullName = cell.getStringCellValue();
-                } else if (cellNumber == 3) {
-                    name = cell.getStringCellValue();
-                } else if (cellNumber == 4) {
-                    comment = cell.getStringCellValue();
-                } else if (cellNumber == 5) {
-                    type = cell.getStringCellValue();
-                } else {
-                    throw new IllegalStateException();
-                }
-               
-                cellNumber++;
-            }
+            final Row row = rowIterator.next();            
+            int parent = (int)row.getCell(0).getNumericCellValue();
+            int id = (int)row.getCell(1).getNumericCellValue();
+            String fullName = row.getCell(2).getStringCellValue();
+            String name = row.getCell(3).getStringCellValue();
+            String comment = row.getCell(4).getStringCellValue();
+            String type = row.getCell(5).getStringCellValue();
             namePartsMap.put(id, isSection ? addSection(namePartsMap.get(parent), fullName, name) : addDeviceType(namePartsMap.get(parent), fullName, name)); 
         }
     }

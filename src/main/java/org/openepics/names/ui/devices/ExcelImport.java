@@ -52,42 +52,11 @@ public class ExcelImport {
            
             while (rowIterator.hasNext()) {
                 final Row row = rowIterator.next();
-                Iterator<Cell> cellIterator = row.cellIterator();
-                int cellNumber = 0;
-                String section = "";
-                String subsection = "";
-                String discipline = "";
-                String deviceType = "";
-                String index = "";
-                while (cellIterator.hasNext()) {
-                    Cell cell = cellIterator.next();
-                    switch (cellNumber) {
-                    case 0:
-                        section = cell.getStringCellValue();
-                        break;
-                    case 1:
-                        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                            subsection = String.valueOf((int)cell.getNumericCellValue());
-                        } else {
-                            subsection = cell.getStringCellValue();
-                        }
-                        break;
-                    case 2:
-                        discipline = cell.getStringCellValue();
-                        break;
-                    case 3:
-                        deviceType = cell.getStringCellValue();
-                        break;
-                    case 4:
-                        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                            index = String.valueOf((int)cell.getNumericCellValue());
-                        } else {
-                            index = cell.getStringCellValue();
-                        }
-                        break;
-                    }
-                    cellNumber++;
-                }
+                String section = row.getCell(0).getStringCellValue();
+                String subsection = row.getCell(1).getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf((int)row.getCell(1).getNumericCellValue()) : row.getCell(1).getStringCellValue();
+                String discipline = row.getCell(2).getStringCellValue();;
+                String deviceType = row.getCell(3).getStringCellValue();;
+                String index = row.getCell(4).getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf((int)row.getCell(4).getNumericCellValue()) : row.getCell(4).getStringCellValue();
                 addDeviceName(section,subsection,discipline,deviceType,index,rowNumber);
                 rowNumber++;
             }
