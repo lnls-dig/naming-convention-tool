@@ -1,6 +1,7 @@
 package org.openepics.names.ui.devices;
 
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import com.google.common.base.Function;
@@ -262,12 +263,11 @@ public class DevicesController implements Serializable {
     }
     
     public void handleFileUpload(FileUploadEvent event) {
-        final UploadedFile upFile = event.getFile();
-        try {
-            excelImport.parseDeviceImportFile(upFile.getInputstream());
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,"Import successful!",""));
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,"Parsing error!", e.getMessage()));
+        try (InputStream inputStream = event.getFile().getInputstream()) {
+            excelImport.parseDeviceImportFile(inputStream);
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Import successful!", ""));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
     
