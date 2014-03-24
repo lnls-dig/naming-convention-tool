@@ -368,7 +368,7 @@ public class NamePartsController implements Serializable {
 
     public TreeNode getRoot() { return rootWithModifications; }
 
-    public TreeNode getViewRoot() { return viewRoot; }
+    public TreeNode getViewRoot() { return viewRoot != null ? viewRoot : new DefaultTreeNode(null, null);  }
 
     public TreeNode[] getSelectedNodes() { return selectedNodes; }
 
@@ -416,12 +416,12 @@ public class NamePartsController implements Serializable {
     }
 
     private List<NamePartView> linearizedTargetsForDelete(TreeNode node) {
-        final @Nullable OperationView<NamePartView> operationView = (OperationView<NamePartView>) node.getData();
+        final OperationView<NamePartView> operationView = (OperationView<NamePartView>) node.getData();
         final List<NamePartView> targets = Lists.newArrayList();
-        if (operationView != null && operationView.isAffected()) {
+        if (operationView.isAffected()) {
             targets.add(operationView.getNamePartView());
         }
-        if (operationView == null || !(operationView.getNamePartView().getPendingChange() instanceof NamePartView.DeleteChange)) {
+        if (operationView.getNamePartView() == null || !(operationView.getNamePartView().getPendingChange() instanceof NamePartView.DeleteChange)) {
             for (TreeNode child : node.getChildren()) {
                 targets.addAll(linearizedTargets(child));
             }

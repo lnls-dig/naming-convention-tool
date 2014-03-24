@@ -225,12 +225,13 @@ public class DevicesController implements Serializable {
 
     public void setSelectedNodes(@Nullable TreeNode[] selectedNodes) {
     	this.selectedNodes = selectedNodes != null ? selectedNodes : new TreeNode[0];
-
         deleteView = deleteView(viewRoot);
     }
 
     public @Nullable DeviceView getSelectedDevice() { return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView ? (DeviceView) selectedNodes[0].getData() : null; }
-    public @Nullable NamePartView getFormSelectedSection() { return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof NamePartView ? (NamePartView) selectedNodes[0].getData() : null; }
+    public @Nullable NamePartView getFormSelectedSection() { 
+        return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof NamePartView ? (NamePartView) selectedNodes[0].getData() : null; 
+    }
 
     public TreeNode getViewRoot() { return viewRoot; }
     public TreeNode getDeleteView() { return deleteView; }
@@ -292,7 +293,7 @@ public class DevicesController implements Serializable {
     	}
     }
 
-    public boolean isFormFilled() { return formSelectedSection != null && formSelectedDeviceType != null; }
+    public boolean isFormFilled() { return selectedNodes.length > 0 && selectedNodes[0].getData() instanceof NamePartView && formSelectedDeviceType != null; }
 
     private void showMessage(FacesMessage.Severity severity, String summary, String message) {
         FacesContext context = FacesContext.getCurrentInstance();

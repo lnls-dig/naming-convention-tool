@@ -43,7 +43,7 @@ public class InitialDataImportService {
             fillUserAccounts();
             fillNameParts(true);
             fillNameParts(false);
-            fillDeviceNames();
+            //fillDeviceNames();
         }
     }
     
