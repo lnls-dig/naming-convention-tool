@@ -5,3 +5,4 @@ src/main/java/resources
 .settings/
 .idea
 names.iml
+src/main/webapp/WEB-INF/.faces-config.xml.jsfdia

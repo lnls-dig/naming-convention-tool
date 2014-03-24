@@ -19,6 +19,7 @@ import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.model.Role;
 import org.openepics.names.model.UserAccount;
+import org.openepics.names.util.As;
 
 import com.google.common.collect.Maps;
 
@@ -43,7 +44,7 @@ public class InitialDataImportService {
             fillUserAccounts();
             fillNameParts(true);
             fillNameParts(false);
-            //fillDeviceNames();
+            fillDeviceNames();
         }
     }
     
@@ -69,13 +70,27 @@ public class InitialDataImportService {
        
         while (rowIterator.hasNext()) {
             final Row row = rowIterator.next();            
-            int parent = (int)row.getCell(0).getNumericCellValue();
-            int id = (int)row.getCell(1).getNumericCellValue();
-            String fullName = row.getCell(2).getStringCellValue();
-            String name = row.getCell(3).getStringCellValue();
-            String comment = row.getCell(4).getStringCellValue();
-            String type = row.getCell(5).getStringCellValue();
+            int parent = (int) row.getCell(0).getNumericCellValue();
+            int id = (int) row.getCell(1).getNumericCellValue();
+            final String fullName = As.notNull(cellAsString(row.getCell(2)));
+            final String name = As.notNull(cellAsString(row.getCell(3)));
+            @Nullable final String comment = cellAsString(row.getCell(4));
+            @Nullable final String type = cellAsString(row.getCell(5));
             namePartsMap.put(id, isSection ? addSection(namePartsMap.get(parent), fullName, name) : addDeviceType(namePartsMap.get(parent), fullName, name)); 
+        }
+    }
+    
+    private @Nullable String cellAsString(@Nullable Cell cell) {
+        if (cell != null) {
+            if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+                return String.valueOf(cell.getNumericCellValue());
+            } else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+                return cell.getStringCellValue();
+            } else {
+                throw new IllegalStateException();
+            }
+        } else {
+            return null;
         }
     }
     
@@ -89,31 +104,17 @@ public class InitialDataImportService {
        
         while (rowIterator.hasNext()) {
             final Row row = rowIterator.next();
-            final Iterator<Cell> cellIterator = row.cellIterator();
-            int cellNumber = 0;
             
-            int subsectionId = 0;
-            int deviceTypeId = 0;
-            String instanceIndex = "";
-            String comment = "";
-            while (cellIterator.hasNext()) {
-                Cell cell = cellIterator.next();
-                if (cellNumber == 0) {
-                    
-                } else if (cellNumber == 1) {
-                    subsectionId = (int)cell.getNumericCellValue();
-                } else if (cellNumber == 2) {
-                    deviceTypeId = (int)cell.getNumericCellValue();
-                } else if (cellNumber == 3) {
-                    instanceIndex = cell.getStringCellValue();
-                } else if (cellNumber == 4) {
-                    comment = cell.getStringCellValue();
-                } else {
-                    throw new IllegalStateException();
-                }               
-                cellNumber++;
+            final int subsectionId = (int) row.getCell(1).getNumericCellValue();
+            final int deviceTypeId = (int) row.getCell(2).getNumericCellValue();
+            @Nullable final String instanceIndex = cellAsString(row.getCell(3));
+            @Nullable final String comment = cellAsString(row.getCell(4));
+            
+            NamePart sub = namePartsMap.get(subsectionId);
+            if (sub == null) {
+                int a = 1;
             }
-            
+   
             addDeviceName(namePartsMap.get(subsectionId), namePartsMap.get(deviceTypeId), instanceIndex);
             
         }
