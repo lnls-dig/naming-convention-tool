@@ -60,7 +60,7 @@ public class InitialDataImportService {
     private void fillNameParts(boolean isSection) {
                
         final XSSFSheet sheet = importFile.getSheet(isSection ? "LogicalAreaStructure" : "DeviceCategoryStructure");
-        Iterator<Row> rowIterator = sheet.iterator();
+        final Iterator<Row> rowIterator = sheet.iterator();
         if (rowIterator.hasNext()) {
             rowIterator.next();
         }
@@ -70,8 +70,8 @@ public class InitialDataImportService {
        
         while (rowIterator.hasNext()) {
             final Row row = rowIterator.next();            
-            int parent = (int) row.getCell(0).getNumericCellValue();
-            int id = (int) row.getCell(1).getNumericCellValue();
+            final int parent = (int) row.getCell(0).getNumericCellValue();
+            final int id = (int) row.getCell(1).getNumericCellValue();
             final String fullName = As.notNull(cellAsString(row.getCell(2)));
             final String name = As.notNull(cellAsString(row.getCell(3)));
             @Nullable final String comment = cellAsString(row.getCell(4));
@@ -110,11 +110,6 @@ public class InitialDataImportService {
             @Nullable final String instanceIndex = cellAsString(row.getCell(3));
             @Nullable final String comment = cellAsString(row.getCell(4));
             
-            NamePart sub = namePartsMap.get(subsectionId);
-            if (sub == null) {
-                int a = 1;
-            }
-   
             addDeviceName(namePartsMap.get(subsectionId), namePartsMap.get(deviceTypeId), instanceIndex);
             
         }

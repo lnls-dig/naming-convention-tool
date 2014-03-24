@@ -45,18 +45,18 @@ public class ExcelImport {
             final XSSFWorkbook workbook = new XSSFWorkbook(file);
             final XSSFSheet sheet = workbook.getSheetAt(0);
  
-            Iterator<Row> rowIterator = sheet.iterator();
+            final Iterator<Row> rowIterator = sheet.iterator();
             if (rowIterator.hasNext()) {
                 rowIterator.next();
             }
            
             while (rowIterator.hasNext()) {
                 final Row row = rowIterator.next();
-                String section = row.getCell(0).getStringCellValue();
-                String subsection = row.getCell(1).getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf((int)row.getCell(1).getNumericCellValue()) : row.getCell(1).getStringCellValue();
-                String discipline = row.getCell(2).getStringCellValue();;
-                String deviceType = row.getCell(3).getStringCellValue();;
-                String index = row.getCell(4).getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf((int)row.getCell(4).getNumericCellValue()) : row.getCell(4).getStringCellValue();
+                final String section = row.getCell(0).getStringCellValue();
+                final String subsection = row.getCell(1).getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf((int)row.getCell(1).getNumericCellValue()) : row.getCell(1).getStringCellValue();
+                final String discipline = row.getCell(2).getStringCellValue();;
+                final String deviceType = row.getCell(3).getStringCellValue();;
+                final String index = row.getCell(4).getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf((int)row.getCell(4).getNumericCellValue()) : row.getCell(4).getStringCellValue();
                 addDeviceName(section,subsection,discipline,deviceType,index,rowNumber);
                 rowNumber++;
             }
