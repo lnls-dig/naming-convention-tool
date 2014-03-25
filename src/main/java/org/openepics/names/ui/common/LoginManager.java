@@ -70,6 +70,8 @@ public class LoginManager implements Serializable {
             inputPassword = "xxxxxxxx"; //TODO implement a better way destroy the password (from JVM)
             sessionService.init();
         }
+        updatePageElements();
+        
         return null;
         // return originalURL;
     }
@@ -85,8 +87,14 @@ public class LoginManager implements Serializable {
         } finally {
             sessionService.init();
         }
-
+        updatePageElements();
         return "logout"; //TODO: replace with null
+    }
+    
+    private void updatePageElements() {
+        RequestContext.getCurrentInstance().update("ReqSubForm:filterMenu");
+        RequestContext.getCurrentInstance().update("ReqSubForm:reqMenu");
+        RequestContext.getCurrentInstance().update("ManageNameForm:ncReqMenu");
     }
 
     public String getInputUsername() {

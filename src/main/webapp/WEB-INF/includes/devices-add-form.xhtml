@@ -44,7 +44,7 @@
             <p:separator />
 
             <p:commandButton id="bsub" value="Submit" style="float: left"
-                    update=":ManageNameForm" oncomplete="#{widgetName}.hide() resizePanel()"
+                    update=":ManageNameForm" oncomplete="#{widgetName}.hide();resizePanel()"
                     action="#{devicesController[submitHandler]}"
                     disabled="#{!devicesController.isFormFilled()}"/>
             <p:commandButton value="Cancel" style="float: right"

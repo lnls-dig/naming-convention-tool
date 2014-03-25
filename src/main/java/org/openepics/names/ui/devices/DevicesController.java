@@ -190,7 +190,7 @@ public class DevicesController implements Serializable {
     public void cleanDeviceTypeFilter() {
         deviceTypeFilter = "";
     }
-    
+
     public void checkForFilterChanges() {
         final boolean filterHasChanged;
         if (deviceNameFilter.equals(appliedDeviceNameFilter) && deviceTypeFilter.equals(appliedDeviceTypeFilter)) {
