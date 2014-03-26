@@ -1,6 +1,5 @@
 package org.openepics.names.ui.common;
 
-import java.util.Iterator;
 import javax.faces.FacesException;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExceptionHandler;
@@ -8,6 +7,7 @@ import javax.faces.context.ExceptionHandlerWrapper;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ExceptionQueuedEvent;
 import javax.faces.event.ExceptionQueuedEventContext;
+import java.util.Iterator;
 
 /**
  * @author Marko Kolar <marko.kolar@cosylab.com>

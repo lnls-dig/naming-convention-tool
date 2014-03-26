@@ -1,10 +1,11 @@
 package org.openepics.names.services;
 
+import org.openepics.names.model.UserAccount;
+import org.openepics.names.util.As;
+
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.openepics.names.model.UserAccount;
-import org.openepics.names.util.As;
 
 /**
  *

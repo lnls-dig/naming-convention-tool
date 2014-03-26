@@ -1,10 +1,11 @@
 package org.openepics.names.ui.common;
 
+import org.openepics.names.model.UserAccount;
+import org.openepics.names.services.SessionService;
+
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
-import org.openepics.names.model.UserAccount;
-import org.openepics.names.services.SessionService;
 
 /**
  *

@@ -1,39 +1,26 @@
 package org.openepics.names.ui.export;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Nullable;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
+import com.google.common.collect.Lists;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
-import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
-import org.openepics.names.ui.common.UserManager;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.ui.parts.NamePartView;
 import org.primefaces.model.TreeNode;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Table;
+import javax.annotation.Nullable;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Stateless
 public class ExcelExport {
@@ -158,18 +145,18 @@ public class ExcelExport {
                 
                 if (currentLevel < maxLevel) {
                     final ArrayList<String> ancestorInfo = Lists.newArrayList(rowData);
-                    ancestorInfo.add(childView.getFullName());
-                    ancestorInfo.add(childView.getName());                    
+                    ancestorInfo.add(childView.getName());
+                    ancestorInfo.add(childView.getMnemonic());
                     namePartExcellSheet(sheet, maxLevel, currentLevel+1, child, ancestorInfo);
-                } else if (maxLevel == currentLevel) {
+                } else if (currentLevel == maxLevel) {
                     int cellCounter = 0;
                     final Row row = sheet.createRow(sheet.getLastRowNum()+1);
                     for (String sectionInfo : rowData) {
                         row.createCell(cellCounter++).setCellValue(sectionInfo);
                     }
-                    row.createCell(cellCounter++).setCellValue(childView.getNamePart().getUuid());
-                    row.createCell(cellCounter++).setCellValue(childView.getFullName());
+                    row.createCell(cellCounter++).setCellValue(childView.getNamePart().getUuid().toString());
                     row.createCell(cellCounter++).setCellValue(childView.getName());
+                    row.createCell(cellCounter++).setCellValue(childView.getMnemonic());
                 } else {
                     throw new IllegalStateException();
                 }
@@ -183,12 +170,12 @@ public class ExcelExport {
         for (DeviceRevision device : allDevices) {
             int cellNumber = 0;
             Row row = sheet.createRow(sheet.getLastRowNum()+1);
-            row.createCell(cellNumber++).setCellValue(device.getDevice().getUuid());
-            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device.getSection()).getParent().getName());
-            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device.getSection()).getName());
-            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device.getDeviceType()).getParent().getParent().getName());
-            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device.getDeviceType()).getName());
-            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device).getQualifier());
+            row.createCell(cellNumber++).setCellValue(device.getDevice().getUuid().toString());
+            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device.getSection()).getParent().getMnemonic());
+            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device.getSection()).getMnemonic());
+            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device.getDeviceType()).getParent().getParent().getMnemonic());
+            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device.getDeviceType()).getMnemonic());
+            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device).getInstanceIndex());
             row.createCell(cellNumber++).setCellValue(viewFactory.getView(device).getConventionName());
         }
     }

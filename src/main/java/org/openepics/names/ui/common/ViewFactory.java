@@ -1,10 +1,5 @@
 package org.openepics.names.ui.common;
 
-import org.openepics.names.ui.devices.DeviceView;
-import javax.annotation.Nullable;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
-import javax.inject.Inject;
 import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePart;
@@ -12,7 +7,13 @@ import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.services.DeviceService;
 import org.openepics.names.services.NamingConvention;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
+import org.openepics.names.ui.devices.DeviceView;
 import org.openepics.names.ui.parts.NamePartView;
+
+import javax.annotation.Nullable;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
+import javax.inject.Inject;
 
 /**
  *

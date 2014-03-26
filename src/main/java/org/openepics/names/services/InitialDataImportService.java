@@ -1,27 +1,23 @@
 package org.openepics.names.services;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
+import com.google.common.collect.Maps;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openepics.names.model.*;
+import org.openepics.names.util.As;
+import org.openepics.names.util.UnhandledCaseException;
 
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openepics.names.model.NamePart;
-import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.model.NamePartType;
-import org.openepics.names.model.Role;
-import org.openepics.names.model.UserAccount;
-import org.openepics.names.util.As;
-
-import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
 *
@@ -35,7 +31,7 @@ public class InitialDataImportService {
     @Inject private DeviceService deviceService;
     @PersistenceContext private EntityManager em;
     private XSSFWorkbook importFile;
-    private HashMap<Integer, NamePart> namePartsMap;
+    private Map<Integer, NamePart> namePartsMap;
 
     public void fillDatabaseWithInitialData() throws IOException {
         if (namePartService.approvedNames().isEmpty()) {
@@ -58,71 +54,41 @@ public class InitialDataImportService {
     }
     
     private void fillNameParts(boolean isSection) {
-               
         final XSSFSheet sheet = importFile.getSheet(isSection ? "LogicalAreaStructure" : "DeviceCategoryStructure");
-        final Iterator<Row> rowIterator = sheet.iterator();
-        if (rowIterator.hasNext()) {
-            rowIterator.next();
-        }
-        if (rowIterator.hasNext()) {
-            rowIterator.next();
-        }
-       
-        while (rowIterator.hasNext()) {
-            final Row row = rowIterator.next();            
-            final int parent = (int) row.getCell(0).getNumericCellValue();
-            final int id = (int) row.getCell(1).getNumericCellValue();
-            final String fullName = As.notNull(cellAsString(row.getCell(2)));
-            final String name = As.notNull(cellAsString(row.getCell(3)));
-            @Nullable final String comment = cellAsString(row.getCell(4));
-            @Nullable final String type = cellAsString(row.getCell(5));
-            namePartsMap.put(id, isSection ? addSection(namePartsMap.get(parent), fullName, name) : addDeviceType(namePartsMap.get(parent), fullName, name)); 
-        }
-    }
-    
-    private @Nullable String cellAsString(@Nullable Cell cell) {
-        if (cell != null) {
-            if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                return String.valueOf(cell.getNumericCellValue());
-            } else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-                return cell.getStringCellValue();
-            } else {
-                throw new IllegalStateException();
+        for (Row row : sheet) {
+            if (row.getRowNum() >= 2) {
+                final int parent = (int) row.getCell(0).getNumericCellValue();
+                final int id = (int) row.getCell(1).getNumericCellValue();
+                final String name = As.notNull(cellAsString(row.getCell(2)));
+                final String mnemonic = As.notNull(cellAsString(row.getCell(3)));
+                @Nullable final String comment = cellAsString(row.getCell(4));
+                @Nullable final String type = cellAsString(row.getCell(5));
+                namePartsMap.put(id, isSection ? addSection(namePartsMap.get(parent), name, mnemonic) : addDeviceType(namePartsMap.get(parent), name, mnemonic));
             }
-        } else {
-            return null;
         }
     }
     
     private void fillDeviceNames() {
         final XSSFSheet sheet = importFile.getSheet("NamedDevices");
-        final Iterator<Row> rowIterator = sheet.iterator();
-        
-        if (rowIterator.hasNext()) {
-            rowIterator.next();
-        }
-       
-        while (rowIterator.hasNext()) {
-            final Row row = rowIterator.next();
-            
-            final int subsectionId = (int) row.getCell(1).getNumericCellValue();
-            final int deviceTypeId = (int) row.getCell(2).getNumericCellValue();
-            @Nullable final String instanceIndex = cellAsString(row.getCell(3));
-            @Nullable final String comment = cellAsString(row.getCell(4));
-            
-            addDeviceName(namePartsMap.get(subsectionId), namePartsMap.get(deviceTypeId), instanceIndex);
-            
+        for (Row row : sheet) {
+            if (row.getRowNum() >= 1) {
+                final int subsectionId = (int) row.getCell(1).getNumericCellValue();
+                final int deviceTypeId = (int) row.getCell(2).getNumericCellValue();
+                @Nullable final String instanceIndex = cellAsString(row.getCell(3));
+                @Nullable final String comment = cellAsString(row.getCell(4));
+                addDeviceName(namePartsMap.get(subsectionId), namePartsMap.get(deviceTypeId), instanceIndex);
+            }
         }
     }
     
-    private NamePart addSection(@Nullable NamePart parent, String longName, String shortName) {
-        final NamePartRevision newRevision = namePartService.addNamePart(shortName, longName, NamePartType.SECTION, parent, null, "Initial data");
+    private NamePart addSection(@Nullable NamePart parent, String name, String mnemonic) {
+        final NamePartRevision newRevision = namePartService.addNamePart(name, mnemonic, NamePartType.SECTION, parent, null, "Initial data");
         namePartService.approveNamePartRevision(newRevision, null, null);
         return newRevision.getNamePart();
     }
 
-    private NamePart addDeviceType(@Nullable NamePart parent, String longName, String shortName) {
-        final NamePartRevision newRevision = namePartService.addNamePart(shortName, longName, NamePartType.DEVICE_TYPE, parent, null, "Initial data");
+    private NamePart addDeviceType(@Nullable NamePart parent, String name, String mnemonic) {
+        final NamePartRevision newRevision = namePartService.addNamePart(name, mnemonic, NamePartType.DEVICE_TYPE, parent, null, "Initial data");
         namePartService.approveNamePartRevision(newRevision, null, null);
         return newRevision.getNamePart();
     }
@@ -130,5 +96,18 @@ public class InitialDataImportService {
     private void addDeviceName(NamePart subSection, NamePart deviceType, String instanceIndex) {
         deviceService.createDevice(subSection, deviceType, instanceIndex, null);
     }
-    
+
+    private @Nullable String cellAsString(@Nullable Cell cell) {
+        if (cell != null) {
+            if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+                return String.valueOf(cell.getNumericCellValue());
+            } else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+                return cell.getStringCellValue() != null ? cell.getStringCellValue() : null;
+            } else {
+                throw new UnhandledCaseException();
+            }
+        } else {
+            return null;
+        }
+    }
 }

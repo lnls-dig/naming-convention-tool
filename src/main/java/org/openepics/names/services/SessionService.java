@@ -1,12 +1,13 @@
 package org.openepics.names.services;
 
-import java.io.Serializable;
-import java.security.Principal;
+import org.openepics.names.model.Role;
+import org.openepics.names.model.UserAccount;
+
 import javax.enterprise.context.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import org.openepics.names.model.Role;
-import org.openepics.names.model.UserAccount;
+import java.io.Serializable;
+import java.security.Principal;
 
 /**
  *

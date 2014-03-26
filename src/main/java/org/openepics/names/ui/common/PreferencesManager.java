@@ -15,15 +15,14 @@
  */
 package org.openepics.names.ui.common;
 
+import javax.annotation.PostConstruct;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
 
 /**
  * Manages user preferences.

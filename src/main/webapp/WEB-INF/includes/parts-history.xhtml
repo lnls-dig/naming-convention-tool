@@ -17,21 +17,21 @@
                 <h:outputText value="#{nevent.id}" />
             </p:column>
             <p:column id="nameDesc" headerText="Name">
-                <h:outputText value="#{nevent.fullName}" />
+                <h:outputText value="#{nevent.name}" />
             </p:column>
             <p:column id="nameCode" headerText="Mnemonic" >
-                <h:outputText value="#{nevent.name}" />
+                <h:outputText value="#{nevent.mnemonic}" />
             </p:column>
             <p:column id="type" headerText="Type" >
                 <h:outputText value="#{namePartsController.getRequestType(nevent)}" />
             </p:column>
             <p:column id="reqBy" headerText="By" sortBy="#{nevent.nameEvent.requestedBy.username}" >
                 <h:outputText value="#{nevent.nameEvent.requestedBy.username}" />
-                 <h:outputLink id="pendingReqComment" value="#" rendered="#{nevent.nameEvent.requestorComment.length() > 0}">
+                 <h:outputLink id="pendingReqComment" value="#" rendered="#{nevent.nameEvent.requesterComment.length() > 0}">
                         <h:outputText styleClass="ui-icon ui-icon-info" style="display:inline-block; margin-left:10px !important; vertical-align:bottom !important;"/>
                  </h:outputLink>
                  <p:tooltip for="pendingReqComment">
-                 	<h:outputText value="#{nevent.nameEvent.requestorComment}" style="white-space: pre;" escape="false"/>
+                 	<h:outputText value="#{nevent.nameEvent.requesterComment}" style="white-space: pre;" escape="false"/>
                  </p:tooltip>
             </p:column>
             <p:column id="reqDate" headerText="Date" sortBy="#{nevent.nameEvent.requestDate}">

@@ -1,12 +1,13 @@
 package org.openepics.names.ui.parts;
 
 import com.google.common.collect.ImmutableList;
-import java.util.List;
-import javax.annotation.Nullable;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * @author Marko Kolar <marko.kolar@cosylab.com>
@@ -37,16 +38,16 @@ public class NamePartView {
 
     public class ModifyChange extends Change {
         private final @Nullable String newName;
-        private final @Nullable String newFullName;
+        private final @Nullable String newMnemonic;
 
-        public ModifyChange(NamePartRevisionStatus status, String newName, String newFullName) {
+        public ModifyChange(NamePartRevisionStatus status, String newName, String newMnemonic) {
             super(status);
             this.newName = newName;
-            this.newFullName = newFullName;
+            this.newMnemonic = newMnemonic;
         }
 
         public @Nullable String getNewName() { return newName; }
-        public @Nullable String getNewFullName() { return newFullName; }
+        public @Nullable String getNewMnemonic() { return newMnemonic; }
     }
 
     private final RestrictedNamePartService namePartService;
@@ -88,8 +89,8 @@ public class NamePartView {
                 return new AddChange(pendingRevision.getStatus());
             } else {
                 final @Nullable String newName = !pendingRevision.getName().equals(currentRevision.getName()) ? pendingRevision.getName() : null;
-                final @Nullable String newFullName = !pendingRevision.getFullName().equals(currentRevision.getFullName()) ? pendingRevision.getFullName() : null;
-                return new ModifyChange(pendingRevision.getStatus(), newName, newFullName);
+                final @Nullable String newMnemonic = !pendingRevision.getMnemonic().equals(currentRevision.getMnemonic()) ? pendingRevision.getMnemonic() : null;
+                return new ModifyChange(pendingRevision.getStatus(), newName, newMnemonic);
             }
         }
     }
@@ -102,7 +103,7 @@ public class NamePartView {
 
     public String getName() { return getCurrentOrElsePendingRevision().getName(); }
 
-    public String getFullName() { return getCurrentOrElsePendingRevision().getFullName(); }
+    public @Nullable String getMnemonic() { return getCurrentOrElsePendingRevision().getMnemonic(); }
 
     public List<String> getNamePath() {
         final ImmutableList.Builder<String> pathElements = ImmutableList.builder();
@@ -112,10 +113,10 @@ public class NamePartView {
         return pathElements.build().reverse();
     }
 
-    public List<String> getFullNamePath() {
+    public List<String> getMnemonicPath() {
         final ImmutableList.Builder<String> pathElements = ImmutableList.builder();
         for (NamePartView pathElement = this; pathElement != null; pathElement = pathElement.getParent()) {
-            pathElements.add(pathElement.getFullName());
+            pathElements.add(pathElement.getMnemonic());
         }
         return pathElements.build().reverse();
     }

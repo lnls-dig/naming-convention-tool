@@ -2,12 +2,13 @@ package org.openepics.names.ui.devices;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import java.util.List;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.UserAccount;
 import org.openepics.names.services.NamingConvention;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartView;
+
+import java.util.List;
 
 /**
  * @author Marko Kolar <marko.kolar@cosylab.com>
@@ -36,13 +37,13 @@ public class DeviceView {
     public String getDeviceTypePath() { return getNamePath(getDeviceType()); }
     public NamePartView getSection() { return viewFactory.getView(deviceName.getSection()); }
     public NamePartView getDeviceType() { return viewFactory.getView(deviceName.getDeviceType()); }
-    public String getQualifier() { return deviceName.getQualifier(); }
+    public String getInstanceIndex() { return deviceName.getInstanceIndex(); }
     public UserAccount getRequestedBy() { return deviceName.getRequestedBy(); }
 
     private String getNamePath(NamePartView nameEvent) {
         final List<String> pathElementNames = Lists.newArrayList();
         for (NamePartView pathElement = nameEvent; pathElement != null; pathElement = pathElement.getParent()) {
-            pathElementNames.add(0, pathElement.getFullName());
+            pathElementNames.add(0, pathElement.getName());
         }
         return Joiner.on(" ▸ ").join(pathElementNames);
     }

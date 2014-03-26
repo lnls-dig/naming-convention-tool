@@ -1,18 +1,16 @@
 package org.openepics.names.services.restricted;
 
 import com.google.common.base.Preconditions;
-import java.util.Date;
-import java.util.List;
+import org.openepics.names.model.*;
+import org.openepics.names.services.NamePartService;
+import org.openepics.names.services.SessionService;
+import org.openepics.names.util.NotImplementedException;
+
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import org.openepics.names.model.NamePart;
-import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.model.NamePartRevisionStatus;
-import org.openepics.names.model.NamePartType;
-import org.openepics.names.model.UserAccount;
-import org.openepics.names.services.NamePartService;
-import org.openepics.names.services.SessionService;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -24,25 +22,25 @@ public class RestrictedNamePartService {
     @Inject private SessionService sessionService;
     @Inject private NamePartService namePartService;
 
-    public NamePartRevision addNamePart(String name, String fullName, NamePartType nameType, @Nullable NamePart parent, String comment) {
+    public NamePartRevision addNamePart(String name, String mnemonic, NamePartType nameType, @Nullable NamePart parent, @Nullable String comment) {
         Preconditions.checkState(sessionService.isLoggedIn());
-        return namePartService.addNamePart(name, fullName, nameType, parent, sessionService.user(), comment);
+        return namePartService.addNamePart(name, mnemonic, nameType, parent, sessionService.user(), comment);
 
 //        if (sessionService.isEditor() && !nameCategory.isApprovalNeeded() && (parentBaseRevision == null || parentBaseRevision.getStatus() == NamePartRevisionStatus.APPROVED)) {
 //            autoApprove(newRevision);
 //        }
     }
 
-    public NamePartRevision modifyNamePart(NamePart namePart, String name, String fullName, String comment) {
+    public NamePartRevision modifyNamePart(NamePart namePart, String name, String mnemonic, @Nullable String comment) {
         Preconditions.checkState(sessionService.isLoggedIn());
-        return namePartService.modifyNamePart(namePart, name, fullName, sessionService.user(), comment);
+        return namePartService.modifyNamePart(namePart, name, mnemonic, sessionService.user(), comment);
 
 //        if (sessionService.isEditor() && !baseRevision.getNameCategory().isApprovalNeeded() && isOriginalCreator(sessionService.user(), namePart) && approvedParentRevision != null) {
 //            autoApprove(newRevision);
 //        }
     }
 
-    public NamePartRevision deleteNamePart(NamePart namePart, String comment) {
+    public NamePartRevision deleteNamePart(NamePart namePart, @Nullable String comment) {
         Preconditions.checkState(sessionService.isLoggedIn());
         return namePartService.deleteNamePart(namePart, sessionService.user(), comment);
 
@@ -51,7 +49,7 @@ public class RestrictedNamePartService {
 //        }
     }
 
-    public NamePartRevision cancelChangesForNamePart(NamePart namePart, String comment) {
+    public NamePartRevision cancelChangesForNamePart(NamePart namePart, @Nullable String comment) {
         return namePartService.cancelChangesForNamePart(namePart, sessionService.user(), comment, false);
     }
 
@@ -60,7 +58,7 @@ public class RestrictedNamePartService {
         return namePartService.cancelChangesForNamePart(namePart, sessionService.user(), comment, true);
     }
 
-    public void approveNamePartRevision(NamePartRevision namePartRevision, String comment) {
+    public void approveNamePartRevision(NamePartRevision namePartRevision, @Nullable String comment) {
         Preconditions.checkState(sessionService.isSuperUser());
         namePartService.approveNamePartRevision(namePartRevision, sessionService.user(), comment);
     }
@@ -121,6 +119,6 @@ public class RestrictedNamePartService {
     }
 
     private boolean isOriginalCreator(UserAccount user, NamePart namePart) {
-        throw new IllegalStateException(); // TODO
+        throw new NotImplementedException(); // TODO
     }
 }

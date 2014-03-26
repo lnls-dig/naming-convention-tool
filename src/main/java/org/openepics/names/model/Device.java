@@ -1,25 +1,27 @@
 package org.openepics.names.model;
 
-import java.util.Objects;
+import com.google.common.base.Preconditions;
+
 import javax.persistence.Entity;
-import javax.persistence.Table;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 @Entity
-@Table(name = "device")
 public class Device extends Persistable {
 
-    private String uuid;
+    private UUID uuid;
 
     protected Device() {}
 
-    public Device(String uuid) {
+    public Device(UUID uuid) {
+        Preconditions.checkNotNull(uuid);
         this.uuid = uuid;
     }
 
-    public String getUuid() { return uuid; }
+    public UUID getUuid() { return uuid; }
 
     @Override public boolean equals(Object other) {
         return other instanceof Device && ((Device) other).getUuid().equals(getUuid());

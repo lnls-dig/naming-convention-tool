@@ -2,6 +2,7 @@ package org.openepics.names.ui.common;
 
 import com.google.common.collect.Lists;
 import org.openepics.names.util.As;
+import org.openepics.names.util.UnhandledCaseException;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
@@ -37,7 +38,7 @@ public abstract class OperationsTreePreview<T> {
         } else if (selectionMode == SelectionMode.DISABLED) {
             childrenSelectionMode = SelectionMode.DISABLED;
         } else {
-            throw new IllegalStateException();
+            throw new UnhandledCaseException();
         }
 
         final List<TreeNode> childViews = Lists.newArrayList();

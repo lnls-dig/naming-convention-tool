@@ -1,10 +1,5 @@
 package org.openepics.names.ui.common;
 
-import org.primefaces.model.DefaultTreeNode;
-import org.primefaces.model.TreeNode;
-
-import java.util.List;
-
 /**
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */

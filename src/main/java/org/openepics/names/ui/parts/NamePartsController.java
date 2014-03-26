@@ -17,18 +17,6 @@ package org.openepics.names.ui.parts;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-
-import java.io.Serializable;
-import java.util.List;
-
-import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.model.NamePartType;
@@ -37,8 +25,19 @@ import org.openepics.names.ui.common.*;
 import org.openepics.names.ui.parts.NamePartView.Change;
 import org.openepics.names.ui.parts.NamePartView.ModifyChange;
 import org.openepics.names.util.Marker;
+import org.openepics.names.util.UnhandledCaseException;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
+
+import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.List;
 
 
 /**
@@ -106,7 +105,7 @@ public class NamePartsController implements Serializable {
     public void onAdd() {
         try {
             final NamePartView parent = getSelectedName();
-            final NamePartRevision newRequest = namePartService.addNamePart(newCode, newDescription, namePartType, parent != null ? parent.getNamePart() : null, newComment);
+            final NamePartRevision newRequest = namePartService.addNamePart(newDescription, newCode, namePartType, parent != null ? parent.getNamePart() : null, newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {
             init();
@@ -115,7 +114,7 @@ public class NamePartsController implements Serializable {
 
     public void onModify() {
         try {
-            final NamePartRevision newRequest = namePartService.modifyNamePart(getSelectedName().getNamePart(), newCode, newDescription, newComment);
+            final NamePartRevision newRequest = namePartService.modifyNamePart(getSelectedName().getNamePart(), newDescription, newCode, newComment);
             showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {
             init();
@@ -172,7 +171,7 @@ public class NamePartsController implements Serializable {
             if (change instanceof NamePartView.AddChange) return "Add request";
             else if (change instanceof NamePartView.ModifyChange) return "Modify request";
             else if (change instanceof NamePartView.DeleteChange) return "Delete request";
-            else throw new IllegalStateException();
+            else throw new UnhandledCaseException();
         } else {
             return req.isDeleted() ? "Deleted" : "";
         }
@@ -185,25 +184,25 @@ public class NamePartsController implements Serializable {
         } else {
             return req.getName();
         }
-
     }
 
-    public String getNewFullName(NamePartView req) {
+    public String getNewMnemonic(NamePartView req) {
         final Change change = req.getPendingChange();
-        if (change instanceof NamePartView.ModifyChange  && ((NamePartView.ModifyChange)change).getNewFullName() != null) {
-            return ((NamePartView.ModifyChange)change).getNewFullName();
+        if (change instanceof NamePartView.ModifyChange && ((NamePartView.ModifyChange)change).getNewMnemonic() != null) {
+            return ((NamePartView.ModifyChange)change).getNewMnemonic();
         } else {
-            return req.getFullName();
+            return req.getMnemonic();
         }
+
     }
 
-    public String getOperationsNewFullName(OperationView<NamePartView> opReq) {
+    public String getOperationsNewName(OperationView<NamePartView> opReq) {
         final NamePartView req = opReq.getNamePartView();
         final Change change = req.getPendingChange();
-        if (change instanceof NamePartView.ModifyChange && ((NamePartView.ModifyChange)change).getNewFullName() != null && !((NamePartView.ModifyChange) change).getNewFullName().equals("")) {
-            return ((NamePartView.ModifyChange)change).getNewFullName();
+        if (change instanceof NamePartView.ModifyChange && ((NamePartView.ModifyChange)change).getNewName() != null && !((NamePartView.ModifyChange) change).getNewName().equals("")) {
+            return ((NamePartView.ModifyChange)change).getNewName();
         } else {
-            return req.getFullName();
+            return req.getName();
         }
     }
 
@@ -214,7 +213,7 @@ public class NamePartsController implements Serializable {
     public boolean isModified(NamePartView req, boolean isFullName) {
     	if (req.getPendingChange() instanceof NamePartView.ModifyChange) {
 	    	final ModifyChange modifyChange = (ModifyChange) req.getPendingChange();
-	    	return ((isFullName && modifyChange.getNewFullName() != null) || !isFullName && modifyChange.getNewName() != null);
+	    	return ((isFullName && modifyChange.getNewName() != null) || !isFullName && modifyChange.getNewMnemonic() != null);
     	} else {
     	    return false;
         }
@@ -239,7 +238,7 @@ public class NamePartsController implements Serializable {
             viewWithDeletions = true;
             viewRoot = approvedAndProposedView(rootWithoutModifications);
         } else {
-            throw new IllegalStateException();
+            throw new UnhandledCaseException();
         }
         
     	newCode = newDescription = newComment = null;
@@ -258,7 +257,7 @@ public class NamePartsController implements Serializable {
             prefix = "Insert";
         } else if (change instanceof NamePartView.ModifyChange) {
             final ModifyChange modifyChange = (ModifyChange) change;
-            if ((isFullName && modifyChange.getNewFullName() != null) || !isFullName && modifyChange.getNewName() != null) {
+            if ((isFullName && modifyChange.getNewName() != null) || !isFullName && modifyChange.getNewMnemonic() != null) {
                 prefix = "Modify";
             } else {
                 prefix = "Insert";
@@ -266,13 +265,13 @@ public class NamePartsController implements Serializable {
         } else if (change instanceof NamePartView.DeleteChange) {
             prefix = "Delete";
         } else {
-            throw new IllegalStateException();
+            throw new UnhandledCaseException();
         }
 
         final String postfix;
         if (change == null) {
             postfix = "Approved";
-        } else if (change instanceof NamePartView.ModifyChange && !((isFullName && ((ModifyChange) change).getNewFullName() != null) || !isFullName && ((ModifyChange) change).getNewName() != null)) {
+        } else if (change instanceof NamePartView.ModifyChange && !((isFullName && ((ModifyChange) change).getNewName() != null) || !isFullName && ((ModifyChange) change).getNewMnemonic() != null)) {
             postfix = "Approved";
         } else if (change.getStatus() == NamePartRevisionStatus.APPROVED) {
             postfix = "Approved";
@@ -295,7 +294,7 @@ public class NamePartsController implements Serializable {
             case CANCELLED: return "Cancelled";
             case REJECTED: return "Rejected";
             case APPROVED: return nreq.isDeleted() ? "Deleted" : "Approved";
-            default: throw new IllegalStateException();
+            default: throw new UnhandledCaseException();
         }
     }
 
@@ -305,7 +304,7 @@ public class NamePartsController implements Serializable {
             case CANCELLED: return "default";
             case REJECTED: return "default";
             case APPROVED: return "Approved";
-            default: throw new IllegalStateException();
+            default: throw new UnhandledCaseException();
         }
     }
 
@@ -332,7 +331,7 @@ public class NamePartsController implements Serializable {
     }
 
     public String getNewCode() {
-    	newCode = (getSelectedName() == null || !modify) ? null : getSelectedName().getPendingOrElseCurrentRevision().getName();
+    	newCode = (getSelectedName() == null || !modify) ? null : getSelectedName().getPendingOrElseCurrentRevision().getMnemonic();
     	if (modify) {
     		checkForChanges();
     	}
@@ -341,7 +340,7 @@ public class NamePartsController implements Serializable {
     public void setNewCode(String newCode) { this.newCode = newCode; }
 
     public String getNewDescription() {
-    	newDescription = (getSelectedName() == null || !modify) ? null : getSelectedName().getPendingOrElseCurrentRevision().getFullName();
+    	newDescription = (getSelectedName() == null || !modify) ? null : getSelectedName().getPendingOrElseCurrentRevision().getName();
     	return newDescription;
     }
     public void setNewDescription(String newDescription) { this.newDescription = newDescription; }
@@ -353,7 +352,7 @@ public class NamePartsController implements Serializable {
     public boolean canSaveModifications() { return !isDifferentThenCurrent; }
 
     public void checkForChanges() {
-        isDifferentThenCurrent = (!newDescription.equals(getSelectedName().getPendingOrElseCurrentRevision().getFullName()) || !newCode.equals(getSelectedName().getPendingOrElseCurrentRevision().getName()));
+        isDifferentThenCurrent = (!newDescription.equals(getSelectedName().getPendingOrElseCurrentRevision().getName()) || !newCode.equals(getSelectedName().getPendingOrElseCurrentRevision().getMnemonic()));
     }
 
     public String getNewComment() {
@@ -394,7 +393,7 @@ public class NamePartsController implements Serializable {
     public String getPendingComment(NamePartView selectedName) {
     	List<NamePartView> historyEvents = findHistory(selectedName);
     	if (historyEvents != null && historyEvents.size() > 0) {
-    		return historyEvents.get(historyEvents.size() - 1).getNameEvent().getRequestorComment();
+    		return historyEvents.get(historyEvents.size() - 1).getNameEvent().getRequesterComment();
     	} else {
     	    return null;
     	}

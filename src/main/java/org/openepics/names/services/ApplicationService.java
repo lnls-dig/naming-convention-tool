@@ -1,6 +1,6 @@
 package org.openepics.names.services;
 
-import java.io.IOException;
+import org.openepics.names.model.AppInfo;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
@@ -8,8 +8,7 @@ import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
-import org.openepics.names.model.AppInfo;
+import java.io.IOException;
 
 /**
  *

@@ -1,7 +1,6 @@
 package org.openepics.names.ui.common;
 
 import com.google.common.collect.Lists;
-import org.openepics.names.ui.parts.NamePartView;
 import org.openepics.names.util.As;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;

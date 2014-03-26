@@ -1,12 +1,14 @@
 package org.openepics.names.services;
 
 import com.google.common.collect.Lists;
-import java.util.List;
-import javax.ejb.Stateless;
-import javax.enterprise.inject.Alternative;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.ui.devices.DeviceView;
 import org.openepics.names.ui.parts.NamePartView;
+import org.openepics.names.util.UnhandledCaseException;
+
+import javax.ejb.Stateless;
+import javax.enterprise.inject.Alternative;
+import java.util.List;
 
 /**
  *
@@ -24,10 +26,10 @@ public class EssNamingConvention implements NamingConvention {
         final NamePartView subsection = sectionPath.get(2);
         final NamePartView discipline = deviceTypePath.get(0);
         final NamePartView genericDeviceType = deviceTypePath.get(2);
-        if (supersection.getName().equals("Acc")) {
-            return section.getName() + "-" + discipline.getName() + ":" + genericDeviceType.getName() + "-" + subsection.getName() + deviceName.getQualifier();
+        if (supersection.getMnemonic().equals("Acc")) {
+            return section.getMnemonic() + "-" + discipline.getMnemonic() + ":" + genericDeviceType.getMnemonic() + "-" + subsection.getMnemonic() + deviceName.getInstanceIndex();
         } else {
-            return section.getName() + "-" + subsection.getName() + ":" + discipline.getName() + "-" + deviceName.getQualifier();
+            return section.getMnemonic() + "-" + subsection.getMnemonic() + ":" + discipline.getMnemonic() + "-" + deviceName.getInstanceIndex();
         }
     }
 
@@ -39,20 +41,20 @@ public class EssNamingConvention implements NamingConvention {
         if (namePart.getNamePart().getNamePartType() == NamePartType.SECTION) {
             final List<NamePartView> sectionPath = namePartPath(namePart);
             final NamePartView supersection = sectionPath.get(0);
-            if (supersection != null && supersection.getName().equals("Acc") && sectionPath.indexOf(namePart) == 2) {
-                return namePart.getName().matches("^[0-9][0-9][1-9]$");
+            if (supersection != null && supersection.getMnemonic().equals("Acc") && sectionPath.indexOf(namePart) == 2) {
+                return namePart.getMnemonic().matches("^[0-9][0-9][1-9]$");
             } else {
-                return namePart.getName().matches("^[a-zA-Z][a-zA-Z0-9]*$");
+                return namePart.getMnemonic().matches("^[a-zA-Z][a-zA-Z0-9]*$");
             }
         } else if (namePart.getNamePart().getNamePartType() == NamePartType.DEVICE_TYPE) {
-            return namePart.getName().matches("^[a-zA-Z][a-zA-Z0-9]*$");
+            return namePart.getMnemonic().matches("^[a-zA-Z][a-zA-Z0-9]*$");
         } else {
-            throw new IllegalStateException();
+            throw new UnhandledCaseException();
         }
     }
 
     @Override public boolean isDeviceNameValid(DeviceView deviceName) {
-        return deviceName.getQualifier().matches("^[a-zA-Z][a-zA-Z0-9]*$");
+        return deviceName.getInstanceIndex().matches("^[a-zA-Z][a-zA-Z0-9]*$");
     }
 
     private List<NamePartView> namePartPath(NamePartView namePart) {

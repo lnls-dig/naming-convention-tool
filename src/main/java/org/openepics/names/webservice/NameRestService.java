@@ -4,8 +4,8 @@
  */
 package org.openepics.names.webservice;
 
-import java.util.Set;
 import javax.ws.rs.core.Application;
+import java.util.Set;
 
 /**
  *

@@ -1,6 +1,10 @@
 package org.openepics.names.webservice;
 
-import java.util.List;
+import com.google.common.collect.Lists;
+import org.openepics.names.model.Device;
+import org.openepics.names.model.DeviceRevision;
+import org.openepics.names.services.restricted.RestrictedDeviceService;
+import org.openepics.names.ui.common.ViewFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -8,14 +12,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
-import org.openepics.names.model.Device;
-import org.openepics.names.model.DeviceRevision;
-import org.openepics.names.model.NamePart;
-import org.openepics.names.services.restricted.RestrictedDeviceService;
-import org.openepics.names.ui.common.ViewFactory;
-
-import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Andraz Pozar <andraz.pozar@cosylab.com>
@@ -33,12 +31,12 @@ public class AllDeviceNamesResource {
         
         for (Device device : deviceService.devices(false)) {
             final DeviceRevision deviceRevision = deviceService.currentRevision(device);
-            final String uuid = deviceRevision.getDevice().getUuid();
-            final String section = viewFactory.getView(deviceRevision.getSection()).getParent().getName();
-            final String subSection = viewFactory.getView(deviceRevision.getSection()).getName();
-            final String discipline = viewFactory.getView(deviceRevision.getDeviceType()).getParent().getParent().getName();
-            final String deviceType = viewFactory.getView(deviceRevision.getDeviceType()).getName();
-            final String instanceIndex = viewFactory.getView(deviceRevision).getQualifier();
+            final UUID uuid = deviceRevision.getDevice().getUuid();
+            final String section = viewFactory.getView(deviceRevision.getSection()).getParent().getMnemonic();
+            final String subSection = viewFactory.getView(deviceRevision.getSection()).getMnemonic();
+            final String discipline = viewFactory.getView(deviceRevision.getDeviceType()).getParent().getParent().getMnemonic();
+            final String deviceType = viewFactory.getView(deviceRevision.getDeviceType()).getMnemonic();
+            final String instanceIndex = viewFactory.getView(deviceRevision).getInstanceIndex();
             final String name = viewFactory.getView(deviceRevision).getConventionName();
             final DeviceNameElement deviceData = new DeviceNameElement(uuid, section, subSection, discipline, deviceType, instanceIndex, name);
             deviceNames.add(deviceData);

@@ -4,10 +4,9 @@
  */
 package org.openepics.names.ui.common;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.openepics.names.services.SessionService;
+import org.primefaces.context.RequestContext;
+
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -17,8 +16,10 @@ import javax.inject.Inject;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import org.openepics.names.services.SessionService;
-import org.primefaces.context.RequestContext;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *

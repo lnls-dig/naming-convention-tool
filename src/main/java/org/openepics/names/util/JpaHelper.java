@@ -1,8 +1,8 @@
 package org.openepics.names.util;
 
-import java.util.List;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.TypedQuery;
+import java.util.List;
 
 /**
  *

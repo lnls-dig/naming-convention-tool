@@ -1,16 +1,17 @@
 package org.openepics.names.services;
 
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import javax.annotation.Nullable;
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.UserAccount;
+
+import javax.annotation.Nullable;
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -45,9 +46,9 @@ public class DeviceService {
         return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device = :device ORDER BY r.id", DeviceRevision.class).setParameter("device", device).getResultList();
     }
 
-    public DeviceRevision createDevice(NamePart section, NamePart deviceType, String qualifier, @Nullable UserAccount user) {
-        final Device device = new Device(UUID.randomUUID().toString());
-        final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), false, section, deviceType, qualifier);
+    public DeviceRevision createDevice(NamePart section, NamePart deviceType, @Nullable String instanceIndex, @Nullable UserAccount user) {
+        final Device device = new Device(UUID.randomUUID());
+        final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), false, section, deviceType, instanceIndex);
 
         em.persist(device);
         em.persist(newRevision);
@@ -55,10 +56,10 @@ public class DeviceService {
         return newRevision;
     }
 
-    public DeviceRevision modifyDevice(Device device, NamePart section, NamePart deviceType, String qualifier, @Nullable UserAccount user) {
+    public DeviceRevision modifyDevice(Device device, NamePart section, NamePart deviceType, @Nullable String instanceIndex, @Nullable UserAccount user) {
         final DeviceRevision currentRevision = currentRevision(device);
 
-        final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), false, section,  deviceType, qualifier);
+        final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), false, section,  deviceType, instanceIndex);
         em.persist(newRevision);
 
         return newRevision;
@@ -68,7 +69,7 @@ public class DeviceService {
         final DeviceRevision currentRevision = currentRevision(device);
 
         if (!currentRevision.isDeleted()) {
-            final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), true, currentRevision.getSection(), currentRevision.getDeviceType(), currentRevision.getQualifier());
+            final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), true, currentRevision.getSection(), currentRevision.getDeviceType(), currentRevision.getInstanceIndex());
             em.persist(newRevision);
             return newRevision;
         } else {

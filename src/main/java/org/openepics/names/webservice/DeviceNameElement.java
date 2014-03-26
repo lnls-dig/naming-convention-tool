@@ -5,7 +5,7 @@
 package org.openepics.names.webservice;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
+import java.util.UUID;
 
 
 /**
@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class DeviceNameElement {
-    private String uuid;
+    private UUID uuid;
     private String section;
     private String subSection;
     private String discipline;
@@ -25,7 +25,7 @@ public class DeviceNameElement {
     
     
 
-    public DeviceNameElement(String uuid, String section, String subSection,
+    public DeviceNameElement(UUID uuid, String section, String subSection,
             String discipline, String deviceType, String instanceIndex,
             String name) {
         super();
@@ -38,7 +38,7 @@ public class DeviceNameElement {
         this.name = name;
     }
 
-    public String getUuid() {
+    public UUID getUuid() {
         return uuid;
     }
 

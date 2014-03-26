@@ -1,23 +1,20 @@
 package org.openepics.names.services;
 
 import com.google.common.base.Preconditions;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import org.openepics.names.model.*;
+import org.openepics.names.util.As;
+import org.openepics.names.util.JpaHelper;
+import org.openepics.names.util.Marker;
+import org.openepics.names.util.UnhandledCaseException;
+
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.openepics.names.model.Device;
-import org.openepics.names.model.NamePart;
-import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.model.NamePartRevisionStatus;
-import org.openepics.names.model.NamePartType;
-import org.openepics.names.model.UserAccount;
-import org.openepics.names.util.As;
-import org.openepics.names.util.JpaHelper;
-import org.openepics.names.util.Marker;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -29,15 +26,15 @@ public class NamePartService {
     @Inject private DeviceService deviceService;
     @PersistenceContext private EntityManager em;
 
-    public NamePartRevision addNamePart(String name, String fullName, NamePartType nameType, @Nullable NamePart parent, @Nullable UserAccount user, String comment) {
+    public NamePartRevision addNamePart(String name, String mnemonic, NamePartType nameType, @Nullable NamePart parent, @Nullable UserAccount user, @Nullable String comment) {
         Preconditions.checkArgument(parent == null || parent.getNamePartType() == nameType);
 
         final @Nullable NamePartRevision parentBaseRevision = parent != null ? approvedOrElsePendingRevision(parent) : null;
         final @Nullable NamePartRevision parentPendingRevision = parent != null ? pendingRevision(parent) : null;
         Preconditions.checkState((parentBaseRevision == null || !parentBaseRevision.isDeleted()) && (parentPendingRevision == null || !parentPendingRevision.isDeleted()));
 
-        final NamePart namePart = new NamePart(UUID.randomUUID().toString(), nameType);
-        final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, false, parent, name, fullName);
+        final NamePart namePart = new NamePart(UUID.randomUUID(), nameType);
+        final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, false, parent, name, mnemonic);
 
         em.persist(namePart);
         em.persist(newRevision);
@@ -45,7 +42,7 @@ public class NamePartService {
         return newRevision;
     }
 
-    public NamePartRevision modifyNamePart(NamePart namePart, String name, String fullName, @Nullable UserAccount user, String comment) {
+    public NamePartRevision modifyNamePart(NamePart namePart, String name, String mnemonic, @Nullable UserAccount user, @Nullable String comment) {
         final NamePartRevision baseRevision = approvedOrElsePendingRevision(namePart);
         Preconditions.checkState(!baseRevision.isDeleted());
 
@@ -56,14 +53,14 @@ public class NamePartService {
             updateRevisionStatus(pendingRevision, NamePartRevisionStatus.CANCELLED, user, null);
         }
 
-        final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, false, baseRevision.getParent(), name, fullName);
+        final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, false, baseRevision.getParent(), name, mnemonic);
 
         em.persist(newRevision);
 
         return newRevision;
     }
 
-    public NamePartRevision deleteNamePart(NamePart namePart, @Nullable UserAccount user, String comment) {
+    public NamePartRevision deleteNamePart(NamePart namePart, @Nullable UserAccount user, @Nullable String comment) {
         final @Nullable NamePartRevision approvedRevision = approvedRevision(namePart);
         final @Nullable NamePartRevision pendingRevision = pendingRevision(namePart);
 
@@ -77,7 +74,7 @@ public class NamePartService {
             }
 
             if (approvedRevision != null) {
-                final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, true, approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getFullName());
+                final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, true, approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getMnemonic());
                 em.persist(newRevision);
                 return newRevision;
             } else {
@@ -88,7 +85,7 @@ public class NamePartService {
         }
     }
 
-    public NamePartRevision cancelChangesForNamePart(NamePart namePart, @Nullable UserAccount user, String comment, boolean markAsRejected) {
+    public NamePartRevision cancelChangesForNamePart(NamePart namePart, @Nullable UserAccount user, @Nullable String comment, boolean markAsRejected) {
         final @Nullable NamePartRevision approvedRevision = approvedRevision(namePart);
         final @Nullable NamePartRevision pendingRevision = pendingRevision(namePart);
 
@@ -121,7 +118,7 @@ public class NamePartService {
         }
     }
 
-    public void approveNamePartRevision(NamePartRevision namePartRevision, @Nullable UserAccount user, String comment) {
+    public void approveNamePartRevision(NamePartRevision namePartRevision, @Nullable UserAccount user, @Nullable String comment) {
         namePartRevision = emAttached(namePartRevision);
         if (namePartRevision.getStatus() == NamePartRevisionStatus.PENDING) {
             if (canApproveChild(namePartRevision.getParent())) {
@@ -172,7 +169,7 @@ public class NamePartService {
                 deviceService.deleteDevice(device, user);
             }
         } else {
-            throw new IllegalStateException();
+            throw new UnhandledCaseException();
         }
     }
 

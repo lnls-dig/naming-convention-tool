@@ -6,26 +6,18 @@
 
 package org.openepics.names.ui.parts;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nullable;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
-import javax.inject.Inject;
-
-import org.openepics.names.model.Device;
+import com.google.common.collect.Lists;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.ui.common.ViewFactory;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
-import com.google.common.collect.Lists;
+import javax.annotation.Nullable;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
+import javax.inject.Inject;
+import java.util.*;
 
 /**
  *
@@ -38,7 +30,7 @@ public class NamePartTreeBuilder {
     @Inject private ViewFactory viewFactory;
 
     private class NamePartRevisionPair {
-        private String uuid;
+        private UUID uuid;
         private NamePartRevision approved;
         private NamePartRevision pending;
 
@@ -54,7 +46,7 @@ public class NamePartTreeBuilder {
             return this;
         }
 
-        private @Nullable String getParentUuid() {
+        private @Nullable UUID getParentUuid() {
             if (approved != null)
                 return approved.getParent() != null ? approved.getParent().getUuid() : null;
             return pending.getParent() != null ? pending.getParent().getUuid() : null;
@@ -73,7 +65,7 @@ public class NamePartTreeBuilder {
         }
 
         private final NamePartRevisionTreeNode root;
-        private final HashMap<String, NamePartRevisionTreeNode> inventory;
+        private final HashMap<UUID, NamePartRevisionTreeNode> inventory;
         private final boolean expandedTree;
         private final int selectableLevel;
         private final NamePart selectedNamePart;
@@ -91,7 +83,7 @@ public class NamePartTreeBuilder {
             return inventory.containsKey(pair.uuid);
         }
 
-        private void addChildToParent(@Nullable String parentUuid, NamePartRevisionPair pair) {
+        private void addChildToParent(@Nullable UUID parentUuid, NamePartRevisionPair pair) {
             final NamePartRevisionTreeNode newNode = new NamePartRevisionTreeNode(pair);
             if (parentUuid != null)
                 inventory.get(parentUuid).children.add(newNode);
@@ -108,8 +100,7 @@ public class NamePartTreeBuilder {
 	                treeNode.setExpanded(true);
 	                treeNode = treeNode.getParent();
 	            }
-            } else if ((treeNode != null && selectedNamePart == null) 
-            			|| (treeNode == null && selectedNamePart != null)) {
+            } else if ((treeNode != null && selectedNamePart == null) || (treeNode == null && selectedNamePart != null)) {
             	throw new IllegalStateException();
             }
 
@@ -134,7 +125,7 @@ public class NamePartTreeBuilder {
                     final NamePartView leftView = (NamePartView) left.getData();
                     final NamePartView rightView = (NamePartView) right.getData();
                     final AlphanumComparator alphanumComparator = new AlphanumComparator();
-                    return alphanumComparator.compare(leftView.getFullName(), rightView.getFullName());
+                    return alphanumComparator.compare(leftView.getName(), rightView.getName());
                 }
             });
             if (level == 0) {
@@ -161,7 +152,7 @@ public class NamePartTreeBuilder {
     }
 
     public TreeNode namePartApprovalTree(List<NamePartRevision> approved, List<NamePartRevision> pending, boolean expandedTree, int selectableLevel, NamePart selected) {
-        final Map<String, NamePartRevisionPair> completeNamePartList = new HashMap<>();
+        final Map<UUID, NamePartRevisionPair> completeNamePartList = new HashMap<>();
 
         for (NamePartRevision approvedNPR : approved)
             completeNamePartList.put(approvedNPR.getNamePart().getUuid(), new NamePartRevisionPair().approved(approvedNPR));
@@ -181,9 +172,9 @@ public class NamePartTreeBuilder {
         return nprt.asViewTree();
     }
 
-    private void addNamePartRevisionNode(NamePartRevisionTree nprt, NamePartRevisionPair pair, Map<String, NamePartRevisionPair> allPairs ) {
+    private void addNamePartRevisionNode(NamePartRevisionTree nprt, NamePartRevisionPair pair, Map<UUID, NamePartRevisionPair> allPairs ) {
         if(!nprt.hasNode(pair)) {
-            final String parentId = pair.getParentUuid();
+            final UUID parentId = pair.getParentUuid();
             if (parentId == null) {
                 nprt.addChildToParent(null, pair);
             } else {

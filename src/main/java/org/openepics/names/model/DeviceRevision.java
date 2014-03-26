@@ -1,64 +1,46 @@
 package org.openepics.names.model;
 
-import java.util.Date;
+import com.google.common.base.Preconditions;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
+import javax.annotation.Nullable;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Date;
 
 /**
  * @author <a href="mailto:jakob.battelino@cosylab.com">Jakob Battelino Prelog</a>
  */
 @Entity
-@Table(name = "device_name")
-@XmlRootElement
 public class DeviceRevision extends Persistable {
 
-    @JoinColumn(name = "device_id", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private Device device;
+    private @ManyToOne Device device;
 
-    @JoinColumn(name = "requested_by", referencedColumnName = "id")
-    @ManyToOne(optional = true)
-    private UserAccount requestedBy;
+    private @ManyToOne UserAccount requestedBy;
 
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "request_date")
-    @Temporal(TemporalType.TIMESTAMP)
     private Date requestDate;
 
-    @Column(name = "deleted")
     private boolean deleted;
 
-    @JoinColumn(name = "section_id", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private NamePart section;
+    private @ManyToOne NamePart section;
 
-    @JoinColumn(name = "device_type_id", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private NamePart deviceType;
+    private @ManyToOne NamePart deviceType;
 
-    @Column(name = "qualifier")
-    private String qualifier;
+    private @Nullable String instanceIndex;
 
     protected DeviceRevision() {}
 
-    public DeviceRevision(Device device, UserAccount requesedBy, Date requestDate, boolean deleted, NamePart section, NamePart deviceType, String qualifier) {
+    public DeviceRevision(Device device, @Nullable UserAccount requestedBy, Date requestDate, boolean deleted, NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+        Preconditions.checkNotNull(device);
+        Preconditions.checkNotNull(requestDate);
+        Preconditions.checkNotNull(section);
+        Preconditions.checkNotNull(deviceType);
+        Preconditions.checkArgument(instanceIndex == null || !instanceIndex.isEmpty());
         this.device = device;
-        this.requestedBy = requesedBy;
+        this.requestedBy = requestedBy;
         this.requestDate = requestDate;
         this.section = section;
         this.deviceType = deviceType;
-        this.qualifier = qualifier;
+        this.instanceIndex = instanceIndex;
         this.deleted = deleted;
     }
 
@@ -74,5 +56,5 @@ public class DeviceRevision extends Persistable {
 
     public NamePart getDeviceType() { return deviceType; }
 
-    public String getQualifier() { return qualifier; }
+    public @Nullable String getInstanceIndex() { return instanceIndex; }
 }

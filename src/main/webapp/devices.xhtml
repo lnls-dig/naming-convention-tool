@@ -88,8 +88,7 @@
 				<p:ajax event="unselect"
 					update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />
 
-				<p:column id="devName" headerText="Device Name"
-					filterBy="#{namePart.fullName}" filterMatchMode="contains">
+				<p:column id="devName" headerText="Device Name">
 					<h:outputText value=""
 						style="display:inline-block; vertical-align:bottom !important"
 						styleClass="ui-icon ui-icon-wrench"
@@ -97,7 +96,7 @@
 					<h:outputText value="#{namePart.conventionName}"
 						styleClass="#{namePart.device.deleted ? 'Deleted' : 'Insert-Approved-Old'}"
 						rendered="#{namePart['class'].simpleName eq 'DeviceView'}" />
-					<h:outputText value="#{namePart.fullName}"
+					<h:outputText value="#{namePart.name}"
 						styleClass="Insert-Approved-Old"
 						rendered="#{namePart['class'].simpleName eq 'NamePartView'}" />
 				</p:column>
@@ -159,7 +158,7 @@
 										rendered="#{candidate.namePartView['class'].simpleName eq 'DeviceView'}" />
 									<h:outputText
 										styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}"
-										value="#{candidate.namePartView.fullName}"
+										value="#{candidate.namePartView.name}"
 										rendered="#{candidate.namePartView['class'].simpleName eq 'NamePartView'}" />
 
 								</p:column>

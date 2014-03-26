@@ -1,31 +1,26 @@
 package org.openepics.names.ui.devices;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-import javax.annotation.Nullable;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Table;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openepics.names.model.Device;
-import org.openepics.names.model.DeviceRevision;
-import org.openepics.names.model.NamePart;
-import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.model.NamePartType;
+import org.openepics.names.model.*;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.ui.parts.NamePartView;
 import org.primefaces.model.TreeNode;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Table;
+import javax.annotation.Nullable;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
 
 @Stateless
 public class ExcelImport {
@@ -89,7 +84,7 @@ public class ExcelImport {
         }
         
         for (DeviceRevision deviceRevision : allDevices) {
-            if (deviceRevision.getSection().equals(sectionPart) && deviceRevision.getDeviceType().equals(typePart) && deviceRevision.getQualifier().equals(index)) {
+            if (deviceRevision.getSection().equals(sectionPart) && deviceRevision.getDeviceType().equals(typePart) && deviceRevision.getInstanceIndex().equals(index)) {
                 return;
             }
         }
@@ -103,7 +98,7 @@ public class ExcelImport {
             if (childView != null && (level == 0 || level == 1)) {
                 populateSectionsTable(childNode, level + 1);
             } else if (nodeView != null && childView != null && level == 2) {
-                sectionsTable.put(nodeView.getName(), childView.getName(), childView.getNamePart());
+                sectionsTable.put(nodeView.getMnemonic(), childView.getMnemonic(), childView.getNamePart());
             }
         }
     }
@@ -114,9 +109,9 @@ public class ExcelImport {
             if (childView != null && (level == 1)) {
                 populateTypesTable(childNode, level + 1, discipline);
             } else if (childView != null && level == 0) {
-                populateTypesTable(childNode, level + 1, childView.getName());
+                populateTypesTable(childNode, level + 1, childView.getMnemonic());
             } else if  (childView != null && level == 2) {
-                typesTable.put(discipline, childView.getName(), childView.getNamePart());
+                typesTable.put(discipline, childView.getMnemonic(), childView.getNamePart());
             }
         }
     }

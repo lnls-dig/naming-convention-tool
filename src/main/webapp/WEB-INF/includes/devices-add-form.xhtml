@@ -26,8 +26,8 @@
                             <p:ajax event="unselect" update=":#{formId}:bsub" />
 
                             <p:treeNode>
-                                <h:outputText value="#{devType.fullName}" />
-                                <h:outputText value=" (#{devType.name})" rendered="#{not empty devType.name}" />
+                                <h:outputText value="#{devType.name}" />
+                                <h:outputText value=" (#{devType.mnemonic})" rendered="#{not empty devType.mnemonic}" />
                             </p:treeNode>
                         </p:tree>
                     </p:column>
@@ -36,7 +36,7 @@
                     <p:column>
                         <h:outputLabel value="Instance index:" />
                         <p:spacer width="5" />
-                        <h:inputText id="quantifier" value="#{devicesController.deviceQuantifier}" />
+                        <h:inputText value="#{devicesController.deviceInstanceIndex}" />
                         <p:button icon="ui-icon-refresh" style="float: right; height: 1.5em; width: 1.5em;"/>
                     </p:column>
                 </p:row>

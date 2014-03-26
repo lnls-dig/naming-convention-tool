@@ -15,96 +15,63 @@
  */
 package org.openepics.names.model;
 
-import java.util.Date;
+import com.google.common.base.Preconditions;
+
 import javax.annotation.Nullable;
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Date;
 
 /**
  *
  * @author Vasu V <vuppala@frib.msu.org>
  */
 @Entity
-@Table(name = "name_part_revision")
-@XmlRootElement
 public class NamePartRevision extends Persistable {
 
-    @JoinColumn(name = "name_part_id", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private NamePart namePart;
+    private @ManyToOne NamePart namePart;
 
-    @JoinColumn(name = "requested_by", referencedColumnName = "id")
-    @ManyToOne(optional = true)
-    private @Nullable UserAccount requestedBy;
+    private @ManyToOne @Nullable UserAccount requestedBy;
 
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "request_date")
-    @Temporal(TemporalType.TIMESTAMP)
     private Date requestDate;
 
-    @Size(max = 255)
-    @Column(name = "requestor_comment")
-    private @Nullable String requestorComment;
+    private @Nullable String requesterComment;
 
-    @Column(name = "deleted")
     private boolean deleted;
 
-    @JoinColumn(name = "parent_id", referencedColumnName = "id")
-    @ManyToOne(optional = true)
-    private NamePart parent;
+    private @ManyToOne @Nullable NamePart parent;
 
-    @Basic(optional = true)
-    @Size(min = 1, max = 32)
-    @Column(name = "name", nullable = true)
     private String name;
 
-    @Basic(optional = false)
-    @Size(min = 1, max = 255)
-    @NotNull
-    @Column(name = "full_name")
-    private String fullName;
+    private String mnemonic;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
-    @Column(name = "status")
     private NamePartRevisionStatus status;
 
-    @JoinColumn(name = "processed_by", referencedColumnName = "id")
-    @ManyToOne(optional = true)
-    private UserAccount processedBy;
+    private @ManyToOne @Nullable UserAccount processedBy;
 
-    @Column(name = "process_date")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date processDate;
+    private @Nullable Date processDate;
 
-    @Size(max = 255)
-    @Column(name = "processor_comment")
-    private String processorComment;
+    private @Nullable String processorComment;
 
     protected NamePartRevision() {
     }
 
-    public NamePartRevision(NamePart namePart, @Nullable UserAccount requestedBy, Date requestDate, @Nullable String requestorComment, boolean deleted, NamePart parent, String name, String fullName) {
+    public NamePartRevision(NamePart namePart, @Nullable UserAccount requestedBy, Date requestDate, @Nullable String requesterComment, boolean deleted, @Nullable NamePart parent, String name, String mnemonic) {
+        Preconditions.checkNotNull(namePart);
+        Preconditions.checkNotNull(requestDate);
+        Preconditions.checkArgument(name != null && !name.isEmpty());
+        Preconditions.checkArgument(mnemonic != null && !mnemonic.isEmpty());
         this.namePart = namePart;
         this.requestedBy = requestedBy;
         this.requestDate = requestDate;
-        this.requestorComment = requestorComment;
+        this.requesterComment = requesterComment;
         this.deleted = deleted;
         this.parent = parent;
         this.name = name;
-        this.fullName = fullName;
+        this.mnemonic = mnemonic;
         this.status = NamePartRevisionStatus.PENDING;
         this.processedBy = null;
         this.processDate = null;
@@ -117,51 +84,25 @@ public class NamePartRevision extends Persistable {
 
     public Date getRequestDate() { return requestDate; }
 
-    public @Nullable String getRequestorComment() { return requestorComment; }
+    public @Nullable String getRequesterComment() { return requesterComment; }
 
     public boolean isDeleted() { return deleted; }
 
-    public NamePart getParent() { return parent; }
+    public @Nullable NamePart getParent() { return parent; }
 
     public String getName() { return name; }
 
-    public String getFullName() { return fullName; }
+    public String getMnemonic() { return mnemonic; }
 
     public NamePartRevisionStatus getStatus() { return status; }
     public void setStatus(NamePartRevisionStatus status) { this.status = status; }
 
-    public UserAccount getProcessedBy() { return processedBy; }
+    public @Nullable UserAccount getProcessedBy() { return processedBy; }
     public void setProcessedBy(UserAccount processedBy) { this.processedBy = processedBy; }
 
-    public Date getProcessDate() { return processDate; }
+    public @Nullable Date getProcessDate() { return processDate; }
     public void setProcessDate(Date processDate) { this.processDate = processDate; }
 
-    public String getProcessorComment() { return processorComment; }
+    public @Nullable String getProcessorComment() { return processorComment; }
     public void setProcessorComment(String processorComment) { this.processorComment = processorComment; }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are
-        // not set
-        if (!(object instanceof NamePartRevision)) {
-            return false;
-        }
-        NamePartRevision other = (NamePartRevision) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "org.openepics.names.NamePartRevision[ id=" + id + " ]";
-    }
 }

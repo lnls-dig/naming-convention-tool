@@ -1,31 +1,34 @@
 package org.openepics.names.model;
 
-import java.util.Objects;
+import com.google.common.base.Preconditions;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Table;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 @Entity
-@Table(name = "name_part")
 public class NamePart extends Persistable {
 
-    private String uuid;
+    private UUID uuid;
 
     @Enumerated(EnumType.STRING)
     private NamePartType namePartType;
 
     protected NamePart() {}
 
-    public NamePart(String uuid, NamePartType namePartType) {
+    public NamePart(UUID uuid, NamePartType namePartType) {
+        Preconditions.checkNotNull(uuid);
+        Preconditions.checkNotNull(namePartType);
         this.uuid = uuid;
         this.namePartType = namePartType;
     }
 
-    public String getUuid() { return uuid; }
+    public UUID getUuid() { return uuid; }
 
     public NamePartType getNamePartType() { return namePartType; }
 
