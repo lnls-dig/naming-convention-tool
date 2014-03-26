@@ -110,7 +110,7 @@ public class NamePartTreeBuilder {
         private TreeNode asViewTree(TreeNode parentNode, NamePartRevisionTreeNode nprNode, int level) {
             final List<TreeNode> children = Lists.newArrayList();
             for (NamePartRevisionTreeNode child : nprNode.children) {
-                final TreeNode node = new DefaultTreeNode(viewFactory.getView(child.node.approved, child.node.pending), null);
+                final TreeNode node = new DefaultTreeNode(viewFactory.getView(child.node.approved, child.node.pending, (NamePartView) parentNode.getData()), null);
                 node.setExpanded(expandedTree);
                 node.setSelectable(level >= selectableLevel);
                 if (isSelected(node)) {

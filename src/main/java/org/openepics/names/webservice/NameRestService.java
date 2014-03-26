@@ -21,8 +21,6 @@ public class NameRestService extends Application {
 
     private Set<Class<?>> getRestResourceClasses() {
         Set<Class<?>> resources = new java.util.HashSet<Class<?>>();
-        resources.add(org.openepics.names.webservice.AllDeviceNamesResource.class);
-        resources.add(org.openepics.names.webservice.SpecificDeviceNameResource.class);
         return resources;
     }
 

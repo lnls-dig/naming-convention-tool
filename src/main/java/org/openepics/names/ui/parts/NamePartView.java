@@ -54,22 +54,28 @@ public class NamePartView {
     private final @Nullable NamePartRevision currentRevision;
     private final @Nullable NamePartRevision pendingRevision;
 
-    public NamePartView(RestrictedNamePartService namePartService, @Nullable NamePartRevision currentRevision, @Nullable NamePartRevision pendingRevision) {
+    private @Nullable NamePartView parentView = null;
+
+    public NamePartView(RestrictedNamePartService namePartService, @Nullable NamePartRevision currentRevision, @Nullable NamePartRevision pendingRevision, @Nullable NamePartView parentView) {
         this.namePartService = namePartService;
         this.currentRevision = currentRevision;
         this.pendingRevision = pendingRevision;
+        this.parentView = parentView;
     }
 
     public NamePart getNamePart() { return getCurrentOrElsePendingRevision().getNamePart(); }
 
     public NamePartRevision getNameEvent() { return getCurrentOrElsePendingRevision(); }
 
-    public Integer getId() { return getCurrentOrElsePendingRevision().getId(); }
+    public Long getId() { return getCurrentOrElsePendingRevision().getId(); }
 
     public @Nullable NamePartView getParent() {
         final @Nullable NamePart parent = getCurrentOrElsePendingRevision().getParent();
         if (parent != null) {
-            return new NamePartView(namePartService, namePartService.approvedRevision(parent), namePartService.pendingRevision(parent));
+            if (parentView == null) {
+                parentView = new NamePartView(namePartService, namePartService.approvedRevision(parent), namePartService.pendingRevision(parent), null);
+            }
+            return parentView;
         } else {
             return null;
         }

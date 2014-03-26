@@ -1,14 +1,15 @@
 package org.openepics.names.ui.devices;
 
 import com.google.common.collect.Lists;
-import org.openepics.names.model.Device;
-import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.model.NamePartType;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import org.openepics.names.model.*;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.ui.parts.NamePartView;
+import org.openepics.names.util.As;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
@@ -18,6 +19,7 @@ import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 @ManagedBean
 @ViewScoped
@@ -27,45 +29,69 @@ public class DevicesTreeBuilder {
     @Inject private RestrictedDeviceService deviceService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private ViewFactory viewFactory;
-    private HashMap<Integer,List<Device>> allDevicesForSection;
+
+    private HashMap<NamePart, Set<DeviceRevision>> devicesBySection;
+    private HashMap<NamePart, NamePartView> viewByDeviceType;
 	
 	public TreeNode devicesTree(boolean withDeleted) {
-		final List<NamePartRevision> approvedRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, withDeleted);
-        final List<NamePartRevision> pendingRevisions = Lists.newArrayList();
+		final List<NamePartRevision> sectionRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, withDeleted);
+        final TreeNode sectionTree = namePartTreeBuilder.namePartApprovalTree(sectionRevisions, Lists.<NamePartRevision>newArrayList(), false);
+
+        final List<NamePartRevision> deviceTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, withDeleted);
+        final TreeNode deviceTypeTree = namePartTreeBuilder.namePartApprovalTree(deviceTypeRevisions, Lists.<NamePartRevision>newArrayList(), false);
+        viewByDeviceType = Maps.newHashMap();
+        populateDeviceTypeViews(deviceTypeTree);
         
-        final TreeNode root = namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, false);
-        
-        final List<Device> devices = Lists.newArrayList();
-        devices.addAll(deviceService.devices(withDeleted));
-        
-        allDevicesForSection = new HashMap<>();
-        for (Device device : devices) {
-        	List<Device> devicesForCurrentSection = Lists.newArrayList();
-        	if (allDevicesForSection.containsKey(deviceService.currentRevision(device).getSection().getId())) {
-        		devicesForCurrentSection = allDevicesForSection.get(deviceService.currentRevision(device).getSection().getId());
-        	}        	
-        	devicesForCurrentSection.add(device);
-    		allDevicesForSection.put(deviceService.currentRevision(device).getSection().getId(), devicesForCurrentSection);
+        devicesBySection = Maps.newHashMap();
+        for (DeviceRevision device : deviceService.currentRevisions(withDeleted)) {
+        	final Set<DeviceRevision> devicesForSection = devicesForSection(device.getSection());
+        	devicesForSection.add(device);
         }
         
-        return namePartTreeWithDevices(root);
+        populateDeviceNodes(sectionTree);
+
+        return sectionTree;
 	}
+
+    private void populateDeviceTypeViews(TreeNode node) {
+        for (TreeNode child : node.getChildren()) {
+            populateDeviceTypeViews(child);
+        }
+
+        final @Nullable NamePartView deviceTypeView = (NamePartView) node.getData();
+        if (deviceTypeView != null) {
+            viewByDeviceType.put(deviceTypeView.getNamePart(), deviceTypeView);
+        }
+    }
+
+    private Set<DeviceRevision> devicesForSection(NamePart section) {
+        final Set<DeviceRevision> currentSet = devicesBySection.get(section);
+        if (currentSet == null) {
+            final Set<DeviceRevision> newSet = Sets.newHashSet();
+            devicesBySection.put(section, newSet);
+            return newSet;
+        } else {
+            return currentSet;
+        }
+    }
+
+    private NamePartView deviceTypeView(NamePart deviceType) {
+        return As.notNull(viewByDeviceType.get(deviceType));
+    }
 	
-	private TreeNode namePartTreeWithDevices(TreeNode node) {
+	private void populateDeviceNodes(TreeNode node) {
 	    for (TreeNode child : node.getChildren()) {
-			namePartTreeWithDevices(child);
+			populateDeviceNodes(child);
 		}    	
     	
-    	final @Nullable NamePartView view = (NamePartView) node.getData();    	
-    	if (view != null && allDevicesForSection.containsKey(view.getId())) {
-    		List<Device> devicesForSection = allDevicesForSection.get(view.getId());
-    		for (Device device : devicesForSection) {
-		    	final TreeNode child = new DefaultTreeNode(viewFactory.getView(device), null);
+    	final @Nullable NamePartView sectionView = (NamePartView) node.getData();
+        if (sectionView != null) {
+            for (DeviceRevision device : devicesForSection(sectionView.getNamePart())) {
+                final TreeNode child = new DefaultTreeNode(viewFactory.getView(device, sectionView, deviceTypeView(device.getDeviceType())), null);
                 node.getChildren().add(child);
-    			child.setParent(node);
-    		}
-    	}
-    	return node;    	
+                child.setParent(node);
+            }
+        }
 	}
 	
 }

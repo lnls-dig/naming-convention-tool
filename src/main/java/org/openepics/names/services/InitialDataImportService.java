@@ -15,8 +15,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -30,18 +28,16 @@ public class InitialDataImportService {
     @Inject private NamePartService namePartService;
     @Inject private DeviceService deviceService;
     @PersistenceContext private EntityManager em;
-    private XSSFWorkbook importFile;
-    private Map<Integer, NamePart> namePartsMap;
+
+    private XSSFWorkbook workbook;
+    private Map<Integer, NamePart> namePartsMap = Maps.newHashMap();
 
     public void fillDatabaseWithInitialData() throws IOException {
-        if (namePartService.approvedNames().isEmpty()) {
-            importFile = new XSSFWorkbook(this.getClass().getResourceAsStream("NamingDatabaseImport.xlsx"));
-            namePartsMap = Maps.newHashMap();
-            fillUserAccounts();
-            fillNameParts(true);
-            fillNameParts(false);
-            fillDeviceNames();
-        }
+        workbook = new XSSFWorkbook(this.getClass().getResourceAsStream("NamingDatabaseImport.xlsx"));
+        fillUserAccounts();
+        fillNameParts(true);
+        fillNameParts(false);
+        fillDeviceNames();
     }
     
     private void fillUserAccounts() {
@@ -54,7 +50,7 @@ public class InitialDataImportService {
     }
     
     private void fillNameParts(boolean isSection) {
-        final XSSFSheet sheet = importFile.getSheet(isSection ? "LogicalAreaStructure" : "DeviceCategoryStructure");
+        final XSSFSheet sheet = workbook.getSheet(isSection ? "LogicalAreaStructure" : "DeviceCategoryStructure");
         for (Row row : sheet) {
             if (row.getRowNum() >= 2) {
                 final int parent = (int) row.getCell(0).getNumericCellValue();
@@ -69,7 +65,7 @@ public class InitialDataImportService {
     }
     
     private void fillDeviceNames() {
-        final XSSFSheet sheet = importFile.getSheet("NamedDevices");
+        final XSSFSheet sheet = workbook.getSheet("NamedDevices");
         for (Row row : sheet) {
             if (row.getRowNum() >= 1) {
                 final int subsectionId = (int) row.getCell(1).getNumericCellValue();

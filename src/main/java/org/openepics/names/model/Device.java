@@ -12,16 +12,16 @@ import java.util.UUID;
 @Entity
 public class Device extends Persistable {
 
-    private UUID uuid;
+    private String uuid;
 
     protected Device() {}
 
     public Device(UUID uuid) {
         Preconditions.checkNotNull(uuid);
-        this.uuid = uuid;
+        this.uuid = uuid.toString();
     }
 
-    public UUID getUuid() { return uuid; }
+    public UUID getUuid() { return UUID.fromString(uuid); }
 
     @Override public boolean equals(Object other) {
         return other instanceof Device && ((Device) other).getUuid().equals(getUuid());

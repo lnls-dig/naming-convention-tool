@@ -28,22 +28,30 @@ public class ViewFactory {
     @Inject private NamingConvention namingConvention;
 
     public NamePartView getView(NamePart namePart) {
-        return new NamePartView(namePartService, namePartService.approvedRevision(namePart), namePartService.pendingRevision(namePart));
+        return new NamePartView(namePartService, namePartService.approvedRevision(namePart), namePartService.pendingRevision(namePart), null);
     }
 
     public NamePartView getView(NamePartRevision namePartRevision) {
-        return new NamePartView(namePartService, namePartRevision, null);
+        return new NamePartView(namePartService, namePartRevision, null, null);
+    }
+
+    public NamePartView getView(NamePartRevision namePartRevision, @Nullable NamePartView parentView) {
+        return new NamePartView(namePartService, namePartRevision, null, parentView);
     }
 
     public NamePartView getView(@Nullable NamePartRevision approvedRevision, @Nullable NamePartRevision pendingRevision) {
-        return new NamePartView(namePartService, approvedRevision, pendingRevision);
+        return new NamePartView(namePartService, approvedRevision, pendingRevision, null);
     }
 
-    public DeviceView getView(Device device) {
-        return new DeviceView(deviceService.currentRevision(device), namingConvention, this);
+    public NamePartView getView(@Nullable NamePartRevision approvedRevision, @Nullable NamePartRevision pendingRevision, @Nullable NamePartView parentView) {
+        return new NamePartView(namePartService, approvedRevision, pendingRevision, parentView);
     }
 
     public DeviceView getView(DeviceRevision deviceRevision) {
-        return new DeviceView(deviceRevision, namingConvention, this);
+        return new DeviceView(deviceRevision, namingConvention, this, null, null);
+    }
+
+    public DeviceView getView(DeviceRevision deviceRevision, @Nullable NamePartView sectionView, @Nullable NamePartView deviceTypeView) {
+        return new DeviceView(deviceRevision, namingConvention, this, sectionView, deviceTypeView);
     }
 }

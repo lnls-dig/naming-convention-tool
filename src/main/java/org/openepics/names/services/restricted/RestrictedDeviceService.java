@@ -29,6 +29,10 @@ public class RestrictedDeviceService {
         return deviceService.devices();
     }
 
+    public List<DeviceRevision> currentRevisions(boolean includeDeleted) {
+        return deviceService.currentRevisions(includeDeleted);
+    }
+
     public List<DeviceRevision> revisions(Device device) {
         return deviceService.revisions(device);
     }

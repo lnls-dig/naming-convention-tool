@@ -14,7 +14,7 @@ import java.util.UUID;
 @Entity
 public class NamePart extends Persistable {
 
-    private UUID uuid;
+    private String uuid;
 
     @Enumerated(EnumType.STRING)
     private NamePartType namePartType;
@@ -24,11 +24,11 @@ public class NamePart extends Persistable {
     public NamePart(UUID uuid, NamePartType namePartType) {
         Preconditions.checkNotNull(uuid);
         Preconditions.checkNotNull(namePartType);
-        this.uuid = uuid;
+        this.uuid = uuid.toString();
         this.namePartType = namePartType;
     }
 
-    public UUID getUuid() { return uuid; }
+    public UUID getUuid() { return UUID.fromString(uuid); }
 
     public NamePartType getNamePartType() { return namePartType; }
 

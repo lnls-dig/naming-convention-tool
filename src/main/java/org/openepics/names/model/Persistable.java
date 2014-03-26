@@ -13,12 +13,12 @@ public class Persistable implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected @Nullable Integer id;
+    protected @Nullable Long id;
 
     @Version
     private @Nullable Integer version;
 
-    public @Nullable Integer getId() { return id; }
+    public @Nullable Long getId() { return id; }
 
     public @Nullable Integer getVersion() { return version; }
 }
