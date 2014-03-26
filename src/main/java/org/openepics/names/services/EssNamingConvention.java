@@ -27,9 +27,9 @@ public class EssNamingConvention implements NamingConvention {
         final NamePartView discipline = deviceTypePath.get(0);
         final NamePartView genericDeviceType = deviceTypePath.get(2);
         if (supersection.getMnemonic().equals("Acc")) {
-            return section.getMnemonic() + "-" + discipline.getMnemonic() + ":" + genericDeviceType.getMnemonic() + "-" + subsection.getMnemonic() + deviceName.getInstanceIndex();
+            return section.getMnemonic() + "-" + discipline.getMnemonic() + ":" + genericDeviceType.getMnemonic() + "-" + subsection.getMnemonic() + (deviceName.getInstanceIndex() != null ? deviceName.getInstanceIndex() : "");
         } else {
-            return section.getMnemonic() + "-" + subsection.getMnemonic() + ":" + discipline.getMnemonic() + "-" + deviceName.getInstanceIndex();
+            return section.getMnemonic() + "-" + subsection.getMnemonic() + ":" + discipline.getMnemonic() + "-" + (deviceName.getInstanceIndex() != null ? deviceName.getInstanceIndex() : "");
         }
     }
 

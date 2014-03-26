@@ -109,7 +109,7 @@ public class NamePartView {
 
     public String getName() { return getCurrentOrElsePendingRevision().getName(); }
 
-    public @Nullable String getMnemonic() { return getCurrentOrElsePendingRevision().getMnemonic(); }
+    public String getMnemonic() { return getCurrentOrElsePendingRevision().getMnemonic(); }
 
     public List<String> getNamePath() {
         final ImmutableList.Builder<String> pathElements = ImmutableList.builder();

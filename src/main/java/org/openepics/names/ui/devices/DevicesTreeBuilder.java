@@ -7,6 +7,7 @@ import org.openepics.names.model.*;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.common.ViewFactory;
+import org.openepics.names.ui.parts.AlphanumComparator;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.ui.parts.NamePartView;
 import org.openepics.names.util.As;
@@ -17,9 +18,7 @@ import javax.annotation.Nullable;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @ManagedBean
 @ViewScoped
@@ -86,8 +85,20 @@ public class DevicesTreeBuilder {
     	
     	final @Nullable NamePartView sectionView = (NamePartView) node.getData();
         if (sectionView != null) {
+            final List<TreeNode> children = Lists.newArrayList();
             for (DeviceRevision device : devicesForSection(sectionView.getNamePart())) {
                 final TreeNode child = new DefaultTreeNode(viewFactory.getView(device, sectionView, deviceTypeView(device.getDeviceType())), null);
+                children.add(child);
+            }
+            Collections.sort(children, new Comparator<TreeNode>() {
+                @Override public int compare(TreeNode left, TreeNode right) {
+                    final DeviceView leftView = (DeviceView) left.getData();
+                    final DeviceView rightView = (DeviceView) right.getData();
+                    final AlphanumComparator alphanumComparator = new AlphanumComparator();
+                    return alphanumComparator.compare(leftView.getConventionName(), rightView.getConventionName());
+                }
+            });
+            for (TreeNode child : children) {
                 node.getChildren().add(child);
                 child.setParent(node);
             }

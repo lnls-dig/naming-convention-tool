@@ -3,6 +3,7 @@ package org.openepics.names.ui.devices;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
@@ -303,17 +304,13 @@ public class DevicesController implements Serializable {
     
    private TreeNode filteredView(TreeNode node) {
         final @Nullable TreeNode filteredView = (new TreeViewFilter<Object>() {
-
-            @Override
-            protected boolean addToTreeView(Object nodeView) {
-                if (appliedDeviceNameFilter.equals("") && appliedDeviceTypeFilter.equals("")) {
-                    return true;
-                } else if (!appliedDeviceNameFilter.equals("") && (nodeView instanceof DeviceView && ((DeviceView) nodeView).getConventionName().contains(appliedDeviceNameFilter) && appliedDeviceTypeFilter.equals(""))) {
-                    return true;
-                } else if (!appliedDeviceTypeFilter.equals("") && (nodeView instanceof DeviceView && ((DeviceView) nodeView).getDeviceTypePath().contains(appliedDeviceTypeFilter) && appliedDeviceNameFilter.equals(""))){
-                    return true;
-                } else if (!appliedDeviceNameFilter.equals("") && (nodeView instanceof DeviceView && ((DeviceView) nodeView).getConventionName().contains(appliedDeviceNameFilter) && !appliedDeviceTypeFilter.equals("") && (nodeView instanceof DeviceView && ((DeviceView) nodeView).getDeviceTypePath().contains(appliedDeviceTypeFilter)))) {
-                    return true;
+            @Override protected boolean addToTreeView(Object nodeView) {
+                if (nodeView instanceof DeviceView) {
+                    final String name = ((DeviceView) nodeView).getConventionName().toLowerCase();
+                    final String deviceType = ((DeviceView) nodeView).getDeviceTypePath().toLowerCase();
+                    final boolean nameMatches = appliedDeviceNameFilter.isEmpty() || name.contains(appliedDeviceNameFilter.toLowerCase());
+                    final boolean deviceTypeMatches = appliedDeviceTypeFilter.isEmpty() || deviceType.contains(appliedDeviceTypeFilter.toLowerCase());
+                    return nameMatches && deviceTypeMatches;
                 } else {
                     return false;
                 }
