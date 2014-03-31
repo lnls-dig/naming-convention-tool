@@ -11,28 +11,28 @@
 		<h:form id="ManageNameForm">
 
 			<!-- =================== Menus ============================ -->
-			<table width="100%" id="filterTable">
-				<tr>
-					<td align="left" width="10%">
-						<div>
-							<h:panelGrid columns="2">
-								<h:outputText value="Show: " />
+		    <table width="100%" id="filterTable">
+                <tr>
+                    <td align="left" width="10%">
+                       <div>
+                            <h:panelGrid columns="8">
+                                <h:outputText value="Show: " />
                                 <p:selectOneMenu value="#{devicesController.viewFilter}">
                                     <p:ajax listener="#{devicesController.modifyDisplayView}" event="change" update="devicesTree ncReqMenu" oncomplete="resizePanel()" />
                                     <f:selectItem itemLabel="Active" itemValue="ACTIVE" />
                                     <f:selectItem itemLabel="Archived" itemValue="ARCHIVED" />
                                 </p:selectOneMenu>
-							</h:panelGrid>
-						</div>
-					</td>
-					<td align="center" width="60%">
+                            </h:panelGrid>
+                        </div>
+                    </td>
+                    <td align="left" width="20%">
                         <div>
                             <h:panelGrid columns="3">
                                 <h:outputText value="Fiter by device name: " />
                                 <p:inputText id="deviceNameFilter" value="#{devicesController.deviceNameFilter}">
                                     <p:ajax event="keyup" listener="#{devicesController.checkForFilterChanges()}" oncomplete="resizePanel()"/>
                                 </p:inputText>
-                                <p:commandButton value="Clear Filter" actionListener="#{devicesController.clearDeviceNameFilter()}" update="deviceNameFilter" />
+                                <p:commandButton value="X" actionListener="#{devicesController.clearDeviceNameFilter()}" update="deviceNameFilter" oncomplete="resizePanel()" />
                             </h:panelGrid>
                         </div>
                     </td>
@@ -43,38 +43,38 @@
                                 <p:inputText id="deviceTypeFilter" value="#{devicesController.deviceTypeFilter}">
                                     <p:ajax event="keyup" listener="#{devicesController.checkForFilterChanges()}" oncomplete="resizePanel()"/>
                                 </p:inputText>
-                                <p:commandButton value="Clear Filter" actionListener="#{devicesController.clearDeviceTypeFilter()}" update="deviceTypeFilter" />
+                                <p:commandButton value="X" actionListener="#{devicesController.clearDeviceTypeFilter()}" update="deviceTypeFilter" oncomplete="resizePanel()"/>
                             </h:panelGrid>
                         </div>
-                    </td>
-					<td align="right" width="10%"><p:menuButton id="ncReqMenu" value="Actions"
-							style="width: 8%; z-index: 100;">
-							<p:menuitem value="Add" icon="ui-icon-plus"
-								update=":addDeviceNameForm" oncomplete="addDeviceName.show()"
-								title="Add Device Name"
-								action="#{devicesController.prepareForAdd()}"
-								disabled="#{!devicesController.canAdd()}"
-								rendered="#{userManager.editor}" />
-							<p:menuitem value="Delete" icon="ui-icon-trash"
-								update=":delDeviceNameForm" oncomplete="delDeviceName.show()"
-								title="Delete Device Name" rendered="#{userManager.editor}"
-								disabled="#{!devicesController.canDelete()}" />
-							<p:menuitem value="Modify" icon="ui-icon-pencil"
-								update=":modDeviceNameForm" oncomplete="modDeviceName.show()"
-								action="#{devicesController.prepareForModify()}"
-								title="Modify Device Name" rendered="#{userManager.editor}"
-								disabled="#{!devicesController.canModify()}" />
-							<p:menuitem value="History" icon="ui-icon-search"
-								actionListener="#{devicesController.loadHistory()}"
-								update=":ManageNameForm:historyTable" title="View History"
-								oncomplete="nameDetail.show()"
-								disabled="#{!devicesController.canShowHistory()}" />
-							<p:menuitem value="Batch Import" icon="ui-icon-folder-open"
-								title="Batch Import" update=":batchImportForm"
-								oncomplete="batchImport.show()" rendered="#{userManager.editor}"/>
-						</p:menuButton></td>
-				</tr>
-			</table>
+                    </td> 
+                    <td align="right" width="50%"><p:menuButton id="ncReqMenu" value="Actions"
+                            style="width: 8%; z-index: 100;">
+                            <p:menuitem value="Add" icon="ui-icon-plus"
+                                update=":addDeviceNameForm" oncomplete="addDeviceName.show()"
+                                title="Add Device Name"
+                                action="#{devicesController.prepareForAdd()}"
+                                disabled="#{!devicesController.canAdd()}"
+                                rendered="#{userManager.editor}" />
+                            <p:menuitem value="Delete" icon="ui-icon-trash"
+                                update=":delDeviceNameForm" oncomplete="delDeviceName.show()"
+                                title="Delete Device Name" rendered="#{userManager.editor}"
+                                disabled="#{!devicesController.canDelete()}" />
+                            <p:menuitem value="Modify" icon="ui-icon-pencil"
+                                update=":modDeviceNameForm" oncomplete="modDeviceName.show()"
+                                action="#{devicesController.prepareForModify()}"
+                                title="Modify Device Name" rendered="#{userManager.editor}"
+                                disabled="#{!devicesController.canModify()}" />
+                            <p:menuitem value="History" icon="ui-icon-search"
+                                actionListener="#{devicesController.loadHistory()}"
+                                update=":ManageNameForm:historyTable" title="View History"
+                                oncomplete="nameDetail.show()"
+                                disabled="#{!devicesController.canShowHistory()}" />
+                            <p:menuitem value="Batch Import" icon="ui-icon-folder-open"
+                                title="Batch Import" update=":batchImportForm"
+                                oncomplete="batchImport.show()" rendered="#{userManager.editor}"/>
+                        </p:menuButton></td>
+                </tr>
+            </table>
 			
 			<p:treeTable id="devicesTree" value="#{devicesController.viewDevice}"
 				resizableColumns="true" liveResize="true" var="namePart"
@@ -194,7 +194,7 @@
 				</f:facet>
 				<h:outputText value="Select excell file to upload device names from" />
 				<div style="border: 1px solid #a8a8a8; padding: 5px">
-					<p:fileUpload id="fileUpload" fileUploadListener="#{devicesController.handleFileUpload}" update="messages" mode="advanced" dragDropSupport="false" fileLimit="1" allowTypes="/(\.|\/)(xlsx|xls)$/" />
+					<p:fileUpload id="fileUpload" fileUploadListener="#{devicesController.handleFileUpload}" update="messages" mode="advanced" dragDropSupport="false" allowTypes="/(\.|\/)(xlsx|xls)$/" />
 					<p:separator />
 					
 					<p:commandButton id="downloadLink" value="Download Import Template" ajax="false" icon="ui-icon-disk" onclick="PrimeFaces.monitorDownload(start, stop)">

@@ -3,6 +3,7 @@ package org.openepics.names.ui.devices;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -17,6 +18,7 @@ import org.primefaces.model.TreeNode;
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -31,8 +33,42 @@ public class ExcelImport {
     private Table<String, String, NamePart> sectionsTable = HashBasedTable.create();
     private Table<String, String, NamePart> typesTable = HashBasedTable.create();
     private List<DeviceRevision> allDevices = Lists.newArrayList();
+    private List<NewDeviceName> newDevices = Lists.newArrayList();
     
-    public void parseDeviceImportFile(InputStream input) {
+    private class NewDeviceName {
+        private final NamePart sectionPart;
+        private final NamePart deviceTypePart;
+        private final @Nullable String index;
+                
+        private NewDeviceName(NamePart sectionPart, NamePart deviceTypePart, @Nullable String index) {
+            this.sectionPart = sectionPart;
+            this.deviceTypePart = deviceTypePart;
+            this.index = index;
+        }
+
+        private NamePart getSectionPart() { return sectionPart; }
+        private NamePart getDeviceTypePart() { return deviceTypePart; }
+        private @Nullable String getIndex() { return index; }        
+    }
+    
+    public abstract class ExcelImportResult {}
+    
+    public class SuccessExcelImportResult extends ExcelImportResult {}
+    
+    public class FaliureExcelImportResult extends ExcelImportResult {
+        final private int rowNumber;
+        final private NamePartType namePartType;
+        
+        public FaliureExcelImportResult(int rowNumber, NamePartType namePartType) {
+            this.rowNumber = rowNumber;
+            this.namePartType = namePartType;
+        }
+
+        public int getRowNumber() { return rowNumber; }
+        public NamePartType getNamePartType() { return namePartType; } 
+    }
+    
+    public ExcelImportResult parseDeviceImportFile(InputStream input) {
         loadDataFromDatabase();
 
         try {
@@ -52,12 +88,18 @@ public class ExcelImport {
                 final String discipline = row.getCell(2).getStringCellValue();
                 final String deviceType = row.getCell(3).getStringCellValue();
                 final @Nullable String index = row.getCell(4) != null ? (row.getCell(4).getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf((int)row.getCell(4).getNumericCellValue()) : row.getCell(4).getStringCellValue()) : null;
-                addDeviceName(section, subsection, discipline, deviceType, index, rowNumber);
-                rowNumber++;
+                ExcelImportResult addDeviceNameResult = addDeviceName(section, subsection, discipline, deviceType, index, rowNumber++);
+                if (addDeviceNameResult instanceof FaliureExcelImportResult) {
+                    return addDeviceNameResult;
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        for (NewDeviceName newDeviceName : newDevices) {
+            deviceService.createDevice(newDeviceName.getSectionPart(), newDeviceName.getDeviceTypePart(), newDeviceName.getIndex());
+        }
+        return new SuccessExcelImportResult();
     }
     
     private void loadDataFromDatabase() {
@@ -72,23 +114,33 @@ public class ExcelImport {
         }
     }
     
-    private void addDeviceName(String section, String subsection, String discipline, String deviceType, @Nullable String index, int rowCounter) {
-        final NamePart sectionPart = sectionsTable.get(section, subsection);
+    private ExcelImportResult addDeviceName(String section, String subsection, String discipline, String deviceType, @Nullable String index, int rowCounter) {
+        final  @Nullable NamePart sectionPart = sectionsTable.get(section, subsection);
         if (sectionPart == null) {
-            throw new RuntimeException("Error occurred in row: " + rowCounter + ". Logical area part was not found in the database.");
+            return new FaliureExcelImportResult(rowCounter, NamePartType.SECTION);
         }
         
-        final NamePart typePart = typesTable.get(discipline, deviceType);
+        final @Nullable NamePart typePart = typesTable.get(discipline, deviceType);
         if (typePart == null) {
-            throw new RuntimeException("Error occurred in row: " + rowCounter + ". Device category part was not found in the database.");
+            return new FaliureExcelImportResult(rowCounter, NamePartType.DEVICE_TYPE);
         }
         
         for (DeviceRevision deviceRevision : allDevices) {
             if (deviceRevision.getSection().equals(sectionPart) && deviceRevision.getDeviceType().equals(typePart) && (deviceRevision.getInstanceIndex() != null && deviceRevision.getInstanceIndex().equals(index) || index == null && deviceRevision.getInstanceIndex() == null)) {
+                return new SuccessExcelImportResult();
+            }
+        }
+        addNewDeviceName(sectionPart, typePart, index);
+        return new SuccessExcelImportResult();
+    }
+    
+    private void addNewDeviceName(NamePart sectionPart, NamePart typePart, @Nullable String index) {
+        for (NewDeviceName deviceName : newDevices) {
+            if (deviceName.getSectionPart().equals(sectionPart) && deviceName.getDeviceTypePart().equals(typePart) && (deviceName.getIndex() == null && index == null || deviceName.getIndex().equals(index))) {
                 return;
             }
         }
-        allDevices.add(deviceService.createDevice(sectionPart, typePart, index));
+        newDevices.add(new NewDeviceName(sectionPart, typePart, index));
     }
     
     private void populateSectionsTable(TreeNode node, int level) {

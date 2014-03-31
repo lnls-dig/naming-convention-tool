@@ -6,4 +6,5 @@
     <alternatives>
         <class>org.openepics.names.services.EssNamingConvention</class>
     </alternatives>
+    
 </beans>
