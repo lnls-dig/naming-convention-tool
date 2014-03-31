@@ -14,6 +14,7 @@
 	        function resizePanel() {
 	            var menusHeight = $('#logoPanel').outerHeight()+$('#menu').outerHeight()+15;
 	            $('#indexDiv').css({"height":window.innerHeight-menusHeight});
+	            $('#apiManualDiv').css({"height":window.innerHeight-menusHeight});
 	            var headerHeight = $('#ReqSubForm\\:namePartsTree\\:nameDesc').outerHeight();
 	            if (headerHeight == null) {
 	                headerHeight = $('#ManageNameForm\\:devicesTree\\:devName').outerHeight();
@@ -39,7 +40,7 @@
     		    statusDialog.hide();  
     		}  
     	</script>
-        <link rel="shortcut icon" href="resources/images/proteus.ico" />
+        <link rel="shortcut icon" href="resources/images/favicon.ico" />
         <title>Naming Convention Tool</title>
     </h:head>
 

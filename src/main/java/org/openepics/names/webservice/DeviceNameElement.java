@@ -1,10 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.openepics.names.webservice;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
+import java.io.Serializable;
 import java.util.UUID;
 
 
@@ -14,6 +12,7 @@ import java.util.UUID;
  */
 @XmlRootElement
 public class DeviceNameElement {
+    
     private UUID uuid;
     private String section;
     private String subSection;
@@ -22,13 +21,11 @@ public class DeviceNameElement {
     private String instanceIndex;
     private String name;
     
+    protected DeviceNameElement() {}
     
-    
-
     public DeviceNameElement(UUID uuid, String section, String subSection,
             String discipline, String deviceType, String instanceIndex,
             String name) {
-        super();
         this.uuid = uuid;
         this.section = section;
         this.subSection = subSection;

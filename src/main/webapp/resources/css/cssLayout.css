@@ -19,6 +19,10 @@
     text-align: left;
 }
 
+.Link {
+	font-weight:bold;
+}
+
 .unknown, .Cancelled  {
     text-decoration:   blink;
 }

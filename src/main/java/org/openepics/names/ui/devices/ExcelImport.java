@@ -51,7 +51,7 @@ public class ExcelImport {
                 final String subsection = row.getCell(1).getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf((int)row.getCell(1).getNumericCellValue()) : row.getCell(1).getStringCellValue();
                 final String discipline = row.getCell(2).getStringCellValue();
                 final String deviceType = row.getCell(3).getStringCellValue();
-                final String index = row.getCell(4).getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf((int)row.getCell(4).getNumericCellValue()) : row.getCell(4).getStringCellValue();
+                final @Nullable String index = row.getCell(4) != null ? (row.getCell(4).getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf((int)row.getCell(4).getNumericCellValue()) : row.getCell(4).getStringCellValue()) : null;
                 addDeviceName(section, subsection, discipline, deviceType, index, rowNumber);
                 rowNumber++;
             }
@@ -72,7 +72,7 @@ public class ExcelImport {
         }
     }
     
-    private void addDeviceName(String section, String subsection, String discipline, String deviceType, String index, int rowCounter) {
+    private void addDeviceName(String section, String subsection, String discipline, String deviceType, @Nullable String index, int rowCounter) {
         final NamePart sectionPart = sectionsTable.get(section, subsection);
         if (sectionPart == null) {
             throw new RuntimeException("Error occurred in row: " + rowCounter + ". Logical area part was not found in the database.");
@@ -84,7 +84,7 @@ public class ExcelImport {
         }
         
         for (DeviceRevision deviceRevision : allDevices) {
-            if (deviceRevision.getSection().equals(sectionPart) && deviceRevision.getDeviceType().equals(typePart) && deviceRevision.getInstanceIndex().equals(index)) {
+            if (deviceRevision.getSection().equals(sectionPart) && deviceRevision.getDeviceType().equals(typePart) && (deviceRevision.getInstanceIndex() != null && deviceRevision.getInstanceIndex().equals(index) || index == null && deviceRevision.getInstanceIndex() == null)) {
                 return;
             }
         }

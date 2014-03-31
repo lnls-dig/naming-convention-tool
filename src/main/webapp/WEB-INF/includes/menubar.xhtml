@@ -8,7 +8,6 @@
                 xmlns:h="http://java.sun.com/jsf/html">
 
     <h:form id="menuform">
-        <ui:include src="about.xhtml" />
         <fc:logincomp display="false" updates=":menuform:mainMenu" />
 
         <p:menubar id="mainMenu" style="padding-left: 8px; padding-right: 8px">
@@ -25,7 +24,6 @@
             <p:submenu label="Help" icon="ui-icon-help">
                 <p:menuitem value=" Online Help" icon="ui-icon-help" url="help.xhtml" />
                 <p:menuitem value=" API Manual" icon="ui-icon-script" url="api-manual.xhtml" />
-                <p:menuitem value=" About" title="About Naming Convention Tool" id="aboutMenu" icon="ui-icon-info" />
             </p:submenu>
 
             <f:facet name="options">
