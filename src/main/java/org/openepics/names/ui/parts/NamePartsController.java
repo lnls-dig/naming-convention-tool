@@ -424,7 +424,7 @@ public class NamePartsController implements Serializable {
 
     private @Nullable TreeNode deleteView(TreeNode node) {
         return (new OperationsTreePreview<NamePartView>() {
-            @Override protected boolean isAffected(NamePartView nodeView) { return !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange) || !(nodeView.getCurrentRevision().isDeleted()); }
+            @Override protected boolean isAffected(NamePartView nodeView) { return !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange) && (nodeView.getCurrentRevision() == null || !(nodeView.getCurrentRevision().isDeleted())); }
             @Override protected boolean autoSelectChildren(NamePartView nodeView) { return !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange); }
             @Override protected boolean ignoreSelectedChildren(NamePartView nodeView, boolean isSelected) { return nodeView.getPendingChange() instanceof NamePartView.AddChange; }
         }).apply(node);
