@@ -16,13 +16,11 @@
 					<td align="left" width="10%">
 						<div>
 							<h:panelGrid columns="2">
-								 <h:outputText value="Show: " />
+								<h:outputText value="Show: " />
                                 <p:selectOneMenu value="#{devicesController.viewFilter}">
-                                    <p:ajax listener="#{devicesController.modifyDisplayView}"
-                                        event="change" update="devicesTree ncReqMenu"
-                                        oncomplete="resizePanel()" />
-                                    <f:selectItem itemLabel="Active" itemValue="0" />
-                                    <f:selectItem itemLabel="Archived" itemValue="1" />
+                                    <p:ajax listener="#{devicesController.modifyDisplayView}" event="change" update="devicesTree ncReqMenu" oncomplete="resizePanel()" />
+                                    <f:selectItem itemLabel="Active" itemValue="ACTIVE" />
+                                    <f:selectItem itemLabel="Archived" itemValue="ARCHIVED" />
                                 </p:selectOneMenu>
 							</h:panelGrid>
 						</div>
@@ -32,9 +30,9 @@
                             <h:panelGrid columns="3">
                                 <h:outputText value="Fiter by device name: " />
                                 <p:inputText id="deviceNameFilter" value="#{devicesController.deviceNameFilter}">
-                                    <p:poll listener="#{devicesController.checkForFilterChanges()}" interval="1" oncomplete="resizePanel()"/>
+                                    <p:ajax event="keyup" listener="#{devicesController.checkForFilterChanges()}" oncomplete="resizePanel()"/>
                                 </p:inputText>
-                                <p:commandButton value="Clear Filter" actionListener="#{devicesController.cleanDeviceNameFilter()}" update="deviceNameFilter" />
+                                <p:commandButton value="Clear Filter" actionListener="#{devicesController.clearDeviceNameFilter()}" update="deviceNameFilter" />
                             </h:panelGrid>
                         </div>
                     </td>
@@ -43,9 +41,9 @@
                             <h:panelGrid columns="3">
                                 <h:outputText value="Fiter by device type: " />
                                 <p:inputText id="deviceTypeFilter" value="#{devicesController.deviceTypeFilter}">
-                                    <p:poll listener="#{devicesController.checkForFilterChanges()}" interval="1" oncomplete="resizePanel()"/>
+                                    <p:ajax event="keyup" listener="#{devicesController.checkForFilterChanges()}" oncomplete="resizePanel()"/>
                                 </p:inputText>
-                                <p:commandButton value="Clear Filter" actionListener="#{devicesController.cleanDeviceTypeFilter()}" update="deviceTypeFilter" />
+                                <p:commandButton value="Clear Filter" actionListener="#{devicesController.clearDeviceTypeFilter()}" update="deviceTypeFilter" />
                             </h:panelGrid>
                         </div>
                     </td>
@@ -151,26 +149,26 @@
 									<h:outputText value=""
 										style="display:inline-block; vertical-align:bottom !important"
 										styleClass="ui-icon ui-icon-wrench"
-										rendered="#{candidate.namePartView['class'].simpleName eq 'DeviceView'}" />
+										rendered="#{candidate.data['class'].simpleName eq 'DeviceView'}" />
 									<h:outputText
 										styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}"
-										value="#{candidate.namePartView.conventionName}"
-										rendered="#{candidate.namePartView['class'].simpleName eq 'DeviceView'}" />
+										value="#{candidate.data.conventionName}"
+										rendered="#{candidate.data['class'].simpleName eq 'DeviceView'}" />
 									<h:outputText
 										styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}"
-										value="#{candidate.namePartView.name}"
-										rendered="#{candidate.namePartView['class'].simpleName eq 'NamePartView'}" />
+										value="#{candidate.data.name}"
+										rendered="#{candidate.data['class'].simpleName eq 'NamePartView'}" />
 
 								</p:column>
 								<p:column headerText="Device Type" style="width: 50%">
 									<h:outputText
 										styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}"
-										value="#{candidate.namePartView.deviceTypePath}"
-										rendered="#{candidate.namePartView['class'].simpleName eq 'DeviceView'}" />
+										value="#{candidate.data.deviceTypePath}"
+										rendered="#{candidate.data['class'].simpleName eq 'DeviceView'}" />
 									<h:outputText
 										styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}"
 										value=""
-										rendered="#{candidate.namePartView['class'].simpleName eq 'NamePartView'}" />
+										rendered="#{candidate.data['class'].simpleName eq 'NamePartView'}" />
 
 								</p:column>
 							</p:treeTable>

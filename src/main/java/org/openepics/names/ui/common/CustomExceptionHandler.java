@@ -22,15 +22,14 @@ public class CustomExceptionHandler extends ExceptionHandlerWrapper {
 
     @Override public ExceptionHandler getWrapped() { return this.wrapped; }
 
-    @Override
-    public void handle() throws FacesException {
+    @Override public void handle() throws FacesException {
         final Iterator iterator = getUnhandledExceptionQueuedEvents().iterator();
         while (iterator.hasNext()) {
             final ExceptionQueuedEvent event = (ExceptionQueuedEvent) iterator.next();
             final ExceptionQueuedEventContext context = (ExceptionQueuedEventContext) event.getSource();
             final Throwable throwable = context.getException();
             try {
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Unepxected error", throwable.getMessage()));
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Unexpected error", throwable.getMessage()));
             } finally {
                 iterator.remove();
             }

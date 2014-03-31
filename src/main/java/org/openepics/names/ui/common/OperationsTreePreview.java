@@ -17,8 +17,8 @@ public abstract class OperationsTreePreview<T> {
     protected abstract boolean autoSelectChildren(T nodeView);
     protected abstract boolean ignoreSelectedChildren(T nodeView, boolean isSelected);
 
-    public @Nullable TreeNode apply(TreeNode node) {
-        return view(node, SelectionMode.MANUAL);
+    public @Nullable TreeNode apply(@Nullable TreeNode node) {
+        return node != null ? view(node, SelectionMode.MANUAL) : null;
     }
 
     private @Nullable TreeNode view(TreeNode node, SelectionMode selectionMode) {

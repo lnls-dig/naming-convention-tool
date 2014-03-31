@@ -41,8 +41,6 @@ import java.util.List;
 
 
 /**
- * Manages Change Requests (backing bean for request-sub.xhtml)
- *
  * @author Vasu V <vuppala@frib.msu.org>
  */
 @ManagedBean
@@ -99,7 +97,7 @@ public class NamePartsController implements Serializable {
 
         final List<NamePartRevision> approvedRevisions = namePartService.currentApprovedRevisions(namePartType, true);
         final List<NamePartRevision> pendingRevisions = withModifications ? namePartService.currentPendingRevisions(namePartType, true) : Lists.<NamePartRevision>newArrayList();
-        return namePartTreeBuilder.namePartApprovalTree(approvedRevisions, pendingRevisions, true);
+        return namePartTreeBuilder.newNamePartTree(approvedRevisions, pendingRevisions, true);
     }
 
     public void onAdd() {
@@ -197,7 +195,7 @@ public class NamePartsController implements Serializable {
     }
 
     public String getOperationsNewName(OperationView<NamePartView> opReq) {
-        final NamePartView req = opReq.getNamePartView();
+        final NamePartView req = opReq.getData();
         final Change change = req.getPendingChange();
         if (change instanceof NamePartView.ModifyChange && ((NamePartView.ModifyChange)change).getNewName() != null && !((NamePartView.ModifyChange) change).getNewName().equals("")) {
             return ((NamePartView.ModifyChange)change).getNewName();
@@ -219,9 +217,8 @@ public class NamePartsController implements Serializable {
         }
     }
 
-    public void setViewFilter(int filter) { displayView = NamePartDisplayFilter.values()[filter]; }
-
-    public int getViewFilter() { return this.displayView.ordinal(); }
+    public NamePartDisplayFilter getViewFilter() { return this.displayView; }
+    public void setViewFilter(NamePartDisplayFilter viewFilter) { this.displayView = viewFilter; }
 
     public void modifyDisplayView() {
         if (displayView == NamePartDisplayFilter.APPROVED_AND_PROPOSED) {
@@ -403,7 +400,7 @@ public class NamePartsController implements Serializable {
         final @Nullable OperationView<NamePartView> operationView = (OperationView<NamePartView>) node.getData();
         final List<NamePartView> targets = Lists.newArrayList();
         if (operationView != null && operationView.isAffected()) {
-            targets.add(operationView.getNamePartView());
+            targets.add(operationView.getData());
         }
         for (TreeNode child : node.getChildren()) {
             targets.addAll(linearizedTargets(child));
@@ -415,9 +412,9 @@ public class NamePartsController implements Serializable {
         final OperationView<NamePartView> operationView = (OperationView<NamePartView>) node.getData();
         final List<NamePartView> targets = Lists.newArrayList();
         if (operationView.isAffected()) {
-            targets.add(operationView.getNamePartView());
+            targets.add(operationView.getData());
         }
-        if (operationView.getNamePartView() == null || !(operationView.getNamePartView().getPendingChange() instanceof NamePartView.DeleteChange)) {
+        if (operationView.getData() == null || !(operationView.getData().getPendingChange() instanceof NamePartView.DeleteChange)) {
             for (TreeNode child : node.getChildren()) {
                 targets.addAll(linearizedTargets(child));
             }
@@ -451,13 +448,13 @@ public class NamePartsController implements Serializable {
 
     private @Nullable TreeNode onlyProposedView(TreeNode node) {
         return (new TreeViewFilter<NamePartView>() {
-            @Override protected boolean addToTreeView(NamePartView nodeView) { return nodeView.getPendingChange() != null && (userManager.getUser() == null || nodeView.getPendingRevision().getRequestedBy().equals(userManager.getUser())); }
+            @Override protected boolean accepts(NamePartView nodeView) { return nodeView.getPendingChange() != null && (userManager.getUser() == null || nodeView.getPendingRevision().getRequestedBy().equals(userManager.getUser())); }
         }).apply(node);
     }
 
     private @Nullable TreeNode approvedAndProposedView(TreeNode node) {
         return (new TreeViewFilter<NamePartView>() {
-            @Override protected boolean addToTreeView(NamePartView nodeView) { return viewWithDeletions || !nodeView.isDeleted(); }
+            @Override protected boolean accepts(NamePartView nodeView) { return viewWithDeletions || !nodeView.isDeleted(); }
         }).apply(node);
     }
 

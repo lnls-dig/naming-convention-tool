@@ -53,10 +53,10 @@ public class ExcelExport {
     
     private void organizeDataFromDatabase() {
         final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
-        sectionsTree = namePartTreeBuilder.namePartApprovalTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true);
+        sectionsTree = namePartTreeBuilder.newNamePartTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true);
         
         final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
-        typesTree = namePartTreeBuilder.namePartApprovalTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true);
+        typesTree = namePartTreeBuilder.newNamePartTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true);
                        
         allDevices = Lists.newArrayList();
         for (Device device : deviceService.devices(false)) {

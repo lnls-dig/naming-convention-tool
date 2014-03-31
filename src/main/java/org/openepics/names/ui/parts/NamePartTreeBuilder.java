@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package org.openepics.names.ui.parts;
 
 import com.google.common.collect.Lists;
@@ -29,6 +23,50 @@ public class NamePartTreeBuilder {
 
     @Inject private ViewFactory viewFactory;
 
+    public TreeNode newNamePartTree(List<NamePartRevision> approved, List<NamePartRevision> pending, boolean expandedTree) {
+        return newNamePartTree(approved, pending, expandedTree, 0, null);
+    }
+    
+    public TreeNode newNamePartTree(List<NamePartRevision> approved, List<NamePartRevision> pending, boolean expandedTree, int selectableLevel) {
+        return newNamePartTree(approved, pending, expandedTree, selectableLevel, null);
+    }
+
+    public TreeNode newNamePartTree(List<NamePartRevision> approved, List<NamePartRevision> pending, boolean expandedTree, int selectableLevel, NamePart selected) {
+        final Map<UUID, NamePartRevisionPair> completeNamePartList = new HashMap<>();
+
+        for (NamePartRevision approvedNPR : approved) {
+            completeNamePartList.put(approvedNPR.getNamePart().getUuid(), new NamePartRevisionPair().approved(approvedNPR));
+        }
+
+        for (NamePartRevision pendingNPR : pending) {
+            final NamePartRevisionPair pair = completeNamePartList.get(pendingNPR.getNamePart().getUuid());
+            if (pair != null) {
+                pair.pending(pendingNPR);
+            } else {
+                completeNamePartList.put(pendingNPR.getNamePart().getUuid(), new NamePartRevisionPair().pending(pendingNPR));
+            }
+        }
+
+        final NamePartRevisionTree nprt = new NamePartRevisionTree(expandedTree, selectableLevel, selected);
+        for (NamePartRevisionPair pair : completeNamePartList.values()) {
+            addNamePartRevisionNode(nprt, pair, completeNamePartList);
+        }
+
+        return nprt.asViewTree();
+    }
+
+    private void addNamePartRevisionNode(NamePartRevisionTree nprt, NamePartRevisionPair pair, Map<UUID, NamePartRevisionPair> allPairs) {
+        if (!nprt.hasNode(pair)) {
+            final UUID parentId = pair.getParentUuid();
+            if (parentId == null) {
+                nprt.addChildToParent(null, pair);
+            } else {
+                addNamePartRevisionNode(nprt, allPairs.get(parentId), allPairs);
+                nprt.addChildToParent(parentId, pair);
+            }
+        }
+    }
+
     private class NamePartRevisionPair {
         private UUID uuid;
         private NamePartRevision approved;
@@ -47,9 +85,11 @@ public class NamePartTreeBuilder {
         }
 
         private @Nullable UUID getParentUuid() {
-            if (approved != null)
+            if (approved != null) {
                 return approved.getParent() != null ? approved.getParent().getUuid() : null;
-            return pending.getParent() != null ? pending.getParent().getUuid() : null;
+            } else {
+                return pending.getParent() != null ? pending.getParent().getUuid() : null;
+            }
         }
     }
 
@@ -85,10 +125,11 @@ public class NamePartTreeBuilder {
 
         private void addChildToParent(@Nullable UUID parentUuid, NamePartRevisionPair pair) {
             final NamePartRevisionTreeNode newNode = new NamePartRevisionTreeNode(pair);
-            if (parentUuid != null)
+            if (parentUuid != null) {
                 inventory.get(parentUuid).children.add(newNode);
-            else
+            } else {
                 root.children.add(newNode);
+            }
             inventory.put(pair.uuid, newNode);
         }
 
@@ -128,9 +169,6 @@ public class NamePartTreeBuilder {
                     return alphanumComparator.compare(leftView.getName(), rightView.getName());
                 }
             });
-            if (level == 0) {
-                int a = 1;
-            }
             for (TreeNode child : children) {
                 parentNode.getChildren().add(child);
                 child.setParent(parentNode);
@@ -140,48 +178,6 @@ public class NamePartTreeBuilder {
 
         private boolean isSelected(TreeNode node) {
             return (selectedNamePart != null) && (selectedNamePart.equals(((NamePartView)(node.getData())).getNamePart()));
-        }
-    }
-
-    public TreeNode namePartApprovalTree(List<NamePartRevision> approved, List<NamePartRevision> pending, boolean expandedTree) {
-        return namePartApprovalTree(approved, pending, expandedTree, 0, null);
-    }
-    
-    public TreeNode namePartApprovalTree(List<NamePartRevision> approved, List<NamePartRevision> pending, boolean expandedTree, int selectableLevel) {
-        return namePartApprovalTree(approved, pending, expandedTree, selectableLevel, null);
-    }
-
-    public TreeNode namePartApprovalTree(List<NamePartRevision> approved, List<NamePartRevision> pending, boolean expandedTree, int selectableLevel, NamePart selected) {
-        final Map<UUID, NamePartRevisionPair> completeNamePartList = new HashMap<>();
-
-        for (NamePartRevision approvedNPR : approved)
-            completeNamePartList.put(approvedNPR.getNamePart().getUuid(), new NamePartRevisionPair().approved(approvedNPR));
-
-        for (NamePartRevision pendingNPR : pending) {
-            final NamePartRevisionPair pair = completeNamePartList.get(pendingNPR.getNamePart().getUuid());
-            if(pair != null)
-                pair.pending(pendingNPR);
-            else
-                completeNamePartList.put(pendingNPR.getNamePart().getUuid(), new NamePartRevisionPair().pending(pendingNPR));
-        }
-
-        NamePartRevisionTree nprt = new NamePartRevisionTree(expandedTree, selectableLevel, selected);
-        for (NamePartRevisionPair pair : completeNamePartList.values())
-            addNamePartRevisionNode(nprt, pair, completeNamePartList);
-
-        return nprt.asViewTree();
-    }
-
-    private void addNamePartRevisionNode(NamePartRevisionTree nprt, NamePartRevisionPair pair, Map<UUID, NamePartRevisionPair> allPairs ) {
-        if(!nprt.hasNode(pair)) {
-            final UUID parentId = pair.getParentUuid();
-            if (parentId == null) {
-                nprt.addChildToParent(null, pair);
-            } else {
-                // adding existing parent is a NOP
-                addNamePartRevisionNode(nprt, allPairs.get(parentId), allPairs);
-                nprt.addChildToParent(parentId, pair);
-            }
         }
     }
 }

@@ -19,11 +19,11 @@
                                 <h:outputText value="Show: "/>
                                 <p:selectOneMenu value="#{namePartsController.viewFilter}" id="filterMenu">
                                     <p:ajax listener="#{namePartsController.modifyDisplayView}" event="change" update="namePartsTree reqMenu"  oncomplete="resizePanel()"/>
-                                    <f:selectItem itemLabel="Approved and Proposed" itemValue="0" />
-                                    <f:selectItem itemLabel="Approved" itemValue="1" />
-                                    <f:selectItem itemLabel="Proposed" itemValue="2" />
-                                    <f:selectItem itemLabel="Proposed by Me" itemValue="3" itemDisabled="#{!userManager.isLoggedIn()}"/>
-                                    <f:selectItem itemLabel="Archived" itemValue="4" />
+                                    <f:selectItem itemLabel="Approved and Proposed" itemValue="APPROVED_AND_PROPOSED" />
+                                    <f:selectItem itemLabel="Approved" itemValue="APPROVED" />
+                                    <f:selectItem itemLabel="Proposed" itemValue="PROPOSED" />
+                                    <f:selectItem itemLabel="Proposed by Me" itemValue="PROPOSED_BY_ME" itemDisabled="#{!userManager.isLoggedIn()}"/>
+                                    <f:selectItem itemLabel="Archived" itemValue="ARCHIVED" />
                                 </p:selectOneMenu>
                             </h:panelGrid>
                         </div>
@@ -174,10 +174,10 @@
                         <p:column colspan="2" rendered="#{namePartsController.canDelete()}">
                             <p:treeTable value="#{namePartsController.deleteView}" var="candidate" liveResize="true" resizableColumns="true"  styleClass="previewTreeTable">
                                 <p:column headerText="Name" >
-                                    <h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="#{candidate.namePartView.name}" />
+                                    <h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="#{candidate.data.name}" />
                                 </p:column>
                                 <p:column headerText="Mnemonic" style="width: 30%">
-                                    <h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="#{candidate.namePartView.mnemonic}" />
+                                    <h:outputText styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}" value="#{candidate.data.mnemonic}" />
                                 </p:column>
                             </p:treeTable>
                         </p:column>
@@ -197,7 +197,6 @@
                 <p:separator />
 
                 <p:commandButton value="Submit" style="float: left" oncomplete="delName.hide();resizePanel()" update=":ReqSubForm" actionListener="#{namePartsController.onDelete()}" />
-                              
                 <p:commandButton value="Cancel" style="float: right" onclick="delName.hide()"  />
             </p:dialog>
         </h:form>
@@ -213,14 +212,14 @@
                         <p:column colspan="2">
                             <p:treeTable value="#{namePartsController.cancelView}" var="candidate" liveResize="true" resizableColumns="true" styleClass="previewTreeTable">
                                 <p:column headerText="Name" >
-                                    <h:outputText styleClass="#{namePartsController.getNameClass(candidate.namePartView,true)}" value="#{namePartsController.getOperationsNewName(candidate)}" />
-                                    <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,true)}" />
-                                    <h:outputText value="(#{candidate.namePartView.name})" styleClass="#{namePartsController.getNameClass(candidate.namePartView,true)}-Old" rendered="#{namePartsController.isModified(candidate.namePartView,true)}" />
+                                    <h:outputText styleClass="#{namePartsController.getNameClass(candidate.data,true)}" value="#{namePartsController.getOperationsNewName(candidate)}" />
+                                    <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.data,true)}" />
+                                    <h:outputText value="(#{candidate.data.name})" styleClass="#{namePartsController.getNameClass(candidate.data,true)}-Old" rendered="#{namePartsController.isModified(candidate.data,true)}" />
                                 </p:column>
                                  <p:column headerText="Mnemonic" style="width: 30%">
-                                    <h:outputText value="#{namePartsController.getNewMnemonic(candidate.namePartView)}" styleClass="#{namePartsController.getNameClass(candidate.namePartView,false)}-New" />
-                                    <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
-                                    <h:outputText value="(#{candidate.namePartView.mnemonic})" styleClass="#{namePartsController.getNameClass(candidate.namePartView,false)}-Old" rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
+                                    <h:outputText value="#{namePartsController.getNewMnemonic(candidate.data)}" styleClass="#{namePartsController.getNameClass(candidate.data,false)}-New" />
+                                    <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.data,false)}" />
+                                    <h:outputText value="(#{candidate.data.mnemonic})" styleClass="#{namePartsController.getNameClass(candidate.data,false)}-Old" rendered="#{namePartsController.isModified(candidate.data,false)}" />
                                 </p:column>
                              </p:treeTable>
                         </p:column>
@@ -255,14 +254,14 @@
                         <p:column colspan="2">
                             <p:treeTable value="#{namePartsController.approveView}" var="candidate" resizableColumns="true" liveResize="true" styleClass="previewTreeTable">
                                 <p:column headerText="Name" >
-                                    <h:outputText styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.namePartView,true).concat('-New') : ''}" value="#{namePartsController.getOperationsNewName(candidate)}" />
-                                    <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,true)}" />
-                                    <h:outputText value="(#{candidate.namePartView.name})" styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.namePartView,true).concat('-Old') : ''}" rendered="#{namePartsController.isModified(candidate.namePartView,true)}" />
+                                    <h:outputText styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.data,true).concat('-New') : ''}" value="#{namePartsController.getOperationsNewName(candidate)}" />
+                                    <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.data,true)}" />
+                                    <h:outputText value="(#{candidate.data.name})" styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.data,true).concat('-Old') : ''}" rendered="#{namePartsController.isModified(candidate.data,true)}" />
                                 </p:column>
                                 <p:column headerText="Mnemonic" style="width: 30%">
-                                    <h:outputText value="#{namePartsController.getNewMnemonic(candidate.namePartView)}" styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.namePartView,false).concat('-New') : ''}" />
-                                    <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
-                                    <h:outputText value="(#{candidate.namePartView.mnemonic})" styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.namePartView,false).concat('-Old') : ''}" rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
+                                    <h:outputText value="#{namePartsController.getNewMnemonic(candidate.data)}" styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.data,false).concat('-New') : ''}" />
+                                    <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.data,false)}" />
+                                    <h:outputText value="(#{candidate.data.mnemonic})" styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.data,false).concat('-Old') : ''}" rendered="#{namePartsController.isModified(candidate.data,false)}" />
                                 </p:column>
                             </p:treeTable>
                         </p:column>
@@ -294,14 +293,14 @@
                         <p:column colspan="2">
                             <p:treeTable value="#{namePartsController.cancelView}" var="candidate" liveResize="true" resizableColumns="true" styleClass="previewTreeTable">
                                 <p:column headerText="Name" >
-                                    <h:outputText styleClass="#{namePartsController.getNameClass(candidate.namePartView,true)}" value="#{namePartsController.getOperationsNewName(candidate)}" />
-                                    <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,true)}" />
-                                    <h:outputText value="(#{candidate.namePartView.name})" styleClass="#{namePartsController.getNameClass(candidate.namePartView,true)}-Old" rendered="#{namePartsController.isModified(candidate.namePartView,true)}" />
+                                    <h:outputText styleClass="#{namePartsController.getNameClass(candidate.data,true)}" value="#{namePartsController.getOperationsNewName(candidate)}" />
+                                    <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.data,true)}" />
+                                    <h:outputText value="(#{candidate.data.name})" styleClass="#{namePartsController.getNameClass(candidate.data,true)}-Old" rendered="#{namePartsController.isModified(candidate.data,true)}" />
                                 </p:column>
                                  <p:column headerText="Mnemonic" style="width: 30%">
-                                    <h:outputText value="#{namePartsController.getNewMnemonic(candidate.namePartView)}" styleClass="#{namePartsController.getNameClass(candidate.namePartView,false)}-New" />
-                                    <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
-                                    <h:outputText value="(#{candidate.namePartView.mnemonic})" styleClass="#{namePartsController.getNameClass(candidate.namePartView,false)}-Old" rendered="#{namePartsController.isModified(candidate.namePartView,false)}" />
+                                    <h:outputText value="#{namePartsController.getNewMnemonic(candidate.data)}" styleClass="#{namePartsController.getNameClass(candidate.data,false)}-New" />
+                                    <h:outputText value=" " rendered="#{namePartsController.isModified(candidate.data,false)}" />
+                                    <h:outputText value="(#{candidate.data.mnemonic})" styleClass="#{namePartsController.getNameClass(candidate.data,false)}-Old" rendered="#{namePartsController.isModified(candidate.data,false)}" />
                                 </p:column>
                              </p:treeTable>
                         </p:column>

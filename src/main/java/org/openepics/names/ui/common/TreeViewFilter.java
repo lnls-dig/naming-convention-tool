@@ -13,22 +13,22 @@ import java.util.List;
 */
 public abstract class TreeViewFilter<T> {
 
-    protected abstract boolean addToTreeView(@Nullable T nodeView);
+    protected abstract boolean accepts(@Nullable T nodeView);
 
     public TreeNode apply(TreeNode node) {
-        final List<TreeNode> childNodes = Lists.newArrayList();
+        final List<TreeNode> childViews = Lists.newArrayList();
         for (TreeNode child : node.getChildren()) {
             final TreeNode childView = apply(child);
             if (childView != null) {
-                childNodes.add(childView);
+                childViews.add(childView);
             }
         }
 
         final @Nullable T nodeView = (T) node.getData();
-        if (!childNodes.isEmpty() || (nodeView != null && addToTreeView(As.notNull(nodeView)))) {
+        if (!childViews.isEmpty() || (nodeView != null && accepts(As.notNull(nodeView)))) {
             final TreeNode result = new DefaultTreeNode(nodeView, null);
             result.setExpanded(true);
-            for (TreeNode childView : childNodes) {
+            for (TreeNode childView : childViews) {
                 result.getChildren().add(childView);
                 childView.setParent(result);
             }
