@@ -13,6 +13,6 @@ public class OperationView<T> {
         this.isAffected = isAffected;
     }
 
-    public T getNamePartView() { return data; }
+    public T getData() { return data; }
     public boolean isAffected() { return isAffected; }
 }

@@ -3,12 +3,12 @@ package org.openepics.names.ui.devices;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
+import org.openepics.names.ui.common.OperationView;
 import org.openepics.names.ui.common.OperationsTreePreview;
 import org.openepics.names.ui.common.TreeViewFilter;
 import org.openepics.names.ui.common.ViewFactory;
@@ -34,8 +34,8 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @ManagedBean
@@ -63,7 +63,7 @@ public class DevicesController implements Serializable {
 
     private TreeNode formSelectedSection;
     private TreeNode formSelectedDeviceType;
-    private String deviceInstanceIndex;
+    private String formInstanceIndex;
     private String deviceNameFilter, appliedDeviceNameFilter = "";
     private String deviceTypeFilter, appliedDeviceTypeFilter = "";
 
@@ -76,9 +76,9 @@ public class DevicesController implements Serializable {
 
     public void onAdd() {
         try {
-            final NamePartView subsection = As.notNull(getFormSelectedSection());
+            final NamePartView subsection = As.notNull(getSelectedSection());
             final NamePartView deviceType = (NamePartView) formSelectedDeviceType.getData();
-            final DeviceRevision rev = deviceService.createDevice(subsection.getNamePart(), deviceType.getNamePart(), deviceInstanceIndex);
+            final DeviceRevision rev = deviceService.createDevice(subsection.getNamePart(), deviceType.getNamePart(), formInstanceIndex);
             showMessage(FacesMessage.SEVERITY_INFO, "Device Name successfully added.", "Name: " + viewFactory.getView(rev).getConventionName());
         } finally {
             init();
@@ -89,7 +89,7 @@ public class DevicesController implements Serializable {
         try {
         	final NamePartView subsection = (NamePartView)(formSelectedSection.getData());
             final NamePartView deviceType = (NamePartView)(formSelectedDeviceType.getData());
-            deviceService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), subsection.getNamePart(), deviceType.getNamePart(), deviceInstanceIndex);
+            deviceService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), subsection.getNamePart(), deviceType.getNamePart(), formInstanceIndex);
             showMessage(FacesMessage.SEVERITY_INFO, "Device modified.", "Name: [TODO]");
         } finally {
             init();
@@ -108,20 +108,13 @@ public class DevicesController implements Serializable {
     }
 
     private List<DeviceView> linearizedTargets(TreeNode node) {
-    	@Nullable OperationDeviceView nodeView = null;
-
-        if (node.getData() instanceof OperationDeviceView) {
-	    	nodeView = (OperationDeviceView) node.getData();
-        }
-
+    	final @Nullable OperationView<DeviceView> operationView = (OperationView<DeviceView>) node.getData();
         final List<DeviceView> targets = Lists.newArrayList();
-        if (nodeView != null && nodeView.isAffected()) {
-            targets.add(nodeView.getDeviceView());
+        if (operationView != null && operationView.isAffected()) {
+            targets.add(operationView.getData());
         }
-        if (nodeView == null) {
-            for (TreeNode child : node.getChildren()) {
-                targets.addAll(linearizedTargets(child));
-            }
+        for (TreeNode child : node.getChildren()) {
+            targets.addAll(linearizedTargets(child));
         }
         return targets;
     }
@@ -138,69 +131,45 @@ public class DevicesController implements Serializable {
     public TreeNode getSections() { return sections; }
 
     public TreeNode getDeviceTypes() { return deviceTypes; }
-    public void setFormSelectedDeviceType(TreeNode formSelectedDeviceType) { this.formSelectedDeviceType = formSelectedDeviceType; }
-    public TreeNode getFormSelectedDeviceType() { return this.formSelectedDeviceType; }
 
-    public String getDeviceInstanceIndex() { return deviceInstanceIndex; }
-    public void setDeviceInstanceIndex(String deviceInstanceIndex) { this.deviceInstanceIndex = deviceInstanceIndex; }
+    public TreeNode getFormSelectedSection() { return formSelectedSection; }
+    public void setFormSelectedSection(TreeNode formSelectedSection) { this.formSelectedSection = formSelectedSection; }
+
+    public TreeNode getFormSelectedDeviceType() { return this.formSelectedDeviceType; }
+    public void setFormSelectedDeviceType(TreeNode formSelectedDeviceType) { this.formSelectedDeviceType = formSelectedDeviceType; }
+
+    public String getFormInstanceIndex() { return formInstanceIndex; }
+    public void setFormInstanceIndex(String formInstanceIndex) { this.formInstanceIndex = formInstanceIndex; }
 
     public TreeNode[] getSelectedNodes() { return selectedNodes; }
 
-    public void setViewFilter(int filter) {
-        this.displayView = DevicesViewFilter.values()[filter];
-    }
+    public @Nullable String getDeviceNameFilter() { return deviceNameFilter; }
+    public void setDeviceNameFilter(@Nullable String deviceNameFilter) { this.deviceNameFilter = deviceNameFilter; }
+
+    public @Nullable String getDeviceTypeFilter() { return deviceTypeFilter; }
+    public void setDeviceTypeFilter(@Nullable String deviceTypeFilter) { this.deviceTypeFilter = deviceTypeFilter; }
+
+    public DevicesViewFilter getViewFilter() { return this.displayView; }
+    public void setViewFilter(DevicesViewFilter viewFilter) { this.displayView = viewFilter; }
     
-    public void setDeviceNameFilter(String filter) {
-        deviceNameFilter = filter;
-    }
-
-    public String getDeviceNameFilter() {
-        return deviceNameFilter;
-    }
-
-    public void setDeviceTypeFilter(String filter) {
-        deviceTypeFilter = filter;
-    }
-
-    public String getDeviceTypeFilter() {
-        return deviceTypeFilter;
-    }
-
-    public int getViewFilter() {
-        return this.displayView.ordinal();
-    }
+    public TreeNode getViewDevice() { return viewDevice; }
+    public void setViewDevice(TreeNode viewDevice) { this.viewDevice = viewDevice; }
     
-    public TreeNode getViewDevice() {
-        return viewDevice;
-    }
-
-    public void setViewDevice(TreeNode viewDevice) {
-        this.viewDevice = viewDevice;
-    }
-    
-    public void cleanDeviceNameFilter() {
-        deviceNameFilter = "";
+    public void clearDeviceNameFilter() {
+        deviceNameFilter = null;
+        checkForFilterChanges();
     }
      
-    public void cleanDeviceTypeFilter() {
-        deviceTypeFilter = "";
+    public void clearDeviceTypeFilter() {
+        deviceTypeFilter = null;
+        checkForFilterChanges();
     }
 
     public void checkForFilterChanges() {
-        final boolean filterHasChanged;
-        if (deviceNameFilter.equals(appliedDeviceNameFilter) && deviceTypeFilter.equals(appliedDeviceTypeFilter)) {
-            filterHasChanged = false;
-        } else {
-            if (!deviceNameFilter.equals(appliedDeviceNameFilter)) {
-                appliedDeviceNameFilter = deviceNameFilter;
-            }
-            if (!deviceTypeFilter.equals(appliedDeviceTypeFilter)) {
-                appliedDeviceTypeFilter = deviceTypeFilter;
-            }
-            filterHasChanged = true;
-        }
-        
-        if (filterHasChanged) {        
+        final boolean filterHasChanged = !Objects.equals(deviceNameFilter, appliedDeviceNameFilter) || !Objects.equals(deviceTypeFilter, appliedDeviceTypeFilter);
+        if (filterHasChanged) {
+            appliedDeviceNameFilter = deviceNameFilter;
+            appliedDeviceTypeFilter = deviceTypeFilter;
             viewDevice = filteredView(viewRoot);
             RequestContext.getCurrentInstance().update("ManageNameForm:devicesTree");
         }        
@@ -220,40 +189,33 @@ public class DevicesController implements Serializable {
 
     public void setSelectedNodes(@Nullable TreeNode[] selectedNodes) {
     	this.selectedNodes = selectedNodes != null ? selectedNodes : new TreeNode[0];
-        deleteView = deleteView(viewRoot);
+        deleteView = deleteView(viewDevice);
     }
 
+    public @Nullable NamePartView getSelectedSection() { return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof NamePartView ? (NamePartView) selectedNodes[0].getData() : null; }
     public @Nullable DeviceView getSelectedDevice() { return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView ? (DeviceView) selectedNodes[0].getData() : null; }
-    public @Nullable NamePartView getFormSelectedSection() { 
-        return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof NamePartView ? (NamePartView) selectedNodes[0].getData() : null; 
-    }
 
-    public TreeNode getViewRoot() { return viewRoot; }
     public TreeNode getDeleteView() { return deleteView; }
 
     public boolean canDelete() { return deleteView != null; }
-    public boolean canAdd() { return getFormSelectedSection() != null && getFormSelectedSection().getLevel() == 2; }
+    public boolean canAdd() { return getSelectedSection() != null && getSelectedSection().getLevel() == 2; }
     public boolean canShowHistory() { return getSelectedDevice() != null; }
     public boolean canModify() { return getSelectedDevice() != null && !getSelectedDevice().getDevice().isDeleted(); }
 
     public void prepareForAdd() {
         final List<NamePartRevision> approvedDeviceTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
-        final List<NamePartRevision> emptyPending = new ArrayList<>();
-        deviceTypes = namePartTreeBuilder.namePartApprovalTree(approvedDeviceTypeRevisions, emptyPending, false, 2);
+        deviceTypes = namePartTreeBuilder.newNamePartTree(approvedDeviceTypeRevisions, Lists.<NamePartRevision>newArrayList(), false, 2);
     }
 
     public void prepareForModify() {
         final List<NamePartRevision> approvedSectionRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
         final List<NamePartRevision> approvedDeviceTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
-
-        final List<NamePartRevision> emptyPending = new ArrayList<>();
-
-        sections = namePartTreeBuilder.namePartApprovalTree(approvedSectionRevisions, emptyPending, false, 2, As.notNull(getSelectedDevice()).getSection().getNamePart());
-        deviceTypes = namePartTreeBuilder.namePartApprovalTree(approvedDeviceTypeRevisions, emptyPending, false, 2, As.notNull(getSelectedDevice()).getDeviceType().getNamePart());
-        deviceInstanceIndex = As.notNull(getSelectedDevice()).getInstanceIndex();
+        sections = namePartTreeBuilder.newNamePartTree(approvedSectionRevisions, Lists.<NamePartRevision>newArrayList(), false, 2, As.notNull(getSelectedDevice()).getSection().getNamePart());
+        deviceTypes = namePartTreeBuilder.newNamePartTree(approvedDeviceTypeRevisions, Lists.<NamePartRevision>newArrayList(), false, 2, As.notNull(getSelectedDevice()).getDeviceType().getNamePart());
 
         formSelectedSection = findSelectedTreeNode(sections);
         formSelectedDeviceType = findSelectedTreeNode(deviceTypes);
+        formInstanceIndex = As.notNull(getSelectedDevice()).getInstanceIndex();
     }
     
     public void handleFileUpload(FileUploadEvent event) {
@@ -278,9 +240,9 @@ public class DevicesController implements Serializable {
     	    return node;
     	} else {
     		for (TreeNode child : node.getChildren()) {
-    			TreeNode temp = findSelectedTreeNode(child);
-    			if (temp != null) {
-    				return temp;
+    			final TreeNode selectedChildNode = findSelectedTreeNode(child);
+    			if (selectedChildNode != null) {
+    				return selectedChildNode;
                 }
     		}
             return null;
@@ -304,15 +266,17 @@ public class DevicesController implements Serializable {
     
    private TreeNode filteredView(TreeNode node) {
         final @Nullable TreeNode filteredView = (new TreeViewFilter<Object>() {
-            @Override protected boolean addToTreeView(Object nodeView) {
-                if (nodeView instanceof DeviceView) {
+            @Override protected boolean accepts(Object nodeView) {
+                if (nodeView instanceof NamePartView) {
+                    return false;
+                } else if (nodeView instanceof DeviceView) {
                     final String name = ((DeviceView) nodeView).getConventionName().toLowerCase();
                     final String deviceType = ((DeviceView) nodeView).getDeviceTypePath().toLowerCase();
-                    final boolean nameMatches = appliedDeviceNameFilter.isEmpty() || name.contains(appliedDeviceNameFilter.toLowerCase());
-                    final boolean deviceTypeMatches = appliedDeviceTypeFilter.isEmpty() || deviceType.contains(appliedDeviceTypeFilter.toLowerCase());
+                    final boolean nameMatches = appliedDeviceNameFilter == null || name.contains(appliedDeviceNameFilter.toLowerCase());
+                    final boolean deviceTypeMatches = appliedDeviceTypeFilter == null || deviceType.contains(appliedDeviceTypeFilter.toLowerCase());
                     return nameMatches && deviceTypeMatches;
                 } else {
-                    return false;
+                    throw new UnhandledCaseException();
                 }
             }
         }).apply(node);

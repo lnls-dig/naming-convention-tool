@@ -62,10 +62,10 @@ public class ExcelImport {
     
     private void loadDataFromDatabase() {
         final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
-        populateSectionsTable(namePartTreeBuilder.namePartApprovalTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true), 0);
+        populateSectionsTable(namePartTreeBuilder.newNamePartTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true), 0);
 
         final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
-        populateTypesTable(namePartTreeBuilder.namePartApprovalTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true), 0, "");
+        populateTypesTable(namePartTreeBuilder.newNamePartTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true), 0, "");
 
         for (Device device : deviceService.devices(false)) {
             allDevices.add(deviceService.currentRevision(device));

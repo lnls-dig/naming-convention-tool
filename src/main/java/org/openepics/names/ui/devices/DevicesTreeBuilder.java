@@ -34,10 +34,10 @@ public class DevicesTreeBuilder {
 	
 	public TreeNode devicesTree(boolean withDeleted) {
 		final List<NamePartRevision> sectionRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, withDeleted);
-        final TreeNode sectionTree = namePartTreeBuilder.namePartApprovalTree(sectionRevisions, Lists.<NamePartRevision>newArrayList(), false);
+        final TreeNode sectionTree = namePartTreeBuilder.newNamePartTree(sectionRevisions, Lists.<NamePartRevision>newArrayList(), false);
 
         final List<NamePartRevision> deviceTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, withDeleted);
-        final TreeNode deviceTypeTree = namePartTreeBuilder.namePartApprovalTree(deviceTypeRevisions, Lists.<NamePartRevision>newArrayList(), false);
+        final TreeNode deviceTypeTree = namePartTreeBuilder.newNamePartTree(deviceTypeRevisions, Lists.<NamePartRevision>newArrayList(), false);
         viewByDeviceType = Maps.newHashMap();
         populateDeviceTypeViews(deviceTypeTree);
         
