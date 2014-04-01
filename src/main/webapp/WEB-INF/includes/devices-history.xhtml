@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<!-- ToDo: split this one into MyRequests and RequestSub -->
 
 <ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
@@ -8,7 +7,6 @@
                 xmlns:h="http://java.sun.com/jsf/html">
 
     <!-- ===================Name History============================ -->
-    <!-- TODO: find better way to adjust width of the panel -->
     <p:dialog id="nameDetail" widgetVar="nameDetail" width="900" dynamic="true" maximizable="true" minimizable="true" modal="true" header="Name Details" footer="Event History">
         <p:dataTable id="historyTable" var="ncname"
             value="#{historyHandler}" paginator="false" rows="50"

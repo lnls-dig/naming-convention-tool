@@ -7,7 +7,6 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions"
                 >
-    <!-- ToDo: find better way to adjust width of the panel -->
     <p:dialog id="nameDetail"  widgetVar="nameDetail" width="900" dynamic="true" maximizable="true" minimizable="true" modal="true" header="Name Details" footer="Event History">
         <p:dataTable id="historyTable" var="nevent" value="#{historyHandler}"
                 paginator="false" rows="50" resizableColumns="true" rowKey="#{nevent.id}"

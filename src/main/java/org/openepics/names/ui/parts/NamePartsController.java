@@ -230,9 +230,9 @@ public class NamePartsController implements Serializable {
             viewWithDeletions = false;
             viewRoot = approvedAndProposedView(rootWithoutModifications);
         } else if (displayView == NamePartDisplayFilter.PROPOSED) {
-            viewRoot = onlyProposedView(rootWithModifications);
+            viewRoot = onlyProposedView(rootWithModifications, false);
         } else if (displayView == NamePartDisplayFilter.PROPOSED_BY_ME) {
-            viewRoot = onlyProposedView(rootWithModifications); // TODO
+            viewRoot = onlyProposedView(rootWithModifications, true);
         } else if (displayView == NamePartDisplayFilter.ARCHIVED) {
             viewWithDeletions = true;
             viewRoot = approvedAndProposedView(rootWithoutModifications);
@@ -448,9 +448,9 @@ public class NamePartsController implements Serializable {
         }).apply(node);
     }
 
-    private @Nullable TreeNode onlyProposedView(TreeNode node) {
+    private @Nullable TreeNode onlyProposedView(TreeNode node, final boolean proposedByMe) {
         return (new TreeViewFilter<NamePartView>() {
-            @Override protected boolean accepts(NamePartView nodeView) { return nodeView.getPendingChange() != null && (userManager.getUser() == null || nodeView.getPendingRevision().getRequestedBy().equals(userManager.getUser())); }
+            @Override protected boolean accepts(NamePartView nodeView) { return nodeView.getPendingChange() != null && (!proposedByMe || proposedByMe && (userManager.getUser() == null || nodeView.getPendingRevision().getRequestedBy().equals(userManager.getUser()))); }
         }).apply(node);
     }
 
