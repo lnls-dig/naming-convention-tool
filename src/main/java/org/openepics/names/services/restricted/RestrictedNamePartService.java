@@ -103,14 +103,6 @@ public class RestrictedNamePartService {
         return namePartService.pendingRevision(namePart);
     }
 
-    public NamePartRevision approvedOrElsePendingRevision(NamePart namePart) {
-        return namePartService.approvedOrElsePendingRevision(namePart);
-    }
-
-    public NamePartRevision pendingOrElseApprovedRevision(NamePart namePart) {
-        return namePartService.pendingOrElseApprovedRevision(namePart);
-    }
-
     private void autoApprove(NamePartRevision namePartEvent, @Nullable UserAccount user) {
         namePartEvent.setStatus(NamePartRevisionStatus.APPROVED);
         namePartEvent.setProcessDate(new Date());

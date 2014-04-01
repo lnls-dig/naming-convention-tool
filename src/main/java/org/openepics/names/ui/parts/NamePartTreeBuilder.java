@@ -3,6 +3,8 @@ package org.openepics.names.ui.parts;
 import com.google.common.collect.Lists;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
+import org.openepics.names.services.views.NamePartView;
+import org.openepics.names.ui.common.AlphanumComparator;
 import org.openepics.names.ui.common.ViewFactory;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;

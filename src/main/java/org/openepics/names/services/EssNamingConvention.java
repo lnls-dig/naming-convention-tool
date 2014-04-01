@@ -1,11 +1,6 @@
 package org.openepics.names.services;
 
-import com.google.common.collect.Lists;
-import org.openepics.names.model.NamePartType;
-import org.openepics.names.ui.devices.DeviceView;
-import org.openepics.names.ui.parts.NamePartView;
-import org.openepics.names.util.UnhandledCaseException;
-
+import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Alternative;
 import java.util.List;
@@ -17,19 +12,16 @@ import java.util.List;
 @Alternative
 @Stateless
 public class EssNamingConvention implements NamingConvention {
-    @Override public String getNamingConventionName(DeviceView deviceName) {
-        final List<NamePartView> sectionPath = namePartPath(deviceName.getSection());
-        final List<NamePartView> deviceTypePath = namePartPath(deviceName.getDeviceType());
-
-        final NamePartView supersection = sectionPath.get(0);
-        final NamePartView section = sectionPath.get(1);
-        final NamePartView subsection = sectionPath.get(2);
-        final NamePartView discipline = deviceTypePath.get(0);
-        final NamePartView genericDeviceType = deviceTypePath.get(2);
-        if (supersection.getMnemonic().equals("Acc")) {
-            return section.getMnemonic() + "-" + discipline.getMnemonic() + ":" + genericDeviceType.getMnemonic() + "-" + subsection.getMnemonic() + (deviceName.getInstanceIndex() != null ? deviceName.getInstanceIndex() : "");
+    @Override public String getNamingConventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
+        final String supersection = sectionPath.get(0);
+        final String section = sectionPath.get(1);
+        final String subsection = sectionPath.get(2);
+        final String discipline = deviceTypePath.get(0);
+        final String genericDeviceType = deviceTypePath.get(2);
+        if (supersection.equals("Acc")) {
+            return section + "-" + discipline + ":" + genericDeviceType + "-" + subsection + (instanceIndex != null ? instanceIndex : "");
         } else {
-            return section.getMnemonic() + "-" + subsection.getMnemonic() + ":" + discipline.getMnemonic() + "-" + (deviceName.getInstanceIndex() != null ? deviceName.getInstanceIndex() : "");
+            return section + "-" + subsection + ":" + discipline + "-" + (instanceIndex != null ? instanceIndex : "");
         }
     }
 
@@ -37,34 +29,19 @@ public class EssNamingConvention implements NamingConvention {
         return name.toUpperCase().replace('I', '1').replace('L', '1').replace('O', '0').replace('W', 'V').replaceAll("(?<!\\d)0+(?=\\d)", "");
     }
 
-    @Override public boolean isNameValid(NamePartView namePart) {
-        if (namePart.getNamePart().getNamePartType() == NamePartType.SECTION) {
-            final List<NamePartView> sectionPath = namePartPath(namePart);
-            final NamePartView supersection = sectionPath.get(0);
-            if (supersection != null && supersection.getMnemonic().equals("Acc") && sectionPath.indexOf(namePart) == 2) {
-                return namePart.getMnemonic().matches("^[0-9][0-9][1-9]$");
-            } else {
-                return namePart.getMnemonic().matches("^[a-zA-Z][a-zA-Z0-9]*$");
-            }
-        } else if (namePart.getNamePart().getNamePartType() == NamePartType.DEVICE_TYPE) {
-            return namePart.getMnemonic().matches("^[a-zA-Z][a-zA-Z0-9]*$");
+    @Override public boolean isSectionNameValid(List<String> parentPath, String name) {
+        if (parentPath.size() == 2 && parentPath.get(0).equals("Acc")) {
+            return name.matches("^([1-9][0-9][0-9])|([0-9]?[1-9][0-9])|[0-9]?[0-9]?[1-9]$");
         } else {
-            throw new UnhandledCaseException();
+            return name.matches("^[a-zA-Z][a-zA-Z0-9]*$");
         }
     }
 
-    @Override public boolean isDeviceNameValid(DeviceView deviceName) {
-        return deviceName.getInstanceIndex().matches("^[a-zA-Z][a-zA-Z0-9]*$");
+    @Override public boolean isDeviceTypeNameValid(List<String> parentPath, String name) {
+        return name.matches("^[a-zA-Z][a-zA-Z0-9]*$");
     }
 
-    private List<NamePartView> namePartPath(NamePartView namePart) {
-        final List<NamePartView> parts = Lists.newArrayList();
-        NamePartView currentNamePart = namePart;
-        do {
-            parts.add(0, currentNamePart);
-            currentNamePart = currentNamePart.getParent();
-        } while (currentNamePart != null);
-
-        return parts;
+    @Override public boolean isInstanceIndexValid(String instanceIndex) {
+        return instanceIndex.matches("^[a-zA-Z][a-zA-Z0-9]*$");
     }
 }

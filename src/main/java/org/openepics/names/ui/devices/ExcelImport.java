@@ -12,7 +12,7 @@ import org.openepics.names.model.*;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
-import org.openepics.names.ui.parts.NamePartView;
+import org.openepics.names.services.views.NamePartView;
 import org.primefaces.model.TreeNode;
 
 import javax.annotation.Nullable;
@@ -26,6 +26,7 @@ import java.util.List;
 
 @Stateless
 public class ExcelImport {
+
     @Inject private RestrictedDeviceService deviceService;
     @Inject private RestrictedNamePartService namePartService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
@@ -39,11 +40,11 @@ public class ExcelImport {
     
     public class SuccessExcelImportResult extends ExcelImportResult {}
     
-    public class FaliureExcelImportResult extends ExcelImportResult {
+    public class FailureExcelImportResult extends ExcelImportResult {
         final private int rowNumber;
         final private NamePartType namePartType;
         
-        public FaliureExcelImportResult(int rowNumber, NamePartType namePartType) {
+        public FailureExcelImportResult(int rowNumber, NamePartType namePartType) {
             this.rowNumber = rowNumber;
             this.namePartType = namePartType;
         }
@@ -77,7 +78,7 @@ public class ExcelImport {
                 final String deviceType = row.getCell(3).getStringCellValue();
                 final @Nullable String index = row.getCell(4) != null ? (row.getCell(4).getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf((int)row.getCell(4).getNumericCellValue()) : row.getCell(4).getStringCellValue()) : null;
                 ExcelImportResult addDeviceNameResult = addDeviceName(section, subsection, discipline, deviceType, index, rowNumber++);
-                if (addDeviceNameResult instanceof FaliureExcelImportResult) {
+                if (addDeviceNameResult instanceof FailureExcelImportResult) {
                     return addDeviceNameResult;
                 }
             }
@@ -105,12 +106,12 @@ public class ExcelImport {
     private ExcelImportResult addDeviceName(String section, String subsection, String discipline, String deviceType, @Nullable String index, int rowCounter) {
         final  @Nullable NamePart sectionPart = sectionsTable.get(section, subsection);
         if (sectionPart == null) {
-            return new FaliureExcelImportResult(rowCounter, NamePartType.SECTION);
+            return new FailureExcelImportResult(rowCounter, NamePartType.SECTION);
         }
         
         final @Nullable NamePart typePart = typesTable.get(discipline, deviceType);
         if (typePart == null) {
-            return new FaliureExcelImportResult(rowCounter, NamePartType.DEVICE_TYPE);
+            return new FailureExcelImportResult(rowCounter, NamePartType.DEVICE_TYPE);
         }
         
         for (DeviceRevision deviceRevision : allDevices) {
@@ -157,18 +158,3 @@ public class ExcelImport {
     }
 }
 
-class NewDeviceName {
-    private final NamePart sectionPart;
-    private final NamePart deviceTypePart;
-    private final @Nullable String index;
-            
-    public NewDeviceName(NamePart sectionPart, NamePart deviceTypePart, @Nullable String index) {
-        this.sectionPart = sectionPart;
-        this.deviceTypePart = deviceTypePart;
-        this.index = index;
-    }
-
-    public NamePart getSectionPart() { return sectionPart; }
-    public NamePart getDeviceTypePart() { return deviceTypePart; }
-    public @Nullable String getIndex() { return index; }        
-}

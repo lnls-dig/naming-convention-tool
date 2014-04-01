@@ -2,19 +2,21 @@ package org.openepics.names.ui.devices;
 
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
+import org.openepics.names.services.views.DeviceView;
 import org.openepics.names.ui.common.OperationView;
 import org.openepics.names.ui.common.OperationsTreePreview;
 import org.openepics.names.ui.common.TreeViewFilter;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.export.ExcelExport;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
-import org.openepics.names.ui.parts.NamePartView;
+import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.util.As;
 import org.openepics.names.util.UnhandledCaseException;
 import org.primefaces.context.RequestContext;
@@ -224,8 +226,8 @@ public class DevicesController implements Serializable {
             ExcelImport.ExcelImportResult importResult = excelImport.parseDeviceImportFile(inputStream);
             if (importResult instanceof ExcelImport.SuccessExcelImportResult) {
                 showMessage("excelImportStatusMessage", FacesMessage.SEVERITY_INFO, "Import successful!", "");
-            } else if (importResult instanceof ExcelImport.FaliureExcelImportResult) {
-                ExcelImport.FaliureExcelImportResult faliureImportResult = (ExcelImport.FaliureExcelImportResult) importResult;
+            } else if (importResult instanceof ExcelImport.FailureExcelImportResult) {
+                ExcelImport.FailureExcelImportResult faliureImportResult = (ExcelImport.FailureExcelImportResult) importResult;
                 showMessage("excelImportStatusMessage", FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred in row " + faliureImportResult.getRowNumber() + ". " + (faliureImportResult.getNamePartType().equals(NamePartType.SECTION) ? "Logical area" : "Device category") + " part was not found in the database.");
             } else {
                 throw new UnhandledCaseException();
@@ -241,7 +243,11 @@ public class DevicesController implements Serializable {
     
     public StreamedContent getAllDataExport() {  
         return new DefaultStreamedContent(excelExport.exportFile(), "xlsx", "NamingConventionExport.xlsx");
-    } 
+    }
+
+    public String deviceTypePath(DeviceView deviceView) {
+        return Joiner.on(" ▸ ").join(deviceView.getDeviceType().getNamePath());
+    }
    
     private TreeNode findSelectedTreeNode(TreeNode node) {
     	if (node.isSelected()) {
@@ -272,14 +278,14 @@ public class DevicesController implements Serializable {
         }).apply(node);
     }
     
-   private TreeNode filteredView(TreeNode node) {
+    private TreeNode filteredView(TreeNode node) {
         final @Nullable TreeNode filteredView = (new TreeViewFilter<Object>() {
             @Override protected boolean accepts(Object nodeView) {
                 if (nodeView instanceof NamePartView) {
                     return (deviceNameFilter == null || deviceNameFilter.equals(""))  && (deviceTypeFilter == null || deviceTypeFilter.equals(""));
                 } else if (nodeView instanceof DeviceView) {
                     final String name = ((DeviceView) nodeView).getConventionName().toLowerCase();
-                    final String deviceType = ((DeviceView) nodeView).getDeviceTypePath().toLowerCase();
+                    final String deviceType = deviceTypePath((DeviceView) nodeView).toLowerCase();
                     final boolean nameMatches = appliedDeviceNameFilter == null || name.contains(appliedDeviceNameFilter.toLowerCase());
                     final boolean deviceTypeMatches = appliedDeviceTypeFilter == null || deviceType.contains(appliedDeviceTypeFilter.toLowerCase());
                     return nameMatches && deviceTypeMatches;

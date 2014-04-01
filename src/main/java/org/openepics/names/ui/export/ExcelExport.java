@@ -1,6 +1,8 @@
 package org.openepics.names.ui.export;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -12,7 +14,7 @@ import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
-import org.openepics.names.ui.parts.NamePartView;
+import org.openepics.names.services.views.NamePartView;
 import org.primefaces.model.TreeNode;
 
 import javax.annotation.Nullable;
@@ -30,15 +32,21 @@ public class ExcelExport {
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private ViewFactory viewFactory;
     
-    private List<DeviceRevision> allDevices;
-    private TreeNode sectionsTree, typesTree;
-    
-    public InputStream exportFile() {  
-        organizeDataFromDatabase();
+    public InputStream exportFile() {
+        final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
+        final TreeNode sectionsTree = namePartTreeBuilder.newNamePartTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true);
+
+        final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
+        final TreeNode typesTree = namePartTreeBuilder.newNamePartTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true);
+
+        final List<DeviceRevision> devices = Lists.newArrayList();
+        for (Device device : deviceService.devices(false)) {
+            devices.add(deviceService.currentRevision(device));
+        }
         
-        XSSFWorkbook workbook = excellExportWorkbook(sectionsTree, typesTree); 
+        final XSSFWorkbook workbook = exportWorkbook(sectionsTree, typesTree, devices);
                  
-        InputStream inputStream = null;
+        final InputStream inputStream;
         try {
             final File temporaryFile = File.createTempFile("temp", "xlsx");
             FileOutputStream outputStream = new FileOutputStream(temporaryFile);
@@ -46,119 +54,58 @@ public class ExcelExport {
             outputStream.close();
             inputStream = new FileInputStream(temporaryFile);
             temporaryFile.delete();
-        } catch (IOException neverHappens) {
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return inputStream;       
     }
     
-    private void organizeDataFromDatabase() {
-        final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
-        sectionsTree = namePartTreeBuilder.newNamePartTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true);
-        
-        final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
-        typesTree = namePartTreeBuilder.newNamePartTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true);
-                       
-        allDevices = Lists.newArrayList();
-        for (Device device : deviceService.devices(false)) {
-            allDevices.add(deviceService.currentRevision(device));
-        }
-    }
-    
-    private XSSFWorkbook excellExportWorkbook(TreeNode sectionsTree, TreeNode typesTree) {
+    private XSSFWorkbook exportWorkbook(TreeNode sectionsTree, TreeNode typesTree, List<DeviceRevision> devices) {
         final XSSFWorkbook workbook = new XSSFWorkbook();
-        
-        XSSFSheet sheet = workbook.createSheet("SuperSection");
-        Row row = sheet.createRow(0);
-        row.createCell(0).setCellValue("SuperSection::ID");
-        row.createCell(1).setCellValue("SuperSection::FullName");
-        row.createCell(2).setCellValue("SuperSection::Name");
-        namePartExcellSheet(sheet, 1, 1, sectionsTree, null);
-        
-        sheet = workbook.createSheet("Section");
-        row = sheet.createRow(0);
-        row.createCell(0).setCellValue("SuperSection::FullName");
-        row.createCell(1).setCellValue("SuperSection::Name");
-        row.createCell(2).setCellValue("Section::ID");
-        row.createCell(3).setCellValue("Section::FullName");
-        row.createCell(4).setCellValue("Section::Name");
-        namePartExcellSheet(sheet, 2, 1, sectionsTree, null);
-        
-        sheet = workbook.createSheet("SubSection");
-        row = sheet.createRow(0);
-        row.createCell(0).setCellValue("SuperSection::FullName");
-        row.createCell(1).setCellValue("SuperSection::Name");
-        row.createCell(2).setCellValue("Section::FullName");
-        row.createCell(3).setCellValue("Section::Name");
-        row.createCell(4).setCellValue("SubSection::ID");
-        row.createCell(5).setCellValue("SubSection::FullName");
-        row.createCell(6).setCellValue("SubSection::Name");
-        namePartExcellSheet(sheet, 3, 1, sectionsTree, null);
-        
-        sheet = workbook.createSheet("Discipline");
-        row = sheet.createRow(0);
-        row.createCell(0).setCellValue("Discipline::ID");
-        row.createCell(1).setCellValue("Discipline::FullName");
-        row.createCell(2).setCellValue("Discipline::Name");
-        namePartExcellSheet(sheet, 1, 1, typesTree, null);
-        
-        sheet = workbook.createSheet("Category");
-        row = sheet.createRow(0);
-        row.createCell(0).setCellValue("Discipline::FullName");
-        row.createCell(1).setCellValue("Discipline::Name");
-        row.createCell(2).setCellValue("Category::ID");
-        row.createCell(3).setCellValue("Category::FullName");
-        row.createCell(4).setCellValue("Category::Name");
-        namePartExcellSheet(sheet, 2, 1, typesTree, null);
-        
-        sheet = workbook.createSheet("DeviceType");
-        row = sheet.createRow(0);
-        row.createCell(0).setCellValue("Discipline::FullName");
-        row.createCell(1).setCellValue("Discipline::Name");
-        row.createCell(2).setCellValue("Category::FullName");
-        row.createCell(3).setCellValue("Category::Name");
-        row.createCell(4).setCellValue("DeviceType::ID");
-        row.createCell(5).setCellValue("DeviceType::FullName");
-        row.createCell(6).setCellValue("DeviceType::Name");
-        namePartExcellSheet(sheet, 3, 1, typesTree, null);
-        
-        sheet = workbook.createSheet("NamedDevice");
-        row = sheet.createRow(0);
-        row.createCell(0).setCellValue("ID");
-        row.createCell(1).setCellValue("Section");
-        row.createCell(2).setCellValue("SubSection");
-        row.createCell(3).setCellValue("Discipline");
-        row.createCell(4).setCellValue("DeviceType");
-        row.createCell(5).setCellValue("InstanceIndex");
-        row.createCell(6).setCellValue("Name");
-        deviceNameExcellSheet(sheet);
+
+        final XSSFSheet superSectionSheet = createSheetWithHeader(workbook, "SuperSection", "SuperSection::ID", "SuperSection::FullName", "SuperSection::Name");
+        fillNamePartSheet(superSectionSheet, 1, sectionsTree);
+
+        final XSSFSheet sectionSheet = createSheetWithHeader(workbook, "Section", "SuperSection::FullName", "SuperSection::Name", "Section::ID", "Section::FullName", "Section::Name");
+        fillNamePartSheet(sectionSheet, 2, sectionsTree);
+
+        final XSSFSheet subSectionSheet = createSheetWithHeader(workbook, "SubSection", "SuperSection::FullName", "SuperSection::Name", "Section::FullName", "Section::Name", "SubSection::ID", "SubSection::FullName", "SubSection::Name");
+        fillNamePartSheet(subSectionSheet, 3, sectionsTree);
+
+        final XSSFSheet disciplineSheet = createSheetWithHeader(workbook, "Discipline", "Discipline::ID", "Discipline::FullName", "Discipline::Name");
+        fillNamePartSheet(disciplineSheet, 1, typesTree);
+
+        final XSSFSheet categorySheet = createSheetWithHeader(workbook, "Category", "Discipline::FullName", "Discipline::Name", "Category::ID", "Category::FullName", "Category::Name");
+        fillNamePartSheet(categorySheet, 2, typesTree);
+
+        final XSSFSheet deviceTypeSheet = createSheetWithHeader(workbook, "DeviceType", "Discipline::FullName", "Discipline::Name", "Category::FullName", "Category::Name", "DeviceType::ID", "DeviceType::FullName", "DeviceType::Name");
+        fillNamePartSheet(deviceTypeSheet, 3, typesTree);
+
+        final XSSFSheet namedDeviceSheet = createSheetWithHeader(workbook, "NamedDevice", "ID", "Section", "SubSection", "Discipline", "DeviceType", "InstanceIndex", "Name");
+        fillDeviceSheet(namedDeviceSheet, devices);
         
         return workbook;
     }
+
+    private void fillNamePartSheet(XSSFSheet sheet, int maxLevel, TreeNode node) {
+        fillNamePartSheet(sheet, maxLevel, 1, node, Lists.<String>newArrayList());
+    }
     
-    private void namePartExcellSheet(XSSFSheet sheet, int maxLevel, int currentLevel, TreeNode node, List<String> rowData) {
-        for(TreeNode child : node.getChildren()) {
+    private void fillNamePartSheet(XSSFSheet sheet, int maxLevel, int currentLevel, TreeNode node, List<String> rowData) {
+        for (TreeNode child : node.getChildren()) {
             final @Nullable NamePartView childView = (NamePartView) child.getData();
             if (childView != null) {
-                if (currentLevel == 1) {
-                    rowData = Lists.newArrayList();
-                }
-                
                 if (currentLevel < maxLevel) {
-                    final ArrayList<String> ancestorInfo = Lists.newArrayList(rowData);
-                    ancestorInfo.add(childView.getName());
-                    ancestorInfo.add(childView.getMnemonic());
-                    namePartExcellSheet(sheet, maxLevel, currentLevel+1, child, ancestorInfo);
-                } else if (currentLevel == maxLevel) {
-                    int cellCounter = 0;
-                    final Row row = sheet.createRow(sheet.getLastRowNum()+1);
-                    for (String sectionInfo : rowData) {
-                        row.createCell(cellCounter++).setCellValue(sectionInfo);
-                    }
-                    row.createCell(cellCounter++).setCellValue(childView.getNamePart().getUuid().toString());
-                    row.createCell(cellCounter++).setCellValue(childView.getName());
-                    row.createCell(cellCounter++).setCellValue(childView.getMnemonic());
+                    final List<String> ancestorData = ImmutableList.<String>builder().addAll(rowData).add(childView.getName(), childView.getMnemonic()).build();
+                    fillNamePartSheet(sheet, maxLevel, currentLevel + 1, child, ancestorData);
                 } else {
-                    throw new IllegalStateException();
+                    final Row row = appendRow(sheet);
+                    for (String sectionInfo : rowData) {
+                        appendCell(row, sectionInfo);
+                    }
+                    appendCell(row, childView.getNamePart().getUuid().toString());
+                    appendCell(row, childView.getName());
+                    appendCell(row, childView.getMnemonic());
                 }
             } else {
                 return;
@@ -166,17 +113,35 @@ public class ExcelExport {
         }        
     }
     
-    private void deviceNameExcellSheet(XSSFSheet sheet) {
-        for (DeviceRevision device : allDevices) {
-            int cellNumber = 0;
-            Row row = sheet.createRow(sheet.getLastRowNum()+1);
-            row.createCell(cellNumber++).setCellValue(device.getDevice().getUuid().toString());
-            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device.getSection()).getParent().getMnemonic());
-            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device.getSection()).getMnemonic());
-            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device.getDeviceType()).getParent().getParent().getMnemonic());
-            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device.getDeviceType()).getMnemonic());
-            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device).getInstanceIndex());
-            row.createCell(cellNumber++).setCellValue(viewFactory.getView(device).getConventionName());
+    private void fillDeviceSheet(XSSFSheet sheet, List<DeviceRevision> devices) {
+        for (DeviceRevision device : devices) {
+            final Row row = appendRow(sheet);
+            appendCell(row, device.getDevice().getUuid().toString());
+            appendCell(row, viewFactory.getView(device.getSection()).getParent().getMnemonic());
+            appendCell(row, viewFactory.getView(device.getSection()).getMnemonic());
+            appendCell(row, viewFactory.getView(device.getDeviceType()).getParent().getParent().getMnemonic());
+            appendCell(row, viewFactory.getView(device.getDeviceType()).getMnemonic());
+            appendCell(row, viewFactory.getView(device).getInstanceIndex());
+            appendCell(row, viewFactory.getView(device).getConventionName());
         }
+    }
+
+    private XSSFSheet createSheetWithHeader(XSSFWorkbook workbook, String sheetName, String... columnNames) {
+        final XSSFSheet sheet = workbook.createSheet(sheetName);
+        final Row row = appendRow(sheet);
+        for (String columnName : columnNames) {
+            appendCell(row, columnName);
+        }
+        return sheet;
+    }
+
+    private Row appendRow(XSSFSheet sheet) {
+        return sheet.createRow(sheet.getLastRowNum() + 1);
+    }
+
+    private Cell appendCell(Row row, String value) {
+        final Cell cell = row.createCell(row.getLastCellNum() + 1);
+        cell.setCellValue(value);
+        return cell;
     }
 }

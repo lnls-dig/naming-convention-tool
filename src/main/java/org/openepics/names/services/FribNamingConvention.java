@@ -1,10 +1,10 @@
 package org.openepics.names.services;
 
-import org.openepics.names.ui.devices.DeviceView;
-import org.openepics.names.ui.parts.NamePartView;
 import org.openepics.names.util.NotImplementedException;
 
+import javax.annotation.Nullable;
 import javax.ejb.Stateless;
+import java.util.List;
 
 /**
  *
@@ -12,7 +12,8 @@ import javax.ejb.Stateless;
  */
 @Stateless
 public class FribNamingConvention implements NamingConvention {
-    @Override public String getNamingConventionName(DeviceView deviceName) {
+
+    @Override public String getNamingConventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
         throw new NotImplementedException();
     }
 
@@ -20,11 +21,15 @@ public class FribNamingConvention implements NamingConvention {
         throw new NotImplementedException();
     }
 
-    @Override public boolean isNameValid(NamePartView namePart) {
+    @Override public boolean isSectionNameValid(List<String> parentPath, String name) {
         throw new NotImplementedException();
     }
 
-    @Override public boolean isDeviceNameValid(DeviceView deviceName) {
+    @Override public boolean isDeviceTypeNameValid(List<String> parentPath, String name) {
+        throw new NotImplementedException();
+    }
+
+    @Override public boolean isInstanceIndexValid(String instanceIndex) {
         throw new NotImplementedException();
     }
 }

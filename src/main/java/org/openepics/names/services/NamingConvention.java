@@ -1,7 +1,7 @@
 package org.openepics.names.services;
 
-import org.openepics.names.ui.devices.DeviceView;
-import org.openepics.names.ui.parts.NamePartView;
+import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  *
@@ -11,9 +11,11 @@ public interface NamingConvention {
 
     String getNameNormalizedForEquivalence(String name);
 
-    String getNamingConventionName(DeviceView deviceName);
+    String getNamingConventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex);
 
-    boolean isNameValid(NamePartView namePart);
+    boolean isSectionNameValid(List<String> parentPath, String name);
 
-    boolean isDeviceNameValid(DeviceView deviceName);
+    boolean isDeviceTypeNameValid(List<String> parentPath, String name);
+
+    boolean isInstanceIndexValid(String instanceIndex);
 }

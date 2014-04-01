@@ -22,7 +22,7 @@
  *
  */
 
-package org.openepics.names.ui.parts;
+package org.openepics.names.ui.common;
 
 import java.util.Comparator;
 

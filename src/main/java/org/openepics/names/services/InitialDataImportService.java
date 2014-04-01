@@ -76,7 +76,7 @@ public class InitialDataImportService {
             }
         }
     }
-    
+
     private NamePart addSection(@Nullable NamePart parent, String name, String mnemonic) {
         final NamePartRevision newRevision = namePartService.addNamePart(name, mnemonic, NamePartType.SECTION, parent, null, "Initial data");
         namePartService.approveNamePartRevision(newRevision, null, null);
@@ -99,6 +99,8 @@ public class InitialDataImportService {
                 return String.valueOf(cell.getNumericCellValue());
             } else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
                 return cell.getStringCellValue() != null ? cell.getStringCellValue() : null;
+            } else if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+                return "";
             } else {
                 throw new UnhandledCaseException();
             }

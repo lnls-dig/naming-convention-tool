@@ -18,10 +18,7 @@ package org.openepics.names.model;
 import com.google.common.base.Preconditions;
 
 import javax.annotation.Nullable;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -47,6 +44,8 @@ public class NamePartRevision extends Persistable {
 
     private String mnemonic;
 
+    private String mnemonicEquivalenceClass;
+
     @Enumerated(EnumType.STRING)
     private NamePartRevisionStatus status;
 
@@ -59,11 +58,12 @@ public class NamePartRevision extends Persistable {
     protected NamePartRevision() {
     }
 
-    public NamePartRevision(NamePart namePart, @Nullable UserAccount requestedBy, Date requestDate, @Nullable String requesterComment, boolean deleted, @Nullable NamePart parent, String name, String mnemonic) {
+    public NamePartRevision(NamePart namePart, @Nullable UserAccount requestedBy, Date requestDate, @Nullable String requesterComment, boolean deleted, @Nullable NamePart parent, String name, String mnemonic, String mnemonicEquivalenceClass) {
         Preconditions.checkNotNull(namePart);
         Preconditions.checkNotNull(requestDate);
         Preconditions.checkArgument(name != null && !name.isEmpty());
         Preconditions.checkArgument(mnemonic != null && !mnemonic.isEmpty());
+        Preconditions.checkArgument(mnemonicEquivalenceClass != null && !mnemonicEquivalenceClass.isEmpty());
         this.namePart = namePart;
         this.requestedBy = requestedBy;
         this.requestDate = requestDate;
@@ -72,6 +72,7 @@ public class NamePartRevision extends Persistable {
         this.parent = parent;
         this.name = name;
         this.mnemonic = mnemonic;
+        this.mnemonicEquivalenceClass = mnemonicEquivalenceClass;
         this.status = NamePartRevisionStatus.PENDING;
         this.processedBy = null;
         this.processDate = null;
@@ -93,6 +94,8 @@ public class NamePartRevision extends Persistable {
     public String getName() { return name; }
 
     public String getMnemonic() { return mnemonic; }
+
+    public String getMnemonicEquivalenceClass() { return mnemonicEquivalenceClass; }
 
     public NamePartRevisionStatus getStatus() { return status; }
     public void setStatus(NamePartRevisionStatus status) { this.status = status; }

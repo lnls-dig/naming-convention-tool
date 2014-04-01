@@ -1,4 +1,4 @@
-package org.openepics.names.ui.parts;
+package org.openepics.names.services.views;
 
 import com.google.common.collect.ImmutableList;
 import org.openepics.names.model.NamePart;
@@ -14,50 +14,14 @@ import java.util.List;
  */
 public class NamePartView {
 
-    public abstract class Change {
-        private final NamePartRevisionStatus status;
-
-        public Change(NamePartRevisionStatus status) {
-            this.status = status;
-        }
-
-        public NamePartRevisionStatus getStatus() { return status; }
-    }
-
-    public class AddChange extends Change {
-        public AddChange(NamePartRevisionStatus status) {
-            super(status);
-        }
-    }
-
-    public class DeleteChange extends Change {
-        public DeleteChange(NamePartRevisionStatus status) {
-            super(status);
-        }
-    }
-
-    public class ModifyChange extends Change {
-        private final @Nullable String newName;
-        private final @Nullable String newMnemonic;
-
-        public ModifyChange(NamePartRevisionStatus status, String newName, String newMnemonic) {
-            super(status);
-            this.newName = newName;
-            this.newMnemonic = newMnemonic;
-        }
-
-        public @Nullable String getNewName() { return newName; }
-        public @Nullable String getNewMnemonic() { return newMnemonic; }
-    }
-
-    private final RestrictedNamePartService namePartService;
+    private final NamePartRevisionProvider namePartRevisionProvider;
     private final @Nullable NamePartRevision currentRevision;
     private final @Nullable NamePartRevision pendingRevision;
 
     private @Nullable NamePartView parentView = null;
 
-    public NamePartView(RestrictedNamePartService namePartService, @Nullable NamePartRevision currentRevision, @Nullable NamePartRevision pendingRevision, @Nullable NamePartView parentView) {
-        this.namePartService = namePartService;
+    public NamePartView(NamePartRevisionProvider namePartRevisionProvider, @Nullable NamePartRevision currentRevision, @Nullable NamePartRevision pendingRevision, @Nullable NamePartView parentView) {
+        this.namePartRevisionProvider = namePartRevisionProvider;
         this.currentRevision = currentRevision;
         this.pendingRevision = pendingRevision;
         this.parentView = parentView;
@@ -73,7 +37,7 @@ public class NamePartView {
         final @Nullable NamePart parent = getCurrentOrElsePendingRevision().getParent();
         if (parent != null) {
             if (parentView == null) {
-                parentView = new NamePartView(namePartService, namePartService.approvedRevision(parent), namePartService.pendingRevision(parent), null);
+                parentView = new NamePartView(namePartRevisionProvider, namePartRevisionProvider.approvedRevision(parent), namePartRevisionProvider.pendingRevision(parent), null);
             }
             return parentView;
         } else {
@@ -81,9 +45,7 @@ public class NamePartView {
         }
     }
 
-    public int getLevel() {
-        return getParent() == null ? 0 : getParent().getLevel() + 1;
-    }
+    public int getLevel() { return getParent() != null ? getParent().getLevel() + 1 : 0; }
 
     public @Nullable Change getPendingChange() {
         if (pendingRevision == null) {
@@ -131,7 +93,45 @@ public class NamePartView {
         return pendingRevision != null ? pendingRevision : currentRevision;
     }
 
-    private NamePartRevision getCurrentOrElsePendingRevision() {
+    public NamePartRevision getCurrentOrElsePendingRevision() {
         return currentRevision != null ? currentRevision : pendingRevision;
+    }
+
+
+
+    public abstract class Change {
+        private final NamePartRevisionStatus status;
+
+        public Change(NamePartRevisionStatus status) {
+            this.status = status;
+        }
+
+        public NamePartRevisionStatus getStatus() { return status; }
+    }
+
+    public class AddChange extends Change {
+        public AddChange(NamePartRevisionStatus status) {
+            super(status);
+        }
+    }
+
+    public class DeleteChange extends Change {
+        public DeleteChange(NamePartRevisionStatus status) {
+            super(status);
+        }
+    }
+
+    public class ModifyChange extends Change {
+        private final @Nullable String newName;
+        private final @Nullable String newMnemonic;
+
+        public ModifyChange(NamePartRevisionStatus status, String newName, String newMnemonic) {
+            super(status);
+            this.newName = newName;
+            this.newMnemonic = newMnemonic;
+        }
+
+        public @Nullable String getNewName() { return newName; }
+        public @Nullable String getNewMnemonic() { return newMnemonic; }
     }
 }

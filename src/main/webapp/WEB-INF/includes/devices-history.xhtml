@@ -23,7 +23,7 @@
                 <h:outputText value="#{ncname.sectionPath}" />
             </p:column>
             <p:column id="histNameDscp" headerText="Discipline">
-                <h:outputText value="#{ncname.deviceTypePath}" />
+                <h:outputText value="#{devicesController.deviceTypePath(ncname)}" />
             </p:column>
             <p:column id="histStatus" headerText="Deleted" style="width: 5em; text-align: center;">
                 <p:selectBooleanCheckbox disabled="true" value="#{ncname.device.deleted}" />
