@@ -8,8 +8,10 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 >
     <ui:define name="content">
+        
 
         <h:form id="ReqSubForm">
+             <p:growl globalOnly="true" id="partsMsgs" showDetail="true" sticky="false" life="30000" escape="false" />
             <!-- =================== Menus      ============================ -->
             <table width="100%" id="filterTable">
                 <tr>

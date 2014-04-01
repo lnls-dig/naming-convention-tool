@@ -30,9 +30,9 @@ public class ExcelImport {
     @Inject private RestrictedNamePartService namePartService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     
-    private final Table<String, String, NamePart> sectionsTable = HashBasedTable.create();
-    private final Table<String, String, NamePart> typesTable = HashBasedTable.create();
-    private final List<DeviceRevision> allDevices = Lists.newArrayList();
+    private Table<String, String, NamePart> sectionsTable;
+    private Table<String, String, NamePart> typesTable;
+    private List<DeviceRevision> allDevices;
     private List<NewDeviceName> newDevices;
     
     public abstract class ExcelImportResult {}
@@ -53,6 +53,9 @@ public class ExcelImport {
     }
     
     public ExcelImportResult parseDeviceImportFile(InputStream input) {
+        sectionsTable = HashBasedTable.create();
+        typesTable = HashBasedTable.create();
+        allDevices = Lists.newArrayList();
         newDevices = Lists.newArrayList();
         loadDataFromDatabase();
 

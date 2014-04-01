@@ -8,6 +8,7 @@
                 xmlns:h="http://java.sun.com/jsf/html">
 
     <h:form id="menuform">
+        <p:growl globalOnly="true" id="messages" showDetail="true" sticky="false" life="30000" />
         <fc:logincomp display="false" updates=":menuform:mainMenu" />
 
         <p:menubar id="mainMenu" style="padding-left: 8px; padding-right: 8px">
@@ -31,7 +32,7 @@
                 <p:commandButton id="loginBtn" type="button" value="Login" icon="ui-icon-person" onclick="loginWidget.show()" rendered="#{not userManager.loggedIn}">
                     <f:param value="Y" name="doAuthenticate" />
                 </p:commandButton>
-                <p:commandButton id="logoutBtn" value="Logout" icon="ui-icon-person" update=":menuform:mainMenu" action="#{loginManager.onLogout()}" immediate="true" rendered="#{userManager.loggedIn}" />
+                <p:commandButton id="logoutBtn" value="Logout" icon="ui-icon-person" onclick="loginWidget.update()" update=":menuform:mainMenu" action="#{loginManager.onLogout()}" immediate="true" rendered="#{userManager.loggedIn}" />
             </f:facet>
         </p:menubar>
     </h:form>

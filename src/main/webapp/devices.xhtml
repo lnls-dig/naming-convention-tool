@@ -9,7 +9,7 @@
 
 	<ui:define name="content">
 		<h:form id="ManageNameForm">
-
+            <p:growl globalOnly="true" id="devicesMsgs" showDetail="true" sticky="false" life="30000" escape="false" />
 			<!-- =================== Menus ============================ -->
 		    <table width="100%" id="filterTable">
                 <tr>
@@ -194,14 +194,14 @@
 				</f:facet>
 				<h:outputText value="Select excell file to upload device names from" />
 				<div style="border: 1px solid #a8a8a8; padding: 5px">
-					<p:fileUpload id="fileUpload" fileUploadListener="#{devicesController.handleFileUpload}" update="messages" mode="advanced" dragDropSupport="false" allowTypes="/(\.|\/)(xlsx|xls)$/" />
+					<p:fileUpload id="fileUpload" fileUploadListener="#{devicesController.handleFileUpload}" mode="advanced" dragDropSupport="false" allowTypes="/(\.|\/)(xlsx|xls)$/" />
 					<p:separator />
 					
 					<p:commandButton id="downloadLink" value="Download Import Template" ajax="false" icon="ui-icon-disk" onclick="PrimeFaces.monitorDownload(start, stop)">
 						<p:fileDownload	value="#{devicesController.downloadableNamesTemplate}" />
 					</p:commandButton>
 
-					<p:messages id="messages" showDetail="true" autoUpdate="false" closable="true" />
+					<p:messages for="excelImportStatusMessage" showDetail="true" autoUpdate="true" closable="true" />
 				</div>
 				<p:commandButton value="Cancel" style="float: right" onclick="batchImport.hide()" />
 			</p:dialog>

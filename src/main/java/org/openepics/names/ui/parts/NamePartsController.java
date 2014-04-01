@@ -17,6 +17,7 @@ package org.openepics.names.ui.parts;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.model.NamePartType;
@@ -36,6 +37,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -104,7 +106,7 @@ public class NamePartsController implements Serializable {
         try {
             final NamePartView parent = getSelectedName();
             final NamePartRevision newRequest = namePartService.addNamePart(newDescription, newCode, namePartType, parent != null ? parent.getNamePart() : null, newComment);
-            showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {
             init();
         }
@@ -113,7 +115,7 @@ public class NamePartsController implements Serializable {
     public void onModify() {
         try {
             final NamePartRevision newRequest = namePartService.modifyNamePart(getSelectedName().getNamePart(), newDescription, newCode, newComment);
-            showMessage(FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {
             init();
         }
@@ -124,7 +126,7 @@ public class NamePartsController implements Serializable {
             for (NamePartView namePartView : linearizedTargetsForDelete(deleteView)) {
                 namePartService.deleteNamePart(namePartView.getNamePart(), newComment);
             }
-            showMessage(FacesMessage.SEVERITY_INFO, "Success", "The data you requested was successfully deleted.");
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "The data you requested was successfully deleted.");
         } finally {
             init();
         }
@@ -135,7 +137,7 @@ public class NamePartsController implements Serializable {
             for (NamePartView namePartView : linearizedTargets(cancelView)) {
                 namePartService.cancelChangesForNamePart(namePartView.getNamePart(), newComment);
             }
-            showMessage(FacesMessage.SEVERITY_INFO, "Your request has been cancelled.", "Request Number: ");
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Your request has been cancelled.", "Request Number: ");
         } finally {
             init();
         }
@@ -146,7 +148,7 @@ public class NamePartsController implements Serializable {
             for (NamePartView namePartView : linearizedTargets(approveView)) {
                 namePartService.approveNamePartRevision(namePartView.getPendingRevision(), newComment);
             }
-            showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully approved.", " ");
+            showMessage(null, FacesMessage.SEVERITY_INFO, "All selected requests were successfully approved.", " ");
         } finally {
             init();
         }
@@ -157,7 +159,7 @@ public class NamePartsController implements Serializable {
             for (NamePartView namePartView : linearizedTargets(cancelView)) {
                 namePartService.rejectChangesForNamePart(namePartView.getNamePart(), newComment);
             }
-            showMessage(FacesMessage.SEVERITY_INFO, "All selected requests were successfully rejected.", " ");
+            showMessage(null, FacesMessage.SEVERITY_INFO, "All selected requests were successfully rejected.", " ");
         } finally {
             init();
         }
@@ -458,9 +460,9 @@ public class NamePartsController implements Serializable {
         }).apply(node);
     }
 
-    private void showMessage(FacesMessage.Severity severity, String summary, String message) {
+    private void showMessage(@Nullable String notificationChannel, FacesMessage.Severity severity, String summary, String message) {
         final FacesContext context = FacesContext.getCurrentInstance();
-        context.addMessage(null, new FacesMessage(severity, summary, message));
+        context.addMessage(notificationChannel, new FacesMessage(severity, summary, message));
     }
     
     private enum NamePartDisplayFilter {

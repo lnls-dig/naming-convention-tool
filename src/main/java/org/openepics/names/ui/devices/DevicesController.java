@@ -79,7 +79,7 @@ public class DevicesController implements Serializable {
             final NamePartView subsection = As.notNull(getSelectedSection());
             final NamePartView deviceType = (NamePartView) formSelectedDeviceType.getData();
             final DeviceRevision rev = deviceService.createDevice(subsection.getNamePart(), deviceType.getNamePart(), formInstanceIndex);
-            showMessage(FacesMessage.SEVERITY_INFO, "Device Name successfully added.", "Name: " + viewFactory.getView(rev).getConventionName());
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Device Name successfully added.", "Name: " + viewFactory.getView(rev).getConventionName());
         } finally {
             init();
         }
@@ -89,8 +89,9 @@ public class DevicesController implements Serializable {
         try {
         	final NamePartView subsection = (NamePartView)(formSelectedSection.getData());
             final NamePartView deviceType = (NamePartView)(formSelectedDeviceType.getData());
-            deviceService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), subsection.getNamePart(), deviceType.getNamePart(), formInstanceIndex);
-            showMessage(FacesMessage.SEVERITY_INFO, "Device modified.", "Name: [TODO]");
+            String oldDeviceName = viewFactory.getView(getSelectedDevice().getDevice()).getConventionName();
+            String newDeviceName = viewFactory.getView(deviceService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), subsection.getNamePart(), deviceType.getNamePart(), formInstanceIndex)).getConventionName();
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Device modified.", "From: " + oldDeviceName + "<br/>to: " + newDeviceName);
         } finally {
             init();
         }
@@ -101,7 +102,7 @@ public class DevicesController implements Serializable {
             for (DeviceView deviceView : linearizedTargets(deleteView)) {
             	deviceService.deleteDevice(deviceView.getDevice().getDevice());
             }
-            showMessage(FacesMessage.SEVERITY_INFO, "Success", "The data you requested was successfully deleted.");
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "The data you requested was successfully deleted.");
         } finally {
             init();
         }
@@ -222,12 +223,10 @@ public class DevicesController implements Serializable {
         try (InputStream inputStream = event.getFile().getInputstream()) {
             ExcelImport.ExcelImportResult importResult = excelImport.parseDeviceImportFile(inputStream);
             if (importResult instanceof ExcelImport.SuccessExcelImportResult) {
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Import successful!", ""));
-                RequestContext con = RequestContext.getCurrentInstance();
-                con.update("ManageNameForm:devicesTree");
+                showMessage("excelImportStatusMessage", FacesMessage.SEVERITY_INFO, "Import successful!", "");
             } else if (importResult instanceof ExcelImport.FaliureExcelImportResult) {
                 ExcelImport.FaliureExcelImportResult faliureImportResult = (ExcelImport.FaliureExcelImportResult) importResult;
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred in row " + faliureImportResult.getRowNumber() + ". " + (faliureImportResult.getNamePartType().equals(NamePartType.SECTION) ? "Logical area" : "Device category") + " part was not found in the database."));
+                showMessage("excelImportStatusMessage", FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred in row " + faliureImportResult.getRowNumber() + ". " + (faliureImportResult.getNamePartType().equals(NamePartType.SECTION) ? "Logical area" : "Device category") + " part was not found in the database.");
             } else {
                 throw new UnhandledCaseException();
             }                
@@ -241,7 +240,7 @@ public class DevicesController implements Serializable {
     } 
     
     public StreamedContent getAllDataExport() {  
-        return new DefaultStreamedContent(excelExport.exportFile(), "xlsx", "export.xlsx");
+        return new DefaultStreamedContent(excelExport.exportFile(), "xlsx", "NamingConventionExport.xlsx");
     } 
    
     private TreeNode findSelectedTreeNode(TreeNode node) {
@@ -258,11 +257,11 @@ public class DevicesController implements Serializable {
     	}
     }
 
-    public boolean isFormFilled() { return selectedNodes.length > 0 && selectedNodes[0].getData() instanceof NamePartView && formSelectedDeviceType != null; }
+    public boolean isFormFilled() { return selectedNodes.length > 0 && formSelectedDeviceType != null; }
 
-    private void showMessage(FacesMessage.Severity severity, String summary, String message) {
+    private void showMessage(@Nullable String notificationChannel, FacesMessage.Severity severity, String summary, String message) {
         FacesContext context = FacesContext.getCurrentInstance();
-        context.addMessage(null, new FacesMessage(severity, summary, message));
+        context.addMessage(notificationChannel, new FacesMessage(severity, summary, message));
     }
 
     private @Nullable TreeNode deleteView(TreeNode node) {
@@ -277,7 +276,7 @@ public class DevicesController implements Serializable {
         final @Nullable TreeNode filteredView = (new TreeViewFilter<Object>() {
             @Override protected boolean accepts(Object nodeView) {
                 if (nodeView instanceof NamePartView) {
-                    return false;
+                    return (deviceNameFilter == null || deviceNameFilter.equals(""))  && (deviceTypeFilter == null || deviceTypeFilter.equals(""));
                 } else if (nodeView instanceof DeviceView) {
                     final String name = ((DeviceView) nodeView).getConventionName().toLowerCase();
                     final String deviceType = ((DeviceView) nodeView).getDeviceTypePath().toLowerCase();
