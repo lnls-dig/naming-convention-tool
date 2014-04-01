@@ -12,12 +12,8 @@ html {
     height:100%;
 }
 
-body * {
-    position:relative;
-}
 
 table {
-
     border-spacing:0;
 }
 
