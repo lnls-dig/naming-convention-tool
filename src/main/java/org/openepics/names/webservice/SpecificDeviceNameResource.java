@@ -12,6 +12,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
 import java.util.UUID;
 
 /**
@@ -29,14 +30,15 @@ public class SpecificDeviceNameResource {
         for (Device device : deviceService.devices(false)) {
             if (deviceService.currentRevision(device).getDevice().getUuid().equals(UUID.fromString(reqUuid))) {
                 final DeviceRevision deviceRevision = deviceService.currentRevision(device);
-                final UUID uuid = deviceRevision.getDevice().getUuid();
-                final String section = viewFactory.getView(deviceRevision.getSection()).getParent().getMnemonic();
-                final String subSection = viewFactory.getView(deviceRevision.getSection()).getMnemonic();
-                final String discipline = viewFactory.getView(deviceRevision.getDeviceType()).getParent().getParent().getMnemonic();
-                final String deviceType = viewFactory.getView(deviceRevision.getDeviceType()).getMnemonic();
-                final String instanceIndex = viewFactory.getView(deviceRevision).getInstanceIndex();
-                final String name = viewFactory.getView(deviceRevision).getConventionName();
-                return new DeviceNameElement(uuid, section, subSection, discipline, deviceType, instanceIndex, name);
+                final DeviceNameElement deviceData = new DeviceNameElement();
+                deviceData.setUuid(deviceRevision.getDevice().getUuid());
+                deviceData.setSection(viewFactory.getView(deviceRevision.getSection()).getParent().getMnemonic());
+                deviceData.setSubSection(viewFactory.getView(deviceRevision.getSection()).getMnemonic());
+                deviceData.setDiscipline(viewFactory.getView(deviceRevision.getDeviceType()).getParent().getParent().getMnemonic());
+                deviceData.setDeviceType(viewFactory.getView(deviceRevision.getDeviceType()).getMnemonic());
+                deviceData.setInstanceIndex(viewFactory.getView(deviceRevision).getInstanceIndex());
+                deviceData.setName(viewFactory.getView(deviceRevision).getConventionName());
+                return deviceData;
             }
         }  
         return null;

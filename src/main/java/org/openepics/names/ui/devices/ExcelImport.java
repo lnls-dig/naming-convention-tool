@@ -30,26 +30,10 @@ public class ExcelImport {
     @Inject private RestrictedNamePartService namePartService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     
-    private Table<String, String, NamePart> sectionsTable = HashBasedTable.create();
-    private Table<String, String, NamePart> typesTable = HashBasedTable.create();
-    private List<DeviceRevision> allDevices = Lists.newArrayList();
-    private List<NewDeviceName> newDevices = Lists.newArrayList();
-    
-    private class NewDeviceName {
-        private final NamePart sectionPart;
-        private final NamePart deviceTypePart;
-        private final @Nullable String index;
-                
-        private NewDeviceName(NamePart sectionPart, NamePart deviceTypePart, @Nullable String index) {
-            this.sectionPart = sectionPart;
-            this.deviceTypePart = deviceTypePart;
-            this.index = index;
-        }
-
-        private NamePart getSectionPart() { return sectionPart; }
-        private NamePart getDeviceTypePart() { return deviceTypePart; }
-        private @Nullable String getIndex() { return index; }        
-    }
+    private final Table<String, String, NamePart> sectionsTable = HashBasedTable.create();
+    private final Table<String, String, NamePart> typesTable = HashBasedTable.create();
+    private final List<DeviceRevision> allDevices = Lists.newArrayList();
+    private List<NewDeviceName> newDevices;
     
     public abstract class ExcelImportResult {}
     
@@ -69,6 +53,7 @@ public class ExcelImport {
     }
     
     public ExcelImportResult parseDeviceImportFile(InputStream input) {
+        newDevices = Lists.newArrayList();
         loadDataFromDatabase();
 
         try {
@@ -167,4 +152,20 @@ public class ExcelImport {
             }
         }
     }
+}
+
+class NewDeviceName {
+    private final NamePart sectionPart;
+    private final NamePart deviceTypePart;
+    private final @Nullable String index;
+            
+    public NewDeviceName(NamePart sectionPart, NamePart deviceTypePart, @Nullable String index) {
+        this.sectionPart = sectionPart;
+        this.deviceTypePart = deviceTypePart;
+        this.index = index;
+    }
+
+    public NamePart getSectionPart() { return sectionPart; }
+    public NamePart getDeviceTypePart() { return deviceTypePart; }
+    public @Nullable String getIndex() { return index; }        
 }

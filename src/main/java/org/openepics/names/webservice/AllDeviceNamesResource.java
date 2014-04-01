@@ -31,14 +31,14 @@ public class AllDeviceNamesResource {
         
         for (Device device : deviceService.devices(false)) {
             final DeviceRevision deviceRevision = deviceService.currentRevision(device);
-            final UUID uuid = deviceRevision.getDevice().getUuid();
-            final String section = viewFactory.getView(deviceRevision.getSection()).getParent().getMnemonic();
-            final String subSection = viewFactory.getView(deviceRevision.getSection()).getMnemonic();
-            final String discipline = viewFactory.getView(deviceRevision.getDeviceType()).getParent().getParent().getMnemonic();
-            final String deviceType = viewFactory.getView(deviceRevision.getDeviceType()).getMnemonic();
-            final String instanceIndex = viewFactory.getView(deviceRevision).getInstanceIndex();
-            final String name = viewFactory.getView(deviceRevision).getConventionName();
-            final DeviceNameElement deviceData = new DeviceNameElement(uuid, section, subSection, discipline, deviceType, instanceIndex, name);
+            final DeviceNameElement deviceData = new DeviceNameElement();
+            deviceData.setUuid(deviceRevision.getDevice().getUuid());
+            deviceData.setSection(viewFactory.getView(deviceRevision.getSection()).getParent().getMnemonic());
+            deviceData.setSubSection(viewFactory.getView(deviceRevision.getSection()).getMnemonic());
+            deviceData.setDiscipline(viewFactory.getView(deviceRevision.getDeviceType()).getParent().getParent().getMnemonic());
+            deviceData.setDeviceType(viewFactory.getView(deviceRevision.getDeviceType()).getMnemonic());
+            deviceData.setInstanceIndex(viewFactory.getView(deviceRevision).getInstanceIndex());
+            deviceData.setName(viewFactory.getView(deviceRevision).getConventionName());
             deviceNames.add(deviceData);
         }
         

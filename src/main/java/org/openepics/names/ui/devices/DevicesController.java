@@ -223,6 +223,8 @@ public class DevicesController implements Serializable {
             ExcelImport.ExcelImportResult importResult = excelImport.parseDeviceImportFile(inputStream);
             if (importResult instanceof ExcelImport.SuccessExcelImportResult) {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Import successful!", ""));
+                RequestContext con = RequestContext.getCurrentInstance();
+                con.update("ManageNameForm:devicesTree");
             } else if (importResult instanceof ExcelImport.FaliureExcelImportResult) {
                 ExcelImport.FaliureExcelImportResult faliureImportResult = (ExcelImport.FaliureExcelImportResult) importResult;
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred in row " + faliureImportResult.getRowNumber() + ". " + (faliureImportResult.getNamePartType().equals(NamePartType.SECTION) ? "Logical area" : "Device category") + " part was not found in the database."));
@@ -230,8 +232,7 @@ public class DevicesController implements Serializable {
                 throw new UnhandledCaseException();
             }                
         } catch (IOException e) {
-            throw new RuntimeException();
-           
+            throw new RuntimeException();           
         }
     }
     

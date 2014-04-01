@@ -23,43 +23,24 @@ public class DeviceNameElement {
     
     protected DeviceNameElement() {}
     
-    public DeviceNameElement(UUID uuid, String section, String subSection,
-            String discipline, String deviceType, String instanceIndex,
-            String name) {
-        this.uuid = uuid;
-        this.section = section;
-        this.subSection = subSection;
-        this.discipline = discipline;
-        this.deviceType = deviceType;
-        this.instanceIndex = instanceIndex;
-        this.name = name;
-    }
+    public UUID getUuid() { return uuid; }
+    public void setUuid(UUID uuid) { this.uuid = uuid; }
 
-    public UUID getUuid() {
-        return uuid;
-    }
+    public String getSection() { return section; }
+    public void setSection(String section) { this.section = section; }
 
-    public String getSection() {
-        return section;
-    }
+    public String getSubSection() { return subSection; }
+    public void setSubSection(String subSection) { this.subSection = subSection; }
 
-    public String getSubSection() {
-        return subSection;
-    }
+    public String getDiscipline() { return discipline; }
+    public void setDiscipline(String discipline) { this.discipline = discipline; }
 
-    public String getDiscipline() {
-        return discipline;
-    }
+    public String getDeviceType() { return deviceType; }
+    public void setDeviceType(String deviceType) { this.deviceType = deviceType; }
 
-    public String getDeviceType() {
-        return deviceType;
-    }
+    public String getInstanceIndex() { return instanceIndex; }
+    public void setInstanceIndex(String instanceIndex) { this.instanceIndex = instanceIndex; }
 
-    public String getInstanceIndex() {
-        return instanceIndex;
-    }
-
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }    
 }
