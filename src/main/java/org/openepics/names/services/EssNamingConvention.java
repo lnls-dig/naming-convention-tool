@@ -15,15 +15,23 @@ import java.util.List;
 public class EssNamingConvention implements NamingConvention {
 
     @Override public boolean isSectionNameValid(List<String> parentPath, String name) {
-        if (parentPath.size() == 2 && parentPath.get(0).equals("Acc")) {
-            return name.matches("^([1-9][0-9][0-9])|([0-9]?[1-9][0-9])|[0-9]?[0-9]?[1-9]$");
+        if (!isNameLengthValid(name)) {
+            return false;
         } else {
-            return name.matches("^[a-zA-Z][a-zA-Z0-9]*$");
+            if (parentPath.size() == 2 && parentPath.get(0).equals("Acc")) {
+                return name.matches("^([1-9][0-9][0-9])|([0-9]?[1-9][0-9])|[0-9]?[0-9]?[1-9]$");
+            } else {
+                return name.matches("^[a-zA-Z][a-zA-Z0-9]*$");
+            }
         }
     }
 
     @Override public boolean isDeviceTypeNameValid(List<String> parentPath, String name) {
-        return name.matches("^[a-zA-Z][a-zA-Z0-9]*$");
+        if (!isNameLengthValid(name)) {
+            return false;
+        } else {
+            return name.matches("^[a-zA-Z][a-zA-Z0-9]*$");
+        }
     }
 
     @Override public boolean isInstanceIndexValid(String instanceIndex) {
@@ -46,4 +54,6 @@ public class EssNamingConvention implements NamingConvention {
             return section + "-" + subsection + ":" + discipline + "-" + (instanceIndex != null ? instanceIndex : "");
         }
     }
+    
+    private boolean isNameLengthValid(String name) { return name.length() >= 2 && name.length() <= 6; }
 }
