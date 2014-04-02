@@ -228,10 +228,11 @@ public class DevicesController implements Serializable {
         try (InputStream inputStream = event.getFile().getInputstream()) {
             ExcelImport.ExcelImportResult importResult = excelImport.parseDeviceImportFile(inputStream);
             if (importResult instanceof ExcelImport.SuccessExcelImportResult) {
-                showMessage("excelImportStatusMessage", FacesMessage.SEVERITY_INFO, "Import successful!", "");
+                modifyDisplayView();
+                showMessage(null, FacesMessage.SEVERITY_INFO, "Import successful!", "");
             } else if (importResult instanceof ExcelImport.FailureExcelImportResult) {
                 ExcelImport.FailureExcelImportResult faliureImportResult = (ExcelImport.FailureExcelImportResult) importResult;
-                showMessage("excelImportStatusMessage", FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred in row " + faliureImportResult.getRowNumber() + ". " + (faliureImportResult.getNamePartType().equals(NamePartType.SECTION) ? "Logical area" : "Device category") + " part was not found in the database.");
+                showMessage(null, FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred in row " + faliureImportResult.getRowNumber() + ". " + (faliureImportResult.getNamePartType().equals(NamePartType.SECTION) ? "Logical area" : "Device category") + " part was not found in the database.");
             } else {
                 throw new UnhandledCaseException();
             }                
