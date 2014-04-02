@@ -113,6 +113,7 @@ public class NamePartRevision extends Persistable {
     public void updateAsProcessed(NamePartRevisionStatus status, Date date, @Nullable UserAccount by, @Nullable String comment) {
         Preconditions.checkArgument(status != NamePartRevisionStatus.PENDING);
         Preconditions.checkNotNull(date);
+        this.status = status;
         this.processDate = date;
         this.processedBy = by;
         this.processorComment = comment;
