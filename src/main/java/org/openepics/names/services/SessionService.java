@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.security.Principal;
 
 /**
+ * A session bean holding the UserAccount entity representing the signed in user.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */

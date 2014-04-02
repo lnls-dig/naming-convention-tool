@@ -10,8 +10,7 @@ import javax.annotation.Nullable;
 class NewDeviceName {
     private final NamePart sectionPart;
     private final NamePart deviceTypePart;
-    private final @Nullable
-    String index;
+    private final @Nullable String index;
 
     public NewDeviceName(NamePart sectionPart, NamePart deviceTypePart, @Nullable String index) {
         this.sectionPart = sectionPart;

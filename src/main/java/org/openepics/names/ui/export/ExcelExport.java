@@ -12,16 +12,15 @@ import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
+import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
-import org.openepics.names.services.views.NamePartView;
 import org.primefaces.model.TreeNode;
 
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Stateless

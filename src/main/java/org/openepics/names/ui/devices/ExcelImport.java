@@ -3,7 +3,6 @@ package org.openepics.names.ui.devices;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -11,14 +10,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openepics.names.model.*;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
-import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.services.views.NamePartView;
+import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.primefaces.model.TreeNode;
 
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;

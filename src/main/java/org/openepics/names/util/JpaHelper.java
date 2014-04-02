@@ -5,6 +5,7 @@ import javax.persistence.TypedQuery;
 import java.util.List;
 
 /**
+ * A static utility class containing useful JPA methods.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */

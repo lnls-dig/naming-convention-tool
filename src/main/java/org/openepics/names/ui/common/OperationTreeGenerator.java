@@ -10,9 +10,13 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
-* @author Marko Kolar <marko.kolar@cosylab.com>
-*/
-public abstract class OperationsTreePreview<T> {
+ * A generator that takes a TreeNode tree as input and, based on the selected nodes, generates a new tree with
+ * additional information on what nodes will be affected by an operation. This information is contained in
+ * OperationView objects that wrap the original tree nodes' data.
+ *
+ * @author Marko Kolar <marko.kolar@cosylab.com>
+ */
+public abstract class OperationTreeGenerator<T> {
     protected abstract boolean isAffected(T nodeView);
     protected abstract boolean autoSelectChildren(T nodeView);
     protected abstract boolean ignoreSelectedChildren(T nodeView, boolean isSelected);

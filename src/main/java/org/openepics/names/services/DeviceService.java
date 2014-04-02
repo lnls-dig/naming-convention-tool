@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
+ * A service bean managing Device entities.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */

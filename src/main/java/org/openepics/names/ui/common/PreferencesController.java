@@ -25,13 +25,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Manages user preferences.
+ * A UI controller bean for the Preferences screen.
  *
  * @author Vasu V <vuppala@frib.msu.org>
  */
 @ManagedBean
 @SessionScoped
-public class PreferencesManager implements Serializable {
+public class PreferencesController implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger("org.openepics.names.ui.PreferencesManager");
@@ -41,7 +41,7 @@ public class PreferencesManager implements Serializable {
     /**
      * Creates a new instance of PreferencesManager
      */
-    public PreferencesManager() {
+    public PreferencesController() {
     }
 
     @PostConstruct

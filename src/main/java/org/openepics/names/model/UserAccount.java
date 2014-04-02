@@ -8,8 +8,10 @@ import javax.persistence.Enumerated;
 import java.util.Objects;
 
 /**
+ * An entity representing a user account used to sing in to the application.
  *
  * @author Vasu V <vuppala@frib.msu.org>
+ * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 @Entity
 public class UserAccount extends Persistable {

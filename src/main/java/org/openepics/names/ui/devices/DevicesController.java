@@ -10,13 +10,13 @@ import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.DeviceView;
+import org.openepics.names.services.views.NamePartView;
+import org.openepics.names.ui.common.OperationTreeGenerator;
 import org.openepics.names.ui.common.OperationView;
-import org.openepics.names.ui.common.OperationsTreePreview;
-import org.openepics.names.ui.common.TreeViewFilter;
+import org.openepics.names.ui.common.TreeFilter;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.export.ExcelExport;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
-import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.util.As;
 import org.openepics.names.util.UnhandledCaseException;
 import org.primefaces.context.RequestContext;
@@ -39,7 +39,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-
+/**
+ * A UI controller bean for the Device Names screen.
+ */
 @ManagedBean
 @ViewScoped
 public class DevicesController implements Serializable {
@@ -65,7 +67,7 @@ public class DevicesController implements Serializable {
 
     private TreeNode formSelectedSection;
     private TreeNode formSelectedDeviceType;
-    private String formInstanceIndex;
+    private String formInstanceIndex = "";
     private String deviceNameFilter, appliedDeviceNameFilter = "";
     private String deviceTypeFilter, appliedDeviceTypeFilter = "";
 
@@ -92,8 +94,9 @@ public class DevicesController implements Serializable {
         	final NamePartView subsection = (NamePartView)(formSelectedSection.getData());
             final NamePartView deviceType = (NamePartView)(formSelectedDeviceType.getData());
             String oldDeviceName = viewFactory.getView(getSelectedDevice().getDevice()).getConventionName();
-            String newDeviceName = viewFactory.getView(deviceService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), subsection.getNamePart(), deviceType.getNamePart(), formInstanceIndex)).getConventionName();
-            showMessage(null, FacesMessage.SEVERITY_INFO, "Device modified.", "From: " + oldDeviceName + "<br/>to: " + newDeviceName);
+            final DeviceRevision newDeviceRevision = deviceService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), subsection.getNamePart(), deviceType.getNamePart(), !formInstanceIndex.isEmpty() ? formInstanceIndex : null);
+            String newDeviceName = viewFactory.getView(newDeviceRevision).getConventionName();
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Device modified.", "From: " + oldDeviceName + "<br/>To: " + newDeviceName);
         } finally {
             init();
         }
@@ -245,6 +248,10 @@ public class DevicesController implements Serializable {
         return new DefaultStreamedContent(excelExport.exportFile(), "xlsx", "NamingConventionExport.xlsx");
     }
 
+    public String sectionPath(DeviceView deviceView) {
+        return Joiner.on(" ▸ ").join(deviceView.getSection().getNamePath());
+    }
+
     public String deviceTypePath(DeviceView deviceView) {
         return Joiner.on(" ▸ ").join(deviceView.getDeviceType().getNamePath());
     }
@@ -271,7 +278,7 @@ public class DevicesController implements Serializable {
     }
 
     private @Nullable TreeNode deleteView(TreeNode node) {
-        return (new OperationsTreePreview<Object>() {
+        return (new OperationTreeGenerator<Object>() {
             @Override protected boolean isAffected(Object nodeView) { return nodeView instanceof DeviceView && !(((DeviceView) nodeView).getDevice().isDeleted()); }
             @Override protected boolean autoSelectChildren(Object nodeView) { return true; }
             @Override protected boolean ignoreSelectedChildren(Object nodeView, boolean isSelected) { return false; }
@@ -279,13 +286,13 @@ public class DevicesController implements Serializable {
     }
     
     private TreeNode filteredView(TreeNode node) {
-        final @Nullable TreeNode filteredView = (new TreeViewFilter<Object>() {
-            @Override protected boolean accepts(Object nodeView) {
-                if (nodeView instanceof NamePartView) {
+        final @Nullable TreeNode filteredView = (new TreeFilter<Object>() {
+            @Override protected boolean accepts(Object nodeData) {
+                if (nodeData instanceof NamePartView) {
                     return (deviceNameFilter == null || deviceNameFilter.equals(""))  && (deviceTypeFilter == null || deviceTypeFilter.equals(""));
-                } else if (nodeView instanceof DeviceView) {
-                    final String name = ((DeviceView) nodeView).getConventionName().toLowerCase();
-                    final String deviceType = deviceTypePath((DeviceView) nodeView).toLowerCase();
+                } else if (nodeData instanceof DeviceView) {
+                    final String name = ((DeviceView) nodeData).getConventionName().toLowerCase();
+                    final String deviceType = deviceTypePath((DeviceView) nodeData).toLowerCase();
                     final boolean nameMatches = appliedDeviceNameFilter == null || name.contains(appliedDeviceNameFilter.toLowerCase());
                     final boolean deviceTypeMatches = appliedDeviceTypeFilter == null || deviceType.contains(appliedDeviceTypeFilter.toLowerCase());
                     return nameMatches && deviceTypeMatches;

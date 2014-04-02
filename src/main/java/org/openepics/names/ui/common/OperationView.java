@@ -1,6 +1,8 @@
 package org.openepics.names.ui.common;
 
 /**
+ * A wrapper for TreeNode's data with additional information on whether the node is affected by an operation.
+ *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 public class OperationView<T> {

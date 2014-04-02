@@ -18,8 +18,10 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
-*
-* @author Andraz Pozar <andraz.pozar@cosylab.com>
+ * A service bean used to initialize the database with data from the bundled Excel file when the application is ran for
+ * the first time.
+ *
+ * @author Andraz Pozar <andraz.pozar@cosylab.com>
 */
 
 @Stateless
@@ -100,7 +102,7 @@ public class InitialDataImportService {
             } else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
                 return cell.getStringCellValue() != null ? cell.getStringCellValue() : null;
             } else if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
-                return "";
+                return null;
             } else {
                 throw new UnhandledCaseException();
             }

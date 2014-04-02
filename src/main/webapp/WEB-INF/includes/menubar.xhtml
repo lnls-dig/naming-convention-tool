@@ -32,7 +32,7 @@
                 <p:commandButton id="loginBtn" type="button" value="Login" icon="ui-icon-person" onclick="loginWidget.show()" rendered="#{not userManager.loggedIn}">
                     <f:param value="Y" name="doAuthenticate" />
                 </p:commandButton>
-                <p:commandButton id="logoutBtn" value="Logout" icon="ui-icon-person" onclick="loginWidget.update()" update=":menuform:mainMenu" action="#{loginManager.onLogout()}" immediate="true" rendered="#{userManager.loggedIn}" />
+                <p:commandButton id="logoutBtn" value="Logout" icon="ui-icon-person" onclick="loginWidget.update()" update=":menuform:mainMenu" action="#{loginController.onLogout()}" immediate="true" rendered="#{userManager.loggedIn}" />
             </f:facet>
         </p:menubar>
     </h:form>

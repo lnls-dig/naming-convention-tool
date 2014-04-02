@@ -7,6 +7,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
+ * An entity representing a device.
+ *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 @Entity

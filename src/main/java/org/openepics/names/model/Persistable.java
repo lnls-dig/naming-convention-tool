@@ -5,6 +5,8 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 /**
+ * A superclass implementing the properties required by JPA. It that should be extended by all classes that need to be
+ * persisted to the database.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */

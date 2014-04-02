@@ -20,7 +20,7 @@
                 <h:outputText value="#{ncname.conventionName}" />
             </p:column>
             <p:column id="histNameSect" headerText="Section">
-                <h:outputText value="#{ncname.sectionPath}" />
+                <h:outputText value="#{devicesController.sectionPath(ncname)}" />
             </p:column>
             <p:column id="histNameDscp" headerText="Discipline">
                 <h:outputText value="#{devicesController.deviceTypePath(ncname)}" />

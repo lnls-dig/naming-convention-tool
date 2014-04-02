@@ -12,6 +12,8 @@ import javax.inject.Inject;
 import java.util.List;
 
 /**
+ * A gateway to a DeviceService bean that enforces user access control rules on each call. All calls from UI code should
+ * go through this.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */

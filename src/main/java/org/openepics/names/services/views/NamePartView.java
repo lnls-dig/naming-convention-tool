@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
-import org.openepics.names.services.restricted.RestrictedNamePartService;
 
 import javax.annotation.Nullable;
 import java.util.List;

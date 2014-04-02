@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 /**
+ * A service bean managing UserAccount entities.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */

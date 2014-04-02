@@ -1,6 +1,5 @@
 package org.openepics.names.services;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.openepics.names.model.*;
@@ -21,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
+ * A service bean managing NamePart entities.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
@@ -32,12 +32,12 @@ public class NamePartService {
     @PersistenceContext private EntityManager em;
 
     public boolean isMnemonicUnique(@Nullable NamePart parent, String mnemonic) {
-        final String mnemonicEquivalenceClass = namingConvention.getNameNormalizedForEquivalence(mnemonic);
+        final String mnemonicEquivalenceClass = namingConvention.nameNormalizedForEquivalence(mnemonic);
         return em.createQuery("SELECT r FROM NamePartRevision r WHERE (r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) OR r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :pending)) AND r.deleted = FALSE AND r.parent = :parent AND r.mnemonicEquivalenceClass = :mnemonicEquivalenceClass", NamePartRevision.class).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("parent", parent).setParameter("mnemonicEquivalenceClass", mnemonicEquivalenceClass).getResultList().isEmpty();
     }
 
     public boolean isMnemonicValid(NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {
-        final @Nullable NamePartView parentView = parent != null ? getView(parent) : null;
+        final @Nullable NamePartView parentView = parent != null ? view(parent) : null;
         final List<String> parentPath = parentView != null ? parentView.getMnemonicPath() : ImmutableList.<String>of();
         if (namePartType == NamePartType.SECTION) {
             return namingConvention.isSectionNameValid(parentPath, mnemonic);
@@ -51,7 +51,7 @@ public class NamePartService {
     public NamePartRevision addNamePart(String name, String mnemonic, NamePartType namePartType, @Nullable NamePart parent, @Nullable UserAccount user, @Nullable String comment) {
         Preconditions.checkArgument(parent == null || parent.getNamePartType() == namePartType);
 
-        final @Nullable NamePartView parentView = parent != null ? getView(parent) : null;
+        final @Nullable NamePartView parentView = parent != null ? view(parent) : null;
 
         if (parentView != null) {
             final NamePartRevision parentBaseRevision = parentView.getCurrentOrElsePendingRevision();
@@ -63,7 +63,7 @@ public class NamePartService {
         Preconditions.checkState(isMnemonicUnique(parent, mnemonic));
 
         final NamePart namePart = new NamePart(UUID.randomUUID(), namePartType);
-        final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, false, parent, name, mnemonic, namingConvention.getNameNormalizedForEquivalence(mnemonic));
+        final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, false, parent, name, mnemonic, namingConvention.nameNormalizedForEquivalence(mnemonic));
 
         em.persist(namePart);
         em.persist(newRevision);
@@ -72,7 +72,7 @@ public class NamePartService {
     }
 
     public NamePartRevision modifyNamePart(NamePart namePart, String name, String mnemonic, @Nullable UserAccount user, @Nullable String comment) {
-        final NamePartView namePartView = getView(namePart);
+        final NamePartView namePartView = view(namePart);
 
         final NamePartRevision baseRevision = namePartView.getCurrentOrElsePendingRevision();
         final @Nullable NamePartRevision pendingRevision = namePartView.getPendingRevision();
@@ -85,7 +85,7 @@ public class NamePartService {
             updateRevisionStatus(pendingRevision, NamePartRevisionStatus.CANCELLED, user, null);
         }
 
-        final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, false, baseRevision.getParent(), name, mnemonic, namingConvention.getNameNormalizedForEquivalence(mnemonic));
+        final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, false, baseRevision.getParent(), name, mnemonic, namingConvention.nameNormalizedForEquivalence(mnemonic));
 
         em.persist(newRevision);
 
@@ -106,7 +106,7 @@ public class NamePartService {
             }
 
             if (approvedRevision != null) {
-                final NamePartRevision newRevision = new NamePartRevision(namePart, user, new Date(), comment, true, approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getMnemonic(), approvedRevision.getMnemonicEquivalenceClass());
+                final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, true, approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getMnemonic(), approvedRevision.getMnemonicEquivalenceClass());
                 em.persist(newRevision);
                 return newRevision;
             } else {
@@ -218,38 +218,11 @@ public class NamePartService {
     }
 
     private void updateRevisionStatus(NamePartRevision pendingRevision, NamePartRevisionStatus newStatus, @Nullable UserAccount user, @Nullable String comment) {
-        pendingRevision.setStatus(newStatus);
-        pendingRevision.setProcessedBy(user);
-        pendingRevision.setProcessDate(new Date());
-        pendingRevision.setProcessorComment(comment);
+        pendingRevision.updateAsProcessed(newStatus, new Date(), user, comment);
     }
 
     private List<NamePart> approvedAndProposedChildren(NamePart namePart) {
         return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.parent = :namePart AND r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :approved OR r2.status = :pending)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePart.class).setParameter("namePart", namePart).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
-    }
-
-    public List<NamePart> approvedNames(boolean includeDeleted) {
-        if (includeDeleted)
-            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved)", NamePart.class).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
-        else {
-            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) AND r.deleted = FALSE", NamePart.class).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
-        }
-    }
-
-    public List<NamePart> approvedNames() {
-        return approvedNames(false);
-    }
-
-    public List<NamePart> approvedOrPendingNames(boolean includeDeleted) {
-        if (includeDeleted)
-            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :approved OR r2.status = :pending))", NamePart.class).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
-        else {
-            return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :approved OR r2.status = :pending)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePart.class).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
-        }
-    }
-
-    public List<NamePart> approvedOrPendingNames() {
-        return approvedOrPendingNames(false);
     }
 
     public List<NamePartRevision> currentApprovedRevisions(NamePartType type, boolean includeDeleted) {
@@ -266,10 +239,6 @@ public class NamePartService {
         else {
             return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :pending) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePartRevision.class).setParameter("type", type).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
         }
-    }
-
-    public List<NamePart> namesWithChangesProposedByUser(UserAccount user) {
-        return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :pending OR r2.status = :rejected) AND r2.requestedBy = :requestedBy)", NamePart.class).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("rejected", NamePartRevisionStatus.REJECTED).setParameter("requestedBy", user).getResultList();
     }
 
     public List<NamePartRevision> revisions(NamePart namePart) {
@@ -295,7 +264,7 @@ public class NamePartService {
         }
     }
 
-    private NamePartView getView(NamePart namePart) {
+    private NamePartView view(NamePart namePart) {
         final NamePartRevisionProvider revisionProvider = new NamePartRevisionProvider() {
             @Override public @Nullable NamePartRevision approvedRevision(NamePart namePart) { return NamePartService.this.approvedRevision(namePart); }
             @Override public @Nullable NamePartRevision pendingRevision(NamePart namePart) { return NamePartService.this.pendingRevision(namePart); }

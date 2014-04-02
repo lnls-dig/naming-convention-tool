@@ -17,15 +17,14 @@ package org.openepics.names.ui.parts;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.NamePartView;
-import org.openepics.names.ui.common.*;
 import org.openepics.names.services.views.NamePartView.Change;
 import org.openepics.names.services.views.NamePartView.ModifyChange;
+import org.openepics.names.ui.common.*;
 import org.openepics.names.util.Marker;
 import org.openepics.names.util.UnhandledCaseException;
 import org.primefaces.model.DefaultTreeNode;
@@ -38,12 +37,13 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-
 import java.io.Serializable;
 import java.util.List;
 
 
 /**
+ * A UI controller bean for the Logical Area Structure and Device Category Structure screens.
+ *
  * @author Vasu V <vuppala@frib.msu.org>
  */
 @ManagedBean
@@ -426,7 +426,7 @@ public class NamePartsController implements Serializable {
     }
 
     private @Nullable TreeNode deleteView(TreeNode node) {
-        return (new OperationsTreePreview<NamePartView>() {
+        return (new OperationTreeGenerator<NamePartView>() {
             @Override protected boolean isAffected(NamePartView nodeView) { return !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange) && (nodeView.getCurrentRevision() == null || !(nodeView.getCurrentRevision().isDeleted())); }
             @Override protected boolean autoSelectChildren(NamePartView nodeView) { return !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange); }
             @Override protected boolean ignoreSelectedChildren(NamePartView nodeView, boolean isSelected) { return nodeView.getPendingChange() instanceof NamePartView.AddChange; }
@@ -434,7 +434,7 @@ public class NamePartsController implements Serializable {
     }
 
     private @Nullable TreeNode approveView(TreeNode node) {
-        return (new OperationsTreePreview<NamePartView>() {
+        return (new OperationTreeGenerator<NamePartView>() {
             @Override protected boolean isAffected(NamePartView nodeView) { return nodeView.getPendingChange() != null; }
             @Override protected boolean autoSelectChildren(NamePartView nodeView) { return nodeView.getPendingChange() instanceof NamePartView.DeleteChange; }
             @Override protected boolean ignoreSelectedChildren(NamePartView nodeView, boolean isSelected) { return nodeView.getPendingChange() instanceof NamePartView.AddChange && !isSelected; }
@@ -442,7 +442,7 @@ public class NamePartsController implements Serializable {
     }
 
     private @Nullable TreeNode cancelView(TreeNode node) {
-        return (new OperationsTreePreview<NamePartView>() {
+        return (new OperationTreeGenerator<NamePartView>() {
             @Override protected boolean isAffected(NamePartView nodeView) { return nodeView.getPendingChange() != null;}
             @Override protected boolean autoSelectChildren(NamePartView nodeView) { return !(nodeView.getPendingChange() instanceof NamePartView.ModifyChange); }
             @Override protected boolean ignoreSelectedChildren(NamePartView nodeView, boolean isSelected) { return nodeView.getPendingChange() instanceof NamePartView.DeleteChange; }
@@ -450,14 +450,14 @@ public class NamePartsController implements Serializable {
     }
 
     private @Nullable TreeNode onlyProposedView(TreeNode node, final boolean proposedByMe) {
-        return (new TreeViewFilter<NamePartView>() {
-            @Override protected boolean accepts(NamePartView nodeView) { return nodeView.getPendingChange() != null && (!proposedByMe || proposedByMe && (userManager.getUser() == null || nodeView.getPendingRevision().getRequestedBy().equals(userManager.getUser()))); }
+        return (new TreeFilter<NamePartView>() {
+            @Override protected boolean accepts(NamePartView nodeData) { return nodeData.getPendingChange() != null && (!proposedByMe || proposedByMe && (userManager.getUser() == null || nodeData.getPendingRevision().getRequestedBy().equals(userManager.getUser()))); }
         }).apply(node);
     }
 
     private @Nullable TreeNode approvedAndProposedView(TreeNode node) {
-        return (new TreeViewFilter<NamePartView>() {
-            @Override protected boolean accepts(NamePartView nodeView) { return viewWithDeletions || !nodeView.isDeleted(); }
+        return (new TreeFilter<NamePartView>() {
+            @Override protected boolean accepts(NamePartView nodeData) { return viewWithDeletions || !nodeData.isDeleted(); }
         }).apply(node);
     }
 

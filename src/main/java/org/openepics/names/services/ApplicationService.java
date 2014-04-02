@@ -11,6 +11,7 @@ import javax.persistence.PersistenceContext;
 import java.io.IOException;
 
 /**
+ * A service bean managing global application settings and database initialization.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */

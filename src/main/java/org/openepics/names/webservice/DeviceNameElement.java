@@ -1,8 +1,6 @@
 package org.openepics.names.webservice;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
-import java.io.Serializable;
 import java.util.UUID;
 
 

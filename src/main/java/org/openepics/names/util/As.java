@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import javax.annotation.Nullable;
 
 /**
+ * A static utility class for casting @Nullable values to non-@Nullable.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */

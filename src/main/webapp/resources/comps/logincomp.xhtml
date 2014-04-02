@@ -20,15 +20,15 @@
             </f:facet>
             <p:panelGrid columns="2">
                 <h:outputLabel for="userid" value="#{msgs.loginUser}" />
-                <p:inputText id="userid" value="#{loginManager.inputUsername}" required="true"  label="User ID" />
+                <p:inputText id="userid" value="#{loginController.inputUsername}" required="true"  label="User ID" />
                 <h:outputLabel for="passwd" value="#{msgs.loginPass}" />
-                <p:password id="passwd" value="#{loginManager.inputPassword}"   label="Password"/>
+                <p:password id="passwd" value="#{loginController.inputPassword}"   label="Password"/>
             </p:panelGrid>
             <p:watermark for="userid" value="#{msgs.loginUserWM}" />
             <p:watermark for="passwd" value="#{msgs.loginPassWM}" />
             <h:messages id="loginmsgs"/>
             <p:commandButton id="loginBtn" value="#{msgs.loginBtn}" update="loginmsgs #{cc.attrs.updates}"
-                             action="#{loginManager.onLogin}" style="float: right"
+                             action="#{loginController.onLogin}" style="float: right"
                              oncomplete="if (args.loginSuccess) loginWidget.hide()"/>
             <p:commandButton id="cancel" value="#{msgs.cancelBtn}" onclick="loginWidget.hide()"
                              type="button" style="float: left" />

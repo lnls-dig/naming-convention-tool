@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import org.openepics.names.model.*;
 import org.openepics.names.services.NamePartService;
 import org.openepics.names.services.SessionService;
-import org.openepics.names.util.NotImplementedException;
 
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
@@ -13,6 +12,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * A gateway to a NamePartService bean that enforces user access control rules on each call. All calls from UI code should
+ * go through this.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
@@ -25,28 +26,16 @@ public class RestrictedNamePartService {
     public NamePartRevision addNamePart(String name, String mnemonic, NamePartType nameType, @Nullable NamePart parent, @Nullable String comment) {
         Preconditions.checkState(sessionService.isLoggedIn());
         return namePartService.addNamePart(name, mnemonic, nameType, parent, sessionService.user(), comment);
-
-//        if (sessionService.isEditor() && !nameCategory.isApprovalNeeded() && (parentBaseRevision == null || parentBaseRevision.getStatus() == NamePartRevisionStatus.APPROVED)) {
-//            autoApprove(newRevision);
-//        }
     }
 
     public NamePartRevision modifyNamePart(NamePart namePart, String name, String mnemonic, @Nullable String comment) {
         Preconditions.checkState(sessionService.isLoggedIn());
         return namePartService.modifyNamePart(namePart, name, mnemonic, sessionService.user(), comment);
-
-//        if (sessionService.isEditor() && !baseRevision.getNameCategory().isApprovalNeeded() && isOriginalCreator(sessionService.user(), namePart) && approvedParentRevision != null) {
-//            autoApprove(newRevision);
-//        }
     }
 
     public NamePartRevision deleteNamePart(NamePart namePart, @Nullable String comment) {
         Preconditions.checkState(sessionService.isLoggedIn());
         return namePartService.deleteNamePart(namePart, sessionService.user(), comment);
-
-//        if (sessionService.isEditor() && !approvedRevision.getNameCategory().isApprovalNeeded() && isOriginalCreator(sessionService.user(), namePart)) {
-//            autoApprove(newRevision);
-//        }
     }
 
     public NamePartRevision cancelChangesForNamePart(NamePart namePart, @Nullable String comment) {
@@ -63,32 +52,12 @@ public class RestrictedNamePartService {
         namePartService.approveNamePartRevision(namePartRevision, sessionService.user(), comment);
     }
 
-    public List<NamePart> approvedNames(boolean includeDeleted) {
-        return namePartService.approvedNames(includeDeleted);
-    }
-
-    public List<NamePart> approvedNames() {
-        return namePartService.approvedNames();
-    }
-
-    public List<NamePart> approvedOrPendingNames(boolean includeDeleted) {
-        return namePartService.approvedOrPendingNames(includeDeleted);
-    }
-
-    public List<NamePart> approvedOrPendingNames() {
-        return namePartService.approvedOrPendingNames();
-    }
-
     public List<NamePartRevision> currentApprovedRevisions(NamePartType type, boolean includeDeleted) {
         return namePartService.currentApprovedRevisions(type, includeDeleted);
     }
 
     public List<NamePartRevision> currentPendingRevisions(NamePartType type, boolean includeDeleted) {
         return namePartService.currentPendingRevisions(type, includeDeleted);
-    }
-
-    public List<NamePart> namesWithChangesProposedByCurrentUser() {
-        return namePartService.namesWithChangesProposedByUser(sessionService.user());
     }
 
     public List<NamePartRevision> revisions(NamePart namePart) {
@@ -104,13 +73,6 @@ public class RestrictedNamePartService {
     }
 
     private void autoApprove(NamePartRevision namePartEvent, @Nullable UserAccount user) {
-        namePartEvent.setStatus(NamePartRevisionStatus.APPROVED);
-        namePartEvent.setProcessDate(new Date());
-        namePartEvent.setProcessedBy(user);
-        namePartEvent.setProcessorComment(null);
-    }
-
-    private boolean isOriginalCreator(UserAccount user, NamePart namePart) {
-        throw new NotImplementedException(); // TODO
+        namePartEvent.updateAsProcessed(NamePartRevisionStatus.APPROVED, new Date(), user, null);
     }
 }

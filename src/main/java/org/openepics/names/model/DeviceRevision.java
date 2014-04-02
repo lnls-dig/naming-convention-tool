@@ -8,7 +8,9 @@ import javax.persistence.ManyToOne;
 import java.util.Date;
 
 /**
- * @author <a href="mailto:jakob.battelino@cosylab.com">Jakob Battelino Prelog</a>
+ * A revision of a Device entity representing its state at some point in time.
+ *
+ * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 @Entity
 public class DeviceRevision extends Persistable {

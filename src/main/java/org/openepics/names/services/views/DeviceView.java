@@ -1,6 +1,5 @@
 package org.openepics.names.services.views;
 
-import com.google.common.base.Joiner;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.UserAccount;
 import org.openepics.names.services.NamingConvention;
@@ -36,7 +35,7 @@ public class DeviceView {
 
     public String getConventionName() {
         if (conventionName == null) {
-            conventionName = namingConvention.getNamingConventionName(getSection().getMnemonicPath(), getDeviceType().getMnemonicPath(), getInstanceIndex());
+            conventionName = namingConvention.namingConventionName(getSection().getMnemonicPath(), getDeviceType().getMnemonicPath(), getInstanceIndex());
         }
         return conventionName;
     }

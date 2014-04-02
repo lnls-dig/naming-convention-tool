@@ -14,16 +14,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
+ * A UI controller bean for the login / logout button and form.
  *
  * @author Vasu V <vuppala@frib.msu.org>
  */
-@ManagedBean(name = "loginManager")
+@ManagedBean
 @ViewScoped
-public class LoginManager implements Serializable {
+public class LoginController implements Serializable {
 
     @Inject private SessionService sessionService;
 

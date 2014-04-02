@@ -23,10 +23,10 @@
                         <h:outputText value="Theme: " />
                     </p:column>
                     <p:column>
-                        <p:themeSwitcher value="#{preferencesManager.currentTheme}" >
+                        <p:themeSwitcher value="#{preferencesController.currentTheme}" >
                             <f:selectItem itemLabel="Choose Theme" itemValue="" />
-                            <f:selectItems value="#{preferencesManager.themes}" />
-                            <p:ajax listener="#{preferencesManager.saveTheme}" />
+                            <f:selectItems value="#{preferencesController.themes}" />
+                            <p:ajax listener="#{preferencesController.saveTheme}" />
                         </p:themeSwitcher>
                     </p:column>
                 </p:row>
