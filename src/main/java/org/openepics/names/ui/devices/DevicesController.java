@@ -93,10 +93,8 @@ public class DevicesController implements Serializable {
         try {
         	final NamePartView subsection = (NamePartView)(formSelectedSection.getData());
             final NamePartView deviceType = (NamePartView)(formSelectedDeviceType.getData());
-            String oldDeviceName = viewFactory.getView(getSelectedDevice().getDevice()).getConventionName();
-            final DeviceRevision newDeviceRevision = deviceService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), subsection.getNamePart(), deviceType.getNamePart(), !formInstanceIndex.isEmpty() ? formInstanceIndex : null);
-            String newDeviceName = viewFactory.getView(newDeviceRevision).getConventionName();
-            showMessage(null, FacesMessage.SEVERITY_INFO, "Device modified.", "From: " + oldDeviceName + "<br/>To: " + newDeviceName);
+            deviceService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), subsection.getNamePart(), deviceType.getNamePart(), !formInstanceIndex.isEmpty() ? formInstanceIndex : null);
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been modified.");
         } finally {
             init();
         }
@@ -104,13 +102,18 @@ public class DevicesController implements Serializable {
 
     public void onDelete() {
     	try {
-            for (DeviceView deviceView : linearizedTargets(deleteView)) {
+            final List<DeviceView> targets = linearizedTargets(deleteView);
+            for (DeviceView deviceView : targets) {
             	deviceService.deleteDevice(deviceView.getDevice().getDevice());
             }
-            showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "The data you requested was successfully deleted.");
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Success", printedAffectedQuantity(targets.size()) + "deleted.");
         } finally {
             init();
         }
+    }
+
+    private String printedAffectedQuantity(int n) {
+        return n + " device name" + (n > 1 ? "s have been " : " has been ");
     }
 
     private List<DeviceView> linearizedTargets(TreeNode node) {

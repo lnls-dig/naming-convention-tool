@@ -132,8 +132,8 @@ public class NamePartsController implements Serializable {
     public void onAdd() {
         try {
             final @Nullable NamePartView parent = getSelectedName();
-            final NamePartRevision newRequest = namePartService.addNamePart(formName, formMnemonic, namePartType, parent != null ? parent.getNamePart() : null, formComment);
-            showMessage(null, FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
+            namePartService.addNamePart(formName, formMnemonic, namePartType, parent != null ? parent.getNamePart() : null, formComment);
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Your addition proposal has been submitted.");
         } finally {
             init();
         }
@@ -141,8 +141,8 @@ public class NamePartsController implements Serializable {
 
     public void onModify() {
         try {
-            final NamePartRevision newRequest = namePartService.modifyNamePart(As.notNull(getSelectedName()).getNamePart(), formName, formMnemonic, formComment);
-            showMessage(null, FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
+            namePartService.modifyNamePart(As.notNull(getSelectedName()).getNamePart(), formName, formMnemonic, formComment);
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Your modification proposal has been submitted.");
         } finally {
             init();
         }
@@ -150,10 +150,11 @@ public class NamePartsController implements Serializable {
 
     public void onDelete() {
         try {
-            for (NamePartView namePartView : linearizedTargetsForDelete(deleteView)) {
+            final List<NamePartView> targets = linearizedTargetsForDelete(deleteView);
+            for (NamePartView namePartView : targets) {
                 namePartService.deleteNamePart(namePartView.getNamePart(), formComment);
             }
-            showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "The data you requested was successfully deleted.");
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Success", printedAffectedQuantity(targets.size()) + "proposed for deletion.");
         } finally {
             init();
         }
@@ -161,10 +162,11 @@ public class NamePartsController implements Serializable {
 
     public void onCancel() {
         try {
-            for (NamePartView namePartView : linearizedTargets(cancelView)) {
+            final List<NamePartView> targets = linearizedTargets(cancelView);
+            for (NamePartView namePartView : targets) {
                 namePartService.cancelChangesForNamePart(namePartView.getNamePart(), formComment);
             }
-            showMessage(null, FacesMessage.SEVERITY_INFO, "Your request has been cancelled.", "Request Number: ");
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Proposed changes for " + printedAffectedQuantity(targets.size()) + "cancelled.");
         } finally {
             init();
         }
@@ -172,10 +174,11 @@ public class NamePartsController implements Serializable {
 
     public void onApprove() {
         try {
-            for (NamePartView namePartView : linearizedTargets(approveView)) {
+            final List<NamePartView> targets = linearizedTargets(approveView);
+            for (NamePartView namePartView : targets) {
                 namePartService.approveNamePartRevision(namePartView.getPendingRevision(), formComment);
             }
-            showMessage(null, FacesMessage.SEVERITY_INFO, "All selected requests were successfully approved.", " ");
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Proposed changes for " + printedAffectedQuantity(targets.size()) + "approved.");
         } finally {
             init();
         }
@@ -183,24 +186,23 @@ public class NamePartsController implements Serializable {
 
     public void onReject() {
         try {
-            for (NamePartView namePartView : linearizedTargets(cancelView)) {
+            final List<NamePartView> targets = linearizedTargets(cancelView);
+            for (NamePartView namePartView : targets) {
                 namePartService.rejectChangesForNamePart(namePartView.getNamePart(), formComment);
             }
-            showMessage(null, FacesMessage.SEVERITY_INFO, "All selected requests were successfully rejected.", " ");
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Proposed changes for " + printedAffectedQuantity(targets.size()) + "rejected.");
         } finally {
             init();
         }
     }
 
-    public String getRequestType(NamePartView req) {
-        final Change change = req.getPendingChange();
-        if (change != null) {
-            if (change instanceof NamePartView.AddChange) return "Add request";
-            else if (change instanceof NamePartView.ModifyChange) return "Modify request";
-            else if (change instanceof NamePartView.DeleteChange) return "Delete request";
-            else throw new UnhandledCaseException();
+    private String printedAffectedQuantity(int n) {
+        if (namePartType == NamePartType.SECTION) {
+            return n + " section" + (n > 1 ? "s have been " : " has been ");
+        } else if (namePartType == NamePartType.DEVICE_TYPE) {
+            return n + " device type" + (n > 1 ? "s have been " : " has been ");
         } else {
-            return req.isDeleted() ? "Deleted" : "";
+            throw new UnhandledCaseException();
         }
     }
 
@@ -303,6 +305,10 @@ public class NamePartsController implements Serializable {
         }
 
         return prefix + "-" + postfix;
+    }
+
+    public String getRequestType(NamePartView req) {
+        return req != null && req.isDeleted() ? "Delete-Approved" : "";
     }
 
     public String nameStatus(NamePartRevision nreq) {

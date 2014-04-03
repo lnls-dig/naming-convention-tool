@@ -9,7 +9,7 @@
 
 	<ui:define name="content">
 		<h:form id="ManageNameForm">		  
-            <p:growl globalOnly="true" id="devicesMsgs" showDetail="true" sticky="false" life="30000" escape="false" />
+            <p:growl globalOnly="true" id="devicesMsgs" showDetail="true" sticky="false" life="30000" />
 			<!-- =================== Menus ============================ -->
 		    <table width="100%" id="filterTable">
                 <tr>
@@ -135,7 +135,7 @@
 			<p:dialog id="delDeviceName" widgetVar="delDeviceName" modal="true"
 				resizable="false" >
 				<f:facet name="header">
-					<h:outputText value="Request to Delete/Retire Device Names" />
+					<h:outputText value="Delete/Retire Device Names" />
 				</f:facet>
 				<p:panelGrid id="pgrid" style="text-align: left">
 					<p:row>
