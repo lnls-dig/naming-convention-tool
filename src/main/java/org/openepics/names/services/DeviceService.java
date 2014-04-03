@@ -7,6 +7,7 @@ import org.openepics.names.model.UserAccount;
 
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Date;
@@ -21,6 +22,7 @@ import java.util.UUID;
 @Stateless
 public class DeviceService {
 
+    @Inject private NamingConvention namingConvention;
     @PersistenceContext private EntityManager em;
 
     public List<Device> devices(boolean includeDeleted) {

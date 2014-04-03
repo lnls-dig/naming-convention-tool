@@ -23,6 +23,14 @@ public class RestrictedNamePartService {
     @Inject private SessionService sessionService;
     @Inject private NamePartService namePartService;
 
+    public boolean isMnemonicUnique(NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {
+        return namePartService.isMnemonicUnique(namePartType, parent, mnemonic);
+    }
+
+    public boolean isMnemonicValid(NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {
+        return namePartService.isMnemonicValid(namePartType, parent, mnemonic);
+    }
+
     public NamePartRevision addNamePart(String name, String mnemonic, NamePartType nameType, @Nullable NamePart parent, @Nullable String comment) {
         Preconditions.checkState(sessionService.isLoggedIn());
         return namePartService.addNamePart(name, mnemonic, nameType, parent, sessionService.user(), comment);

@@ -29,7 +29,7 @@
 
             <f:facet name="options">
                 <h:outputText value="#{userManager.user.username}" style="margin-right:10px" rendered="#{userManager.loggedIn}" />
-                <p:commandButton id="loginBtn" type="button" value="Login" icon="ui-icon-person" onclick="loginWidget.show()" rendered="#{not userManager.loggedIn}">
+                <p:commandButton actionListener="#{loginController.prepareLoginPopup()}" id="loginBtn" type="button" value="Login" icon="ui-icon-person" onclick="loginWidget.show()" rendered="#{not userManager.loggedIn}">
                     <f:param value="Y" name="doAuthenticate" />
                 </p:commandButton>
                 <p:commandButton id="logoutBtn" value="Logout" icon="ui-icon-person" onclick="loginWidget.update()" update=":menuform:mainMenu" action="#{loginController.onLogout()}" immediate="true" rendered="#{userManager.loggedIn}" />

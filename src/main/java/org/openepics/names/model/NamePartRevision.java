@@ -49,26 +49,23 @@ public class NamePartRevision extends Persistable {
 
     private String mnemonic;
 
-    private String mnemonicEquivalenceClass;
-
     @Enumerated(EnumType.STRING)
     private NamePartRevisionStatus status;
 
-    private @ManyToOne @Nullable UserAccount processedBy;
+    private @ManyToOne @Nullable UserAccount processedBy = null;
 
-    private @Nullable Date processDate;
+    private @Nullable Date processDate = null;
 
-    private @Nullable String processorComment;
+    private @Nullable String processorComment = null;
 
-    protected NamePartRevision() {
-    }
+    protected NamePartRevision() {}
 
-    public NamePartRevision(NamePart namePart, Date requestDate, @Nullable UserAccount requestedBy, @Nullable String requesterComment, boolean deleted, @Nullable NamePart parent, String name, String mnemonic, String mnemonicEquivalenceClass) {
+    public NamePartRevision(NamePart namePart, Date requestDate, @Nullable UserAccount requestedBy, @Nullable String requesterComment, boolean deleted, @Nullable NamePart parent, String name, String mnemonic) {
         Preconditions.checkNotNull(namePart);
         Preconditions.checkNotNull(requestDate);
+        Preconditions.checkArgument(requesterComment == null || !requesterComment.isEmpty());
         Preconditions.checkArgument(name != null && !name.isEmpty());
         Preconditions.checkArgument(mnemonic != null && !mnemonic.isEmpty());
-        Preconditions.checkArgument(mnemonicEquivalenceClass != null && !mnemonicEquivalenceClass.isEmpty());
         this.namePart = namePart;
         this.requestDate = requestDate;
         this.requestedBy = requestedBy;
@@ -77,11 +74,7 @@ public class NamePartRevision extends Persistable {
         this.parent = parent;
         this.name = name;
         this.mnemonic = mnemonic;
-        this.mnemonicEquivalenceClass = mnemonicEquivalenceClass;
         this.status = NamePartRevisionStatus.PENDING;
-        this.processedBy = null;
-        this.processDate = null;
-        this.processorComment = null;
     }
 
     public NamePart getNamePart() { return namePart; }
@@ -100,8 +93,6 @@ public class NamePartRevision extends Persistable {
 
     public String getMnemonic() { return mnemonic; }
 
-    public String getMnemonicEquivalenceClass() { return mnemonicEquivalenceClass; }
-
     public NamePartRevisionStatus getStatus() { return status; }
 
     public @Nullable Date getProcessDate() { return processDate; }
@@ -113,6 +104,7 @@ public class NamePartRevision extends Persistable {
     public void updateAsProcessed(NamePartRevisionStatus status, Date date, @Nullable UserAccount by, @Nullable String comment) {
         Preconditions.checkArgument(status != NamePartRevisionStatus.PENDING);
         Preconditions.checkNotNull(date);
+        Preconditions.checkArgument(comment == null || !comment.isEmpty());
         this.status = status;
         this.processDate = date;
         this.processedBy = by;

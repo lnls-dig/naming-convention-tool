@@ -17,6 +17,7 @@ package org.openepics.names.ui.parts;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
 import org.openepics.names.model.NamePartType;
@@ -25,6 +26,7 @@ import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.services.views.NamePartView.Change;
 import org.openepics.names.services.views.NamePartView.ModifyChange;
 import org.openepics.names.ui.common.*;
+import org.openepics.names.util.As;
 import org.openepics.names.util.Marker;
 import org.openepics.names.util.UnhandledCaseException;
 import org.primefaces.model.DefaultTreeNode;
@@ -55,7 +57,10 @@ public class NamePartsController implements Serializable {
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private UserManager userManager;
 
-    private List<NamePartView> historyEvents;
+    private NamePartType namePartType;
+    private NamePartDisplayFilter displayView = NamePartDisplayFilter.APPROVED_AND_PROPOSED;
+
+    private List<NamePartView> historyRevisions;
 
     private TreeNode rootWithModifications;
     private TreeNode rootWithoutModifications;
@@ -66,21 +71,16 @@ public class NamePartsController implements Serializable {
     private TreeNode approveView;
     private TreeNode cancelView;
 
-
-    private String newCode;
-    private String newDescription;
-    private String newComment;
-    private NamePartDisplayFilter displayView = NamePartDisplayFilter.APPROVED_AND_PROPOSED;
-
-    private NamePartType namePartType;
-
-    private boolean modify;
-    private boolean isDifferentThenCurrent;
-    private boolean viewWithDeletions;
+    private String formName;
+    private String formMnemonic;
+    private String formComment;
 
     @PostConstruct
     public void init() {
-    	rootWithModifications = getRootTreeNode(true);
+        formName = null;
+        formMnemonic = null;
+        formComment = null;
+        rootWithModifications = getRootTreeNode(true);
     	rootWithoutModifications = getRootTreeNode(false);
         modifyDisplayView();
     }
@@ -103,10 +103,36 @@ public class NamePartsController implements Serializable {
         return namePartTreeBuilder.newNamePartTree(approvedRevisions, pendingRevisions, true);
     }
 
+    public boolean isAddMnemonicValid(String mnemonic) {
+        final @Nullable NamePart parent = getSelectedName() != null ? getSelectedName().getNamePart() : null;
+        return namePartService.isMnemonicValid(namePartType, parent, mnemonic);
+    }
+
+    public boolean isModifyMnemonicValid(String mnemonic) {
+        final NamePartView namePart = As.notNull(getSelectedName());
+        final @Nullable NamePart parent = namePart.getParent() != null ? namePart.getParent().getNamePart() : null;
+        return namePartService.isMnemonicValid(namePartType, parent, mnemonic);
+    }
+
+    public boolean isAddMnemonicUnique(String mnemonic) {
+        final @Nullable NamePart parent = getSelectedName() != null ? getSelectedName().getNamePart() : null;
+        return namePartService.isMnemonicUnique(namePartType, parent, mnemonic);
+    }
+
+    public boolean isModifyMnemonicUnique(String mnemonic) {
+        final NamePartView namePart = As.notNull(getSelectedName());
+        if (!mnemonic.equals(namePart.getPendingOrElseCurrentRevision().getMnemonic())) {
+            final @Nullable NamePart parent = namePart.getParent() != null ? namePart.getParent().getNamePart() : null;
+            return namePartService.isMnemonicUnique(namePartType, parent, mnemonic);
+        } else {
+            return true;
+        }
+    }
+
     public void onAdd() {
         try {
-            final NamePartView parent = getSelectedName();
-            final NamePartRevision newRequest = namePartService.addNamePart(newDescription, newCode, namePartType, parent != null ? parent.getNamePart() : null, newComment);
+            final @Nullable NamePartView parent = getSelectedName();
+            final NamePartRevision newRequest = namePartService.addNamePart(formName, formMnemonic, namePartType, parent != null ? parent.getNamePart() : null, formComment);
             showMessage(null, FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {
             init();
@@ -115,7 +141,7 @@ public class NamePartsController implements Serializable {
 
     public void onModify() {
         try {
-            final NamePartRevision newRequest = namePartService.modifyNamePart(getSelectedName().getNamePart(), newDescription, newCode, newComment);
+            final NamePartRevision newRequest = namePartService.modifyNamePart(As.notNull(getSelectedName()).getNamePart(), formName, formMnemonic, formComment);
             showMessage(null, FacesMessage.SEVERITY_INFO, "Your request was successfully submitted.", "Request Number: " + newRequest.getId());
         } finally {
             init();
@@ -125,7 +151,7 @@ public class NamePartsController implements Serializable {
     public void onDelete() {
         try {
             for (NamePartView namePartView : linearizedTargetsForDelete(deleteView)) {
-                namePartService.deleteNamePart(namePartView.getNamePart(), newComment);
+                namePartService.deleteNamePart(namePartView.getNamePart(), formComment);
             }
             showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "The data you requested was successfully deleted.");
         } finally {
@@ -136,7 +162,7 @@ public class NamePartsController implements Serializable {
     public void onCancel() {
         try {
             for (NamePartView namePartView : linearizedTargets(cancelView)) {
-                namePartService.cancelChangesForNamePart(namePartView.getNamePart(), newComment);
+                namePartService.cancelChangesForNamePart(namePartView.getNamePart(), formComment);
             }
             showMessage(null, FacesMessage.SEVERITY_INFO, "Your request has been cancelled.", "Request Number: ");
         } finally {
@@ -147,7 +173,7 @@ public class NamePartsController implements Serializable {
     public void onApprove() {
         try {
             for (NamePartView namePartView : linearizedTargets(approveView)) {
-                namePartService.approveNamePartRevision(namePartView.getPendingRevision(), newComment);
+                namePartService.approveNamePartRevision(namePartView.getPendingRevision(), formComment);
             }
             showMessage(null, FacesMessage.SEVERITY_INFO, "All selected requests were successfully approved.", " ");
         } finally {
@@ -158,7 +184,7 @@ public class NamePartsController implements Serializable {
     public void onReject() {
         try {
             for (NamePartView namePartView : linearizedTargets(cancelView)) {
-                namePartService.rejectChangesForNamePart(namePartView.getNamePart(), newComment);
+                namePartService.rejectChangesForNamePart(namePartView.getNamePart(), formComment);
             }
             showMessage(null, FacesMessage.SEVERITY_INFO, "All selected requests were successfully rejected.", " ");
         } finally {
@@ -207,10 +233,6 @@ public class NamePartsController implements Serializable {
         }
     }
 
-    public boolean isDeletePending (NamePartView req) {
-    	return req.getPendingChange() instanceof NamePartView.DeleteChange;
-    }
-
     public boolean isModified(NamePartView req, boolean isFullName) {
     	if (req.getPendingChange() instanceof NamePartView.ModifyChange) {
 	    	final ModifyChange modifyChange = (ModifyChange) req.getPendingChange();
@@ -225,24 +247,19 @@ public class NamePartsController implements Serializable {
 
     public void modifyDisplayView() {
         if (displayView == NamePartDisplayFilter.APPROVED_AND_PROPOSED) {
-            viewWithDeletions = false;
-            viewRoot = approvedAndProposedView(rootWithModifications);
+            viewRoot = approvedAndProposedView(false, rootWithModifications);
         } else if (displayView == NamePartDisplayFilter.APPROVED) {
-            viewWithDeletions = false;
-            viewRoot = approvedAndProposedView(rootWithoutModifications);
+            viewRoot = approvedAndProposedView(false, rootWithoutModifications);
         } else if (displayView == NamePartDisplayFilter.PROPOSED) {
             viewRoot = onlyProposedView(rootWithModifications, false);
         } else if (displayView == NamePartDisplayFilter.PROPOSED_BY_ME) {
             viewRoot = onlyProposedView(rootWithModifications, true);
         } else if (displayView == NamePartDisplayFilter.ARCHIVED) {
-            viewWithDeletions = true;
-            viewRoot = approvedAndProposedView(rootWithoutModifications);
+            viewRoot = approvedAndProposedView(true, rootWithoutModifications);
         } else {
             throw new UnhandledCaseException();
         }
-        
-    	newCode = newDescription = newComment = null;
-    	modify = false;
+
         selectedNodes = new TreeNode[0];
     	updateOperationViews();
     }
@@ -308,66 +325,46 @@ public class NamePartsController implements Serializable {
         }
     }
 
-    public void findHistory() {
-        historyEvents = getSelectedName() == null ? null : Lists.newArrayList(Lists.transform(namePartService.revisions(getSelectedName().getNamePart()), new Function<NamePartRevision, NamePartView>() {
+    public @Nullable NamePartView getSelectedName() {
+    	return (selectedNodes != null && selectedNodes.length > 0) ? (NamePartView)(selectedNodes[0].getData()) : null;
+    }
+
+    public String getFormName() { return formName; }
+    public void setFormName(String formName) { this.formName = formName; }
+
+    public String getFormMnemonic() { return formMnemonic; }
+    public void setFormMnemonic(String formMnemonic) { this.formMnemonic = formMnemonic; }
+
+    public String getFormComment() { return formComment != null ? formComment : ""; }
+    public void setFormComment(String formComment) { this.formComment = !formComment.isEmpty() ? formComment : null; }
+
+    public void prepareHistoryPopup() {
+        final NamePart namePart = As.notNull(getSelectedName()).getNamePart();
+        historyRevisions = Lists.newArrayList(Lists.transform(namePartService.revisions(namePart), new Function<NamePartRevision, NamePartView>() {
             @Override public NamePartView apply(NamePartRevision revision) {
                 return viewFactory.getView(revision);
             }
         }));
     }
 
-    public boolean hasPendingComment(NamePartView req) {
-    	return (isModified(req, true) || isModified(req, false) || isDeletePending(req)) && getPendingComment(req) != null && getPendingComment(req).length() > 0;
+    public void prepareAddPopup() {
+        formName = null;
+        formMnemonic = null;
+        formComment = null;
     }
 
-    public List<NamePartView> findHistory(NamePartView selectedName) {
-    	return Lists.newArrayList(Lists.transform(namePartService.revisions(selectedName.getNamePart()), new Function<NamePartRevision, NamePartView>() {
-            @Override public NamePartView apply(NamePartRevision revision) { return viewFactory.getView(revision); }
-        }));
+    public void prepareModifyPopup() {
+        final NamePartRevision namePartRevision = As.notNull(getSelectedName()).getPendingOrElseCurrentRevision();
+        formName = namePartRevision.getName();
+        formMnemonic = namePartRevision.getMnemonic();
+        formComment = null;
     }
 
-    public @Nullable NamePartView getSelectedName() {
-    	return (selectedNodes != null && selectedNodes.length > 0) ? (NamePartView)(selectedNodes[0].getData()) : null;
-    }
-
-    public String getNewCode() {
-    	newCode = (getSelectedName() == null || !modify) ? null : getSelectedName().getPendingOrElseCurrentRevision().getMnemonic();
-    	if (modify) {
-    		checkForChanges();
-    	}
-    	return newCode;
-    }
-    public void setNewCode(String newCode) { this.newCode = newCode; }
-
-    public String getNewDescription() {
-    	newDescription = (getSelectedName() == null || !modify) ? null : getSelectedName().getPendingOrElseCurrentRevision().getName();
-    	return newDescription;
-    }
-    public void setNewDescription(String newDescription) { this.newDescription = newDescription; }
-
-    public void showModify() { modify = true; }
-
-    public void showAdd() { modify = false; }
-
-    public boolean canSaveModifications() { return !isDifferentThenCurrent; }
-
-    public void checkForChanges() {
-        isDifferentThenCurrent = (!newDescription.equals(getSelectedName().getPendingOrElseCurrentRevision().getName()) || !newCode.equals(getSelectedName().getPendingOrElseCurrentRevision().getMnemonic()));
-    }
-
-    public String getNewComment() {
-    	return newComment;
-    }
-    public void setNewComment(String newComment) { this.newComment = newComment; }
-
-    public List<NamePartView> getHistoryEvents() { return historyEvents; }
-
-    public TreeNode getRoot() { return rootWithModifications; }
+    public List<NamePartView> getHistoryRevisions() { return historyRevisions; }
 
     public TreeNode getViewRoot() { return viewRoot != null ? viewRoot : new DefaultTreeNode(null, null);  }
 
     public TreeNode[] getSelectedNodes() { return selectedNodes; }
-
     public void setSelectedNodes(TreeNode[] selectedNodes) {
         this.selectedNodes = selectedNodes != null ? selectedNodes : new TreeNode[0];
         updateOperationViews();
@@ -377,9 +374,16 @@ public class NamePartsController implements Serializable {
     public TreeNode getApproveView() { return approveView != null ? approveView : new DefaultTreeNode(); }
     public TreeNode getCancelView() { return cancelView != null ? cancelView : new DefaultTreeNode(); }
 
-    public boolean canAdd() { return selectedNodes.length == 0 || (selectedNodes.length == 1 && !((NamePartView) selectedNodes[0].getData()).getPendingOrElseCurrentRevision().isDeleted()); }
+    public boolean canAdd() {
+        if (selectedNodes.length < 2) {
+            final @Nullable NamePartView parent = getSelectedName();
+            return parent == null || (!parent.getPendingOrElseCurrentRevision().isDeleted() && parent.getLevel() < 2);
+        } else {
+            return false;
+        }
+    }
     public boolean canDelete() { return deleteView != null; }
-    public boolean canModify() { return selectedNodes.length == 1 && !((NamePartView) selectedNodes[0].getData()).getPendingOrElseCurrentRevision().isDeleted(); }
+    public boolean canModify() { return getSelectedName() != null && !getSelectedName().getPendingOrElseCurrentRevision().isDeleted(); }
     public boolean canApprove() { return approveView != null; }
     public boolean canCancel() { return cancelView != null; }
     public boolean canShowHistory() { return selectedNodes.length == 1; }
@@ -390,13 +394,13 @@ public class NamePartsController implements Serializable {
         cancelView = cancelView(viewRoot);
     }
 
-    public String getPendingComment(NamePartView selectedName) {
-    	List<NamePartView> historyEvents = findHistory(selectedName);
-    	if (historyEvents != null && historyEvents.size() > 0) {
-    		return historyEvents.get(historyEvents.size() - 1).getNameEvent().getRequesterComment();
-    	} else {
-    	    return null;
-    	}
+    public boolean hasPendingComment(NamePartView req) {
+        return getPendingComment(req) != null;
+    }
+
+    public @Nullable String getPendingComment(NamePartView selectedName) {
+        final @Nullable NamePartRevision pendingRevision = selectedName.getPendingRevision();
+        return pendingRevision != null ? pendingRevision.getRequesterComment() : null;
     }
 
     private List<NamePartView> linearizedTargets(TreeNode node) {
@@ -455,9 +459,9 @@ public class NamePartsController implements Serializable {
         }).apply(node);
     }
 
-    private @Nullable TreeNode approvedAndProposedView(TreeNode node) {
+    private @Nullable TreeNode approvedAndProposedView(final boolean withDeletions, TreeNode node) {
         return (new TreeFilter<NamePartView>() {
-            @Override protected boolean accepts(NamePartView nodeData) { return viewWithDeletions || !nodeData.isDeleted(); }
+            @Override protected boolean accepts(NamePartView nodeData) { return withDeletions || !nodeData.isDeleted(); }
         }).apply(node);
     }
 

@@ -32,13 +32,13 @@
                     </td>
                     <td align="right">
                         <p:menuButton value="Actions" id="reqMenu" style="width: 8%">
-                            <p:menuitem value="Add" actionListener="#{namePartsController.showAdd()}" title="Add Name" icon="ui-icon-plus" oncomplete="addName.show()" update=":addNameForm:addName" disabled="#{!namePartsController.canAdd()}" rendered="#{userManager.editor}" />
+                            <p:menuitem value="Add" actionListener="#{namePartsController.prepareAddPopup()}" title="Add Name" icon="ui-icon-plus" oncomplete="addName.show()" update=":addNameForm:addName" disabled="#{!namePartsController.canAdd()}" rendered="#{userManager.editor}" />
                             <p:menuitem value="Delete" title="Delete Name" icon="ui-icon-trash" update=":DelNameForm:delName" oncomplete="delName.show()" disabled="#{!namePartsController.canDelete()}" rendered="#{userManager.editor}" />
-                            <p:menuitem value="Modify" actionListener="#{namePartsController.showModify()}" title="Modify Name" icon="ui-icon-pencil" update=":ModNameForm:modName" oncomplete="modName.show()" disabled="#{!namePartsController.canModify()}" rendered="#{userManager.editor}" />
+                            <p:menuitem value="Modify" actionListener="#{namePartsController.prepareModifyPopup()}" title="Modify Name" icon="ui-icon-pencil" update=":ModNameForm:modName" oncomplete="modName.show()" disabled="#{!namePartsController.canModify()}" rendered="#{userManager.editor}" />
                             <p:menuitem value="Approve" title="Approve Request" icon="ui-icon-check" update=":ApproveForm" oncomplete="approveRequest.show()" disabled="#{!namePartsController.canApprove()}" rendered="#{userManager.superUser}" />
                             <p:menuitem value="Reject" title="Reject Request" icon="ui-icon-close" update=":RejectForm" oncomplete="rejectRequest.show()" disabled="#{!namePartsController.canCancel()}" rendered="#{userManager.superUser}" />
                             <p:menuitem value="Cancel" title="Cancel changes" icon="ui-icon-close" update=":CancelReqForm:cancelReq" oncomplete="cancelReq.show()" disabled="#{!namePartsController.canCancel()}" rendered="#{userManager.editor and !userManager.superUser}"/>
-                            <p:menuitem value="History" title="View History" icon="ui-icon-search" actionListener="#{namePartsController.findHistory()}" update=":ReqSubForm:historyTable" oncomplete="nameDetail.show()" disabled="#{!namePartsController.canShowHistory()}" />
+                            <p:menuitem value="History" title="View History" icon="ui-icon-search" actionListener="#{namePartsController.prepareHistoryPopup()}" update=":ReqSubForm:historyTable" oncomplete="nameDetail.show()" disabled="#{!namePartsController.canShowHistory()}" />
                         </p:menuButton>
                     </td>
                 </tr>
@@ -73,7 +73,7 @@
                 </p:treeTable>
             </div>
             <ui:include src="/WEB-INF/includes/parts-history.xhtml" >
-                <ui:param name="historyHandler" value="#{namePartsController.historyEvents}" />
+                <ui:param name="historyHandler" value="#{namePartsController.historyRevisions}" />
             </ui:include>
         </h:form>
 
@@ -86,21 +86,23 @@
                 <p:panelGrid id="grid" columns="2" style="text-align: left">
                     <h:outputLabel for="idesc" value="Name:" />
                     <h:panelGroup>
-                        <p:inputText id="idesc" value="#{namePartsController.newDescription}" required="true" requiredMessage="Please enter a name." />
+                        <p:inputText id="idesc" value="#{namePartsController.formName}" required="true" requiredMessage="Please enter a name." />
                         <p:watermark for="idesc" value="e.g. Flux Capacitor" />
                         <p:message for="idesc" />
                     </h:panelGroup>
 
                     <h:outputLabel for="icode" value="Mnemonic:" />
                     <h:panelGroup>
-                        <p:inputText id="icode" value="#{namePartsController.newCode}" required="true" requiredMessage="Please enter a mnemonic." />
+                        <p:inputText id="icode" value="#{namePartsController.formMnemonic}" required="true" requiredMessage="Please enter a mnemonic.">
+                            <f:validator validatorId="custom.addMnemonicValidator" />
+                        </p:inputText>
                         <p:watermark for="icode" value="e.g. FluxC" />
                         <p:message for="icode" />
                     </h:panelGroup>
 
                     <h:outputLabel for="icomm" value="Comment (optional):" />
                     <h:panelGroup>
-                        <p:inputTextarea id="icomm" rows="5" cols="60" counter="icounter" maxlength="254" value="#{namePartsController.newComment}" counterTemplate="{0} characters remaining." autoResize="false"/>
+                        <p:inputTextarea id="icomm" rows="5" cols="60" counter="icounter" maxlength="254" value="#{namePartsController.formComment}" counterTemplate="{0} characters remaining." autoResize="false"/>
                         <br/>
                         <h:outputText id="icounter" />
                     </h:panelGroup>
@@ -132,8 +134,7 @@
                         <p:column><h:outputLabel for="mdesc" value="Name:" /></p:column>
                         <p:column><h:outputText value="#{namePartsController.selectedName.pendingOrElseCurrentRevision.name}"/></p:column>
                         <p:column>
-                            <p:inputText id="mdesc" value="#{namePartsController.newDescription}" required="true" requiredMessage="Please enter a name.">
-                                <p:ajax listener="#{namePartsController.checkForChanges()}" event="keyup" update="submitModify" />
+                            <p:inputText id="mdesc" value="#{namePartsController.formName}" required="true" requiredMessage="Please enter a name.">
                             </p:inputText>
                             <p:message for="mdesc" />
                         </p:column>
@@ -142,8 +143,8 @@
                         <p:column><h:outputLabel for="mcode" value="Mnemonic:" /> </p:column>
                         <p:column><h:outputText value="#{namePartsController.selectedName.pendingOrElseCurrentRevision.mnemonic}" /></p:column>
                         <p:column>
-                            <p:inputText id="mcode" value="#{namePartsController.newCode}" required="true" requiredMessage="Please enter a mnemonic.">
-                                <p:ajax listener="#{namePartsController.checkForChanges()}" event="keyup" update="submitModify" />
+                            <p:inputText id="mcode" value="#{namePartsController.formMnemonic}" required="true" requiredMessage="Please enter a mnemonic.">
+                                <f:validator validatorId="custom.modifyMnemonicValidator" />
                             </p:inputText>
                             <p:message for="mcode" />
                         </p:column>
@@ -151,7 +152,7 @@
                     <p:row>
                         <p:column><h:outputLabel for="mcomm" value="Comment (optional):" /></p:column>
                         <p:column colspan="2" >
-                            <p:inputTextarea id="mcomm"  counter="mcounter" maxlength="254" value="#{namePartsController.newComment}" rows="5" cols="60" counterTemplate="{0} characters remaining." autoResize="false"/>
+                            <p:inputTextarea id="mcomm"  counter="mcounter" maxlength="254" value="#{namePartsController.formComment}" rows="5" cols="60" counterTemplate="{0} characters remaining." autoResize="false"/>
                             <br/>
                             <h:outputText id="mcounter" />
                         </p:column>
@@ -160,7 +161,7 @@
                 </p:panelGrid>
                 <p:separator />
 
-                <p:commandButton id="submitModify" value="Submit" style="float: left" update="pgrid :ReqSubForm" oncomplete="if (args &amp;&amp; !args.validationFailed) modName.hide(); resizePanel()" disabled="#{namePartsController.canSaveModifications()}" action="#{namePartsController.onModify()}"/>
+                <p:commandButton id="submitModify" value="Submit" style="float: left" update="pgrid :ReqSubForm" oncomplete="if (args &amp;&amp; !args.validationFailed) modName.hide(); resizePanel()" action="#{namePartsController.onModify()}"/>
                 <p:commandButton value="Cancel" style="float: right" onclick="modName.hide()" />
             </p:dialog>
         </h:form>
@@ -190,7 +191,7 @@
                             <h:outputLabel for="dcomm" value="Comment (optional):" />
                         </p:column>
                         <p:column>
-                            <p:inputTextarea id="dcomm" rows="5" cols="60" counter="dcounter" maxlength="254" value="#{namePartsController.newComment}" counterTemplate="{0} characters remaining." autoResize="false"/>
+                            <p:inputTextarea id="dcomm" rows="5" cols="60" counter="dcounter" maxlength="254" value="#{namePartsController.formComment}" counterTemplate="{0} characters remaining." autoResize="false"/>
                             <br/>
                             <h:outputText id="dcounter" />
                         </p:column>
@@ -232,7 +233,7 @@
                             <h:outputLabel for="dcomm" value="Comment (optional):" />
                         </p:column>
                         <p:column>
-                            <p:inputTextarea id="dcomm" rows="5" cols="60" counter="dcounter" maxlength="254" value="#{namePartsController.newComment}" counterTemplate="{0} characters remaining." autoResize="false"/>
+                            <p:inputTextarea id="dcomm" rows="5" cols="60" counter="dcounter" maxlength="254" value="#{namePartsController.formComment}" counterTemplate="{0} characters remaining." autoResize="false"/>
                             <br/>
                             <h:outputText id="dcounter" />
                         </p:column>
@@ -272,7 +273,7 @@
                     <p:row>
                         <p:column><h:outputLabel for="acomm" value="Comment (optional):" /></p:column>
                         <p:column>
-                            <p:inputTextarea id="acomm" rows="5" cols="60" counter="counter" maxlength="254" value="#{namePartsController.newComment}" counterTemplate="{0} characters remaining." autoResize="false"/>
+                            <p:inputTextarea id="acomm" rows="5" cols="60" counter="counter" maxlength="254" value="#{namePartsController.formComment}" counterTemplate="{0} characters remaining." autoResize="false"/>
                             <br/>
                             <h:outputText id="counter" />
                         </p:column>
@@ -311,7 +312,7 @@
                     <p:row>
                         <p:column><h:outputLabel for="rcomm" value="Comment:" /></p:column>
                         <p:column>
-                            <p:inputTextarea id="rcomm" rows="5" cols="70" counter="counter" maxlength="254" value="#{namePartsController.newComment}" counterTemplate="{0} characters remaining." autoResize="false"/>
+                            <p:inputTextarea id="rcomm" rows="5" cols="70" counter="counter" maxlength="254" value="#{namePartsController.formComment}" counterTemplate="{0} characters remaining." autoResize="false"/>
                             <br/>
                             <h:outputText id="counter" />
                         </p:column>
