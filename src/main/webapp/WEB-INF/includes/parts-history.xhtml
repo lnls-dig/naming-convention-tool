@@ -7,21 +7,18 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions"
                 >
-    <p:dialog id="nameDetail"  widgetVar="nameDetail" width="900" dynamic="true" maximizable="true" minimizable="true" modal="true" header="Name Details" footer="Event History">
-        <p:dataTable id="historyTable" var="nevent" value="#{historyHandler}"
-                paginator="false" rows="50" resizableColumns="true" rowKey="#{nevent.id}"
-                emptyMessage="There are no events for this name." >
-
+    <p:dialog id="nameDetail" widgetVar="nameDetail" width="900" dynamic="true" maximizable="true" minimizable="true" modal="true" header="History">
+        <p:dataTable id="historyTable" var="nevent" value="#{historyHandler}" paginator="false" rows="50" resizableColumns="true" rowKey="#{nevent.id}" scrollable="true" scrollHeight="300">
             <p:column id="id" headerText="Id" rendered="false" >
                 <h:outputText value="#{nevent.id}" />
             </p:column>
-            <p:column id="nameDesc" headerText="Name" styleClass="#{namePartsController.getRequestType(nevent)}">
+            <p:column id="nameDesc" headerText="Name" styleClass="#{namePartsController.historyRevisionStyleClass(nevent)}">
                 <h:outputText value="#{nevent.name}" />
             </p:column>
-            <p:column id="nameCode" headerText="Mnemonic" styleClass="#{namePartsController.getRequestType(nevent)}">
+            <p:column id="nameCode" headerText="Mnemonic" styleClass="#{namePartsController.historyRevisionStyleClass(nevent)}">
                 <h:outputText value="#{nevent.mnemonic}" />
             </p:column>
-            <p:column id="reqBy" headerText="By" sortBy="#{nevent.nameEvent.requestedBy.username}" >
+            <p:column id="reqBy" headerText="Proposed By" sortBy="#{nevent.nameEvent.requestedBy.username}" >
                 <h:outputText value="#{nevent.nameEvent.requestedBy.username}" />
                  <h:outputLink id="pendingReqComment" value="#" rendered="#{nevent.nameEvent.requesterComment.length() > 0}">
                         <h:outputText styleClass="ui-icon ui-icon-info" style="display:inline-block; margin-left:10px !important; vertical-align:bottom !important;"/>
@@ -30,7 +27,7 @@
                  	<h:outputText value="#{nevent.nameEvent.requesterComment}" style="white-space: pre;" escape="false"/>
                  </p:tooltip>
             </p:column>
-            <p:column id="reqDate" headerText="Date" sortBy="#{nevent.nameEvent.requestDate}">
+            <p:column id="reqDate" headerText="Prop. Date" sortBy="#{nevent.nameEvent.requestDate}">
                 <h:outputText value="#{nevent.nameEvent.requestDate}" >
                     <f:convertDateTime pattern="yyyy-MM-dd" />
                 </h:outputText>
@@ -39,7 +36,7 @@
             <p:column id="status" headerText="Status" >
                 <h:outputText value="#{namePartsController.nameStatus(nevent.nameEvent)}" title="status"/>
             </p:column>
-            <p:column id="By" headerText="Proc By" >
+            <p:column id="By" headerText="Reviewed By" >
                 <h:outputText value="#{nevent.nameEvent.processedBy.username}" />
                 <h:outputLink id="pendingProcComment" value="#" rendered="#{nevent.nameEvent.processorComment.length() > 0}">
                         <h:outputText styleClass="ui-icon ui-icon-info" style="display:inline-block; margin-left:10px !important; vertical-align:bottom !important;"/>
@@ -48,7 +45,7 @@
                  	<h:outputText value="#{nevent.nameEvent.processorComment}" style="white-space: pre;" escape="false"/>
                  </p:tooltip>
             </p:column>
-            <p:column id="procDate" headerText="Proc Date" sortBy="#{nevent.nameEvent.processDate}">
+            <p:column id="procDate" headerText="Rev. Date" sortBy="#{nevent.nameEvent.processDate}">
                 <h:outputText value="#{nevent.nameEvent.processDate}" >
                     <f:convertDateTime pattern="yyyy-MM-dd" />
                 </h:outputText>

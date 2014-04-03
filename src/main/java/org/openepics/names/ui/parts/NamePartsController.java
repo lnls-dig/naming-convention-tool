@@ -29,6 +29,7 @@ import org.openepics.names.ui.common.*;
 import org.openepics.names.util.As;
 import org.openepics.names.util.Marker;
 import org.openepics.names.util.UnhandledCaseException;
+import org.primefaces.context.RequestContext;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
@@ -307,7 +308,7 @@ public class NamePartsController implements Serializable {
         return prefix + "-" + postfix;
     }
 
-    public String getRequestType(NamePartView req) {
+    public String historyRevisionStyleClass(NamePartView req) {
         return req != null && req.isDeleted() ? "Delete-Approved" : "";
     }
 
@@ -357,6 +358,7 @@ public class NamePartsController implements Serializable {
         formName = null;
         formMnemonic = null;
         formComment = null;
+        RequestContext.getCurrentInstance().reset("addNameForm:grid");
     }
 
     public void prepareModifyPopup() {
@@ -364,6 +366,7 @@ public class NamePartsController implements Serializable {
         formName = namePartRevision.getName();
         formMnemonic = namePartRevision.getMnemonic();
         formComment = null;
+        RequestContext.getCurrentInstance().reset("ModNameForm:pgrid");
     }
 
     public List<NamePartView> getHistoryRevisions() { return historyRevisions; }

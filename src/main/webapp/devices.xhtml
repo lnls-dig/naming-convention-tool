@@ -52,7 +52,7 @@
                             <p:menuitem value="Add" icon="ui-icon-plus"
                                 update=":addDeviceNameForm" oncomplete="addDeviceName.show()"
                                 title="Add Device Name"
-                                action="#{devicesController.prepareForAdd()}"
+                                actionListener="#{devicesController.prepareAddPopup()}"
                                 disabled="#{!devicesController.canAdd()}"
                                 rendered="#{userManager.editor}" />
                             <p:menuitem value="Delete" icon="ui-icon-trash"
@@ -61,7 +61,7 @@
                                 disabled="#{!devicesController.canDelete()}" />
                             <p:menuitem value="Modify" icon="ui-icon-pencil"
                                 update=":modDeviceNameForm" oncomplete="modDeviceName.show()"
-                                action="#{devicesController.prepareForModify()}"
+                                actionListener="#{devicesController.prepareModifyPopup()}"
                                 title="Modify Device Name" rendered="#{userManager.editor}"
                                 disabled="#{!devicesController.canModify()}" />
                             <p:menuitem value="History" icon="ui-icon-search"
@@ -86,7 +86,7 @@
 				<p:ajax event="unselect"
 					update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />
 
-				<p:column id="devName" headerText="Device Name">
+				<p:column id="devName" headerText="Section / Device Name">
 					<h:outputText value=""
 						style="display:inline-block; vertical-align:bottom !important"
 						styleClass="ui-icon ui-icon-wrench"
@@ -143,7 +143,7 @@
 							<p:treeTable value="#{devicesController.deleteView}"
 								var="candidate" liveResize="true" scrollable="true" resizableColumns="true"
 								styleClass="previewTreeTable">
-								<p:column headerText="Device Name">
+								<p:column headerText="Section / Device Name">
 									<h:outputText value=""
 										style="display:inline-block; vertical-align:bottom !important"
 										styleClass="ui-icon ui-icon-wrench"
