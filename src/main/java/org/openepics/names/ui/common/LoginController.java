@@ -34,12 +34,12 @@ public class LoginController implements Serializable {
     public void init() {
         FacesContext context = FacesContext.getCurrentInstance();
         originalURL = (String) context.getExternalContext().getRequestMap().get(RequestDispatcher.FORWARD_REQUEST_URI);
-        prepareLoginPopup();
     }
 
     public void prepareLoginPopup() {
         inputUsername = null;
         inputPassword = null;
+        RequestContext.getCurrentInstance().reset("loginForm:grid");
     }
 
     public void onLogin() throws IOException {

@@ -4,12 +4,10 @@
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:fc="http://java.sun.com/jsf/composite/comps"
                 xmlns:h="http://java.sun.com/jsf/html">
 
     <h:form id="menuform">
         <p:growl globalOnly="true" id="messages" showDetail="true" sticky="false" life="30000" />
-        <fc:logincomp display="false" updates=":menuform:mainMenu" />
 
         <p:menubar id="mainMenu" style="padding-left: 8px; padding-right: 8px">
             <p:menuitem value="Home" icon="ui-icon-home" url="index.xhtml" />
@@ -29,11 +27,35 @@
 
             <f:facet name="options">
                 <h:outputText value="#{userManager.user.username}" style="margin-right:10px" rendered="#{userManager.loggedIn}" />
-                <p:commandButton process="@this" action="#{loginController.prepareLoginPopup()}" id="loginBtn" value="Login" icon="ui-icon-person" onclick="loginWidget.show()" rendered="#{not userManager.loggedIn}">
-                    <f:param value="Y" name="doAuthenticate" />
-                </p:commandButton>
+                <p:commandButton process="@this" actionListener="#{loginController.prepareLoginPopup()}" update=":loginForm:loginDialog" value="Login" icon="ui-icon-person" oncomplete="loginDialog.show()" rendered="#{not userManager.loggedIn}"/>
                 <p:commandButton id="logoutBtn" value="Logout" icon="ui-icon-person" type="button" onclick="loginWidget.update()" update=":menuform:mainMenu" action="#{loginController.onLogout()}" immediate="true" rendered="#{userManager.loggedIn}" />
             </f:facet>
         </p:menubar>
+    </h:form>
+
+    <h:form id="loginForm">
+        <p:dialog id="loginDialog" widgetVar="loginDialog" modal="true">
+            <f:facet name="header">
+                <h:outputText value="Sign in"/>
+            </f:facet>
+            <p:panelGrid id="grid" columns="2">
+                <h:outputLabel for="userid" value="User ID" />
+                <h:panelGroup>
+                    <p:inputText id="userid" value="#{loginController.inputUsername}" required="true" requiredMessage="Please enter a user ID." label="User ID" />
+                    <p:watermark for="userid" value="Enter user id" />
+                    <p:message for="userid" />
+                </h:panelGroup>
+                <h:outputLabel for="passwd" value="Password" />
+                <h:panelGroup>
+                    <p:password id="passwd" value="#{loginController.inputPassword}" label="Password"/>
+                    <p:watermark for="passwd" value="Enter password" />
+                    <p:message for="passwd" />
+                </h:panelGroup>
+            </p:panelGrid>
+
+            <p:messages id="loginmsgs" globalOnly="true"/>
+            <p:commandButton value="Login" update="grid loginmsgs :menuform:mainMenu" action="#{loginController.onLogin}" style="float: right" oncomplete="if (args.loginSuccess) loginWidget.hide()"/>
+            <p:commandButton id="cancel" value="Cancel" onclick="loginWidget.hide()" type="button" style="float: left" />
+        </p:dialog>
     </h:form>
 </ui:composition>
