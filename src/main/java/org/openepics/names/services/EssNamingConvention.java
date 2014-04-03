@@ -34,8 +34,12 @@ public class EssNamingConvention implements NamingConvention {
         }
     }
 
-    @Override public boolean isInstanceIndexValid(String instanceIndex) {
-        return instanceIndex.matches("^[a-zA-Z][a-zA-Z0-9]*$");
+    @Override public boolean isInstanceIndexValid(List<String> sectionPath, List<String> deviceTypePath, String instanceIndex) {
+        if (sectionPath.get(0).equals("Acc")) {
+            return instanceIndex.matches("^[a-zA-Z][a-zA-Z0-9]*$");
+        } else {
+            return instanceIndex.matches("^[a-zA-Z0-9]+$");
+        }
     }
 
     @Override public String nameNormalizedForEquivalence(String name) {

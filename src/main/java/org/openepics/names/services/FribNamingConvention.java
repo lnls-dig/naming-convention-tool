@@ -32,7 +32,7 @@ public class FribNamingConvention implements NamingConvention {
         throw new NotImplementedException();
     }
 
-    @Override public boolean isInstanceIndexValid(String instanceIndex) {
+    @Override public boolean isInstanceIndexValid(List<String> sectionPath, List<String> deviceTypePath, String instanceIndex) {
         throw new NotImplementedException();
     }
 }

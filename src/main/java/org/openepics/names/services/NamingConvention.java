@@ -19,7 +19,7 @@ public interface NamingConvention {
 
     boolean isDeviceTypeNameValid(List<String> parentPath, String name);
 
-    boolean isInstanceIndexValid(String instanceIndex);
+    boolean isInstanceIndexValid(List<String> sectionPath, List<String> deviceTypePath, String instanceIndex);
 
     String nameNormalizedForEquivalence(String name);
 

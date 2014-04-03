@@ -70,22 +70,26 @@ public class EssNamingConventionTest {
     
     @Test
     public void isInstanceIndexOfTypeAValidTest() {
-        assertFalse(namingConvention.isInstanceIndexValid("1"));
-        assertFalse(namingConvention.isInstanceIndexValid("1a"));
-        assertFalse(namingConvention.isInstanceIndexValid("a!"));
-        assertTrue(namingConvention.isInstanceIndexValid("a"));
-        assertTrue(namingConvention.isInstanceIndexValid("a1"));
-        assertTrue(namingConvention.isInstanceIndexValid("aA1"));
+        final List<String> sectionPath = ImmutableList.of("Acc", "A2T", "01");
+        final List<String> deviceTypePath = ImmutableList.of("BMD", "Chop", "Chop");
+        assertFalse(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "1"));
+        assertFalse(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "1a"));
+        assertFalse(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "a!"));
+        assertTrue(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "a"));
+        assertTrue(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "a1"));
+        assertTrue(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "aA1"));
     }
     
     @Test
     public void isInstanceIndexOfTypeDValidTest() {
-        assertFalse(namingConvention.isInstanceIndexValid("a!"));
-        assertTrue(namingConvention.isInstanceIndexValid("a"));
-        assertTrue(namingConvention.isInstanceIndexValid("a1"));
-        assertTrue(namingConvention.isInstanceIndexValid("aA1"));
-        assertTrue(namingConvention.isInstanceIndexValid("1"));
-        assertTrue(namingConvention.isInstanceIndexValid("1a"));
+        final List<String> sectionPath = ImmutableList.of("TS", "ActC", "Cn");
+        final List<String> deviceTypePath = ImmutableList.of("BMD", "Chop", "Chop");
+        assertTrue(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "1"));
+        assertTrue(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "1a"));
+        assertFalse(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "a!"));
+        assertTrue(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "a"));
+        assertTrue(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "a1"));
+        assertTrue(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "aA1"));
     }
     
     @Test
