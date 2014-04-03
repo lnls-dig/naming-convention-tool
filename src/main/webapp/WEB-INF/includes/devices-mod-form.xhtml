@@ -11,7 +11,7 @@
             <f:facet name="header">
                 <h:outputText value="#{dialogTitle}" />
             </f:facet>
-            <p:panelGrid style="text-align: left">
+            <p:panelGrid id="grid" style="text-align: left">
                 <p:row>
                     <p:column>
                         Which part of the facility does the device provide service to?
@@ -56,17 +56,14 @@
                     <p:column>
                         <h:outputLabel value="Instance index:" />
                         <p:spacer width="5" />
-                        <h:inputText value="#{devicesController.formInstanceIndex}" />
-                        <p:button icon="ui-icon-refresh" style="float: right; height: 1.5em; width: 1.5em;"/>
+                        <h:inputText id="instanceIndex" required="true" value="#{devicesController.formInstanceIndex}" />
+                        <p:message for="instanceIndex"/>
                     </p:column>
                 </p:row>
             </p:panelGrid>
             <p:separator />
 
-            <p:commandButton id="bsub" value="Submit" style="float: left"
-                    update=":ManageNameForm" oncomplete="#{widgetName}.hide();resizePanel()"
-                    action="#{devicesController[submitHandler]}"
-                    disabled="#{!devicesController.isFormFilled()}"/>
+            <p:commandButton id="bsub" value="Submit" style="float: left" update="grid :ManageNameForm" oncomplete="if (args &amp;&amp; !args.validationFailed) #{widgetName}.hide(); resizePanel()" action="#{devicesController[submitHandler]}" disabled="#{devicesController.formSelectedSection == null || devicesController.formSelectedDeviceType == null}"/>
             <p:commandButton value="Cancel" style="float: right"
                     onclick="#{widgetName}.hide()" />
         </p:dialog>

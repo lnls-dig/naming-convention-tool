@@ -130,7 +130,7 @@ public class DevicesController implements Serializable {
 
 
     public void loadHistory() {
-        historyDeviceNames = Lists.transform(deviceService.revisions(As.notNull(getSelectedDevice()).getDevice().getDevice()), new Function<DeviceRevision, DeviceView>(){
+        historyDeviceNames = Lists.transform(deviceService.revisions(As.notNull(getSelectedDevice()).getDevice().getDevice()), new Function<DeviceRevision, DeviceView>() {
             @Override public DeviceView apply(DeviceRevision f) { return viewFactory.getView(f);}
         });
     }
@@ -211,12 +211,14 @@ public class DevicesController implements Serializable {
     public boolean canShowHistory() { return getSelectedDevice() != null; }
     public boolean canModify() { return getSelectedDevice() != null && !getSelectedDevice().getDevice().isDeleted(); }
 
-    public void prepareForAdd() {
+    public void prepareAddPopup() {
+        formSelectedDeviceType = null;
         final List<NamePartRevision> approvedDeviceTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
         deviceTypes = namePartTreeBuilder.newNamePartTree(approvedDeviceTypeRevisions, Lists.<NamePartRevision>newArrayList(), false, 2);
+        RequestContext.getCurrentInstance().reset("addDeviceName:grid");
     }
 
-    public void prepareForModify() {
+    public void prepareModifyPopup() {
         final List<NamePartRevision> approvedSectionRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
         final List<NamePartRevision> approvedDeviceTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
         sections = namePartTreeBuilder.newNamePartTree(approvedSectionRevisions, Lists.<NamePartRevision>newArrayList(), false, 2, As.notNull(getSelectedDevice()).getSection().getNamePart());
@@ -225,6 +227,8 @@ public class DevicesController implements Serializable {
         formSelectedSection = findSelectedTreeNode(sections);
         formSelectedDeviceType = findSelectedTreeNode(deviceTypes);
         formInstanceIndex = As.notNull(getSelectedDevice()).getInstanceIndex();
+
+        RequestContext.getCurrentInstance().reset("modDeviceNameForm:grid");
     }
     
     public void handleFileUpload(FileUploadEvent event) {
@@ -252,6 +256,10 @@ public class DevicesController implements Serializable {
         return new DefaultStreamedContent(excelExport.exportFile(), "xlsx", "NamingConventionExport.xlsx");
     }
 
+    public String historyRevisionStyleClass(DeviceView req) {
+        return req != null && req.getDevice().isDeleted() ? "Delete-Approved" : "";
+    }
+
     public String sectionPath(DeviceView deviceView) {
         return Joiner.on(" ▸ ").join(deviceView.getSection().getNamePath());
     }
@@ -273,8 +281,6 @@ public class DevicesController implements Serializable {
             return null;
     	}
     }
-
-    public boolean isFormFilled() { return selectedNodes.length > 0 && formSelectedDeviceType != null; }
 
     private void showMessage(@Nullable String notificationChannel, FacesMessage.Severity severity, String summary, String message) {
         FacesContext context = FacesContext.getCurrentInstance();

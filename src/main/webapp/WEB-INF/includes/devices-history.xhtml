@@ -7,33 +7,24 @@
                 xmlns:h="http://java.sun.com/jsf/html">
 
     <!-- ===================Name History============================ -->
-    <p:dialog id="nameDetail" widgetVar="nameDetail" width="900" dynamic="true" maximizable="true" minimizable="true" modal="true" header="Name Details" footer="Event History">
-        <p:dataTable id="historyTable" var="ncname"
-            value="#{historyHandler}" paginator="false" rows="50"
-            resizableColumns="true" rowKey="#{ncname.id}"
-            emptyMessage="There are no events for this name.">
+    <p:dialog id="nameDetail" widgetVar="nameDetail" width="900" dynamic="true" maximizable="true" minimizable="true" modal="true" header="History">
+        <p:dataTable id="historyTable" var="ncname" value="#{historyHandler}" paginator="false" rows="50" resizableColumns="true" rowKey="#{ncname.id}" scrollable="true" scrollHeight="300">
 
-            <p:column id="id" headerText="Id" rendered="false">
-                <h:outputText value="#{ncname.id}" />
-            </p:column>
-            <p:column id="histName" headerText="Name">
+            <p:column id="histName" headerText="Name" styleClass="#{devicesController.historyRevisionStyleClass(ncname)}">
                 <h:outputText value="#{ncname.conventionName}" />
             </p:column>
             <p:column id="histNameSect" headerText="Section">
                 <h:outputText value="#{devicesController.sectionPath(ncname)}" />
             </p:column>
-            <p:column id="histNameDscp" headerText="Discipline">
+            <p:column id="histNameDscp" headerText="Device Type">
                 <h:outputText value="#{devicesController.deviceTypePath(ncname)}" />
             </p:column>
-            <p:column id="histStatus" headerText="Deleted" style="width: 5em; text-align: center;">
-                <p:selectBooleanCheckbox disabled="true" value="#{ncname.device.deleted}" />
-            </p:column>
-            <p:column id="histReqBy" headerText="By" sortBy="#{ncname.requestedBy}">
+            <p:column id="histReqBy" headerText="Modified By" sortBy="#{ncname.requestedBy}">
                 <h:outputText value="#{ncname.requestedBy.username}" />
             </p:column>
             <p:column id="histReqDate" headerText="Date" sortBy="#{ncname.device.requestDate}">
                 <h:outputText value="#{ncname.device.requestDate}">
-                    <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" />
+                    <f:convertDateTime pattern="yyyy-MM-dd" />
                 </h:outputText>
             </p:column>
         </p:dataTable>
