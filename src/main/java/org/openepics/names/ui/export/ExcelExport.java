@@ -2,7 +2,10 @@ package org.openepics.names.ui.export;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
+import org.apache.poi.ss.format.CellTextFormatter;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -20,6 +23,7 @@ import org.primefaces.model.TreeNode;
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.io.*;
 import java.util.List;
 
@@ -135,11 +139,12 @@ public class ExcelExport {
     }
 
     private Row appendRow(XSSFSheet sheet) {
-        return sheet.createRow(sheet.getLastRowNum() + 1);
+        return sheet.createRow(sheet.getRow(0) == null ? 0 : sheet.getLastRowNum()+1);
     }
 
     private Cell appendCell(Row row, String value) {
-        final Cell cell = row.createCell(row.getLastCellNum() + 1);
+        final Cell cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
+        cell.setCellType(Cell.CELL_TYPE_STRING);
         cell.setCellValue(value);
         return cell;
     }
