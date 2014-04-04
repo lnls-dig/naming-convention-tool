@@ -12,18 +12,15 @@ import javax.annotation.Nullable;
  */
 public class DeviceView {
 
-    private final NamingConvention namingConvention;
     private final ViewFactory viewFactory;
 
     private final DeviceRevision currentRevision;
 
     private @Nullable NamePartView sectionView;
     private @Nullable NamePartView deviceTypeView;
-    private @Nullable String conventionName;
 
-    public DeviceView(ViewFactory viewFactory, NamingConvention namingConvention, DeviceRevision currentRevision, @Nullable NamePartView sectionView, @Nullable NamePartView deviceTypeView) {
+    public DeviceView(ViewFactory viewFactory, DeviceRevision currentRevision, @Nullable NamePartView sectionView, @Nullable NamePartView deviceTypeView) {
         this.currentRevision = currentRevision;
-        this.namingConvention = namingConvention;
         this.viewFactory = viewFactory;
         this.sectionView = sectionView;
         this.deviceTypeView = deviceTypeView;
@@ -34,10 +31,7 @@ public class DeviceView {
     public Long getId() { return currentRevision.getId(); }
 
     public String getConventionName() {
-        if (conventionName == null) {
-            conventionName = namingConvention.namingConventionName(getSection().getMnemonicPath(), getDeviceType().getMnemonicPath(), getInstanceIndex());
-        }
-        return conventionName;
+        return currentRevision.getConventionName();
     }
 
     public NamePartView getSection() {

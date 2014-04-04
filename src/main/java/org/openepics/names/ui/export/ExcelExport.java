@@ -13,7 +13,6 @@ import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
-import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.ui.common.ViewFactory;
@@ -30,7 +29,6 @@ import java.util.List;
 @Stateless
 public class ExcelExport {
     
-    @Inject private RestrictedDeviceService deviceService;
     @Inject private RestrictedNamePartService namePartService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private ViewFactory viewFactory;
@@ -43,8 +41,8 @@ public class ExcelExport {
         final TreeNode typesTree = namePartTreeBuilder.newNamePartTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true);
 
         final List<DeviceRevision> devices = Lists.newArrayList();
-        for (Device device : deviceService.devices(false)) {
-            devices.add(deviceService.currentRevision(device));
+        for (Device device : namePartService.devices(false)) {
+            devices.add(namePartService.currentRevision(device));
         }
         
         final XSSFWorkbook workbook = exportWorkbook(sectionsTree, typesTree, devices);

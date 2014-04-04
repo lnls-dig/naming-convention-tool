@@ -8,7 +8,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openepics.names.model.*;
-import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
@@ -25,7 +24,6 @@ import java.util.List;
 @Stateless
 public class ExcelImport {
 
-    @Inject private RestrictedDeviceService deviceService;
     @Inject private RestrictedNamePartService namePartService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     
@@ -84,7 +82,7 @@ public class ExcelImport {
             throw new RuntimeException(e);
         }
         for (NewDeviceName newDeviceName : newDevices) {
-            deviceService.createDevice(newDeviceName.getSectionPart(), newDeviceName.getDeviceTypePart(), newDeviceName.getIndex());
+            namePartService.createDevice(namePartService.approvedRevision(newDeviceName.getSectionPart()), namePartService.approvedRevision(newDeviceName.getDeviceTypePart()), newDeviceName.getIndex());
         }
         return new SuccessExcelImportResult();
     }
@@ -96,8 +94,8 @@ public class ExcelImport {
         final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
         populateTypesTable(namePartTreeBuilder.newNamePartTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true), 0, "");
 
-        for (Device device : deviceService.devices(false)) {
-            allDevices.add(deviceService.currentRevision(device));
+        for (Device device : namePartService.devices(false)) {
+            allDevices.add(namePartService.currentRevision(device));
         }
     }
     

@@ -7,7 +7,6 @@ import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
-import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.DeviceView;
 import org.openepics.names.services.views.NamePartView;
@@ -29,7 +28,6 @@ import java.util.*;
 public class DevicesTreeBuilder {
 	
     @Inject private RestrictedNamePartService namePartService;
-    @Inject private RestrictedDeviceService deviceService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private ViewFactory viewFactory;
 
@@ -46,8 +44,8 @@ public class DevicesTreeBuilder {
         populateDeviceTypeViews(deviceTypeTree);
         
         devicesBySection = Maps.newHashMap();
-        for (DeviceRevision device : deviceService.currentRevisions(withDeleted)) {
-        	final Set<DeviceRevision> devicesForSection = devicesForSection(device.getSection());
+        for (DeviceRevision device : namePartService.currentRevisions(withDeleted)) {
+        	final Set<DeviceRevision> devicesForSection = devicesForSection(device.getSection().getNamePart());
         	devicesForSection.add(device);
         }
         
@@ -91,7 +89,7 @@ public class DevicesTreeBuilder {
         if (sectionView != null) {
             final List<TreeNode> children = Lists.newArrayList();
             for (DeviceRevision device : devicesForSection(sectionView.getNamePart())) {
-                final TreeNode child = new DefaultTreeNode(viewFactory.getView(device, sectionView, deviceTypeView(device.getDeviceType())), null);
+                final TreeNode child = new DefaultTreeNode(viewFactory.getView(device, sectionView, deviceTypeView(device.getDeviceType().getNamePart())), null);
                 children.add(child);
             }
             Collections.sort(children, new Comparator<TreeNode>() {

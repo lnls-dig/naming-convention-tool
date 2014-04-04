@@ -28,7 +28,6 @@ import java.util.Map;
 public class InitialDataImportService {
     
     @Inject private NamePartService namePartService;
-    @Inject private DeviceService deviceService;
     @PersistenceContext private EntityManager em;
 
     private XSSFWorkbook workbook;
@@ -92,7 +91,7 @@ public class InitialDataImportService {
     }
     
     private void addDeviceName(NamePart subSection, NamePart deviceType, String instanceIndex) {
-        deviceService.createDevice(subSection, deviceType, instanceIndex, null);
+        namePartService.createDevice(namePartService.approvedRevision(subSection), namePartService.approvedRevision(deviceType), instanceIndex, null);
     }
 
     private @Nullable String cellAsString(@Nullable Cell cell) {

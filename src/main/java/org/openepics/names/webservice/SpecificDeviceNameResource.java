@@ -2,7 +2,7 @@ package org.openepics.names.webservice;
 
 import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
-import org.openepics.names.services.restricted.RestrictedDeviceService;
+import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.common.ViewFactory;
 
 import javax.ejb.Stateless;
@@ -20,15 +20,15 @@ import java.util.UUID;
 @Stateless
 @Path("deviceNames/{uuid}")
 public class SpecificDeviceNameResource {
-    @Inject private RestrictedDeviceService deviceService;
+    @Inject private RestrictedNamePartService namePartService;
     @Inject private ViewFactory viewFactory;
 
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public DeviceNameElement getAllDeviceNames(@PathParam("uuid") String reqUuid) {
-        for (Device device : deviceService.devices(false)) {
-            if (deviceService.currentRevision(device).getDevice().getUuid().equals(UUID.fromString(reqUuid))) {
-                final DeviceRevision deviceRevision = deviceService.currentRevision(device);
+        for (Device device : namePartService.devices(false)) {
+            if (namePartService.currentRevision(device).getDevice().getUuid().equals(UUID.fromString(reqUuid))) {
+                final DeviceRevision deviceRevision = namePartService.currentRevision(device);
                 final DeviceNameElement deviceData = new DeviceNameElement();
                 deviceData.setUuid(deviceRevision.getDevice().getUuid());
                 deviceData.setSection(viewFactory.getView(deviceRevision.getSection()).getParent().getMnemonic());

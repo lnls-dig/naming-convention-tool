@@ -84,4 +84,39 @@ public class RestrictedNamePartService {
     public @Nullable NamePartRevision pendingRevision(NamePart namePart) {
         return namePartService.pendingRevision(namePart);
     }
+
+    public List<Device> devices(boolean includeDeleted) {
+        return namePartService.devices(includeDeleted);
+    }
+
+    public List<Device> devices() {
+        return namePartService.devices();
+    }
+
+    public List<DeviceRevision> currentRevisions(boolean includeDeleted) {
+        return namePartService.currentRevisions(includeDeleted);
+    }
+
+    public List<DeviceRevision> revisions(Device device) {
+        return namePartService.revisions(device);
+    }
+
+    public DeviceRevision currentRevision(Device device) {
+        return namePartService.currentRevision(device);
+    }
+
+    public DeviceRevision createDevice(NamePartRevision section, NamePartRevision deviceType, @Nullable String instanceIndex) {
+        Preconditions.checkState(sessionService.isEditor());
+        return namePartService.createDevice(section, deviceType, instanceIndex, sessionService.user());
+    }
+
+    public DeviceRevision modifyDevice(Device device, NamePartRevision section, NamePartRevision deviceType, @Nullable String instanceIndex) {
+        Preconditions.checkState(sessionService.isEditor());
+        return namePartService.modifyDevice(device, section, deviceType, instanceIndex, sessionService.user());
+    }
+
+    public DeviceRevision deleteDevice(Device device) {
+        Preconditions.checkState(sessionService.isEditor());
+        return namePartService.deleteDevice(device, sessionService.user());
+    }
 }

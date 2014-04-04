@@ -3,7 +3,7 @@ package org.openepics.names.webservice;
 import com.google.common.collect.Lists;
 import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
-import org.openepics.names.services.restricted.RestrictedDeviceService;
+import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.common.ViewFactory;
 
 import javax.ejb.Stateless;
@@ -20,7 +20,7 @@ import java.util.List;
 @Stateless
 @Path("deviceNames")
 public class AllDeviceNamesResource {
-    @Inject private RestrictedDeviceService deviceService;
+    @Inject private RestrictedNamePartService namePartService;
     @Inject private ViewFactory viewFactory;
 
     @GET
@@ -28,8 +28,8 @@ public class AllDeviceNamesResource {
     public List<DeviceNameElement> getAllDeviceNames() {
         final List<DeviceNameElement> deviceNames = Lists.newArrayList();
         
-        for (Device device : deviceService.devices(false)) {
-            final DeviceRevision deviceRevision = deviceService.currentRevision(device);
+        for (Device device : namePartService.devices(false)) {
+            final DeviceRevision deviceRevision = namePartService.currentRevision(device);
             final DeviceNameElement deviceData = new DeviceNameElement();
             deviceData.setUuid(deviceRevision.getDevice().getUuid());
             deviceData.setSection(viewFactory.getView(deviceRevision.getSection()).getParent().getMnemonic());

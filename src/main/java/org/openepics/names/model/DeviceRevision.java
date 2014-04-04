@@ -23,27 +23,31 @@ public class DeviceRevision extends Persistable {
 
     private boolean deleted;
 
-    private @ManyToOne NamePart section;
+    private @ManyToOne NamePartRevision section;
 
-    private @ManyToOne NamePart deviceType;
+    private @ManyToOne NamePartRevision deviceType;
 
     private @Nullable String instanceIndex;
 
+    private String conventionName;
+
     protected DeviceRevision() {}
 
-    public DeviceRevision(Device device, @Nullable UserAccount requestedBy, Date requestDate, boolean deleted, NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+    public DeviceRevision(Device device, @Nullable UserAccount requestedBy, Date requestDate, boolean deleted, NamePartRevision section, NamePartRevision deviceType, @Nullable String instanceIndex, String conventionName) {
         Preconditions.checkNotNull(device);
         Preconditions.checkNotNull(requestDate);
         Preconditions.checkNotNull(section);
         Preconditions.checkNotNull(deviceType);
         Preconditions.checkArgument(instanceIndex == null || !instanceIndex.isEmpty());
+        Preconditions.checkArgument(conventionName != null && !conventionName.isEmpty());
         this.device = device;
         this.requestedBy = requestedBy;
         this.requestDate = requestDate;
+        this.deleted = deleted;
         this.section = section;
         this.deviceType = deviceType;
         this.instanceIndex = instanceIndex;
-        this.deleted = deleted;
+        this.conventionName = conventionName;
     }
 
     public Device getDevice() { return device; }
@@ -54,9 +58,11 @@ public class DeviceRevision extends Persistable {
 
     public boolean isDeleted() { return deleted; }
 
-    public NamePart getSection() { return section; }
+    public NamePartRevision getSection() { return section; }
 
-    public NamePart getDeviceType() { return deviceType; }
+    public NamePartRevision getDeviceType() { return deviceType; }
 
     public @Nullable String getInstanceIndex() { return instanceIndex; }
+
+    public String getConventionName() { return conventionName; }
 }

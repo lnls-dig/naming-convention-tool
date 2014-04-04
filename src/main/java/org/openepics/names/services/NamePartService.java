@@ -27,7 +27,6 @@ import java.util.UUID;
 @Stateless
 public class NamePartService {
 
-    @Inject private DeviceService deviceService;
     @Inject private NamingConvention namingConvention;
     @PersistenceContext private EntityManager em;
 
@@ -165,7 +164,7 @@ public class NamePartService {
                 updateRevisionStatus(namePartRevision, NamePartRevisionStatus.APPROVED, user, comment);
                 if (namePartRevision.isDeleted()) {
                     for (Device device : associatedDevices(namePartRevision.getNamePart())) {
-                        deviceService.deleteDevice(device, user);
+                        deleteDevice(device, user);
                     }
                     for (NamePart child : approvedAndProposedChildren(namePartRevision.getNamePart())) {
                         approveChildNamePart(child, user);
@@ -183,9 +182,9 @@ public class NamePartService {
 
     public List<Device> associatedDevices(NamePart namePart) {
         if (namePart.getNamePartType() == NamePartType.SECTION) {
-            return deviceService.devicesInSection(namePart);
+            return devicesInSection(namePart);
         } else if (namePart.getNamePartType() == NamePartType.DEVICE_TYPE) {
-            return deviceService.devicesOfType(namePart);
+            return devicesOfType(namePart);
         } else {
             throw new UnhandledCaseException();
         }
@@ -205,7 +204,7 @@ public class NamePartService {
 
         updateRevisionStatus(pendingRevision, NamePartRevisionStatus.APPROVED, user, null);
         for (Device device : associatedDevices(namePart)) {
-            deviceService.deleteDevice(device, user);
+            deleteDevice(device, user);
         }
 
         for (NamePart child : approvedAndProposedChildren(namePart)) {
@@ -278,5 +277,85 @@ public class NamePartService {
             @Override public @Nullable NamePartRevision pendingRevision(NamePart namePart) { return NamePartService.this.pendingRevision(namePart); }
         };
         return new NamePartView(revisionProvider, approvedRevision(namePart), pendingRevision(namePart), null);
+    }
+
+    public List<Device> devices(boolean includeDeleted) {
+        if (includeDeleted)
+            return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device)", Device.class).getResultList();
+        else {
+            return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deleted = false", Device.class).getResultList();
+        }
+    }
+
+    public List<Device> devices() {
+        return devices(false);
+    }
+
+    public List<DeviceRevision> currentRevisions(boolean includeDeleted) {
+        if (includeDeleted)
+            return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device)", DeviceRevision.class).getResultList();
+        else {
+            return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deleted = false", DeviceRevision.class).getResultList();
+        }
+    }
+
+    public List<Device> devicesInSection(NamePart section) {
+        return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.section.namePart = :section AND r.deleted = false", Device.class).setParameter("section", section).getResultList();
+    }
+
+    public List<Device> devicesOfType(NamePart deviceType) {
+        return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deviceType.namePart = :deviceType AND r.deleted = false", Device.class).setParameter("deviceType", deviceType).getResultList();
+    }
+
+    public List<DeviceRevision> revisions(Device device) {
+        return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device = :device ORDER BY r.id", DeviceRevision.class).setParameter("device", device).getResultList();
+    }
+
+    public DeviceRevision createDevice(NamePartRevision section, NamePartRevision deviceType, @Nullable String instanceIndex, @Nullable UserAccount user) {
+        Preconditions.checkArgument(!section.isDeleted() && section.getStatus() == NamePartRevisionStatus.APPROVED);
+        Preconditions.checkArgument(!deviceType.isDeleted() && deviceType.getStatus() == NamePartRevisionStatus.APPROVED);
+
+        final String namingConventionName = namingConventionName(section, deviceType, instanceIndex);
+        final Device device = new Device(UUID.randomUUID());
+        final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), false, section, deviceType, instanceIndex, namingConventionName);
+
+        em.persist(device);
+        em.persist(newRevision);
+
+        return newRevision;
+    }
+
+    public DeviceRevision modifyDevice(Device device, NamePartRevision section, NamePartRevision deviceType, @Nullable String instanceIndex, @Nullable UserAccount user) {
+        Preconditions.checkArgument(!section.isDeleted() && section.getStatus() == NamePartRevisionStatus.APPROVED);
+        Preconditions.checkArgument(!deviceType.isDeleted() && deviceType.getStatus() == NamePartRevisionStatus.APPROVED);
+
+        final String namingConventionName = namingConventionName(section, deviceType, instanceIndex);
+        final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), false, section, deviceType, instanceIndex, namingConventionName);
+        em.persist(newRevision);
+
+        return newRevision;
+    }
+
+    public DeviceRevision deleteDevice(Device device, @Nullable UserAccount user) {
+        final DeviceRevision currentRevision = currentRevision(device);
+
+        if (!currentRevision.isDeleted()) {
+            final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), true, currentRevision.getSection(), currentRevision.getDeviceType(), currentRevision.getInstanceIndex(), currentRevision.getConventionName());
+            em.persist(newRevision);
+            return newRevision;
+        } else {
+            return currentRevision;
+        }
+    }
+
+    public DeviceRevision currentRevision(Device device) {
+        return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device = :device ORDER BY r.id DESC", DeviceRevision.class).setParameter("device", device).getResultList().get(0);
+    }
+
+    private String namingConventionName(NamePartRevision section, NamePartRevision deviceType, @Nullable String instanceIndex) {
+        final NamePartView sectionView = view(section.getNamePart());
+        final NamePartView deviceTypeView = view(deviceType.getNamePart());
+
+        return namingConvention.namingConventionName(sectionView.getMnemonicPath(), deviceTypeView.getMnemonicPath(), instanceIndex);
     }
 }

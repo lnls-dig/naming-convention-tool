@@ -5,9 +5,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import org.openepics.names.model.DeviceRevision;
+import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
-import org.openepics.names.services.restricted.RestrictedDeviceService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.DeviceView;
 import org.openepics.names.services.views.NamePartView;
@@ -47,7 +47,6 @@ import java.util.Objects;
 public class DevicesController implements Serializable {
 
     @Inject private RestrictedNamePartService namePartService;
-    @Inject private RestrictedDeviceService deviceService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private DevicesTreeBuilder devicesTreeBuilder;
     @Inject private ViewFactory viewFactory;
@@ -80,10 +79,10 @@ public class DevicesController implements Serializable {
 
     public void onAdd() {
         try {
-            final NamePartView subsection = As.notNull(getSelectedSection());
-            final NamePartView deviceType = (NamePartView) formSelectedDeviceType.getData();
-            final DeviceRevision rev = deviceService.createDevice(subsection.getNamePart(), deviceType.getNamePart(), formInstanceIndex);
-            showMessage(null, FacesMessage.SEVERITY_INFO, "Device Name successfully added.", "Name: " + viewFactory.getView(rev).getConventionName());
+            final NamePart subsection = As.notNull(getSelectedSection()).getNamePart();
+            final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
+            final DeviceRevision rev = namePartService.createDevice(namePartService.approvedRevision(subsection), namePartService.approvedRevision(deviceType), formInstanceIndex);
+            showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been added.");
         } finally {
             init();
         }
@@ -91,9 +90,9 @@ public class DevicesController implements Serializable {
 
     public void onModify() {
         try {
-        	final NamePartView subsection = (NamePartView)(formSelectedSection.getData());
-            final NamePartView deviceType = (NamePartView)(formSelectedDeviceType.getData());
-            deviceService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), subsection.getNamePart(), deviceType.getNamePart(), !formInstanceIndex.isEmpty() ? formInstanceIndex : null);
+        	final NamePart subsection = ((NamePartView) formSelectedSection.getData()).getNamePart();
+            final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
+            namePartService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), namePartService.approvedRevision(subsection), namePartService.approvedRevision(deviceType), !formInstanceIndex.isEmpty() ? formInstanceIndex : null);
             showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been modified.");
         } finally {
             init();
@@ -104,7 +103,7 @@ public class DevicesController implements Serializable {
     	try {
             final List<DeviceView> targets = linearizedTargets(deleteView);
             for (DeviceView deviceView : targets) {
-            	deviceService.deleteDevice(deviceView.getDevice().getDevice());
+            	namePartService.deleteDevice(deviceView.getDevice().getDevice());
             }
             showMessage(null, FacesMessage.SEVERITY_INFO, "Success", printedAffectedQuantity(targets.size()) + "deleted.");
         } finally {
@@ -130,7 +129,7 @@ public class DevicesController implements Serializable {
 
 
     public void loadHistory() {
-        historyDeviceNames = Lists.transform(deviceService.revisions(As.notNull(getSelectedDevice()).getDevice().getDevice()), new Function<DeviceRevision, DeviceView>() {
+        historyDeviceNames = Lists.transform(namePartService.revisions(As.notNull(getSelectedDevice()).getDevice().getDevice()), new Function<DeviceRevision, DeviceView>() {
             @Override public DeviceView apply(DeviceRevision f) { return viewFactory.getView(f);}
         });
     }

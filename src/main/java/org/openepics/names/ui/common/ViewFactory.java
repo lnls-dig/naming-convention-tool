@@ -23,7 +23,6 @@ import javax.inject.Inject;
 public class ViewFactory {
 
     @Inject private RestrictedNamePartService namePartService;
-    @Inject private NamingConvention namingConvention;
 
     public NamePartView getView(NamePart namePart) {
         return new NamePartView(namePartRevisionProvider(), namePartService.approvedRevision(namePart), namePartService.pendingRevision(namePart), null);
@@ -46,11 +45,11 @@ public class ViewFactory {
     }
 
     public DeviceView getView(DeviceRevision deviceRevision) {
-        return new DeviceView(this, namingConvention, deviceRevision, null, null);
+        return new DeviceView(this, deviceRevision, null, null);
     }
 
     public DeviceView getView(DeviceRevision deviceRevision, @Nullable NamePartView sectionView, @Nullable NamePartView deviceTypeView) {
-        return new DeviceView(this, namingConvention, deviceRevision, sectionView, deviceTypeView);
+        return new DeviceView(this, deviceRevision, sectionView, deviceTypeView);
     }
 
     private NamePartRevisionProvider namePartRevisionProvider() {
