@@ -60,6 +60,10 @@ public class RestrictedNamePartService {
         namePartService.approveNamePartRevision(namePartRevision, sessionService.user(), comment);
     }
 
+    public List<Device> associatedDevices(NamePart namePart) {
+        return namePartService.associatedDevices(namePart);
+    }
+
     public List<NamePartRevision> currentApprovedRevisions(NamePartType type, boolean includeDeleted) {
         return namePartService.currentApprovedRevisions(type, includeDeleted);
     }

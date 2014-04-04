@@ -17,10 +17,7 @@ package org.openepics.names.ui.parts;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import org.openepics.names.model.NamePart;
-import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.model.NamePartRevisionStatus;
-import org.openepics.names.model.NamePartType;
+import org.openepics.names.model.*;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.services.views.NamePartView.Change;
@@ -75,6 +72,8 @@ public class NamePartsController implements Serializable {
     private String formName;
     private String formMnemonic;
     private String formComment;
+
+    private List<Device> affectedDevices;
 
     @PostConstruct
     public void init() {
@@ -368,6 +367,28 @@ public class NamePartsController implements Serializable {
         formComment = null;
         RequestContext.getCurrentInstance().reset("ModNameForm:pgrid");
     }
+
+    public void prepareDeletePopup() {
+        final List<NamePartView> targets = linearizedTargets(deleteView);
+        final List<Device> affectedDevices = Lists.newArrayList();
+        for (NamePartView namePartView : targets) {
+            affectedDevices.addAll(namePartService.associatedDevices(namePartView.getNamePart()));
+        }
+        this.affectedDevices = affectedDevices;
+    }
+
+    public void prepareApprovePopup() {
+        final List<NamePartView> targets = linearizedTargets(approveView);
+        final List<Device> affectedDevices = Lists.newArrayList();
+        for (NamePartView namePartView : targets) {
+            if (namePartView.getPendingChange() instanceof NamePartView.DeleteChange) {
+                affectedDevices.addAll(namePartService.associatedDevices(namePartView.getNamePart()));
+            }
+        }
+        this.affectedDevices = affectedDevices;
+    }
+
+    public int getAffectedDevicesCount() { return affectedDevices != null ? affectedDevices.size() : 0; }
 
     public List<NamePartView> getHistoryRevisions() { return historyRevisions; }
 

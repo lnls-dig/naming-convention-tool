@@ -164,7 +164,9 @@ public class NamePartService {
             if (canApproveChild(namePartRevision.getParent())) {
                 updateRevisionStatus(namePartRevision, NamePartRevisionStatus.APPROVED, user, comment);
                 if (namePartRevision.isDeleted()) {
-                    deleteAssociatedDevices(namePartRevision.getNamePart(), user);
+                    for (Device device : associatedDevices(namePartRevision.getNamePart())) {
+                        deviceService.deleteDevice(device, user);
+                    }
                     for (NamePart child : approvedAndProposedChildren(namePartRevision.getNamePart())) {
                         approveChildNamePart(child, user);
                     }
@@ -176,6 +178,16 @@ public class NamePartService {
             Marker.doNothing();
         } else {
             throw new IllegalStateException();
+        }
+    }
+
+    public List<Device> associatedDevices(NamePart namePart) {
+        if (namePart.getNamePartType() == NamePartType.SECTION) {
+            return deviceService.devicesInSection(namePart);
+        } else if (namePart.getNamePartType() == NamePartType.DEVICE_TYPE) {
+            return deviceService.devicesOfType(namePart);
+        } else {
+            throw new UnhandledCaseException();
         }
     }
 
@@ -192,24 +204,12 @@ public class NamePartService {
         final NamePartRevision pendingRevision = As.notNull(pendingRevision(namePart));
 
         updateRevisionStatus(pendingRevision, NamePartRevisionStatus.APPROVED, user, null);
-        deleteAssociatedDevices(namePart, user);
+        for (Device device : associatedDevices(namePart)) {
+            deviceService.deleteDevice(device, user);
+        }
 
         for (NamePart child : approvedAndProposedChildren(namePart)) {
             approveChildNamePart(child, user);
-        }
-    }
-
-    private void deleteAssociatedDevices(NamePart namePart, @Nullable UserAccount user) {
-        if (namePart.getNamePartType() == NamePartType.SECTION) {
-            for (Device device : deviceService.devicesInSection(namePart)) {
-                deviceService.deleteDevice(device, user);
-            }
-        } else if (namePart.getNamePartType() == NamePartType.DEVICE_TYPE) {
-            for (Device device : deviceService.devicesOfType(namePart)) {
-                deviceService.deleteDevice(device, user);
-            }
-        } else {
-            throw new UnhandledCaseException();
         }
     }
 
