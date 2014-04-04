@@ -34,7 +34,7 @@ public class EssNamingConvention implements NamingConvention {
         }
     }
 
-    @Override public boolean isInstanceIndexValid(List<String> sectionPath, List<String> deviceTypePath, String instanceIndex) {
+    @Override public boolean isInstanceIndexValid(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
         if (instanceIndex == null) {
             return true;
         } else if (sectionPath.get(0).equals("Acc")) {
@@ -57,7 +57,7 @@ public class EssNamingConvention implements NamingConvention {
         if (supersection.equals("Acc")) {
             return section + "-" + discipline + ":" + genericDeviceType + "-" + subsection + (instanceIndex != null ? instanceIndex : "");
         } else {
-            return section + "-" + subsection + ":" + discipline + "-" + (instanceIndex != null ? instanceIndex : "");
+            return section + "-" + subsection + ":" + discipline + (instanceIndex != null ? "-" + instanceIndex : "");
         }
     }
     
