@@ -28,7 +28,7 @@
             <f:facet name="options">
                 <h:outputText value="#{userManager.user.username}" style="margin-right:10px" rendered="#{userManager.loggedIn}" />
                 <p:commandButton process="@this" actionListener="#{loginController.prepareLoginPopup()}" update=":loginForm:loginDialog" value="Login" icon="ui-icon-person" oncomplete="loginDialog.show()" rendered="#{not userManager.loggedIn}"/>
-                <p:commandButton id="logoutBtn" value="Logout" icon="ui-icon-person" type="button" onclick="loginWidget.update()" update=":menuform:mainMenu" action="#{loginController.onLogout()}" immediate="true" rendered="#{userManager.loggedIn}" />
+                <p:commandButton process="@this" value="Logout" icon="ui-icon-person" update=":menuform:mainMenu messages" action="#{loginController.onLogout()}" immediate="true" rendered="#{userManager.loggedIn}" />
             </f:facet>
         </p:menubar>
     </h:form>
@@ -54,8 +54,8 @@
             </p:panelGrid>
 
             <p:messages id="loginmsgs" globalOnly="true"/>
-            <p:commandButton value="Login" update="grid loginmsgs :menuform:mainMenu" action="#{loginController.onLogin}" style="float: right" oncomplete="if (args.loginSuccess) loginWidget.hide()"/>
-            <p:commandButton id="cancel" value="Cancel" onclick="loginWidget.hide()" type="button" style="float: left" />
+            <p:commandButton value="Login" update="grid loginmsgs :menuform:mainMenu" action="#{loginController.onLogin}" style="float: right" oncomplete="if (args &amp;&amp; !args.validationFailed &amp;&amp; args.loginSuccess) loginDialog.hide()"/>
+            <p:commandButton value="Cancel" onclick="loginDialog.hide()" type="button" style="float: left" />
         </p:dialog>
     </h:form>
 </ui:composition>
