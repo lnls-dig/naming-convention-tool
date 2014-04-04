@@ -32,21 +32,22 @@ public class RestrictedNamePartService {
     }
 
     public NamePartRevision addNamePart(String name, String mnemonic, NamePartType nameType, @Nullable NamePart parent, @Nullable String comment) {
-        Preconditions.checkState(sessionService.isLoggedIn());
+        Preconditions.checkState(sessionService.isEditor());
         return namePartService.addNamePart(name, mnemonic, nameType, parent, sessionService.user(), comment);
     }
 
     public NamePartRevision modifyNamePart(NamePart namePart, String name, String mnemonic, @Nullable String comment) {
-        Preconditions.checkState(sessionService.isLoggedIn());
+        Preconditions.checkState(sessionService.isEditor());
         return namePartService.modifyNamePart(namePart, name, mnemonic, sessionService.user(), comment);
     }
 
     public NamePartRevision deleteNamePart(NamePart namePart, @Nullable String comment) {
-        Preconditions.checkState(sessionService.isLoggedIn());
+        Preconditions.checkState(sessionService.isEditor());
         return namePartService.deleteNamePart(namePart, sessionService.user(), comment);
     }
 
     public NamePartRevision cancelChangesForNamePart(NamePart namePart, @Nullable String comment) {
+        Preconditions.checkState(sessionService.isEditor());
         return namePartService.cancelChangesForNamePart(namePart, sessionService.user(), comment, false);
     }
 
@@ -82,9 +83,5 @@ public class RestrictedNamePartService {
 
     public @Nullable NamePartRevision pendingRevision(NamePart namePart) {
         return namePartService.pendingRevision(namePart);
-    }
-
-    private void autoApprove(NamePartRevision namePartEvent, @Nullable UserAccount user) {
-        namePartEvent.updateAsProcessed(NamePartRevisionStatus.APPROVED, new Date(), user, null);
     }
 }

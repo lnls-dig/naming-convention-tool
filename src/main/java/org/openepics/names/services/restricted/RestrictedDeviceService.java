@@ -1,5 +1,6 @@
 package org.openepics.names.services.restricted;
 
+import com.google.common.base.Preconditions;
 import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePart;
@@ -44,14 +45,17 @@ public class RestrictedDeviceService {
     }
 
     public DeviceRevision createDevice(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+        Preconditions.checkState(sessionService.isEditor());
         return deviceService.createDevice(section, deviceType, instanceIndex, sessionService.user());
     }
 
     public DeviceRevision modifyDevice(Device device, NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+        Preconditions.checkState(sessionService.isEditor());
         return deviceService.modifyDevice(device, section, deviceType, instanceIndex, sessionService.user());
     }
 
     public DeviceRevision deleteDevice(Device device) {
+        Preconditions.checkState(sessionService.isEditor());
         return deviceService.deleteDevice(device, sessionService.user());
     }
 }
