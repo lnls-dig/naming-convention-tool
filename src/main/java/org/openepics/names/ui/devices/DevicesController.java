@@ -194,6 +194,8 @@ public class DevicesController implements Serializable {
         }
         viewDevice = filteredView(viewRoot);
         sections = deviceTypes =  formSelectedDeviceType = null;
+        this.selectedNodes = new TreeNode[0];
+        deleteView = deleteView(viewDevice);
     }
 
     public void setSelectedNodes(@Nullable TreeNode[] selectedNodes) {

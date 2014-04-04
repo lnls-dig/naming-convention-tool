@@ -25,7 +25,7 @@
                             </h:panelGrid>
                         </div>
                     </td>
-                    <td align="left" width="20%">
+                    <td align="center" width="40%">
                         <div>
                             <h:panelGrid columns="3">
                                 <h:outputText value="Fiter by device name: " />
@@ -36,7 +36,7 @@
                             </h:panelGrid>
                         </div>
                     </td>
-                    <td align="left" width="20%">
+                    <td align="left" width="40%">
                         <div>
                             <h:panelGrid columns="3">
                                 <h:outputText value="Fiter by device type: " />
@@ -47,7 +47,7 @@
                             </h:panelGrid>
                         </div>
                     </td> 
-                    <td align="right" width="50%"><p:menuButton id="ncReqMenu" value="Actions"
+                    <td align="right" width="10%"><p:menuButton id="ncReqMenu" value="Actions"
                             style="width: 8%; z-index: 100;">
                             <p:menuitem value="Add" icon="ui-icon-plus"
                                 update=":addDeviceNameForm" oncomplete="addDeviceName.show()"
@@ -175,7 +175,7 @@
 				</p:panelGrid>
 				<p:separator />
 				<p:commandButton value="Submit" style="float: left"
-					update=":ManageNameForm"
+					update=":ManageNameForm :ManageNameForm:ncReqMenu"
 					oncomplete="delDeviceName.hide(); resizePanel()"
 					action="#{devicesController.onDelete()}" />
 				<p:commandButton value="Cancel" style="float: right"
