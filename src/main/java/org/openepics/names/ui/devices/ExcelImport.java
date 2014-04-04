@@ -82,7 +82,7 @@ public class ExcelImport {
             throw new RuntimeException(e);
         }
         for (NewDeviceName newDeviceName : newDevices) {
-            namePartService.createDevice(namePartService.approvedRevision(newDeviceName.getSectionPart()), namePartService.approvedRevision(newDeviceName.getDeviceTypePart()), newDeviceName.getIndex());
+            namePartService.createDevice(newDeviceName.getSectionPart(), newDeviceName.getDeviceTypePart(), newDeviceName.getIndex());
         }
         return new SuccessExcelImportResult();
     }

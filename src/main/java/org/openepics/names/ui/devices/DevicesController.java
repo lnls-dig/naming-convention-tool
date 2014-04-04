@@ -81,7 +81,7 @@ public class DevicesController implements Serializable {
         try {
             final NamePart subsection = As.notNull(getSelectedSection()).getNamePart();
             final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
-            final DeviceRevision rev = namePartService.createDevice(namePartService.approvedRevision(subsection), namePartService.approvedRevision(deviceType), formInstanceIndex);
+            final DeviceRevision rev = namePartService.createDevice(subsection, deviceType, formInstanceIndex);
             showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been added.");
         } finally {
             init();
@@ -92,7 +92,7 @@ public class DevicesController implements Serializable {
         try {
         	final NamePart subsection = ((NamePartView) formSelectedSection.getData()).getNamePart();
             final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
-            namePartService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), namePartService.approvedRevision(subsection), namePartService.approvedRevision(deviceType), !formInstanceIndex.isEmpty() ? formInstanceIndex : null);
+            namePartService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), subsection, deviceType, !formInstanceIndex.isEmpty() ? formInstanceIndex : null);
             showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been modified.");
         } finally {
             init();

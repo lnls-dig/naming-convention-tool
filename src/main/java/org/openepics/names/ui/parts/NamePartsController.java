@@ -391,7 +391,7 @@ public class NamePartsController implements Serializable {
         final List<NamePartView> targets = linearizedTargets(deleteView);
         final List<Device> affectedDevices = Lists.newArrayList();
         for (NamePartView namePartView : targets) {
-            affectedDevices.addAll(namePartService.associatedDevices(namePartView.getNamePart()));
+            affectedDevices.addAll(namePartService.associatedDevices(namePartView.getNamePart(), false));
         }
         this.affectedDevices = affectedDevices;
     }
@@ -401,7 +401,7 @@ public class NamePartsController implements Serializable {
         final List<Device> affectedDevices = Lists.newArrayList();
         for (NamePartView namePartView : targets) {
             if (namePartView.getPendingChange() instanceof NamePartView.DeleteChange) {
-                affectedDevices.addAll(namePartService.associatedDevices(namePartView.getNamePart()));
+                affectedDevices.addAll(namePartService.associatedDevices(namePartView.getNamePart(), false));
             }
         }
         this.affectedDevices = affectedDevices;
