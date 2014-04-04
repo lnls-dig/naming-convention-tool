@@ -59,7 +59,7 @@
                         <h:outputText value="(#{namePart.mnemonic})" styleClass="#{namePartsController.getNameClass(namePart,false)}-Old" rendered="#{namePartsController.isModified(namePart,false)}" />
                     </p:column>
                     <p:column id="status" headerText="Status" style="width: 15%">
-                        <h:outputText value="#{namePartsController.nameStatus(namePart.nameEvent)}" styleClass="#{namePartsController.getNameClass(namePart,false)}" />
+                        <h:outputText value="#{namePartsController.nameStatus(namePart)}" styleClass="Insert-Approved" />
 
                         <h:outputLink id="pendingComment" value="#" rendered="#{namePartsController.hasPendingComment(namePart)}">
                             <h:outputText styleClass="ui-icon ui-icon-info" style="display:inline-block; margin-left:10px !important; vertical-align:bottom !important;"/>

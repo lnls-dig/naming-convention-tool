@@ -34,7 +34,7 @@
             </p:column>
            
             <p:column id="status" headerText="Status" >
-                <h:outputText value="#{namePartsController.nameStatus(nevent.nameEvent)}" title="status"/>
+                <h:outputText value="#{namePartsController.nameHistoryStatus(nevent.nameEvent)}" title="status"/>
             </p:column>
             <p:column id="By" headerText="Reviewed By" >
                 <h:outputText value="#{nevent.nameEvent.processedBy.username}" />

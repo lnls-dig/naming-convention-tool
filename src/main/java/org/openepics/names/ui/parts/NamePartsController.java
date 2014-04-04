@@ -310,8 +310,27 @@ public class NamePartsController implements Serializable {
     public String historyRevisionStyleClass(NamePartView req) {
         return req != null && req.isDeleted() ? "Delete-Approved" : "";
     }
+    
+    public String nameStatus(NamePartView req) {
+        final Change change = req.getPendingChange();
+        if (change != null && change.getStatus() == NamePartRevisionStatus.PENDING) {            
+            if (change instanceof NamePartView.DeleteChange) {
+                return "Pending deletion";
+            } else if (change instanceof NamePartView.ModifyChange) {
+                return "Pending modification";
+            } else if (change instanceof NamePartView.AddChange) {
+                return "Proposed";
+            } else {
+                throw new UnhandledCaseException();
+            }
+        } else if (req.getCurrentRevision().getStatus().equals(NamePartRevisionStatus.APPROVED)) {
+            return req.getCurrentRevision().isDeleted() ? "Deleted" : "Approved";
+        } else {
+            throw new UnhandledCaseException();
+        }
+    }
 
-    public String nameStatus(NamePartRevision nreq) {
+    public String nameHistoryStatus(NamePartRevision nreq) {
         switch (nreq.getStatus()) {
             case PENDING: return "In-Process";
             case CANCELLED: return "Cancelled";
