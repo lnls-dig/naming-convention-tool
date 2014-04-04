@@ -31,15 +31,18 @@ public class DeviceRevision extends Persistable {
 
     private String conventionName;
 
+    private String conventionNameEqClass;
+
     protected DeviceRevision() {}
 
-    public DeviceRevision(Device device, @Nullable UserAccount requestedBy, Date requestDate, boolean deleted, NamePart section, NamePart deviceType, @Nullable String instanceIndex, String conventionName) {
+    public DeviceRevision(Device device, @Nullable UserAccount requestedBy, Date requestDate, boolean deleted, NamePart section, NamePart deviceType, @Nullable String instanceIndex, String conventionName, String conventionNameEqClass) {
         Preconditions.checkNotNull(device);
         Preconditions.checkNotNull(requestDate);
         Preconditions.checkNotNull(section);
         Preconditions.checkNotNull(deviceType);
         Preconditions.checkArgument(instanceIndex == null || !instanceIndex.isEmpty());
         Preconditions.checkArgument(conventionName != null && !conventionName.isEmpty());
+        Preconditions.checkArgument(conventionNameEqClass != null);
         this.device = device;
         this.requestedBy = requestedBy;
         this.requestDate = requestDate;
@@ -48,6 +51,7 @@ public class DeviceRevision extends Persistable {
         this.deviceType = deviceType;
         this.instanceIndex = instanceIndex;
         this.conventionName = conventionName;
+        this.conventionNameEqClass = conventionNameEqClass;
     }
 
     public Device getDevice() { return device; }
@@ -65,4 +69,6 @@ public class DeviceRevision extends Persistable {
     public @Nullable String getInstanceIndex() { return instanceIndex; }
 
     public String getConventionName() { return conventionName; }
+
+    public String getConventionNameEqClass() { return conventionNameEqClass; }
 }

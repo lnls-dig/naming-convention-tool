@@ -63,13 +63,7 @@ public class NamePartService {
 
     public boolean isInstanceIndexUnique(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
         final String equivalenceClass = namingConvention.nameNormalizedForEquivalence(conventionName(section, deviceType, instanceIndex));
-        final List<DeviceRevision> devices = currentRevisions(false);
-        for (DeviceRevision device : devices) {
-            if (namingConvention.nameNormalizedForEquivalence(device.getConventionName()).equals(equivalenceClass)) {
-                return false;
-            }
-        }
-        return true;
+        return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deleted = false AND r.conventionNameEqClass = :conventionNameEqClass", DeviceRevision.class).setParameter("conventionNameEqClass", equivalenceClass).getResultList().isEmpty();
     }
 
     public NamePartRevision addNamePart(String name, String mnemonic, NamePartType namePartType, @Nullable NamePart parent, @Nullable UserAccount user, @Nullable String comment) {
@@ -356,13 +350,14 @@ public class NamePartService {
         Preconditions.checkArgument(!sectionRevision.isDeleted());
         Preconditions.checkArgument(!deviceTypeRevision.isDeleted());
 
-        final String namingConventionName = conventionName(section, deviceType, instanceIndex);
+        final String conventionName = conventionName(section, deviceType, instanceIndex);
+        final String conventionNameEqClass = namingConvention.nameNormalizedForEquivalence(conventionName);
 
         Preconditions.checkState(isInstanceIndexValid(section, deviceType, instanceIndex));
         Preconditions.checkState(isInstanceIndexUnique(section, deviceType, instanceIndex));
 
         final Device device = new Device(UUID.randomUUID());
-        final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), false, section, deviceType, instanceIndex, namingConventionName);
+        final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), false, section, deviceType, instanceIndex, conventionName, conventionNameEqClass);
 
         em.persist(device);
         em.persist(newRevision);
@@ -379,12 +374,14 @@ public class NamePartService {
         Preconditions.checkArgument(!sectionRevision.isDeleted());
         Preconditions.checkArgument(!deviceTypeRevision.isDeleted());
 
-        final String namingConventionName = conventionName(section, deviceType, instanceIndex);
-        if (!(section.equals(currentRevision.getSection()) && deviceType.equals(currentRevision.getDeviceType()) && Objects.equals(instanceIndex, currentRevision.getInstanceIndex()) && namingConventionName.equals(currentRevision.getConventionName()))) {
+        final String conventionName = conventionName(section, deviceType, instanceIndex);
+        final String conventionNameEqClass = namingConvention.nameNormalizedForEquivalence(conventionName);
+
+        if (!(section.equals(currentRevision.getSection()) && deviceType.equals(currentRevision.getDeviceType()) && Objects.equals(instanceIndex, currentRevision.getInstanceIndex()) && conventionName.equals(currentRevision.getConventionName()))) {
             Preconditions.checkState(isInstanceIndexValid(section, deviceType, instanceIndex));
             Preconditions.checkState(isInstanceIndexUnique(section, deviceType, instanceIndex));
 
-            final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), false, section, deviceType, instanceIndex, namingConventionName);
+            final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), false, section, deviceType, instanceIndex, conventionName, conventionNameEqClass);
             em.persist(newRevision);
             return newRevision;
         } else {
@@ -396,7 +393,7 @@ public class NamePartService {
         final DeviceRevision currentRevision = currentRevision(device);
 
         if (!currentRevision.isDeleted()) {
-            final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), true, currentRevision.getSection(), currentRevision.getDeviceType(), currentRevision.getInstanceIndex(), currentRevision.getConventionName());
+            final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), true, currentRevision.getSection(), currentRevision.getDeviceType(), currentRevision.getInstanceIndex(), currentRevision.getConventionName(), currentRevision.getConventionNameEqClass());
             em.persist(newRevision);
             return newRevision;
         } else {
