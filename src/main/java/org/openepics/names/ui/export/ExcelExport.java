@@ -24,6 +24,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 @Stateless
@@ -64,25 +65,25 @@ public class ExcelExport {
     private XSSFWorkbook exportWorkbook(TreeNode sectionsTree, TreeNode typesTree, List<DeviceRevision> devices) {
         final XSSFWorkbook workbook = new XSSFWorkbook();
 
-        final XSSFSheet superSectionSheet = createSheetWithHeader(workbook, "SuperSection", "SuperSection::ID", "SuperSection::FullName", "SuperSection::Name");
+        final XSSFSheet superSectionSheet = createSheetWithHeader(workbook, "SuperSection", "SuperSection::ID", "SuperSection::FullName", "SuperSection::Name", "SuperSection::Date Modified");
         fillNamePartSheet(superSectionSheet, 1, sectionsTree);
 
-        final XSSFSheet sectionSheet = createSheetWithHeader(workbook, "Section", "SuperSection::FullName", "SuperSection::Name", "Section::ID", "Section::FullName", "Section::Name");
+        final XSSFSheet sectionSheet = createSheetWithHeader(workbook, "Section", "SuperSection::FullName", "SuperSection::Name", "Section::ID", "Section::FullName", "Section::Name", "Section::Date Modified");
         fillNamePartSheet(sectionSheet, 2, sectionsTree);
 
-        final XSSFSheet subSectionSheet = createSheetWithHeader(workbook, "SubSection", "SuperSection::FullName", "SuperSection::Name", "Section::FullName", "Section::Name", "SubSection::ID", "SubSection::FullName", "SubSection::Name");
+        final XSSFSheet subSectionSheet = createSheetWithHeader(workbook, "SubSection", "SuperSection::FullName", "SuperSection::Name", "Section::FullName", "Section::Name", "SubSection::ID", "SubSection::FullName", "SubSection::Name", "SubSection::Date Modified");
         fillNamePartSheet(subSectionSheet, 3, sectionsTree);
 
-        final XSSFSheet disciplineSheet = createSheetWithHeader(workbook, "Discipline", "Discipline::ID", "Discipline::FullName", "Discipline::Name");
+        final XSSFSheet disciplineSheet = createSheetWithHeader(workbook, "Discipline", "Discipline::ID", "Discipline::FullName", "Discipline::Name", "Discipline::Date Modified");
         fillNamePartSheet(disciplineSheet, 1, typesTree);
 
-        final XSSFSheet categorySheet = createSheetWithHeader(workbook, "Category", "Discipline::FullName", "Discipline::Name", "Category::ID", "Category::FullName", "Category::Name");
+        final XSSFSheet categorySheet = createSheetWithHeader(workbook, "Category", "Discipline::FullName", "Discipline::Name", "Category::ID", "Category::FullName", "Category::Name", "Category::Date Modified");
         fillNamePartSheet(categorySheet, 2, typesTree);
 
-        final XSSFSheet deviceTypeSheet = createSheetWithHeader(workbook, "DeviceType", "Discipline::FullName", "Discipline::Name", "Category::FullName", "Category::Name", "DeviceType::ID", "DeviceType::FullName", "DeviceType::Name");
+        final XSSFSheet deviceTypeSheet = createSheetWithHeader(workbook, "DeviceType", "Discipline::FullName", "Discipline::Name", "Category::FullName", "Category::Name", "DeviceType::ID", "DeviceType::FullName", "DeviceType::Name", "DeviceType::Date Modified");
         fillNamePartSheet(deviceTypeSheet, 3, typesTree);
 
-        final XSSFSheet namedDeviceSheet = createSheetWithHeader(workbook, "NamedDevice", "ID", "Section", "SubSection", "Discipline", "DeviceType", "InstanceIndex", "Name");
+        final XSSFSheet namedDeviceSheet = createSheetWithHeader(workbook, "NamedDevice", "ID", "Section", "SubSection", "Discipline", "DeviceType", "InstanceIndex", "Name", "Date Modified");
         fillDeviceSheet(namedDeviceSheet, devices);
         
         return workbook;
@@ -107,6 +108,8 @@ public class ExcelExport {
                     appendCell(row, childView.getNamePart().getUuid().toString());
                     appendCell(row, childView.getName());
                     appendCell(row, childView.getMnemonic());
+                    appendCell(row, new SimpleDateFormat("yyyy-MM-dd").format(childView.getCurrentRevision().getProcessDate()));
+                    
                 }
             } else {
                 return;
@@ -124,6 +127,7 @@ public class ExcelExport {
             appendCell(row, viewFactory.getView(device.getDeviceType()).getMnemonic());
             appendCell(row, viewFactory.getView(device).getInstanceIndex());
             appendCell(row, viewFactory.getView(device).getConventionName());
+            appendCell(row, new SimpleDateFormat("yyyy-MM-dd").format(device.getRequestDate()));
         }
     }
 

@@ -28,7 +28,7 @@
                     <td align="center" width="40%">
                         <div>
                             <h:panelGrid columns="3">
-                                <h:outputText value="Fiter by device name: " />
+                                <h:outputText value="Filter by device name: " />
                                 <p:inputText id="deviceNameFilter" value="#{devicesController.deviceNameFilter}">
                                     <p:ajax event="keyup" listener="#{devicesController.checkForFilterChanges()}" oncomplete="resizePanel()"/>
                                 </p:inputText>
@@ -39,7 +39,7 @@
                     <td align="left" width="40%">
                         <div>
                             <h:panelGrid columns="3">
-                                <h:outputText value="Fiter by device type: " />
+                                <h:outputText value="Filter by device type: " />
                                 <p:inputText id="deviceTypeFilter" value="#{devicesController.deviceTypeFilter}">
                                     <p:ajax event="keyup" listener="#{devicesController.checkForFilterChanges()}" oncomplete="resizePanel()"/>
                                 </p:inputText>
@@ -189,7 +189,7 @@
 		<h:form id="batchImportForm" enctype="multipart/form-data">		    
 			<p:dialog id="batchImport" widgetVar="batchImport" modal="true" resizable="false" width="35%">				
 				<f:facet name="header">
-					<h:outputText value="Batch Import Device Names From Excell File" />
+					<h:outputText value="Batch Import Device Names From Excel File" />
 				</f:facet>
 				<h:outputText value="Select excell file to upload device names from" />
 				<div style="border: 1px solid #a8a8a8; padding: 5px">
