@@ -95,7 +95,7 @@
 						styleClass="#{namePart.device.deleted ? 'Deleted' : 'Insert-Approved-Old'}"
 						rendered="#{namePart['class'].simpleName eq 'DeviceView'}" />
 					<h:outputText value="#{namePart.name}"
-						styleClass="Insert-Approved-Old"
+						styleClass="#{namePart.deleted ? 'Deleted' : 'Insert-Approved-Old'}"
 						rendered="#{namePart['class'].simpleName eq 'NamePartView'}" />
 				</p:column>
 				<p:column id="devType" headerText="Device Type" style="width: 30%">

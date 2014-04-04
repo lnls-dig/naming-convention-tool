@@ -234,7 +234,7 @@ public class DevicesController implements Serializable {
     public TreeNode getDeleteView() { return deleteView; }
 
     public boolean canDelete() { return deleteView != null; }
-    public boolean canAdd() { return getSelectedSection() != null && getSelectedSection().getLevel() == 2; }
+    public boolean canAdd() { return getSelectedSection() != null && getSelectedSection().getLevel() == 2 && !getSelectedSection().isDeleted(); }
     public boolean canShowHistory() { return getSelectedDevice() != null; }
     public boolean canModify() { return getSelectedDevice() != null && !getSelectedDevice().getDevice().isDeleted(); }
 
