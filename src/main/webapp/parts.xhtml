@@ -303,7 +303,7 @@
                 <f:facet name="header">
                     <h:outputText value="Reject"/>
                 </f:facet>
-                <p:panelGrid style="text-align: left">
+                <p:panelGrid id="pgrid" style="text-align: left">
                     <p:row>
                         <p:column colspan="2">
                             <p:treeTable value="#{namePartsController.cancelView}" var="candidate" liveResize="true" resizableColumns="true" styleClass="previewTreeTable">
@@ -324,14 +324,15 @@
                     <p:row>
                         <p:column><h:outputLabel for="rcomm" value="Comment:" /></p:column>
                         <p:column>
-                            <p:inputTextarea id="rcomm" rows="5" cols="70" counter="counter" maxlength="254" value="#{namePartsController.formComment}" counterTemplate="{0} characters remaining." autoResize="false"/>
+                            <p:inputTextarea id="rcomm" rows="5" cols="70" counter="counter" maxlength="254" value="#{namePartsController.formComment}" counterTemplate="{0} characters remaining." autoResize="false" required="true" requiredMessage="Please enter a comment."/>
                             <br/>
                             <h:outputText id="counter" />
+                            <p:message for="rcomm" />
                         </p:column>
                     </p:row>
                 </p:panelGrid>
                 <p:separator />
-                <p:commandButton value="Reject" style="float: left" update=":ReqSubForm" oncomplete="rejectRequest.hide(); resizePanel()" action="#{namePartsController.onReject()}"/>
+                <p:commandButton value="Reject" style="float: left" update="pgrid :ReqSubForm" oncomplete="if (args &amp;&amp; !args.validationFailed) rejectRequest.hide(); resizePanel()" action="#{namePartsController.onReject()}"/>
                 <p:commandButton value="Cancel" style="float: right" onclick="rejectRequest.hide()" />
             </p:dialog>
         </h:form>

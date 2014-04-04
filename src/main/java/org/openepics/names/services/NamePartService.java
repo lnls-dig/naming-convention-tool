@@ -134,7 +134,7 @@ public class NamePartService {
                 updateRevisionStatus(pendingRevision, markAsRejected ? NamePartRevisionStatus.REJECTED : NamePartRevisionStatus.CANCELLED, user, comment);
                 if (approvedRevision == null || pendingRevision.isDeleted()) {
                     for (NamePart child : approvedAndProposedChildren(pendingRevision.getNamePart())) {
-                        cancelChildNamePart(child, user);
+                        cancelChildNamePart(child, user, comment, markAsRejected);
                     }
                 }
                 return pendingRevision;
@@ -213,15 +213,15 @@ public class NamePartService {
         }
     }
 
-    private void cancelChildNamePart(NamePart namePart, @Nullable UserAccount user) {
+    private void cancelChildNamePart(NamePart namePart, @Nullable UserAccount user, @Nullable String comment, boolean markAsRejected) {
         final NamePartRevision pendingRevision = As.notNull(pendingRevision(namePart));
 
         if (pendingRevision != null) {
-            updateRevisionStatus(pendingRevision, NamePartRevisionStatus.CANCELLED, user, null);
+            updateRevisionStatus(pendingRevision, markAsRejected ? NamePartRevisionStatus.REJECTED : NamePartRevisionStatus.CANCELLED, user, comment);
         }
 
         for (NamePart child : approvedAndProposedChildren(namePart)) {
-            cancelChildNamePart(child, user);
+            cancelChildNamePart(child, user, comment, markAsRejected);
         }
     }
 
