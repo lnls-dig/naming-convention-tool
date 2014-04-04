@@ -240,6 +240,7 @@ public class DevicesController implements Serializable {
 
     public void prepareAddPopup() {
         formSelectedDeviceType = null;
+        formInstanceIndex = null;
         final List<NamePartRevision> approvedDeviceTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
         deviceTypes = namePartTreeBuilder.newNamePartTree(approvedDeviceTypeRevisions, Lists.<NamePartRevision>newArrayList(), false, 2);
         RequestContext.getCurrentInstance().reset("addDeviceNameForm:grid");
