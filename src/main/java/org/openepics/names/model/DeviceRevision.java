@@ -23,9 +23,9 @@ public class DeviceRevision extends Persistable {
 
     private boolean deleted;
 
-    private @ManyToOne NamePartRevision section;
+    private @ManyToOne NamePart section;
 
-    private @ManyToOne NamePartRevision deviceType;
+    private @ManyToOne NamePart deviceType;
 
     private @Nullable String instanceIndex;
 
@@ -33,7 +33,7 @@ public class DeviceRevision extends Persistable {
 
     protected DeviceRevision() {}
 
-    public DeviceRevision(Device device, @Nullable UserAccount requestedBy, Date requestDate, boolean deleted, NamePartRevision section, NamePartRevision deviceType, @Nullable String instanceIndex, String conventionName) {
+    public DeviceRevision(Device device, @Nullable UserAccount requestedBy, Date requestDate, boolean deleted, NamePart section, NamePart deviceType, @Nullable String instanceIndex, String conventionName) {
         Preconditions.checkNotNull(device);
         Preconditions.checkNotNull(requestDate);
         Preconditions.checkNotNull(section);
@@ -58,9 +58,9 @@ public class DeviceRevision extends Persistable {
 
     public boolean isDeleted() { return deleted; }
 
-    public NamePartRevision getSection() { return section; }
+    public NamePart getSection() { return section; }
 
-    public NamePartRevision getDeviceType() { return deviceType; }
+    public NamePart getDeviceType() { return deviceType; }
 
     public @Nullable String getInstanceIndex() { return instanceIndex; }
 

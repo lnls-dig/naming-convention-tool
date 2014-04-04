@@ -45,7 +45,7 @@ public class DevicesTreeBuilder {
         
         devicesBySection = Maps.newHashMap();
         for (DeviceRevision device : namePartService.currentRevisions(withDeleted)) {
-        	final Set<DeviceRevision> devicesForSection = devicesForSection(device.getSection().getNamePart());
+        	final Set<DeviceRevision> devicesForSection = devicesForSection(device.getSection());
         	devicesForSection.add(device);
         }
         
@@ -89,7 +89,7 @@ public class DevicesTreeBuilder {
         if (sectionView != null) {
             final List<TreeNode> children = Lists.newArrayList();
             for (DeviceRevision device : devicesForSection(sectionView.getNamePart())) {
-                final TreeNode child = new DefaultTreeNode(viewFactory.getView(device, sectionView, deviceTypeView(device.getDeviceType().getNamePart())), null);
+                final TreeNode child = new DefaultTreeNode(viewFactory.getView(device, sectionView, deviceTypeView(device.getDeviceType())), null);
                 children.add(child);
             }
             Collections.sort(children, new Comparator<TreeNode>() {

@@ -61,8 +61,8 @@ public class RestrictedNamePartService {
         namePartService.approveNamePartRevision(namePartRevision, sessionService.user(), comment);
     }
 
-    public List<Device> associatedDevices(NamePart namePart) {
-        return namePartService.associatedDevices(namePart);
+    public List<Device> associatedDevices(NamePart namePart, boolean recursive) {
+        return namePartService.associatedDevices(namePart, recursive);
     }
 
     public List<NamePartRevision> currentApprovedRevisions(NamePartType type, boolean includeDeleted) {
@@ -105,12 +105,12 @@ public class RestrictedNamePartService {
         return namePartService.currentRevision(device);
     }
 
-    public DeviceRevision createDevice(NamePartRevision section, NamePartRevision deviceType, @Nullable String instanceIndex) {
+    public DeviceRevision createDevice(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
         Preconditions.checkState(sessionService.isEditor());
         return namePartService.createDevice(section, deviceType, instanceIndex, sessionService.user());
     }
 
-    public DeviceRevision modifyDevice(Device device, NamePartRevision section, NamePartRevision deviceType, @Nullable String instanceIndex) {
+    public DeviceRevision modifyDevice(Device device, NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
         Preconditions.checkState(sessionService.isEditor());
         return namePartService.modifyDevice(device, section, deviceType, instanceIndex, sessionService.user());
     }
