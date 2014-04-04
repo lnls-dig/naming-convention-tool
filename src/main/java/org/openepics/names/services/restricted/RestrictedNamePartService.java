@@ -8,7 +8,6 @@ import org.openepics.names.services.SessionService;
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,6 +28,14 @@ public class RestrictedNamePartService {
 
     public boolean isMnemonicValid(NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {
         return namePartService.isMnemonicValid(namePartType, parent, mnemonic);
+    }
+
+    public boolean isInstanceIndexValid(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+        return namePartService.isInstanceIndexValid(section, deviceType, instanceIndex);
+    }
+
+    public boolean isInstanceIndexUnique(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+        return namePartService.isInstanceIndexUnique(section, deviceType, instanceIndex);
     }
 
     public NamePartRevision addNamePart(String name, String mnemonic, NamePartType nameType, @Nullable NamePart parent, @Nullable String comment) {
@@ -105,9 +112,9 @@ public class RestrictedNamePartService {
         return namePartService.currentRevision(device);
     }
 
-    public DeviceRevision createDevice(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+    public DeviceRevision addDevice(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
         Preconditions.checkState(sessionService.isEditor());
-        return namePartService.createDevice(section, deviceType, instanceIndex, sessionService.user());
+        return namePartService.addDevice(section, deviceType, instanceIndex, sessionService.user());
     }
 
     public DeviceRevision modifyDevice(Device device, NamePart section, NamePart deviceType, @Nullable String instanceIndex) {

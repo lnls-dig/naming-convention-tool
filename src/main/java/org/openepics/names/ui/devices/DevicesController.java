@@ -4,10 +4,7 @@ package org.openepics.names.ui.devices;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import org.openepics.names.model.DeviceRevision;
-import org.openepics.names.model.NamePart;
-import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.model.NamePartType;
+import org.openepics.names.model.*;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.DeviceView;
 import org.openepics.names.services.views.NamePartView;
@@ -77,11 +74,40 @@ public class DevicesController implements Serializable {
         modifyDisplayView();
     }
 
+    public boolean isAddInstanceIndexValid(String instanceIndex) {
+        final NamePart section = As.notNull(getSelectedSection()).getNamePart();
+        final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
+        return namePartService.isInstanceIndexValid(section, deviceType, instanceIndex);
+    }
+
+    public boolean isModifyInstanceIndexValid(String instanceIndex) {
+        final NamePart section = ((NamePartView) formSelectedSection.getData()).getNamePart();
+        final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
+        return namePartService.isInstanceIndexValid(section, deviceType, instanceIndex);
+    }
+
+    public boolean isAddInstanceIndexUnique(String instanceIndex) {
+        final NamePart section = As.notNull(getSelectedSection()).getNamePart();
+        final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
+        return namePartService.isInstanceIndexUnique(section, deviceType, instanceIndex);
+    }
+
+    public boolean isModifyInstanceIndexUnique(String instanceIndex) {
+        final DeviceView deviceView = As.notNull(getSelectedDevice());
+        final NamePart section = ((NamePartView) formSelectedSection.getData()).getNamePart();
+        final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
+        if (!(section.equals(deviceView.getSection().getNamePart()) && deviceType.equals(deviceView.getDeviceType().getNamePart()) && Objects.equals(instanceIndex, deviceView.getInstanceIndex()))) {
+            return namePartService.isInstanceIndexUnique(section, deviceType, instanceIndex);
+        } else {
+            return true;
+        }
+    }
+
     public void onAdd() {
         try {
             final NamePart subsection = As.notNull(getSelectedSection()).getNamePart();
             final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
-            final DeviceRevision rev = namePartService.createDevice(subsection, deviceType, formInstanceIndex);
+            final DeviceRevision rev = namePartService.addDevice(subsection, deviceType, getFormInstanceIndex());
             showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been added.");
         } finally {
             init();
@@ -92,7 +118,7 @@ public class DevicesController implements Serializable {
         try {
         	final NamePart subsection = ((NamePartView) formSelectedSection.getData()).getNamePart();
             final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
-            namePartService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), subsection, deviceType, !formInstanceIndex.isEmpty() ? formInstanceIndex : null);
+            namePartService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), subsection, deviceType, getFormInstanceIndex());
             showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been modified.");
         } finally {
             init();
@@ -147,7 +173,7 @@ public class DevicesController implements Serializable {
     public void setFormSelectedDeviceType(TreeNode formSelectedDeviceType) { this.formSelectedDeviceType = formSelectedDeviceType; }
 
     public String getFormInstanceIndex() { return formInstanceIndex; }
-    public void setFormInstanceIndex(String formInstanceIndex) { this.formInstanceIndex = formInstanceIndex; }
+    public void setFormInstanceIndex(String formInstanceIndex) { this.formInstanceIndex = !formInstanceIndex.isEmpty() ? formInstanceIndex : null; }
 
     public TreeNode[] getSelectedNodes() { return selectedNodes; }
 
@@ -216,7 +242,7 @@ public class DevicesController implements Serializable {
         formSelectedDeviceType = null;
         final List<NamePartRevision> approvedDeviceTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
         deviceTypes = namePartTreeBuilder.newNamePartTree(approvedDeviceTypeRevisions, Lists.<NamePartRevision>newArrayList(), false, 2);
-        RequestContext.getCurrentInstance().reset("addDeviceName:grid");
+        RequestContext.getCurrentInstance().reset("addDeviceNameForm:grid");
     }
 
     public void prepareModifyPopup() {

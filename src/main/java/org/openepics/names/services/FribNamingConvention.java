@@ -16,14 +16,6 @@ import java.util.List;
 @Stateless
 public class FribNamingConvention implements NamingConvention {
 
-    @Override public String namingConventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
-        throw new NotImplementedException();
-    }
-
-    @Override public String nameNormalizedForEquivalence(String name) {
-        throw new NotImplementedException();
-    }
-
     @Override public boolean isSectionNameValid(List<String> parentPath, String name) {
         throw new NotImplementedException();
     }
@@ -32,7 +24,15 @@ public class FribNamingConvention implements NamingConvention {
         throw new NotImplementedException();
     }
 
-    @Override public boolean isInstanceIndexValid(List<String> sectionPath, List<String> deviceTypePath, String instanceIndex) {
+    @Override public boolean isInstanceIndexValid(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
+        throw new NotImplementedException();
+    }
+
+    @Override public String nameNormalizedForEquivalence(String name) {
+        throw new NotImplementedException();
+    }
+
+    @Override public String namingConventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
         throw new NotImplementedException();
     }
 }

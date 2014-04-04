@@ -55,6 +55,23 @@ public class NamePartService {
         return true;
     }
 
+    public boolean isInstanceIndexValid(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+        final NamePartView sectionView = view(section);
+        final NamePartView deviceTypeView = view(deviceType);
+        return namingConvention.isInstanceIndexValid(sectionView.getMnemonicPath(), deviceTypeView.getMnemonicPath(), instanceIndex);
+    }
+
+    public boolean isInstanceIndexUnique(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+        final String equivalenceClass = namingConvention.nameNormalizedForEquivalence(conventionName(section, deviceType, instanceIndex));
+        final List<DeviceRevision> devices = currentRevisions(false);
+        for (DeviceRevision device : devices) {
+            if (namingConvention.nameNormalizedForEquivalence(device.getConventionName()).equals(equivalenceClass)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public NamePartRevision addNamePart(String name, String mnemonic, NamePartType namePartType, @Nullable NamePart parent, @Nullable UserAccount user, @Nullable String comment) {
         Preconditions.checkArgument(parent == null || parent.getNamePartType() == namePartType);
 
@@ -333,13 +350,17 @@ public class NamePartService {
         return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device = :device ORDER BY r.id", DeviceRevision.class).setParameter("device", device).getResultList();
     }
 
-    public DeviceRevision createDevice(NamePart section, NamePart deviceType, @Nullable String instanceIndex, @Nullable UserAccount user) {
+    public DeviceRevision addDevice(NamePart section, NamePart deviceType, @Nullable String instanceIndex, @Nullable UserAccount user) {
         final NamePartRevision sectionRevision = As.notNull(approvedRevision(section));
         final NamePartRevision deviceTypeRevision = As.notNull(approvedRevision(deviceType));
         Preconditions.checkArgument(!sectionRevision.isDeleted());
         Preconditions.checkArgument(!deviceTypeRevision.isDeleted());
 
-        final String namingConventionName = namingConventionName(section, deviceType, instanceIndex);
+        final String namingConventionName = conventionName(section, deviceType, instanceIndex);
+
+        Preconditions.checkState(isInstanceIndexValid(section, deviceType, instanceIndex));
+        Preconditions.checkState(isInstanceIndexUnique(section, deviceType, instanceIndex));
+
         final Device device = new Device(UUID.randomUUID());
         final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), false, section, deviceType, instanceIndex, namingConventionName);
 
@@ -358,8 +379,11 @@ public class NamePartService {
         Preconditions.checkArgument(!sectionRevision.isDeleted());
         Preconditions.checkArgument(!deviceTypeRevision.isDeleted());
 
-        final String namingConventionName = namingConventionName(section, deviceType, instanceIndex);
+        final String namingConventionName = conventionName(section, deviceType, instanceIndex);
         if (!(section.equals(currentRevision.getSection()) && deviceType.equals(currentRevision.getDeviceType()) && Objects.equals(instanceIndex, currentRevision.getInstanceIndex()) && namingConventionName.equals(currentRevision.getConventionName()))) {
+            Preconditions.checkState(isInstanceIndexValid(section, deviceType, instanceIndex));
+            Preconditions.checkState(isInstanceIndexUnique(section, deviceType, instanceIndex));
+
             final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), false, section, deviceType, instanceIndex, namingConventionName);
             em.persist(newRevision);
             return newRevision;
@@ -384,7 +408,7 @@ public class NamePartService {
         return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device = :device ORDER BY r.id DESC", DeviceRevision.class).setParameter("device", device).getResultList().get(0);
     }
 
-    private String namingConventionName(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+    private String conventionName(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
         final NamePartView sectionView = view(section);
         final NamePartView deviceTypeView = view(deviceType);
 

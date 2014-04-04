@@ -91,7 +91,7 @@ public class InitialDataImportService {
     }
     
     private void addDeviceName(NamePart subSection, NamePart deviceType, String instanceIndex) {
-        namePartService.createDevice(subSection, deviceType, instanceIndex, null);
+        namePartService.addDevice(subSection, deviceType, instanceIndex, null);
     }
 
     private @Nullable String cellAsString(@Nullable Cell cell) {
