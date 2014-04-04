@@ -3,9 +3,7 @@ package org.openepics.names.ui.export;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import org.apache.poi.ss.format.CellTextFormatter;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -109,7 +107,6 @@ public class ExcelExport {
                     appendCell(row, childView.getName());
                     appendCell(row, childView.getMnemonic());
                     appendCell(row, new SimpleDateFormat("yyyy-MM-dd").format(childView.getCurrentRevision().getProcessDate()));
-                    
                 }
             } else {
                 return;
