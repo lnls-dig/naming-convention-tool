@@ -253,9 +253,7 @@ public class NamePartsController implements Serializable {
         } else if (displayView == NamePartDisplayFilter.APPROVED) {
             viewRoot = approvedAndProposedView(false, rootWithoutModifications);
         } else if (displayView == NamePartDisplayFilter.PROPOSED) {
-            viewRoot = onlyProposedView(rootWithModifications, false);
-        } else if (displayView == NamePartDisplayFilter.PROPOSED_BY_ME) {
-            viewRoot = onlyProposedView(rootWithModifications, true);
+            viewRoot = onlyProposedView(rootWithModifications);
         } else if (displayView == NamePartDisplayFilter.ARCHIVED) {
             viewRoot = approvedAndProposedView(true, rootWithoutModifications);
         } else {
@@ -502,9 +500,9 @@ public class NamePartsController implements Serializable {
         }).apply(node);
     }
 
-    private @Nullable TreeNode onlyProposedView(TreeNode node, final boolean proposedByMe) {
+    private @Nullable TreeNode onlyProposedView(TreeNode node) {
         return (new TreeFilter<NamePartView>() {
-            @Override protected boolean accepts(NamePartView nodeData) { return nodeData.getPendingChange() != null && (!proposedByMe || proposedByMe && (userManager.getUser() == null || nodeData.getPendingRevision().getRequestedBy().equals(userManager.getUser()))); }
+            @Override protected boolean accepts(NamePartView nodeData) { return nodeData.getPendingChange() != null; }
         }).apply(node);
     }
 
@@ -520,6 +518,6 @@ public class NamePartsController implements Serializable {
     }
     
     private enum NamePartDisplayFilter {
-        APPROVED_AND_PROPOSED, APPROVED, PROPOSED, PROPOSED_BY_ME, ARCHIVED
+        APPROVED_AND_PROPOSED, APPROVED, PROPOSED, ARCHIVED
     }
 }
