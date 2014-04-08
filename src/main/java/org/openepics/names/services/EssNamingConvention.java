@@ -44,11 +44,11 @@ public class EssNamingConvention implements NamingConvention {
         }
     }
 
-    @Override public String nameNormalizedForEquivalence(String name) {
+    @Override public String equivalenceClassRepresentative(String name) {
         return name.toUpperCase().replace('I', '1').replace('L', '1').replace('O', '0').replace('W', 'V').replaceAll("(?<!\\d)0+(?=\\d)", "");
     }
 
-    @Override public String namingConventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
+    @Override public String conventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
         final String supersection = sectionPath.get(0);
         final String section = sectionPath.get(1);
         final String subsection = sectionPath.get(2);

@@ -8,7 +8,6 @@ import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.io.IOException;
 
 /**
  * A service bean managing global application settings and database initialization.
@@ -22,12 +21,18 @@ public class ApplicationService {
     @PersistenceContext private EntityManager em;
     @Inject private InitialDataImportService importService;
 
+    /**
+     * The singleton entity representing the installed Naming Tool application and its configuration.
+     */
     public AppInfo appInfo() {
         return em.createQuery("SELECT a FROM AppInfo a", AppInfo.class).getSingleResult();
     }
 
+    /**
+     * Initializes the database with the bundled initial data on the first run of the application.
+     */
     @PostConstruct
-    private void init() throws IOException {
+    private void init() {
         if (em.createQuery("SELECT a FROM AppInfo a", AppInfo.class).getResultList().size() != 1) {
             em.persist(new AppInfo());
             importService.fillDatabaseWithInitialData();

@@ -1,6 +1,5 @@
 package org.openepics.names.ui.devices;
 
-import org.openepics.names.ui.parts.NamePartsController;
 import org.openepics.names.util.Marker;
 
 import javax.annotation.Nullable;

@@ -3,7 +3,6 @@ package org.openepics.names.ui.common;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
-import org.openepics.names.services.NamingConvention;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.DeviceView;
 import org.openepics.names.services.views.NamePartRevisionProvider;

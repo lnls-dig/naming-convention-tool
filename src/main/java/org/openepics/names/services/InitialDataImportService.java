@@ -33,8 +33,15 @@ public class InitialDataImportService {
     private XSSFWorkbook workbook;
     private Map<Integer, NamePart> namePartsMap = Maps.newHashMap();
 
-    public void fillDatabaseWithInitialData() throws IOException {
-        workbook = new XSSFWorkbook(this.getClass().getResourceAsStream("NamingDatabaseImport.xlsx"));
+    /**
+     * Populates the database with initial data bundled as a resource within the application.
+     */
+    public void fillDatabaseWithInitialData() {
+        try {
+            workbook = new XSSFWorkbook(this.getClass().getResourceAsStream("NamingDatabaseImport.xlsx"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         fillUserAccounts();
         fillNameParts(true);
         fillNameParts(false);
@@ -44,7 +51,7 @@ public class InitialDataImportService {
     private void fillUserAccounts() {
         em.persist(new UserAccount("root", Role.SUPERUSER));
         em.persist(new UserAccount("admin", Role.SUPERUSER));
-        em.persist(new UserAccount("jaba", Role.EDITOR));
+        em.persist(new UserAccount("editor", Role.EDITOR));
         em.persist(new UserAccount("miha", Role.EDITOR));
         em.persist(new UserAccount("marko", Role.EDITOR));
         em.persist(new UserAccount("apozar", Role.EDITOR));

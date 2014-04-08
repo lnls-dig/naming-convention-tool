@@ -2,7 +2,6 @@ package org.openepics.names.services.views;
 
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.UserAccount;
-import org.openepics.names.services.NamingConvention;
 import org.openepics.names.ui.common.ViewFactory;
 
 import javax.annotation.Nullable;

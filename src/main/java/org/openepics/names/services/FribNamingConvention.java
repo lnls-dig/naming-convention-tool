@@ -28,11 +28,11 @@ public class FribNamingConvention implements NamingConvention {
         throw new NotImplementedException();
     }
 
-    @Override public String nameNormalizedForEquivalence(String name) {
+    @Override public String equivalenceClassRepresentative(String name) {
         throw new NotImplementedException();
     }
 
-    @Override public String namingConventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
+    @Override public String conventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
         throw new NotImplementedException();
     }
 }

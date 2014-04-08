@@ -20,7 +20,13 @@ public class Persistable implements Serializable {
     @Version
     private @Nullable Integer version;
 
+    /**
+     * The JPA entity ID.
+     */
     public @Nullable Long getId() { return id; }
 
+    /**
+     * The JPA entity version.
+     */
     public @Nullable Integer getVersion() { return version; }
 }

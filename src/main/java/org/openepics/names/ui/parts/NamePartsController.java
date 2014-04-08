@@ -98,8 +98,8 @@ public class NamePartsController implements Serializable {
             throw new IllegalStateException();
         }
 
-        final List<NamePartRevision> approvedRevisions = namePartService.currentApprovedRevisions(namePartType, true);
-        final List<NamePartRevision> pendingRevisions = withModifications ? namePartService.currentPendingRevisions(namePartType, true) : Lists.<NamePartRevision>newArrayList();
+        final List<NamePartRevision> approvedRevisions = namePartService.currentApprovedNamePartRevisions(namePartType, true);
+        final List<NamePartRevision> pendingRevisions = withModifications ? namePartService.currentPendingNamePartRevisions(namePartType, true) : Lists.<NamePartRevision>newArrayList();
         return namePartTreeBuilder.newNamePartTree(approvedRevisions, pendingRevisions, true);
     }
 

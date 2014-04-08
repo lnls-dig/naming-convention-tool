@@ -94,40 +94,40 @@ public class EssNamingConventionTest {
     
     @Test
     public void symbolsSimilarTo1Test() {
-        assertEquals(namingConvention.nameNormalizedForEquivalence("1"), namingConvention.nameNormalizedForEquivalence("1"));
-        assertEquals(namingConvention.nameNormalizedForEquivalence("1"), namingConvention.nameNormalizedForEquivalence("I"));
-        assertEquals(namingConvention.nameNormalizedForEquivalence("1"), namingConvention.nameNormalizedForEquivalence("l"));
-        assertEquals(namingConvention.nameNormalizedForEquivalence("1"), namingConvention.nameNormalizedForEquivalence("L"));
-        assertEquals(namingConvention.nameNormalizedForEquivalence("1"), namingConvention.nameNormalizedForEquivalence("i"));
-        assertFalse(namingConvention.nameNormalizedForEquivalence("1").equals(namingConvention.nameNormalizedForEquivalence("b")));
+        assertEquals(namingConvention.equivalenceClassRepresentative("1"), namingConvention.equivalenceClassRepresentative("1"));
+        assertEquals(namingConvention.equivalenceClassRepresentative("1"), namingConvention.equivalenceClassRepresentative("I"));
+        assertEquals(namingConvention.equivalenceClassRepresentative("1"), namingConvention.equivalenceClassRepresentative("l"));
+        assertEquals(namingConvention.equivalenceClassRepresentative("1"), namingConvention.equivalenceClassRepresentative("L"));
+        assertEquals(namingConvention.equivalenceClassRepresentative("1"), namingConvention.equivalenceClassRepresentative("i"));
+        assertFalse(namingConvention.equivalenceClassRepresentative("1").equals(namingConvention.equivalenceClassRepresentative("b")));
     }
     
     @Test
     public void symbolsSimilarTo0Test() {
-        assertEquals(namingConvention.nameNormalizedForEquivalence("0"), namingConvention.nameNormalizedForEquivalence("o"));
-        assertEquals(namingConvention.nameNormalizedForEquivalence("0"), namingConvention.nameNormalizedForEquivalence("O"));
-        assertEquals(namingConvention.nameNormalizedForEquivalence("0"), namingConvention.nameNormalizedForEquivalence("0"));
-        assertFalse(namingConvention.nameNormalizedForEquivalence("0").equals(namingConvention.nameNormalizedForEquivalence("b")));
+        assertEquals(namingConvention.equivalenceClassRepresentative("0"), namingConvention.equivalenceClassRepresentative("o"));
+        assertEquals(namingConvention.equivalenceClassRepresentative("0"), namingConvention.equivalenceClassRepresentative("O"));
+        assertEquals(namingConvention.equivalenceClassRepresentative("0"), namingConvention.equivalenceClassRepresentative("0"));
+        assertFalse(namingConvention.equivalenceClassRepresentative("0").equals(namingConvention.equivalenceClassRepresentative("b")));
     }
     
     @Test
     public void symbolsSimilarToVTest() {
-        assertEquals(namingConvention.nameNormalizedForEquivalence("V"), namingConvention.nameNormalizedForEquivalence("v"));
-        assertEquals(namingConvention.nameNormalizedForEquivalence("V"), namingConvention.nameNormalizedForEquivalence("V"));
-        assertEquals(namingConvention.nameNormalizedForEquivalence("V"), namingConvention.nameNormalizedForEquivalence("w"));
-        assertEquals(namingConvention.nameNormalizedForEquivalence("V"), namingConvention.nameNormalizedForEquivalence("W"));
-        assertFalse(namingConvention.nameNormalizedForEquivalence("V").equals(namingConvention.nameNormalizedForEquivalence("b")));
+        assertEquals(namingConvention.equivalenceClassRepresentative("V"), namingConvention.equivalenceClassRepresentative("v"));
+        assertEquals(namingConvention.equivalenceClassRepresentative("V"), namingConvention.equivalenceClassRepresentative("V"));
+        assertEquals(namingConvention.equivalenceClassRepresentative("V"), namingConvention.equivalenceClassRepresentative("w"));
+        assertEquals(namingConvention.equivalenceClassRepresentative("V"), namingConvention.equivalenceClassRepresentative("W"));
+        assertFalse(namingConvention.equivalenceClassRepresentative("V").equals(namingConvention.equivalenceClassRepresentative("b")));
     }
     
     @Test
     public void lowerAndUpperCaseCharactersTest() {
-        assertEquals(namingConvention.nameNormalizedForEquivalence("tEsTS"), namingConvention.nameNormalizedForEquivalence("TeSts"));
+        assertEquals(namingConvention.equivalenceClassRepresentative("tEsTS"), namingConvention.equivalenceClassRepresentative("TeSts"));
     }
     
     @Test
     public void zeroPrefixedNumberTest() {
-        assertEquals(namingConvention.nameNormalizedForEquivalence("zero01"), namingConvention.nameNormalizedForEquivalence("zero1"));
-        assertEquals(namingConvention.nameNormalizedForEquivalence("ze01ro"), namingConvention.nameNormalizedForEquivalence("ze1ro"));
+        assertEquals(namingConvention.equivalenceClassRepresentative("zero01"), namingConvention.equivalenceClassRepresentative("zero1"));
+        assertEquals(namingConvention.equivalenceClassRepresentative("ze01ro"), namingConvention.equivalenceClassRepresentative("ze1ro"));
     }
 }
 

@@ -18,11 +18,17 @@ public class Device extends Persistable {
 
     protected Device() {}
 
+    /**
+     * @param uuid the universally unique identifier
+     */
     public Device(UUID uuid) {
         Preconditions.checkNotNull(uuid);
         this.uuid = uuid.toString();
     }
 
+    /**
+     * The universally unique identifier.
+     */
     public UUID getUuid() { return UUID.fromString(uuid); }
 
     @Override public boolean equals(Object other) {

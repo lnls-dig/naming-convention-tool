@@ -24,6 +24,10 @@ public class NamePart extends Persistable {
 
     protected NamePart() {}
 
+    /**
+     * @param uuid the universally unique identifier
+     * @param namePartType the type of the NamePart
+     */
     public NamePart(UUID uuid, NamePartType namePartType) {
         Preconditions.checkNotNull(uuid);
         Preconditions.checkNotNull(namePartType);
@@ -31,8 +35,14 @@ public class NamePart extends Persistable {
         this.namePartType = namePartType;
     }
 
+    /**
+     * The universally unique identifier.
+     */
     public UUID getUuid() { return UUID.fromString(uuid); }
 
+    /**
+     * The type of the NamePart.
+     */
     public NamePartType getNamePartType() { return namePartType; }
 
     @Override public boolean equals(Object other) {

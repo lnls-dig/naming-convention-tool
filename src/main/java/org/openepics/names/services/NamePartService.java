@@ -8,7 +8,6 @@ import org.openepics.names.services.views.NamePartRevisionProvider;
 import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.util.As;
 import org.openepics.names.util.JpaHelper;
-import org.openepics.names.util.Marker;
 import org.openepics.names.util.UnhandledCaseException;
 
 import javax.annotation.Nullable;
@@ -32,6 +31,13 @@ public class NamePartService {
     @Inject private NamingConvention namingConvention;
     @PersistenceContext private EntityManager em;
 
+    /**
+     * True if the mnemonic of a name part is valid in the context of the parent.
+     *
+     * @param namePartType the type of the name part
+     * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
+     * @param mnemonic the mnemonic name of the name part to test for validity
+     */
     public boolean isMnemonicValid(NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {
         final @Nullable NamePartView parentView = parent != null ? view(parent) : null;
         final List<String> parentPath = parentView != null ? parentView.getMnemonicPath() : ImmutableList.<String>of();
@@ -44,28 +50,61 @@ public class NamePartService {
         }
     }
 
+    /**
+     * True if the mnemonic of a name part is unique in the context of the parent.
+     *
+     * @param namePartType the type of the name part
+     * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
+     * @param mnemonic the mnemonic name of the name part to test for uniqueness
+     */
     public boolean isMnemonicUnique(NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {
-        final String mnemonicEquivalenceClass = namingConvention.nameNormalizedForEquivalence(mnemonic);
+        final String mnemonicEquivalenceClass = namingConvention.equivalenceClassRepresentative(mnemonic);
         final List<NamePartRevision> siblings = em.createQuery("SELECT r FROM NamePartRevision r WHERE (r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) OR r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :pending)) AND r.namePart.namePartType = :type AND r.deleted = FALSE AND r.parent = :parent", NamePartRevision.class).setParameter("type", namePartType).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("parent", parent).getResultList();
         for (NamePartRevision sibling : siblings) {
-            if (namingConvention.nameNormalizedForEquivalence(sibling.getMnemonic()).equals(mnemonicEquivalenceClass)) {
+            if (namingConvention.equivalenceClassRepresentative(sibling.getMnemonic()).equals(mnemonicEquivalenceClass)) {
                 return false;
             }
         }
         return true;
     }
 
+    /**
+     * True if the instance index of a device defined by a section and device type is valid.
+     *
+     * @param section the section containing the device
+     * @param deviceType the device type of the device
+     * @param instanceIndex the device instance index to test for validity, or null if no instance index is assigned to
+     * the device, in which case this is also checked for validity
+     */
     public boolean isInstanceIndexValid(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
         final NamePartView sectionView = view(section);
         final NamePartView deviceTypeView = view(deviceType);
         return namingConvention.isInstanceIndexValid(sectionView.getMnemonicPath(), deviceTypeView.getMnemonicPath(), instanceIndex);
     }
 
-    public boolean isInstanceIndexUnique(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
-        final String equivalenceClass = namingConvention.nameNormalizedForEquivalence(conventionName(section, deviceType, instanceIndex));
+    /**
+     * True if the device defined by the given section, device type and instance index would have a unique convention name.
+     *
+     * @param section the section containing the device
+     * @param deviceType the device type of the device
+     * @param instanceIndex the instance index of the device, null if no instance index is assigned to the device
+     */
+    public boolean isDeviceConventionNameUnique(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+        final String equivalenceClass = namingConvention.equivalenceClassRepresentative(conventionName(section, deviceType, instanceIndex));
         return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deleted = false AND r.conventionNameEqClass = :conventionNameEqClass", DeviceRevision.class).setParameter("conventionNameEqClass", equivalenceClass).getResultList().isEmpty();
     }
 
+    /**
+     * Submits a proposal for addition of a new name part.
+     *
+     * @param name the long, descriptive name of the part. Does not need to follow a convention.
+     * @param mnemonic the short, mnemonic name of the part in accordance with the naming convention
+     * @param namePartType the type of the proposed name part
+     * @param parent the parent of the proposed name part in the hierarchy. Null if at the top of the hierarchy.
+     * @param user the user submitting the proposal. Null if the proposal is by an automated process.
+     * @param comment the comment the user gave when submitting the proposal. Null if no comment was given.
+     * @return the resulting proposed NamePart revision
+     */
     public NamePartRevision addNamePart(String name, String mnemonic, NamePartType namePartType, @Nullable NamePart parent, @Nullable UserAccount user, @Nullable String comment) {
         Preconditions.checkArgument(parent == null || parent.getNamePartType() == namePartType);
 
@@ -89,6 +128,16 @@ public class NamePartService {
         return newRevision;
     }
 
+    /**
+     * Submits a proposal for modification of an existing name part.
+     *
+     * @param namePart the name part proposed for modification
+     * @param name the new long, descriptive name of the part. Does not need to follow a convention.
+     * @param mnemonic the new short, mnemonic name of the part in accordance with the naming convention
+     * @param user the user submitting the proposal. Null if the proposal is by an automated process.
+     * @param comment the comment the user gave when submitting the proposal. Null if no comment was given.
+     * @return the resulting proposed NamePart revision
+     */
     public NamePartRevision modifyNamePart(NamePart namePart, String name, String mnemonic, @Nullable UserAccount user, @Nullable String comment) {
         final NamePartView namePartView = view(namePart);
 
@@ -112,6 +161,14 @@ public class NamePartService {
         return newRevision;
     }
 
+    /**
+     * Submits a proposal for deletion of a name part, its children, and all associated devices.
+     *
+     * @param namePart the name part proposed for deletion
+     * @param user the user submitting the proposal. Null if the proposal is by an automated process.
+     * @param comment the comment the user gave when submitting the proposal. Null if no comment was given.
+     * @return the resulting proposed NamePart revision
+     */
     public NamePartRevision deleteNamePart(NamePart namePart, @Nullable UserAccount user, @Nullable String comment) {
         final @Nullable NamePartRevision approvedRevision = approvedRevision(namePart);
         final @Nullable NamePartRevision pendingRevision = pendingRevision(namePart);
@@ -137,6 +194,16 @@ public class NamePartService {
         }
     }
 
+    /**
+     * Cancels or rejects the currently proposed modification, deletion or addition of the given name part.
+     *
+     * @param namePart the affected name part
+     * @param user the user cancelling or rejecting the proposal. Null if done by an automated process.
+     * @param comment the comment the user gave when cancelling or rejecting the proposal. Null if no comment was given.
+     * @param markAsRejected true if this is a rejection by the administrator and not a cancel by the original submitter
+     * of the proposal
+     * @return the affected NamePart revision
+     */
     public NamePartRevision cancelChangesForNamePart(NamePart namePart, @Nullable UserAccount user, @Nullable String comment, boolean markAsRejected) {
         final @Nullable NamePartRevision approvedRevision = approvedRevision(namePart);
         final @Nullable NamePartRevision pendingRevision = pendingRevision(namePart);
@@ -160,17 +227,15 @@ public class NamePartService {
         }
     }
 
-    private boolean canCancelChild(@Nullable NamePart parent) {
-        if (parent != null) {
-            final @Nullable NamePartRevision parentApprovedRevision = approvedRevision(parent);
-            final @Nullable NamePartRevision parentPendingRevision = pendingRevision(parent);
-            return (parentApprovedRevision == null || !parentApprovedRevision.isDeleted()) && (parentPendingRevision == null || !parentPendingRevision.isDeleted());
-        } else {
-            return true;
-        }
-    }
-
-    public void approveNamePartRevision(NamePartRevision namePartRevision, @Nullable UserAccount user, @Nullable String comment) {
+    /**
+     * Approves the modification, deletion or addition proposed in the given name part revision.
+     *
+     * @param namePartRevision the name part revision to approve
+     * @param user the user approving the revision. Null if done by an automated process.
+     * @param comment the comment the user gave when approving the revision. Null if no comment was given.
+     * @return the affected NamePart revision
+     */
+    public NamePartRevision approveNamePartRevision(NamePartRevision namePartRevision, @Nullable UserAccount user, @Nullable String comment) {
         namePartRevision = emAttached(namePartRevision);
         if (namePartRevision.getStatus() == NamePartRevisionStatus.PENDING) {
             if (canApproveChild(namePartRevision.getParent())) {
@@ -192,16 +257,25 @@ public class NamePartService {
                         approveChildNamePartForDelete(child, user);
                     }
                 }
+
+                return namePartRevision;
             } else {
                 throw new IllegalStateException();
             }
         } else if (namePartRevision.getStatus() == NamePartRevisionStatus.APPROVED) {
-            Marker.doNothing();
+            return namePartRevision;
         } else {
             throw new IllegalStateException();
         }
     }
 
+    /**
+     * The list of devices associated by the given name part (contained under a section or of a given device type)
+     *
+     * @param namePart the name part
+     * @param recursive true if the list should also contain devices associated by the name part's children
+     * deeper down in the hierarchy
+     */
     public List<Device> associatedDevices(NamePart namePart, boolean recursive) {
         final List<Device> associatedDevices = Lists.newArrayList();
         if (namePart.getNamePartType() == NamePartType.SECTION) {
@@ -217,6 +291,187 @@ public class NamePartService {
             }
         }
         return associatedDevices;
+    }
+
+    /**
+     * The list of current, most recent approved revisions of all name parts of a given type in the database.
+     *
+     * @param type the type of the name parts
+     * @param includeDeleted true if the list should also include revisions for deleted name parts
+     */
+    public List<NamePartRevision> currentApprovedNamePartRevisions(NamePartType type, boolean includeDeleted) {
+        if (includeDeleted)
+            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :approved)", NamePartRevision.class).setParameter("type", type).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
+        else {
+            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :approved) AND r.deleted = FALSE", NamePartRevision.class).setParameter("type", type).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
+        }
+    }
+
+    /**
+     * The list of revisions pending approval of all name parts of the given type in the database.
+     *
+     * @param type the type of the name parts
+     * @param includeDeleted true if the list should also include revisions for deleted name parts
+     */
+    public List<NamePartRevision> currentPendingNamePartRevisions(NamePartType type, boolean includeDeleted) {
+        if (includeDeleted)
+            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :pending)", NamePartRevision.class).setParameter("type", type).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
+        else {
+            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :pending) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePartRevision.class).setParameter("type", type).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
+        }
+    }
+
+    /**
+     * The list of all revisions of the given name part, including approved, pending, canceled or rejected, starting
+     * from the oldest to the latest.
+     * @param namePart the name part
+     */
+    public List<NamePartRevision> revisions(NamePart namePart) {
+        return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart ORDER BY r.id", NamePartRevision.class).setParameter("namePart", namePart).getResultList();
+    }
+
+    /**
+     * The current, most recent approved revision of the given name part. Null if no approved revision exists for this name part.
+     *
+     * @param namePart the name part
+     */
+    public @Nullable NamePartRevision approvedRevision(NamePart namePart) {
+        return JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND r.status = :status ORDER BY r.id DESC", NamePartRevision.class).setParameter("namePart", namePart).setParameter("status", NamePartRevisionStatus.APPROVED).setMaxResults(1));
+    }
+
+    /**
+     * The revision of the given name part currently pending approval. Null if no revision is pending approval.
+     *
+     * @param namePart the name part
+     */
+    public @Nullable NamePartRevision pendingRevision(NamePart namePart) {
+        final @Nullable NamePartRevision lastPendingOrApprovedRevision = JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND (r.status = :approved OR r.status = :pending) ORDER BY r.id DESC", NamePartRevision.class).setParameter("namePart", namePart).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setMaxResults(1));
+        if (lastPendingOrApprovedRevision == null) return null;
+        else if (lastPendingOrApprovedRevision.getStatus() == NamePartRevisionStatus.PENDING) return lastPendingOrApprovedRevision;
+        else return null;
+    }
+
+    /**
+     * Adds a new device.
+     *
+     * @param section the section containing the device
+     * @param deviceType the device type of the device
+     * @param instanceIndex the instance index of the device, null if omitted
+     * @param user the user adding the device. Null if done by an automated process.
+     * @return current revision of the added device
+     */
+    public DeviceRevision addDevice(NamePart section, NamePart deviceType, @Nullable String instanceIndex, @Nullable UserAccount user) {
+        final NamePartRevision sectionRevision = As.notNull(approvedRevision(section));
+        final NamePartRevision deviceTypeRevision = As.notNull(approvedRevision(deviceType));
+        Preconditions.checkArgument(!sectionRevision.isDeleted());
+        Preconditions.checkArgument(!deviceTypeRevision.isDeleted());
+
+        final String conventionName = conventionName(section, deviceType, instanceIndex);
+        final String conventionNameEqClass = namingConvention.equivalenceClassRepresentative(conventionName);
+
+        Preconditions.checkState(isInstanceIndexValid(section, deviceType, instanceIndex));
+        Preconditions.checkState(isDeviceConventionNameUnique(section, deviceType, instanceIndex));
+
+        final Device device = new Device(UUID.randomUUID());
+        final DeviceRevision newRevision = new DeviceRevision(device, new Date(), user, false, section, deviceType, instanceIndex, conventionName, conventionNameEqClass);
+
+        em.persist(device);
+        em.persist(newRevision);
+
+        return newRevision;
+    }
+
+    /**
+     * Modifies the given device.
+     *
+     * @param device the device to modify
+     * @param section the new section containing the device
+     * @param deviceType the new device type of the device
+     * @param instanceIndex the new instance index of the device, null no instance index is to be assigned to the device
+     * @param user the user modifying the device. Null if done by an automated process.
+     * @return the revision of the device resulting from the modification
+     */
+    public DeviceRevision modifyDevice(Device device, NamePart section, NamePart deviceType, @Nullable String instanceIndex, @Nullable UserAccount user) {
+        final DeviceRevision currentRevision = currentRevision(device);
+        Preconditions.checkArgument(!currentRevision.isDeleted());
+
+        final NamePartRevision sectionRevision = As.notNull(approvedRevision(section));
+        final NamePartRevision deviceTypeRevision = As.notNull(approvedRevision(deviceType));
+        Preconditions.checkArgument(!sectionRevision.isDeleted());
+        Preconditions.checkArgument(!deviceTypeRevision.isDeleted());
+
+        final String conventionName = conventionName(section, deviceType, instanceIndex);
+        final String conventionNameEqClass = namingConvention.equivalenceClassRepresentative(conventionName);
+
+        if (!(section.equals(currentRevision.getSection()) && deviceType.equals(currentRevision.getDeviceType()) && Objects.equals(instanceIndex, currentRevision.getInstanceIndex()) && conventionName.equals(currentRevision.getConventionName()))) {
+            Preconditions.checkState(isInstanceIndexValid(section, deviceType, instanceIndex));
+            Preconditions.checkState(isDeviceConventionNameUnique(section, deviceType, instanceIndex));
+
+            final DeviceRevision newRevision = new DeviceRevision(device, new Date(), user, false, section, deviceType, instanceIndex, conventionName, conventionNameEqClass);
+            em.persist(newRevision);
+            return newRevision;
+        } else {
+            return currentRevision;
+        }
+    }
+
+    /**
+     * Deletes the given device
+     *
+     * @param device the device to delete
+     * @param user the user deleting the device. Null if done by an automated process.
+     * @return the revision of the device resulting from the deletion
+     */
+    public DeviceRevision deleteDevice(Device device, @Nullable UserAccount user) {
+        final DeviceRevision currentRevision = currentRevision(device);
+
+        if (!currentRevision.isDeleted()) {
+            final DeviceRevision newRevision = new DeviceRevision(device, new Date(), user, true, currentRevision.getSection(), currentRevision.getDeviceType(), currentRevision.getInstanceIndex(), currentRevision.getConventionName(), currentRevision.getConventionNameEqClass());
+            em.persist(newRevision);
+            return newRevision;
+        } else {
+            return currentRevision;
+        }
+    }
+
+    /**
+     * The list of current, most recent revisions of all devices in the database.
+     *
+     * @param includeDeleted true if the list should also include revisions for deleted devices
+     */
+    public List<DeviceRevision> currentDeviceRevisions(boolean includeDeleted) {
+        if (includeDeleted)
+            return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device)", DeviceRevision.class).getResultList();
+        else {
+            return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deleted = false", DeviceRevision.class).getResultList();
+        }
+    }
+
+    /**
+     * The list of all revisions of the given device, starting from the oldest to the latest.
+     * @param device the device
+     */
+    public List<DeviceRevision> revisions(Device device) {
+        return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device = :device ORDER BY r.id", DeviceRevision.class).setParameter("device", device).getResultList();
+    }
+
+    /**
+     * The current, most recent revision of the given device
+     *
+     * @param device the device
+     */
+    public DeviceRevision currentRevision(Device device) {
+        return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device = :device ORDER BY r.id DESC", DeviceRevision.class).setParameter("device", device).getResultList().get(0);
+    }
+
+    private boolean canCancelChild(@Nullable NamePart parent) {
+        if (parent != null) {
+            final @Nullable NamePartRevision parentApprovedRevision = approvedRevision(parent);
+            final @Nullable NamePartRevision parentPendingRevision = pendingRevision(parent);
+            return (parentApprovedRevision == null || !parentApprovedRevision.isDeleted()) && (parentPendingRevision == null || !parentPendingRevision.isDeleted());
+        } else {
+            return true;
+        }
     }
 
     private boolean canApproveChild(@Nullable NamePart parent) {
@@ -265,35 +520,11 @@ public class NamePartService {
         return em.createQuery("SELECT r.namePart FROM NamePartRevision r WHERE r.parent = :namePart AND r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND (r2.status = :approved OR r2.status = :pending)) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePart.class).setParameter("namePart", namePart).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
     }
 
-    public List<NamePartRevision> currentApprovedRevisions(NamePartType type, boolean includeDeleted) {
-        if (includeDeleted)
-            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :approved)", NamePartRevision.class).setParameter("type", type).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
-        else {
-            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :approved) AND r.deleted = FALSE", NamePartRevision.class).setParameter("type", type).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
-        }
-    }
+    private String conventionName(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+        final NamePartView sectionView = view(section);
+        final NamePartView deviceTypeView = view(deviceType);
 
-    public List<NamePartRevision> currentPendingRevisions(NamePartType type, boolean includeDeleted) {
-        if (includeDeleted)
-            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :pending)", NamePartRevision.class).setParameter("type", type).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
-        else {
-            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :pending) AND NOT (r.status = :approved AND r.deleted = TRUE)", NamePartRevision.class).setParameter("type", type).setParameter("pending", NamePartRevisionStatus.PENDING).getResultList();
-        }
-    }
-
-    public List<NamePartRevision> revisions(NamePart namePart) {
-        return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart ORDER BY r.id", NamePartRevision.class).setParameter("namePart", namePart).getResultList();
-    }
-
-    public @Nullable NamePartRevision approvedRevision(NamePart namePart) {
-        return JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND r.status = :status ORDER BY r.id DESC", NamePartRevision.class).setParameter("namePart", namePart).setParameter("status", NamePartRevisionStatus.APPROVED).setMaxResults(1));
-    }
-
-    public @Nullable NamePartRevision pendingRevision(NamePart namePart) {
-        final @Nullable NamePartRevision lastPendingOrApprovedRevision = JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND (r.status = :approved OR r.status = :pending) ORDER BY r.id DESC", NamePartRevision.class).setParameter("namePart", namePart).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setMaxResults(1));
-        if (lastPendingOrApprovedRevision == null) return null;
-        else if (lastPendingOrApprovedRevision.getStatus() == NamePartRevisionStatus.PENDING) return lastPendingOrApprovedRevision;
-        else return null;
+        return namingConvention.conventionName(sectionView.getMnemonicPath(), deviceTypeView.getMnemonicPath(), instanceIndex);
     }
 
     private NamePartRevision emAttached(NamePartRevision namePartRevision) {
@@ -312,103 +543,11 @@ public class NamePartService {
         return new NamePartView(revisionProvider, approvedRevision(namePart), pendingRevision(namePart), null);
     }
 
-    public List<Device> devices(boolean includeDeleted) {
-        if (includeDeleted)
-            return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device)", Device.class).getResultList();
-        else {
-            return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deleted = false", Device.class).getResultList();
-        }
-    }
-
-    public List<Device> devices() {
-        return devices(false);
-    }
-
-    public List<DeviceRevision> currentRevisions(boolean includeDeleted) {
-        if (includeDeleted)
-            return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device)", DeviceRevision.class).getResultList();
-        else {
-            return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deleted = false", DeviceRevision.class).getResultList();
-        }
-    }
-
-    public List<Device> devicesInSection(NamePart section) {
+    private List<Device> devicesInSection(NamePart section) {
         return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.section = :section AND r.deleted = false", Device.class).setParameter("section", section).getResultList();
     }
 
-    public List<Device> devicesOfType(NamePart deviceType) {
+    private List<Device> devicesOfType(NamePart deviceType) {
         return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deviceType = :deviceType AND r.deleted = false", Device.class).setParameter("deviceType", deviceType).getResultList();
-    }
-
-    public List<DeviceRevision> revisions(Device device) {
-        return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device = :device ORDER BY r.id", DeviceRevision.class).setParameter("device", device).getResultList();
-    }
-
-    public DeviceRevision addDevice(NamePart section, NamePart deviceType, @Nullable String instanceIndex, @Nullable UserAccount user) {
-        final NamePartRevision sectionRevision = As.notNull(approvedRevision(section));
-        final NamePartRevision deviceTypeRevision = As.notNull(approvedRevision(deviceType));
-        Preconditions.checkArgument(!sectionRevision.isDeleted());
-        Preconditions.checkArgument(!deviceTypeRevision.isDeleted());
-
-        final String conventionName = conventionName(section, deviceType, instanceIndex);
-        final String conventionNameEqClass = namingConvention.nameNormalizedForEquivalence(conventionName);
-
-        Preconditions.checkState(isInstanceIndexValid(section, deviceType, instanceIndex));
-        Preconditions.checkState(isInstanceIndexUnique(section, deviceType, instanceIndex));
-
-        final Device device = new Device(UUID.randomUUID());
-        final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), false, section, deviceType, instanceIndex, conventionName, conventionNameEqClass);
-
-        em.persist(device);
-        em.persist(newRevision);
-
-        return newRevision;
-    }
-
-    public DeviceRevision modifyDevice(Device device, NamePart section, NamePart deviceType, @Nullable String instanceIndex, @Nullable UserAccount user) {
-        final DeviceRevision currentRevision = currentRevision(device);
-        Preconditions.checkArgument(!currentRevision.isDeleted());
-
-        final NamePartRevision sectionRevision = As.notNull(approvedRevision(section));
-        final NamePartRevision deviceTypeRevision = As.notNull(approvedRevision(deviceType));
-        Preconditions.checkArgument(!sectionRevision.isDeleted());
-        Preconditions.checkArgument(!deviceTypeRevision.isDeleted());
-
-        final String conventionName = conventionName(section, deviceType, instanceIndex);
-        final String conventionNameEqClass = namingConvention.nameNormalizedForEquivalence(conventionName);
-
-        if (!(section.equals(currentRevision.getSection()) && deviceType.equals(currentRevision.getDeviceType()) && Objects.equals(instanceIndex, currentRevision.getInstanceIndex()) && conventionName.equals(currentRevision.getConventionName()))) {
-            Preconditions.checkState(isInstanceIndexValid(section, deviceType, instanceIndex));
-            Preconditions.checkState(isInstanceIndexUnique(section, deviceType, instanceIndex));
-
-            final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), false, section, deviceType, instanceIndex, conventionName, conventionNameEqClass);
-            em.persist(newRevision);
-            return newRevision;
-        } else {
-            return currentRevision;
-        }
-    }
-
-    public DeviceRevision deleteDevice(Device device, @Nullable UserAccount user) {
-        final DeviceRevision currentRevision = currentRevision(device);
-
-        if (!currentRevision.isDeleted()) {
-            final DeviceRevision newRevision = new DeviceRevision(device, user, new Date(), true, currentRevision.getSection(), currentRevision.getDeviceType(), currentRevision.getInstanceIndex(), currentRevision.getConventionName(), currentRevision.getConventionNameEqClass());
-            em.persist(newRevision);
-            return newRevision;
-        } else {
-            return currentRevision;
-        }
-    }
-
-    public DeviceRevision currentRevision(Device device) {
-        return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device = :device ORDER BY r.id DESC", DeviceRevision.class).setParameter("device", device).getResultList().get(0);
-    }
-
-    private String conventionName(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
-        final NamePartView sectionView = view(section);
-        final NamePartView deviceTypeView = view(deviceType);
-
-        return namingConvention.namingConventionName(sectionView.getMnemonicPath(), deviceTypeView.getMnemonicPath(), instanceIndex);
     }
 }

@@ -4,7 +4,10 @@ package org.openepics.names.ui.devices;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import org.openepics.names.model.*;
+import org.openepics.names.model.DeviceRevision;
+import org.openepics.names.model.NamePart;
+import org.openepics.names.model.NamePartRevision;
+import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.DeviceView;
 import org.openepics.names.services.views.NamePartView;
@@ -89,7 +92,7 @@ public class DevicesController implements Serializable {
     public boolean isAddInstanceIndexUnique(String instanceIndex) {
         final NamePart section = As.notNull(getSelectedSection()).getNamePart();
         final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
-        return namePartService.isInstanceIndexUnique(section, deviceType, instanceIndex);
+        return namePartService.isDeviceConventionNameUnique(section, deviceType, instanceIndex);
     }
 
     public boolean isModifyInstanceIndexUnique(String instanceIndex) {
@@ -97,7 +100,7 @@ public class DevicesController implements Serializable {
         final NamePart section = ((NamePartView) formSelectedSection.getData()).getNamePart();
         final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
         if (!(section.equals(deviceView.getSection().getNamePart()) && deviceType.equals(deviceView.getDeviceType().getNamePart()) && Objects.equals(instanceIndex, deviceView.getInstanceIndex()))) {
-            return namePartService.isInstanceIndexUnique(section, deviceType, instanceIndex);
+            return namePartService.isDeviceConventionNameUnique(section, deviceType, instanceIndex);
         } else {
             return true;
         }
@@ -241,14 +244,14 @@ public class DevicesController implements Serializable {
     public void prepareAddPopup() {
         formSelectedDeviceType = null;
         formInstanceIndex = null;
-        final List<NamePartRevision> approvedDeviceTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
+        final List<NamePartRevision> approvedDeviceTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false);
         deviceTypes = namePartTreeBuilder.newNamePartTree(approvedDeviceTypeRevisions, Lists.<NamePartRevision>newArrayList(), false, 2);
         RequestContext.getCurrentInstance().reset("addDeviceNameForm:grid");
     }
 
     public void prepareModifyPopup() {
-        final List<NamePartRevision> approvedSectionRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
-        final List<NamePartRevision> approvedDeviceTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
+        final List<NamePartRevision> approvedSectionRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, false);
+        final List<NamePartRevision> approvedDeviceTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false);
         sections = namePartTreeBuilder.newNamePartTree(approvedSectionRevisions, Lists.<NamePartRevision>newArrayList(), false, 2, As.notNull(getSelectedDevice()).getSection().getNamePart());
         deviceTypes = namePartTreeBuilder.newNamePartTree(approvedDeviceTypeRevisions, Lists.<NamePartRevision>newArrayList(), false, 2, As.notNull(getSelectedDevice()).getDeviceType().getNamePart());
 

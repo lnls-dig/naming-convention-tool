@@ -58,7 +58,7 @@ public class LoginController implements Serializable {
             RequestContext.getCurrentInstance().addCallbackParam("loginSuccess", false);
         } finally {
             inputPassword = null;
-            sessionService.init();
+            sessionService.update();
         }
         updatePageElements();
     }
@@ -72,7 +72,7 @@ public class LoginController implements Serializable {
         } catch (ServletException e) {
             throw new RuntimeException(e);
         } finally {
-            sessionService.init();
+            sessionService.update();
         }
         updatePageElements();
     }

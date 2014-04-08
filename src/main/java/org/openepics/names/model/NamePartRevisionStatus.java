@@ -1,7 +1,7 @@
 package org.openepics.names.model;
 
 /**
- * Status of the NamePartRevision in the request / approve workflow.
+ * Status of the name part in the request / approve workflow.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */

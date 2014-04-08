@@ -2,12 +2,10 @@ package org.openepics.names.ui.export;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
@@ -20,7 +18,6 @@ import org.primefaces.model.TreeNode;
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -33,15 +30,15 @@ public class ExcelExport {
     @Inject private ViewFactory viewFactory;
     
     public InputStream exportFile() {
-        final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, false);
+        final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, false);
         final TreeNode sectionsTree = namePartTreeBuilder.newNamePartTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true);
 
-        final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, false);
+        final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false);
         final TreeNode typesTree = namePartTreeBuilder.newNamePartTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true);
 
         final List<DeviceRevision> devices = Lists.newArrayList();
-        for (Device device : namePartService.devices(false)) {
-            devices.add(namePartService.currentRevision(device));
+        for (DeviceRevision deviceRevision : namePartService.currentDeviceRevisions(false)) {
+            devices.add(deviceRevision);
         }
         
         final XSSFWorkbook workbook = exportWorkbook(sectionsTree, typesTree, devices);

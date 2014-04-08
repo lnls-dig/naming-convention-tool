@@ -21,13 +21,32 @@ public class SessionService implements Serializable {
 
     private UserAccount user = null;
 
-    public void init() {
+    /**
+     * Updates the session information with that of the current user, taken from the JSF context. Should be called on
+     * each login and logout.
+     */
+    public void update() {
         final Principal principal = FacesContext.getCurrentInstance().getExternalContext().getUserPrincipal();
         user = principal != null ? userService.userWithName(principal.getName()) : null;
     }
 
+    /**
+     * The UserAccount of the currently logged in user.
+     */
     public UserAccount user() { return user != null ? userService.emAttached(user) : null; }
+
+    /**
+     * True if the user is logged in.
+     */
     public boolean isLoggedIn() { return user != null; }
+
+    /**
+     * True if the user is an editor.
+     */
     public boolean isEditor() { return user != null && (user.getRole() == Role.EDITOR || user.getRole() == Role.SUPERUSER); }
+
+    /**
+     * True if the user is a superuser.
+     */
     public boolean isSuperUser() { return user != null && user.getRole() == Role.SUPERUSER; }
 }

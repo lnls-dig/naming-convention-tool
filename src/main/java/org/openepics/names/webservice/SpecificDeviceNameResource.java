@@ -1,6 +1,5 @@
 package org.openepics.names.webservice;
 
-import org.openepics.names.model.Device;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.ui.common.ViewFactory;
@@ -26,9 +25,8 @@ public class SpecificDeviceNameResource {
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public DeviceNameElement getAllDeviceNames(@PathParam("uuid") String reqUuid) {
-        for (Device device : namePartService.devices(false)) {
-            if (namePartService.currentRevision(device).getDevice().getUuid().equals(UUID.fromString(reqUuid))) {
-                final DeviceRevision deviceRevision = namePartService.currentRevision(device);
+        for (DeviceRevision deviceRevision : namePartService.currentDeviceRevisions(false)) {
+            if (deviceRevision.getDevice().getUuid().equals(UUID.fromString(reqUuid))) {
                 final DeviceNameElement deviceData = new DeviceNameElement();
                 deviceData.setUuid(deviceRevision.getDevice().getUuid());
                 deviceData.setSection(viewFactory.getView(deviceRevision.getSection()).getParent().getMnemonic());

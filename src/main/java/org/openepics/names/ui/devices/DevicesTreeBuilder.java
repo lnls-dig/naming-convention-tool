@@ -35,16 +35,16 @@ public class DevicesTreeBuilder {
     private HashMap<NamePart, NamePartView> viewByDeviceType;
 	
 	public TreeNode devicesTree(boolean withDeleted) {
-		final List<NamePartRevision> sectionRevisions = namePartService.currentApprovedRevisions(NamePartType.SECTION, withDeleted);
+		final List<NamePartRevision> sectionRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, withDeleted);
         final TreeNode sectionTree = namePartTreeBuilder.newNamePartTree(sectionRevisions, Lists.<NamePartRevision>newArrayList(), false);
 
-        final List<NamePartRevision> deviceTypeRevisions = namePartService.currentApprovedRevisions(NamePartType.DEVICE_TYPE, withDeleted);
+        final List<NamePartRevision> deviceTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, withDeleted);
         final TreeNode deviceTypeTree = namePartTreeBuilder.newNamePartTree(deviceTypeRevisions, Lists.<NamePartRevision>newArrayList(), false);
         viewByDeviceType = Maps.newHashMap();
         populateDeviceTypeViews(deviceTypeTree);
         
         devicesBySection = Maps.newHashMap();
-        for (DeviceRevision device : namePartService.currentRevisions(withDeleted)) {
+        for (DeviceRevision device : namePartService.currentDeviceRevisions(withDeleted)) {
         	final Set<DeviceRevision> devicesForSection = devicesForSection(device.getSection());
         	devicesForSection.add(device);
         }

@@ -22,6 +22,10 @@ public class UserAccount extends Persistable {
 
     protected UserAccount() {}
 
+    /**
+     * @param username the name identifying the user
+     * @param role the role that determines the user's access control permissions
+     */
     public UserAccount(String username, Role role) {
         Preconditions.checkArgument(username != null && !username.isEmpty());
         Preconditions.checkNotNull(role);
@@ -29,8 +33,14 @@ public class UserAccount extends Persistable {
         this.role = role;
     }
 
+    /**
+     * The name identifying the user
+     */
     public String getUsername() { return username; }
 
+    /**
+     * The role that determines the user's access control permissions
+     */
     public Role getRole() { return role; }
 
     @Override public int hashCode() {
