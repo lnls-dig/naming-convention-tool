@@ -24,6 +24,9 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * A bean for importing devices from Excel.
+ */
 @Stateless
 public class ExcelImport {
 
@@ -34,24 +37,52 @@ public class ExcelImport {
     private Table<String, String, NamePart> typesTable;
     private List<DeviceRevision> allDevices;
     private List<NewDeviceName> newDevices;
-    
+
+    /**
+     * Reports the outcome of the import operation.
+     */
     public abstract class ExcelImportResult {}
-    
+
+    /**
+     * Reports a successful outcome of the import operation.
+     */
     public class SuccessExcelImportResult extends ExcelImportResult {}
-    
+
+    /**
+     * Reports a failed outcome of the import operation, because either the section or device type referred to in the
+     * device row could not be found.
+     */
     public class FailureExcelImportResult extends ExcelImportResult {
         final private int rowNumber;
         final private NamePartType namePartType;
-        
+
+        /**
+         * @param rowNumber the row where the error happened
+         * @param namePartType the type of the entity that was not found
+         */
         public FailureExcelImportResult(int rowNumber, NamePartType namePartType) {
             this.rowNumber = rowNumber;
             this.namePartType = namePartType;
         }
 
+        /**
+         * The row where the error happened.
+         */
         public int getRowNumber() { return rowNumber; }
+
+        /**
+         * The type of the entity that was not found.
+         */
         public NamePartType getNamePartType() { return namePartType; } 
     }
-    
+
+    /**
+     * Parses the input stream read from an Excel file, creating devices in the database. If the device already exists,
+     * it's silently ignored.
+     *
+     * @param input the input stream
+     * @return an ExcelImportResult object reporting the outcome of the import operation
+     */
     public ExcelImportResult parseDeviceImportFile(InputStream input) {
         sectionsTable = HashBasedTable.create();
         typesTable = HashBasedTable.create();

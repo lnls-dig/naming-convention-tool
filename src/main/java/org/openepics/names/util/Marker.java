@@ -7,7 +7,15 @@ package org.openepics.names.util;
  */
 public class Marker {
 
+    /**
+     * Marks that the code branch does nothing.
+     */
     public static void doNothing() {}
 
+    /**
+     * TODO marker.
+     *
+     * @param comment description of the task
+     */
     public static void todo(String comment) {}
 }

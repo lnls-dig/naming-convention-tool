@@ -12,6 +12,8 @@ import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
 
 /**
+ * The validator for the Instance index field in the Add form.
+ *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 @RequestScoped

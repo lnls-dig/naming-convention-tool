@@ -4,9 +4,6 @@ import org.openepics.names.model.NamePart;
 
 import javax.annotation.Nullable;
 
-/**
- * @author Marko Kolar <marko.kolar@cosylab.com>
- */
 class NewDeviceName {
     private final NamePart sectionPart;
     private final NamePart deviceTypePart;

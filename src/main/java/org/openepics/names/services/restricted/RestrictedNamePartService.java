@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * A gateway to a NamePartService bean that enforces user access control rules on each call. All calls from UI code should
@@ -264,5 +265,14 @@ public class RestrictedNamePartService {
      */
     public DeviceRevision currentRevision(Device device) {
         return namePartService.currentRevision(device);
+    }
+
+    /**
+     * The current, most recent revision of the device with the given UUID. Null if none found.
+     *
+     * @param deviceUuid the UUID of the device
+     */
+    public @Nullable DeviceRevision currentDeviceRevision(UUID deviceUuid) {
+        return namePartService.currentDeviceRevision(deviceUuid);
     }
 }

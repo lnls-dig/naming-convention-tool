@@ -23,6 +23,9 @@ import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
 import java.util.*;
 
+/**
+ * Utility bean for building JSF TreeNode trees from the section hierarchy and containing devices as leaf nodes.
+ */
 @ManagedBean
 @ViewScoped
 public class DevicesTreeBuilder {
@@ -33,7 +36,13 @@ public class DevicesTreeBuilder {
 
     private HashMap<NamePart, Set<DeviceRevision>> devicesBySection;
     private HashMap<NamePart, NamePartView> viewByDeviceType;
-	
+
+    /**
+     * Produces a tree of sections with contained devices as leaf nodes from the approved revisions in the database.
+     *
+     * @param withDeleted true if the tree should include deleted devices
+     * @return the root node of the tree
+     */
 	public TreeNode devicesTree(boolean withDeleted) {
 		final List<NamePartRevision> sectionRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, withDeleted);
         final TreeNode sectionTree = namePartTreeBuilder.newNamePartTree(sectionRevisions, Lists.<NamePartRevision>newArrayList(), false);

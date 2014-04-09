@@ -478,25 +478,25 @@ public class NamePartsController implements Serializable {
 
     private @Nullable TreeNode deleteView(TreeNode node) {
         return (new OperationTreeGenerator<NamePartView>() {
-            @Override protected boolean isAffected(NamePartView nodeView) { return !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange) && (nodeView.getCurrentRevision() == null || !(nodeView.getCurrentRevision().isDeleted())); }
-            @Override protected boolean autoSelectChildren(NamePartView nodeView) { return !(nodeView.getPendingChange() instanceof NamePartView.DeleteChange); }
-            @Override protected boolean ignoreSelectedChildren(NamePartView nodeView, boolean isSelected) { return nodeView.getPendingChange() instanceof NamePartView.AddChange; }
+            @Override protected boolean canAffect(NamePartView element) { return !(element.getPendingChange() instanceof NamePartView.DeleteChange) && (element.getCurrentRevision() == null || !(element.getCurrentRevision().isDeleted())); }
+            @Override protected boolean autoSelectChildren(NamePartView element) { return !(element.getPendingChange() instanceof NamePartView.DeleteChange); }
+            @Override protected boolean ignoreSelectedChildren(NamePartView element, boolean isSelected) { return element.getPendingChange() instanceof NamePartView.AddChange; }
         }).apply(node);
     }
 
     private @Nullable TreeNode approveView(TreeNode node) {
         return (new OperationTreeGenerator<NamePartView>() {
-            @Override protected boolean isAffected(NamePartView nodeView) { return nodeView.getPendingChange() != null; }
-            @Override protected boolean autoSelectChildren(NamePartView nodeView) { return nodeView.getPendingChange() instanceof NamePartView.DeleteChange; }
-            @Override protected boolean ignoreSelectedChildren(NamePartView nodeView, boolean isSelected) { return nodeView.getPendingChange() instanceof NamePartView.AddChange && !isSelected; }
+            @Override protected boolean canAffect(NamePartView element) { return element.getPendingChange() != null; }
+            @Override protected boolean autoSelectChildren(NamePartView element) { return element.getPendingChange() instanceof NamePartView.DeleteChange; }
+            @Override protected boolean ignoreSelectedChildren(NamePartView element, boolean isSelected) { return element.getPendingChange() instanceof NamePartView.AddChange && !isSelected; }
         }).apply(node);
     }
 
     private @Nullable TreeNode cancelView(TreeNode node) {
         return (new OperationTreeGenerator<NamePartView>() {
-            @Override protected boolean isAffected(NamePartView nodeView) { return nodeView.getPendingChange() != null;}
-            @Override protected boolean autoSelectChildren(NamePartView nodeView) { return !(nodeView.getPendingChange() instanceof NamePartView.ModifyChange); }
-            @Override protected boolean ignoreSelectedChildren(NamePartView nodeView, boolean isSelected) { return nodeView.getPendingChange() instanceof NamePartView.DeleteChange; }
+            @Override protected boolean canAffect(NamePartView element) { return element.getPendingChange() != null;}
+            @Override protected boolean autoSelectChildren(NamePartView element) { return !(element.getPendingChange() instanceof NamePartView.ModifyChange); }
+            @Override protected boolean ignoreSelectedChildren(NamePartView element, boolean isSelected) { return element.getPendingChange() instanceof NamePartView.DeleteChange; }
         }).apply(node);
     }
 

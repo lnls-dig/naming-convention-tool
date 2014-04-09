@@ -22,13 +22,21 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+/**
+ * A bean for exporting sections, device types and devices to Excel.
+ */
 @Stateless
 public class ExcelExport {
     
     @Inject private RestrictedNamePartService namePartService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private ViewFactory viewFactory;
-    
+
+    /**
+     * Exports the entities from the database, producing a stream which can be streamed to the user over HTTP.
+     *
+     * @return an Excel input stream containing the exported data
+     */
     public InputStream exportFile() {
         final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, false);
         final TreeNode sectionsTree = namePartTreeBuilder.newNamePartTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true);

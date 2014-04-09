@@ -15,12 +15,24 @@ import java.util.List;
 */
 public abstract class TreeFilter<T> {
 
+    /**
+     * True if the filter should accept the node based on its data.
+     *
+     * @param nodeData the node's data
+     */
     protected abstract boolean accepts(@Nullable T nodeData);
 
-    public TreeNode apply(TreeNode node) {
+    /**
+     * Takes the input tree and produces a new filtered tree.
+     *
+     * @param node the root node of the tree to be filtered
+     * @return the root node of the new filtered tree. Subtrees with no accepted elements are culled. If no elements are
+     * accepted, null will be returned.
+     */
+    public @Nullable TreeNode apply(TreeNode node) {
         final List<TreeNode> childImages = Lists.newArrayList();
         for (TreeNode child : node.getChildren()) {
-            final TreeNode childImage = apply(child);
+            final @Nullable TreeNode childImage = apply(child);
             if (childImage != null) {
                 childImages.add(childImage);
             }

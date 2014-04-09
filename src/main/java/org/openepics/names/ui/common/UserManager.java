@@ -8,6 +8,7 @@ import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
 
 /**
+ * A bean exposing the information about the logged in user to the UI.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */

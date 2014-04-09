@@ -17,24 +17,51 @@ import java.util.List;
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 public abstract class OperationTreeGenerator<T> {
-    protected abstract boolean isAffected(T nodeView);
-    protected abstract boolean autoSelectChildren(T nodeView);
-    protected abstract boolean ignoreSelectedChildren(T nodeView, boolean isSelected);
+    /**
+     * True if the selected element can be affected by the operation.
+     *
+     * @param element the selected element
+     */
+    protected abstract boolean canAffect(T element);
 
+    /**
+     * True if for the selected element the tree of its children are also all treated as selected.
+     *
+     * @param element the selected element
+     */
+    protected abstract boolean autoSelectChildren(T element);
+
+    /**
+     * True if for the given element its selected children are ignored (treated as if they were not selected)
+     *
+     * @param element the element
+     * @param isSelected is the element selected
+     */
+    protected abstract boolean ignoreSelectedChildren(T element, boolean isSelected);
+
+    /**
+     * Takes the tree the operation is acting on and produces a new tree of OperationView objects that describe which
+     * elements in the input tree are affected by the operation.
+     *
+     * @param node the root node of the tree the operation is acting on
+     * @return the root node of a new tree containing OperationViews that describe if an element is affected by the
+     * operation. Subtrees with no affected elements are culled. If no elements are affected by the operation, null will
+     * be returned.
+     */
     public @Nullable TreeNode apply(@Nullable TreeNode node) {
         return node != null ? view(node, SelectionMode.MANUAL) : null;
     }
 
     private @Nullable TreeNode view(TreeNode node, SelectionMode selectionMode) {
-        final @Nullable T data = (T) node.getData();
+        final @Nullable T element = (T) node.getData();
 
         final SelectionMode childrenSelectionMode;
         if (selectionMode == SelectionMode.AUTO) {
             childrenSelectionMode = SelectionMode.AUTO;
         } else if (selectionMode == SelectionMode.MANUAL) {
-            if (node.isSelected() && data != null && autoSelectChildren(As.notNull(data))) {
+            if (node.isSelected() && element != null && autoSelectChildren(As.notNull(element))) {
                 childrenSelectionMode = SelectionMode.AUTO;
-            } else if (data != null && ignoreSelectedChildren(As.notNull(data), node.isSelected())) {
+            } else if (element != null && ignoreSelectedChildren(As.notNull(element), node.isSelected())) {
                 childrenSelectionMode = SelectionMode.DISABLED;
             } else {
                 childrenSelectionMode = SelectionMode.MANUAL;
@@ -53,9 +80,9 @@ public abstract class OperationTreeGenerator<T> {
             }
         }
 
-        final boolean affectNode = (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected())) && isAffected(data);
+        final boolean affectNode = (selectionMode == SelectionMode.AUTO || (selectionMode == SelectionMode.MANUAL && node.isSelected())) && canAffect(element);
         if (affectNode || !childViews.isEmpty() ) {
-            final TreeNode result = new DefaultTreeNode(new OperationView<T>(data, affectNode), null);
+            final TreeNode result = new DefaultTreeNode(new OperationView<T>(element, affectNode), null);
             result.setExpanded(true);
             for (TreeNode childView : childViews) {
                 result.getChildren().add(childView);

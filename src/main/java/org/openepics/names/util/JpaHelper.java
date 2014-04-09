@@ -10,6 +10,12 @@ import java.util.List;
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 public class JpaHelper {
+    /**
+     * Executes the query and returns the single expected result, or null if the result is empty.
+     *
+     * @param query the query to execute
+     * @throws NonUniqueResultException if the query returned more than a single result.
+     */
     public static <T> T getSingleResultOrNull(TypedQuery<T> query) {
         final List<T> results = query.getResultList();
         if (results.isEmpty()) return null;

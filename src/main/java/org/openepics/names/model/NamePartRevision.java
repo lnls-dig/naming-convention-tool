@@ -124,7 +124,7 @@ public class NamePartRevision extends Persistable {
     public String getName() { return name; }
 
     /**
-     * The short, mnemonic name of the part in accordance with the naming convention
+     * The short, mnemonic name of the part in accordance with the naming convention.
      */
     public String getMnemonic() { return mnemonic; }
 

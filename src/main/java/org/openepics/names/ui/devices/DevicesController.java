@@ -320,9 +320,9 @@ public class DevicesController implements Serializable {
 
     private @Nullable TreeNode deleteView(TreeNode node) {
         return (new OperationTreeGenerator<Object>() {
-            @Override protected boolean isAffected(Object nodeView) { return nodeView instanceof DeviceView && !(((DeviceView) nodeView).getDevice().isDeleted()); }
-            @Override protected boolean autoSelectChildren(Object nodeView) { return true; }
-            @Override protected boolean ignoreSelectedChildren(Object nodeView, boolean isSelected) { return false; }
+            @Override protected boolean canAffect(Object element) { return element instanceof DeviceView && !(((DeviceView) element).getDevice().isDeleted()); }
+            @Override protected boolean autoSelectChildren(Object element) { return true; }
+            @Override protected boolean ignoreSelectedChildren(Object element, boolean isSelected) { return false; }
         }).apply(node);
     }
     

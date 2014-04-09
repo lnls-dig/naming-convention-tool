@@ -464,6 +464,15 @@ public class NamePartService {
         return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device = :device ORDER BY r.id DESC", DeviceRevision.class).setParameter("device", device).getResultList().get(0);
     }
 
+    /**
+     * The current, most recent revision of the device with the given UUID. Null if none found.
+     *
+     * @param deviceUuid the UUID of the device
+     */
+    public @Nullable DeviceRevision currentDeviceRevision(UUID deviceUuid) {
+        return JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device.uuid = :uuid ORDER BY r.id DESC", DeviceRevision.class).setParameter("uuid", deviceUuid.toString()).setMaxResults(1));
+    }
+
     private boolean canCancelChild(@Nullable NamePart parent) {
         if (parent != null) {
             final @Nullable NamePartRevision parentApprovedRevision = approvedRevision(parent);

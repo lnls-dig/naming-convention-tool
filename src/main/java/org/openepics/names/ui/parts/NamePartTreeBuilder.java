@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import java.util.*;
 
 /**
+ * A utility bean for building JSF TreeNode trees from the NamePart hierarchy.
  *
  * @author mvitorovic
  */
@@ -25,14 +26,42 @@ public class NamePartTreeBuilder {
 
     @Inject private ViewFactory viewFactory;
 
+    /**
+     * Builds a tree of NamePartViews from the provided lists of revisions.
+     *
+     * @param approved the list of approved NamePart revisions
+     * @param pending the list of pending NamePart revisions
+     * @param expandedTree true if the constructed tree should be fully expanded
+     * @return the root node of the tree
+     */
     public TreeNode newNamePartTree(List<NamePartRevision> approved, List<NamePartRevision> pending, boolean expandedTree) {
         return newNamePartTree(approved, pending, expandedTree, 0, null);
     }
-    
+
+    /**
+     * Builds a tree of NamePartViews from the provided lists of revisions.
+     *
+     * @param approved the list of approved NamePart revisions
+     * @param pending the list of pending NamePart revisions
+     * @param expandedTree true if the constructed tree should be fully expanded
+     * @param selectableLevel the depth level starting from 0 below which (inclusively) node selection is made possible
+     * @return the root node of the tree
+     */
     public TreeNode newNamePartTree(List<NamePartRevision> approved, List<NamePartRevision> pending, boolean expandedTree, int selectableLevel) {
         return newNamePartTree(approved, pending, expandedTree, selectableLevel, null);
     }
 
+    /**
+     * Builds a tree of NamePartViews from the provided lists of revisions.
+     *
+     * @param approved the list of approved NamePart revisions
+     * @param pending the list of pending NamePart revisions
+     * @param expandedTree true if the constructed tree should be fully expanded
+     * @param selectableLevel the depth level starting from 0 below which (inclusively) node selection is made possible
+     * @param selected the NamePart in the resulting tree that should be preselected and the part of the tree containing
+     * expanded
+     * @return the root node of the tree
+     */
     public TreeNode newNamePartTree(List<NamePartRevision> approved, List<NamePartRevision> pending, boolean expandedTree, int selectableLevel, NamePart selected) {
         final Map<UUID, NamePartRevisionPair> completeNamePartList = new HashMap<>();
 

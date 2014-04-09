@@ -11,6 +11,8 @@ import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
 
 /**
+ * The validator for the Mnemonic field in the Add form.
+ *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 @RequestScoped
