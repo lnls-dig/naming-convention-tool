@@ -47,6 +47,11 @@ public class ExcelImport {
      * Reports a successful outcome of the import operation.
      */
     public class SuccessExcelImportResult extends ExcelImportResult {}
+    
+    /**
+     * Reports a successful outcome of the import operation.
+     */
+    public class ParseFaliureExcelImportResult extends ExcelImportResult {}
 
     /**
      * Reports a failed outcome of the import operation, because either the section or device type referred to in the
@@ -112,8 +117,8 @@ public class ExcelImport {
                     return addDeviceNameResult;
                 }
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (RuntimeException | IOException e ) {
+            return new ParseFaliureExcelImportResult();
         }
         for (NewDeviceName newDeviceName : newDevices) {
             namePartService.addDevice(newDeviceName.getSectionPart(), newDeviceName.getDeviceTypePart(), newDeviceName.getIndex());

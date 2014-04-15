@@ -271,6 +271,8 @@ public class DevicesController implements Serializable {
             } else if (importResult instanceof ExcelImport.FailureExcelImportResult) {
                 ExcelImport.FailureExcelImportResult faliureImportResult = (ExcelImport.FailureExcelImportResult) importResult;
                 showMessage(null, FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred in row " + faliureImportResult.getRowNumber() + ". " + (faliureImportResult.getNamePartType().equals(NamePartType.SECTION) ? "Logical area" : "Device category") + " part was not found in the database.");
+            } else if (importResult instanceof ExcelImport.ParseFaliureExcelImportResult) {
+                showMessage(null, FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred when reading import file. Check that your file format corresponds with NamingImportTemplate.xlsx you can download from batch import dialog.");
             } else {
                 throw new UnhandledCaseException();
             }                
