@@ -3,6 +3,7 @@ package org.openepics.names.ui.devices;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -14,11 +15,14 @@ import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
+import org.openepics.names.util.As;
+import org.openepics.names.util.ExcelCell;
 import org.primefaces.model.TreeNode;
 
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -49,15 +53,20 @@ public class ExcelImport {
     public class SuccessExcelImportResult extends ExcelImportResult {}
     
     /**
-     * Reports a successful outcome of the import operation.
+     * Reports a failed outcome of the import operation.
      */
-    public class ParseFaliureExcelImportResult extends ExcelImportResult {}
-
+    public abstract class FailureExcelImportResult extends ExcelImportResult {}
+    
+    /**
+     * Reports a failed outcome of the import operation, because of wrong format of the import file.
+     */
+    public class ColumnCountFaliureExcelImportResult extends FailureExcelImportResult {}
+    
     /**
      * Reports a failed outcome of the import operation, because either the section or device type referred to in the
      * device row could not be found.
      */
-    public class FailureExcelImportResult extends ExcelImportResult {
+    public class CellValueFailureExcelImportResult extends FailureExcelImportResult {
         final private int rowNumber;
         final private NamePartType namePartType;
 
@@ -65,7 +74,7 @@ public class ExcelImport {
          * @param rowNumber the row where the error happened
          * @param namePartType the type of the entity that was not found
          */
-        public FailureExcelImportResult(int rowNumber, NamePartType namePartType) {
+        public CellValueFailureExcelImportResult(int rowNumber, NamePartType namePartType) {
             this.rowNumber = rowNumber;
             this.namePartType = namePartType;
         }
@@ -98,27 +107,26 @@ public class ExcelImport {
         try {
             final XSSFWorkbook workbook = new XSSFWorkbook(input);
             final XSSFSheet sheet = workbook.getSheetAt(0);
- 
-            final Iterator<Row> rowIterator = sheet.iterator();
-            if (rowIterator.hasNext()) {
-                rowIterator.next();
-            }
-
-            int rowNumber = 2;
-            while (rowIterator.hasNext()) {
-                final Row row = rowIterator.next();
-                final String section = row.getCell(0).getStringCellValue();
-                final String subsection = row.getCell(1).getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf((int)row.getCell(1).getNumericCellValue()) : row.getCell(1).getStringCellValue();
-                final String discipline = row.getCell(2).getStringCellValue();
-                final String deviceType = row.getCell(3).getStringCellValue();
-                final @Nullable String index = row.getCell(4) != null ? (row.getCell(4).getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf((int)row.getCell(4).getNumericCellValue()) : row.getCell(4).getStringCellValue()) : null;
-                ExcelImportResult addDeviceNameResult = addDeviceName(section, subsection, discipline, deviceType, index, rowNumber++);
-                if (addDeviceNameResult instanceof FailureExcelImportResult) {
-                    return addDeviceNameResult;
+            
+            for (Row row : sheet) {
+                if (row.getRowNum() >= 2) {
+                    if (row.getLastCellNum() != 6) {
+                        return new ColumnCountFaliureExcelImportResult();
+                    } else {
+                        final String section = As.notNull(ExcelCell.asString(row.getCell(0)));
+                        final String subsection = As.notNull(ExcelCell.asString(row.getCell(1)));
+                        final String discipline = As.notNull(ExcelCell.asString(row.getCell(2)));;
+                        final String deviceType = As.notNull(ExcelCell.asString(row.getCell(3)));;
+                        final @Nullable String index = ExcelCell.asString(row.getCell(4));
+                        final ExcelImportResult addDeviceNameResult = addDeviceName(section, subsection, discipline, deviceType, index, row.getRowNum());
+                        if (addDeviceNameResult instanceof FailureExcelImportResult) {
+                            return addDeviceNameResult;
+                        }
+                    }
                 }
             }
-        } catch (RuntimeException | IOException e ) {
-            return new ParseFaliureExcelImportResult();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         for (NewDeviceName newDeviceName : newDevices) {
             namePartService.addDevice(newDeviceName.getSectionPart(), newDeviceName.getDeviceTypePart(), newDeviceName.getIndex());
@@ -141,12 +149,12 @@ public class ExcelImport {
     private ExcelImportResult addDeviceName(String section, String subsection, String discipline, String deviceType, @Nullable String index, int rowCounter) {
         final  @Nullable NamePart sectionPart = sectionsTable.get(section, subsection);
         if (sectionPart == null) {
-            return new FailureExcelImportResult(rowCounter, NamePartType.SECTION);
+            return new CellValueFailureExcelImportResult(rowCounter+1, NamePartType.SECTION);
         }
         
         final @Nullable NamePart typePart = typesTable.get(discipline, deviceType);
         if (typePart == null) {
-            return new FailureExcelImportResult(rowCounter, NamePartType.DEVICE_TYPE);
+            return new CellValueFailureExcelImportResult(rowCounter+1, NamePartType.DEVICE_TYPE);
         }
         
         for (DeviceRevision deviceRevision : allDevices) {

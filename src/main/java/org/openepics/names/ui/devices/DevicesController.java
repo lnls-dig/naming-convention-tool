@@ -268,11 +268,11 @@ public class DevicesController implements Serializable {
             if (importResult instanceof ExcelImport.SuccessExcelImportResult) {
                 modifyDisplayView();
                 showMessage(null, FacesMessage.SEVERITY_INFO, "Import successful!", "");
-            } else if (importResult instanceof ExcelImport.FailureExcelImportResult) {
-                ExcelImport.FailureExcelImportResult faliureImportResult = (ExcelImport.FailureExcelImportResult) importResult;
+            } else if (importResult instanceof ExcelImport.CellValueFailureExcelImportResult) {
+                ExcelImport.CellValueFailureExcelImportResult faliureImportResult = (ExcelImport.CellValueFailureExcelImportResult) importResult;
                 showMessage(null, FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred in row " + faliureImportResult.getRowNumber() + ". " + (faliureImportResult.getNamePartType().equals(NamePartType.SECTION) ? "Logical area" : "Device category") + " part was not found in the database.");
-            } else if (importResult instanceof ExcelImport.ParseFaliureExcelImportResult) {
-                showMessage(null, FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred when reading import file. Check that your file format corresponds with NamingImportTemplate.xlsx you can download from batch import dialog.");
+            } else if (importResult instanceof ExcelImport.ColumnCountFaliureExcelImportResult) {
+                showMessage(null, FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred when reading import file. Column count does not match expected value.");
             } else {
                 throw new UnhandledCaseException();
             }                

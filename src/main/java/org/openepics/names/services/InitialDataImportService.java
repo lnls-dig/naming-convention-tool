@@ -1,12 +1,14 @@
 package org.openepics.names.services;
 
 import com.google.common.collect.Maps;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openepics.names.model.*;
 import org.openepics.names.util.As;
+import org.openepics.names.util.ExcelCell;
 import org.openepics.names.util.UnhandledCaseException;
 
 import javax.annotation.Nullable;
@@ -14,6 +16,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -61,12 +64,12 @@ public class InitialDataImportService {
         final XSSFSheet sheet = workbook.getSheet(isSection ? "LogicalAreaStructure" : "DeviceCategoryStructure");
         for (Row row : sheet) {
             if (row.getRowNum() >= 2) {
-                final int parent = (int) row.getCell(0).getNumericCellValue();
-                final int id = (int) row.getCell(1).getNumericCellValue();
-                final String name = As.notNull(cellAsString(row.getCell(2)));
-                final String mnemonic = As.notNull(cellAsString(row.getCell(3)));
-                @Nullable final String comment = cellAsString(row.getCell(4));
-                @Nullable final String type = cellAsString(row.getCell(5));
+                final int parent = (int) ExcelCell.asNumber(row.getCell(0));
+                final int id = (int) ExcelCell.asNumber(row.getCell(1));
+                final String name = As.notNull(ExcelCell.asString(row.getCell(2)));
+                final String mnemonic = As.notNull(ExcelCell.asString(row.getCell(3)));
+                @Nullable final String comment = ExcelCell.asString(row.getCell(4));
+                @Nullable final String type = ExcelCell.asString(row.getCell(5));
                 namePartsMap.put(id, isSection ? addSection(namePartsMap.get(parent), name, mnemonic) : addDeviceType(namePartsMap.get(parent), name, mnemonic));
             }
         }
@@ -76,8 +79,8 @@ public class InitialDataImportService {
         final XSSFSheet sheet = workbook.getSheet("NamedDevices");
         for (Row row : sheet) {
             if (row.getRowNum() >= 1) {
-                final int subsectionId = (int) row.getCell(1).getNumericCellValue();
-                final int deviceTypeId = (int) row.getCell(2).getNumericCellValue();
+                final int subsectionId = (int) ExcelCell.asNumber(row.getCell(1));
+                final int deviceTypeId = (int) ExcelCell.asNumber(row.getCell(2));
                 @Nullable final String instanceIndex = cellAsString(row.getCell(3));
                 @Nullable final String comment = cellAsString(row.getCell(4));
                 addDeviceName(namePartsMap.get(subsectionId), namePartsMap.get(deviceTypeId), instanceIndex);
