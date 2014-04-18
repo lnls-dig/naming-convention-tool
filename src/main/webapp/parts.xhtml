@@ -109,8 +109,8 @@
 
                 <p:separator />
 
-                <p:commandButton value="Submit" style="float: left" update="grid :ReqSubForm" oncomplete="if (args &amp;&amp; !args.validationFailed) addName.hide(); resizePanel()" action="#{namePartsController.onAdd()}" />
                 <p:commandButton value="Cancel" style="float: right" onclick="addName.hide()"  />
+                <p:commandButton value="Submit" style="float: right" update="grid :ReqSubForm" oncomplete="if (args &amp;&amp; !args.validationFailed) addName.hide(); resizePanel()" action="#{namePartsController.onAdd()}" />
             </p:dialog>
         </h:form>
 
@@ -160,8 +160,8 @@
                 </p:panelGrid>
                 <p:separator />
 
-                <p:commandButton id="submitModify" value="Submit" style="float: left" update="pgrid :ReqSubForm" oncomplete="if (args &amp;&amp; !args.validationFailed) modName.hide(); resizePanel()" action="#{namePartsController.onModify()}"/>
                 <p:commandButton value="Cancel" style="float: right" onclick="modName.hide()" />
+                <p:commandButton id="submitModify" value="Submit" style="float: right" update="pgrid :ReqSubForm" oncomplete="if (args &amp;&amp; !args.validationFailed) modName.hide(); resizePanel()" action="#{namePartsController.onModify()}"/>
             </p:dialog>
         </h:form>
 
@@ -204,8 +204,8 @@
                 </h:panelGroup>
                 <p:separator />
 
-                <p:commandButton value="Submit" style="float: left" oncomplete="delName.hide();resizePanel()" update=":ReqSubForm" actionListener="#{namePartsController.onDelete()}" />
                 <p:commandButton value="Cancel" style="float: right" onclick="delName.hide()"  />
+                <p:commandButton value="Submit" style="float: right" oncomplete="delName.hide();resizePanel()" update=":ReqSubForm" actionListener="#{namePartsController.onDelete()}" />
             </p:dialog>
         </h:form>
 
@@ -246,8 +246,8 @@
                 </p:panelGrid>
                 <p:separator />
 
-                <p:commandButton value="Submit" style="float: left" update=":ReqSubForm" oncomplete="cancelReq.hide();resizePanel()" actionListener="#{namePartsController.onCancel()}"/>
                 <p:commandButton value="Cancel" style="float: right" onclick="cancelReq.hide()"  />
+                <p:commandButton value="Submit" style="float: right" update=":ReqSubForm" oncomplete="cancelReq.hide();resizePanel()" actionListener="#{namePartsController.onCancel()}"/>
             </p:dialog>
         </h:form>
 
@@ -292,8 +292,8 @@
                 </h:panelGroup>
                 <p:separator />
 
-                <p:commandButton value="Approve" style="float: left" update=":ReqSubForm" oncomplete="approveRequest.hide();resizePanel()" actionListener="#{namePartsController.onApprove()}"/>
                 <p:commandButton value="Cancel" style="float: right" onclick="approveRequest.hide()" />
+                <p:commandButton value="Approve" style="float: right" update=":ReqSubForm" oncomplete="approveRequest.hide();resizePanel()" actionListener="#{namePartsController.onApprove()}"/>
             </p:dialog>
         </h:form>
 
@@ -331,8 +331,8 @@
                     </p:row>
                 </p:panelGrid>
                 <p:separator />
-                <p:commandButton value="Reject" style="float: left" update="pgrid :ReqSubForm" oncomplete="if (args &amp;&amp; !args.validationFailed) rejectRequest.hide(); resizePanel()" action="#{namePartsController.onReject()}"/>
                 <p:commandButton value="Cancel" style="float: right" onclick="rejectRequest.hide()" />
+                <p:commandButton value="Reject" style="float: right" update="pgrid :ReqSubForm" oncomplete="if (args &amp;&amp; !args.validationFailed) rejectRequest.hide(); resizePanel()" action="#{namePartsController.onReject()}"/>
             </p:dialog>
         </h:form>
     </ui:define>

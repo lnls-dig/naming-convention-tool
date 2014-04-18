@@ -2,6 +2,8 @@ package org.openepics.names.webservice;
 
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
+import org.openepics.names.services.views.DeviceView;
+import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.util.As;
 
@@ -29,14 +31,15 @@ public class SpecificDeviceNameResource {
     public DeviceNameElement getAllDeviceNames(@PathParam("uuid") String reqUuid) {
         final @Nullable DeviceRevision deviceRevision = namePartService.currentDeviceRevision(UUID.fromString(reqUuid));
         if (deviceRevision != null && !deviceRevision.isDeleted()) {
+            final DeviceView deviceView = viewFactory.getView(deviceRevision);
             final DeviceNameElement deviceData = new DeviceNameElement();
             deviceData.setUuid(deviceRevision.getDevice().getUuid());
-            deviceData.setSection(As.notNull(viewFactory.getView(deviceRevision.getSection()).getParent()).getMnemonic());
-            deviceData.setSubSection(viewFactory.getView(deviceRevision.getSection()).getMnemonic());
-            deviceData.setDiscipline(As.notNull(As.notNull(viewFactory.getView(deviceRevision.getDeviceType()).getParent()).getParent()).getMnemonic());
-            deviceData.setDeviceType(viewFactory.getView(deviceRevision.getDeviceType()).getMnemonic());
-            deviceData.setInstanceIndex(viewFactory.getView(deviceRevision).getInstanceIndex());
-            deviceData.setName(viewFactory.getView(deviceRevision).getConventionName());
+            deviceData.setSection(As.notNull(deviceView.getSection().getParent()).getMnemonic());
+            deviceData.setSubSection(deviceView.getSection().getMnemonic());
+            deviceData.setDiscipline(As.notNull(As.notNull(deviceView.getDeviceType().getParent()).getParent()).getMnemonic());
+            deviceData.setDeviceType(deviceView.getDeviceType().getMnemonic());
+            deviceData.setInstanceIndex(deviceView.getInstanceIndex());
+            deviceData.setName(deviceView.getConventionName());
             return deviceData;
         } else {
             return null;

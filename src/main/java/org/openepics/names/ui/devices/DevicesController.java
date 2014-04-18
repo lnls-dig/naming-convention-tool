@@ -4,6 +4,8 @@ package org.openepics.names.ui.devices;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
+import org.apache.commons.io.FilenameUtils;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
@@ -33,6 +35,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -67,6 +70,10 @@ public class DevicesController implements Serializable {
     private TreeNode formSelectedSection;
     private TreeNode formSelectedDeviceType;
     private String formInstanceIndex = "";
+
+    private byte[] importData;
+    private String importFileName;
+
     private String deviceNameFilter, appliedDeviceNameFilter = "";
     private String deviceTypeFilter, appliedDeviceTypeFilter = "";
 
@@ -140,6 +147,25 @@ public class DevicesController implements Serializable {
         }
     }
 
+    public void onImport() {
+        try (InputStream inputStream = new ByteArrayInputStream(importData)) {
+            ExcelImport.ExcelImportResult importResult = excelImport.parseDeviceImportFile(inputStream);
+            if (importResult instanceof ExcelImport.SuccessExcelImportResult) {
+                modifyDisplayView();
+                showMessage(null, FacesMessage.SEVERITY_INFO, "Import was successful!", "");
+            } else if (importResult instanceof ExcelImport.CellValueFailureExcelImportResult) {
+                ExcelImport.CellValueFailureExcelImportResult failureImportResult = (ExcelImport.CellValueFailureExcelImportResult) importResult;
+                showMessage(null, FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred in row " + failureImportResult.getRowNumber() + ". " + (failureImportResult.getNamePartType().equals(NamePartType.SECTION) ? "Logical area" : "Device category") + " part was not found in the database.");
+            } else if (importResult instanceof ExcelImport.ColumnCountFailureExcelImportResult) {
+                showMessage(null, FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred when reading import file. Column count does not match expected value.");
+            } else {
+                throw new UnhandledCaseException();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException();
+        }
+    }
+
     private String printedAffectedQuantity(int n) {
         return n + " device name" + (n > 1 ? "s have been " : " has been ");
     }
@@ -177,6 +203,8 @@ public class DevicesController implements Serializable {
 
     public String getFormInstanceIndex() { return formInstanceIndex; }
     public void setFormInstanceIndex(String formInstanceIndex) { this.formInstanceIndex = !formInstanceIndex.isEmpty() ? formInstanceIndex : null; }
+
+    public String getImportFileName() { return importFileName; }
 
     public TreeNode[] getSelectedNodes() { return selectedNodes; }
 
@@ -261,21 +289,16 @@ public class DevicesController implements Serializable {
 
         RequestContext.getCurrentInstance().reset("modDeviceNameForm:grid");
     }
+
+    public void prepareImportPopup() {
+        importData = null;
+        importFileName = null;
+    }
     
     public void handleFileUpload(FileUploadEvent event) {
         try (InputStream inputStream = event.getFile().getInputstream()) {
-            ExcelImport.ExcelImportResult importResult = excelImport.parseDeviceImportFile(inputStream);
-            if (importResult instanceof ExcelImport.SuccessExcelImportResult) {
-                modifyDisplayView();
-                showMessage(null, FacesMessage.SEVERITY_INFO, "Import successful!", "");
-            } else if (importResult instanceof ExcelImport.CellValueFailureExcelImportResult) {
-                ExcelImport.CellValueFailureExcelImportResult faliureImportResult = (ExcelImport.CellValueFailureExcelImportResult) importResult;
-                showMessage(null, FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred in row " + faliureImportResult.getRowNumber() + ". " + (faliureImportResult.getNamePartType().equals(NamePartType.SECTION) ? "Logical area" : "Device category") + " part was not found in the database.");
-            } else if (importResult instanceof ExcelImport.ColumnCountFaliureExcelImportResult) {
-                showMessage(null, FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred when reading import file. Column count does not match expected value.");
-            } else {
-                throw new UnhandledCaseException();
-            }                
+            this.importData = ByteStreams.toByteArray(inputStream);
+            this.importFileName = FilenameUtils.getName(event.getFile().getFileName());
         } catch (IOException e) {
             throw new RuntimeException();           
         }

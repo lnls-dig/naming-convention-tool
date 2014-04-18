@@ -2,9 +2,9 @@ package org.openepics.names.ui.devices;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -12,6 +12,7 @@ import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
+import org.openepics.names.services.DeviceDefinition;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
@@ -25,8 +26,8 @@ import javax.inject.Inject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A bean for importing devices from Excel.
@@ -39,8 +40,8 @@ public class ExcelImport {
     
     private Table<String, String, NamePart> sectionsTable;
     private Table<String, String, NamePart> typesTable;
-    private List<DeviceRevision> allDevices;
-    private List<NewDeviceName> newDevices;
+    private Set<DeviceDefinition> existingDevices;
+    private Set<DeviceDefinition> newDevices;
 
     /**
      * Reports the outcome of the import operation.
@@ -60,7 +61,7 @@ public class ExcelImport {
     /**
      * Reports a failed outcome of the import operation, because of wrong format of the import file.
      */
-    public class ColumnCountFaliureExcelImportResult extends FailureExcelImportResult {}
+    public class ColumnCountFailureExcelImportResult extends FailureExcelImportResult {}
     
     /**
      * Reports a failed outcome of the import operation, because either the section or device type referred to in the
@@ -98,11 +99,7 @@ public class ExcelImport {
      * @return an ExcelImportResult object reporting the outcome of the import operation
      */
     public ExcelImportResult parseDeviceImportFile(InputStream input) {
-        sectionsTable = HashBasedTable.create();
-        typesTable = HashBasedTable.create();
-        allDevices = Lists.newArrayList();
-        newDevices = Lists.newArrayList();
-        loadDataFromDatabase();
+        init();
 
         try {
             final XSSFWorkbook workbook = new XSSFWorkbook(input);
@@ -111,12 +108,12 @@ public class ExcelImport {
             for (Row row : sheet) {
                 if (row.getRowNum() >= 2) {
                     if (row.getLastCellNum() != 6) {
-                        return new ColumnCountFaliureExcelImportResult();
+                        return new ColumnCountFailureExcelImportResult();
                     } else {
                         final String section = As.notNull(ExcelCell.asString(row.getCell(0)));
                         final String subsection = As.notNull(ExcelCell.asString(row.getCell(1)));
-                        final String discipline = As.notNull(ExcelCell.asString(row.getCell(2)));;
-                        final String deviceType = As.notNull(ExcelCell.asString(row.getCell(3)));;
+                        final String discipline = As.notNull(ExcelCell.asString(row.getCell(2)));
+                        final String deviceType = As.notNull(ExcelCell.asString(row.getCell(3)));
                         final @Nullable String index = ExcelCell.asString(row.getCell(4));
                         final ExcelImportResult addDeviceNameResult = addDeviceName(section, subsection, discipline, deviceType, index, row.getRowNum());
                         if (addDeviceNameResult instanceof FailureExcelImportResult) {
@@ -128,51 +125,44 @@ public class ExcelImport {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        for (NewDeviceName newDeviceName : newDevices) {
-            namePartService.addDevice(newDeviceName.getSectionPart(), newDeviceName.getDeviceTypePart(), newDeviceName.getIndex());
-        }
+
+        namePartService.batchAddDevices(newDevices);
         return new SuccessExcelImportResult();
     }
     
-    private void loadDataFromDatabase() {
+    private void init() {
+        newDevices = Sets.newHashSet();
+
         final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, false);
+        final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false);
+
+        sectionsTable = HashBasedTable.create();
         populateSectionsTable(namePartTreeBuilder.newNamePartTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true), 0);
 
-        final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false);
+        typesTable = HashBasedTable.create();
         populateTypesTable(namePartTreeBuilder.newNamePartTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true), 0, "");
 
+        existingDevices = Sets.newHashSet();
         for (DeviceRevision deviceRevision : namePartService.currentDeviceRevisions(false)) {
-            allDevices.add(deviceRevision);
+            existingDevices.add(new DeviceDefinition(deviceRevision.getSection(), deviceRevision.getDeviceType(), deviceRevision.getInstanceIndex()));
         }
     }
     
-    private ExcelImportResult addDeviceName(String section, String subsection, String discipline, String deviceType, @Nullable String index, int rowCounter) {
+    private ExcelImportResult addDeviceName(String section, String subsection, String discipline, String deviceType, @Nullable String instanceIndex, int rowCounter) {
         final  @Nullable NamePart sectionPart = sectionsTable.get(section, subsection);
-        if (sectionPart == null) {
-            return new CellValueFailureExcelImportResult(rowCounter+1, NamePartType.SECTION);
-        }
-        
         final @Nullable NamePart typePart = typesTable.get(discipline, deviceType);
-        if (typePart == null) {
-            return new CellValueFailureExcelImportResult(rowCounter+1, NamePartType.DEVICE_TYPE);
-        }
-        
-        for (DeviceRevision deviceRevision : allDevices) {
-            if (deviceRevision.getSection().equals(sectionPart) && deviceRevision.getDeviceType().equals(typePart) && (deviceRevision.getInstanceIndex() != null && deviceRevision.getInstanceIndex().equals(index) || index == null && deviceRevision.getInstanceIndex() == null)) {
-                return new SuccessExcelImportResult();
+
+        if (sectionPart == null) {
+            return new CellValueFailureExcelImportResult(rowCounter + 1, NamePartType.SECTION);
+        } else if (typePart == null) {
+            return new CellValueFailureExcelImportResult(rowCounter + 1, NamePartType.DEVICE_TYPE);
+        } else {
+            final DeviceDefinition newDevice = new DeviceDefinition(sectionPart, typePart, instanceIndex);
+            if (!existingDevices.contains(newDevice)) {
+                newDevices.add(newDevice);
             }
+            return new SuccessExcelImportResult();
         }
-        addNewDeviceName(sectionPart, typePart, index);
-        return new SuccessExcelImportResult();
-    }
-    
-    private void addNewDeviceName(NamePart sectionPart, NamePart typePart, @Nullable String index) {
-        for (NewDeviceName deviceName : newDevices) {
-            if (deviceName.getSectionPart().equals(sectionPart) && deviceName.getDeviceTypePart().equals(typePart) && (deviceName.getIndex() == null && index == null || deviceName.getIndex().equals(index))) {
-                return;
-            }
-        }
-        newDevices.add(new NewDeviceName(sectionPart, typePart, index));
     }
     
     private void populateSectionsTable(TreeNode node, int level) {

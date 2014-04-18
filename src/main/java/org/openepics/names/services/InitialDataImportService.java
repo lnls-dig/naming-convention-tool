@@ -1,23 +1,21 @@
 package org.openepics.names.services;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openepics.names.model.*;
 import org.openepics.names.util.As;
 import org.openepics.names.util.ExcelCell;
-import org.openepics.names.util.UnhandledCaseException;
 
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -77,15 +75,17 @@ public class InitialDataImportService {
     
     private void fillDeviceNames() {
         final XSSFSheet sheet = workbook.getSheet("NamedDevices");
+        final List<DeviceDefinition> devices = Lists.newArrayList();
         for (Row row : sheet) {
             if (row.getRowNum() >= 1) {
                 final int subsectionId = (int) ExcelCell.asNumber(row.getCell(1));
                 final int deviceTypeId = (int) ExcelCell.asNumber(row.getCell(2));
-                @Nullable final String instanceIndex = cellAsString(row.getCell(3));
-                @Nullable final String comment = cellAsString(row.getCell(4));
-                addDeviceName(namePartsMap.get(subsectionId), namePartsMap.get(deviceTypeId), instanceIndex);
+                @Nullable final String instanceIndex = ExcelCell.asString(row.getCell(3));
+                @Nullable final String comment = ExcelCell.asString(row.getCell(4));
+                devices.add(new DeviceDefinition(namePartsMap.get(subsectionId), namePartsMap.get(deviceTypeId), instanceIndex));
             }
         }
+        namePartService.batchAddDevices(devices, null);
     }
 
     private NamePart addSection(@Nullable NamePart parent, String name, String mnemonic) {
@@ -98,25 +98,5 @@ public class InitialDataImportService {
         final NamePartRevision newRevision = namePartService.addNamePart(name, mnemonic, NamePartType.DEVICE_TYPE, parent, null, "Initial data");
         namePartService.approveNamePartRevision(newRevision, null, null);
         return newRevision.getNamePart();
-    }
-    
-    private void addDeviceName(NamePart subSection, NamePart deviceType, String instanceIndex) {
-        namePartService.addDevice(subSection, deviceType, instanceIndex, null);
-    }
-
-    private @Nullable String cellAsString(@Nullable Cell cell) {
-        if (cell != null) {
-            if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                return String.valueOf(cell.getNumericCellValue());
-            } else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-                return cell.getStringCellValue() != null ? cell.getStringCellValue() : null;
-            } else if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
-                return null;
-            } else {
-                throw new UnhandledCaseException();
-            }
-        } else {
-            return null;
-        }
     }
 }

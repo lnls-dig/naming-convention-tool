@@ -1,9 +1,11 @@
 package org.openepics.names.services;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.openepics.names.model.*;
+import org.openepics.names.services.views.BatchViewProvider;
 import org.openepics.names.services.views.NamePartRevisionProvider;
 import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.util.As;
@@ -17,7 +19,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -90,7 +91,17 @@ public class NamePartService {
      * @param instanceIndex the instance index of the device, null if no instance index is assigned to the device
      */
     public boolean isDeviceConventionNameUnique(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
-        final String equivalenceClass = namingConvention.equivalenceClassRepresentative(conventionName(section, deviceType, instanceIndex));
+        final String conventionName = conventionName(section, deviceType, instanceIndex);
+        return isDeviceConventionNameUnique(conventionName);
+    }
+
+    /**
+     * True if the device with the given convention name have a unique convention name.
+     *
+     * @param conventionName the device name to check
+     */
+    public boolean isDeviceConventionNameUnique(String conventionName) {
+        final String equivalenceClass = namingConvention.equivalenceClassRepresentative(conventionName);
         return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deleted = false AND r.conventionNameEqClass = :conventionNameEqClass", DeviceRevision.class).setParameter("conventionNameEqClass", equivalenceClass).getResultList().isEmpty();
     }
 
@@ -352,6 +363,34 @@ public class NamePartService {
     }
 
     /**
+     * Adds a batch of devices. Similar to addDevice, but with better performance when adding a large number of devices.
+     *
+     * @param devices the devices to add
+     * @param user the user adding the devices. Null if done by an automated process.
+     */
+    public void batchAddDevices(Iterable<DeviceDefinition> devices, @Nullable UserAccount user) {
+        final BatchViewProvider batchViewProvider = new BatchViewProvider(currentApprovedNamePartRevisions(NamePartType.SECTION, false), currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false), ImmutableList.<DeviceRevision>of());
+        for (DeviceDefinition device : devices) {
+            final NamePartView sectionView = batchViewProvider.view(device.section());
+            final NamePartView deviceTypeView = batchViewProvider.view(device.deviceType());
+            Preconditions.checkArgument(!sectionView.isDeleted());
+            Preconditions.checkArgument(!deviceTypeView.isDeleted());
+
+            final String conventionName = namingConvention.conventionName(sectionView.getMnemonicPath(), deviceTypeView.getMnemonicPath(), device.instanceIndex());
+            final String conventionNameEqClass = namingConvention.equivalenceClassRepresentative(conventionName);
+
+            Preconditions.checkState(namingConvention.isInstanceIndexValid(sectionView.getMnemonicPath(), deviceTypeView.getMnemonicPath(), device.instanceIndex()));
+            Preconditions.checkState(isDeviceConventionNameUnique(conventionName));
+
+            final Device deviceEntity = new Device(UUID.randomUUID());
+            final DeviceRevision newRevision = new DeviceRevision(deviceEntity, new Date(), user, false, device.section(), device.deviceType(), device.instanceIndex(), conventionName, conventionNameEqClass);
+
+            em.persist(deviceEntity);
+            em.persist(newRevision);
+        }
+    }
+
+    /**
      * Adds a new device.
      *
      * @param section the section containing the device
@@ -403,7 +442,7 @@ public class NamePartService {
         final String conventionName = conventionName(section, deviceType, instanceIndex);
         final String conventionNameEqClass = namingConvention.equivalenceClassRepresentative(conventionName);
 
-        if (!(section.equals(currentRevision.getSection()) && deviceType.equals(currentRevision.getDeviceType()) && Objects.equals(instanceIndex, currentRevision.getInstanceIndex()) && conventionName.equals(currentRevision.getConventionName()))) {
+        if (!(section.equals(currentRevision.getSection()) && deviceType.equals(currentRevision.getDeviceType()) && Objects.equal(instanceIndex, currentRevision.getInstanceIndex()) && conventionName.equals(currentRevision.getConventionName()))) {
             Preconditions.checkState(isInstanceIndexValid(section, deviceType, instanceIndex));
             Preconditions.checkState(isDeviceConventionNameUnique(section, deviceType, instanceIndex));
 

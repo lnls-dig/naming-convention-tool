@@ -2,6 +2,7 @@ package org.openepics.names.services.restricted;
 
 import com.google.common.base.Preconditions;
 import org.openepics.names.model.*;
+import org.openepics.names.services.DeviceDefinition;
 import org.openepics.names.services.NamePartService;
 import org.openepics.names.services.SessionService;
 
@@ -201,6 +202,11 @@ public class RestrictedNamePartService {
      */
     public @Nullable NamePartRevision pendingRevision(NamePart namePart) {
         return namePartService.pendingRevision(namePart);
+    }
+
+    public void batchAddDevices(Iterable<DeviceDefinition> devices) {
+        Preconditions.checkState(sessionService.isEditor());
+        namePartService.batchAddDevices(devices, sessionService.user());
     }
 
     /**

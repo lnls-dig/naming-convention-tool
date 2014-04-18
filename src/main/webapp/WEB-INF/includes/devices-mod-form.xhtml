@@ -65,9 +65,8 @@
             </p:panelGrid>
             <p:separator />
 
-            <p:commandButton id="bsub" value="Submit" style="float: left" update="grid :ManageNameForm" oncomplete="if (args &amp;&amp; !args.validationFailed) #{widgetName}.hide(); resizePanel()" action="#{devicesController[submitHandler]}" disabled="#{devicesController.formSelectedSection == null || devicesController.formSelectedDeviceType == null}"/>
-            <p:commandButton value="Cancel" style="float: right"
-                    onclick="#{widgetName}.hide()" />
+            <p:commandButton value="Cancel" style="float: right" onclick="#{widgetName}.hide()" />
+            <p:commandButton id="bsub" value="Submit" style="float: right" update="grid :ManageNameForm" oncomplete="if (args &amp;&amp; !args.validationFailed) #{widgetName}.hide(); resizePanel()" action="#{devicesController[submitHandler]}" disabled="#{devicesController.formSelectedSection == null || devicesController.formSelectedDeviceType == null}"/>
         </p:dialog>
     </h:form>
 </ui:composition>

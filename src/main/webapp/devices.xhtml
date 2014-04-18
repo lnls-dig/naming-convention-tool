@@ -70,7 +70,9 @@
                                 oncomplete="nameDetail.show()"
                                 disabled="#{!devicesController.canShowHistory()}" />
                             <p:menuitem value="Batch Import" icon="ui-icon-folder-open"
-                                title="Batch Import" update=":batchImportForm"
+                                title="Batch Import"
+                                actionListener="#{devicesController.prepareImportPopup()}"
+                                update=":batchImportForm"
                                 oncomplete="batchImport.show()" rendered="#{userManager.editor}"/>
                         </p:menuButton></td>
                 </tr>
@@ -174,13 +176,7 @@
 					</p:row>
 				</p:panelGrid>
 				<p:separator />
-				<p:commandButton value="Submit" style="float: left"
-					update=":ManageNameForm :ManageNameForm:ncReqMenu"
-					oncomplete="delDeviceName.hide(); resizePanel()"
-					action="#{devicesController.onDelete()}" />
-				<p:commandButton value="Cancel" style="float: right"
-					onclick="delDeviceName.hide()" />
-
+                <p:commandButton value="Cancel" style="float: right" onclick="delDeviceName.hide()" />
 			</p:dialog>
 		</h:form>
 		
@@ -189,23 +185,20 @@
 		<h:form id="batchImportForm" enctype="multipart/form-data">		    
 			<p:dialog id="batchImport" widgetVar="batchImport" modal="true" resizable="false" width="35%">				
 				<f:facet name="header">
-					<h:outputText value="Batch Import Device Names From Excel File" />
+					<h:outputText value="Batch Import" />
 				</f:facet>
-				<h:outputText value="Select excell file to upload device names from" />
-				<div style="border: 1px solid #a8a8a8; padding: 5px">
-					<p:fileUpload id="fileUpload" fileUploadListener="#{devicesController.handleFileUpload}" oncomplete="batchImport.hide(); resizePanel()" update=":ManageNameForm" mode="advanced" dragDropSupport="false" allowTypes="/(\.|\/)(xlsx|xls)$/" />
-					<p:separator />
-					
-					<p:commandButton id="downloadLink" value="Download Import Template" ajax="false" icon="ui-icon-disk" onclick="PrimeFaces.monitorDownload(start, stop)">
-						<p:fileDownload	value="#{devicesController.downloadableNamesTemplate}" />
-					</p:commandButton>
-
-					<p:messages for="excelImportStatusMessage" showDetail="true" autoUpdate="true" closable="true" />
-				</div>
-				<p:commandButton value="Cancel" style="float: right" onclick="batchImport.hide();" />
-			</p:dialog>
-			
-			
+                <h:panelGroup id="grp" layout="block">
+                    <h:panelGroup rendered="#{devicesController.importFileName == null}" layout="block" style="padding: 0 0 7px 0">Please choose an Excel file to import device names from.</h:panelGroup>
+                    <p:fileUpload fileUploadListener="#{devicesController.handleFileUpload}" update="grp" mode="advanced" auto="true" fileLimit="1" dragDropSupport="true" allowTypes="/(\.|\/)(xlsx|xls)$/" rendered="#{devicesController.importFileName == null}" />
+                    <h:outputText value="#{devicesController.importFileName}"/>
+                    <p:separator />
+                    <p:commandButton id="downloadLink" style="float: left" value="Download Template" ajax="false" icon="ui-icon-disk" onclick="PrimeFaces.monitorDownload(start, stop)" disabled="#{devicesController.importFileName != null}">
+                        <p:fileDownload	value="#{devicesController.downloadableNamesTemplate}" />
+                    </p:commandButton>
+                    <p:commandButton value="Cancel" style="float: right" onclick="batchImport.hide();"/>
+                    <p:commandButton value="Import" style="float: right" update=":ManageNameForm :ManageNameForm:ncReqMenu" oncomplete="batchImport.hide(); resizePanel()" action="#{devicesController.onImport()}" disabled="#{devicesController.importFileName == null}"/>
+                </h:panelGroup>
+            </p:dialog>
 		</h:form>
 	</ui:define>
 

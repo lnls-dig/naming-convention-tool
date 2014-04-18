@@ -54,8 +54,8 @@
             </p:panelGrid>
 
             <p:messages id="loginmsgs" globalOnly="true"/>
+            <p:commandButton value="Cancel" onclick="loginDialog.hide()" type="button" style="float: right" />
             <p:commandButton value="Login" update="grid loginmsgs :menuform:mainMenu" action="#{loginController.onLogin}" style="float: right" oncomplete="if (args &amp;&amp; !args.validationFailed &amp;&amp; args.loginSuccess) loginDialog.hide()"/>
-            <p:commandButton value="Cancel" onclick="loginDialog.hide()" type="button" style="float: left" />
         </p:dialog>
     </h:form>
 </ui:composition>

@@ -10,9 +10,11 @@ import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
+import org.openepics.names.services.views.BatchViewProvider;
 import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
+import org.openepics.names.util.As;
 import org.primefaces.model.TreeNode;
 
 import javax.annotation.Nullable;
@@ -30,7 +32,6 @@ public class ExcelExport {
     
     @Inject private RestrictedNamePartService namePartService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
-    @Inject private ViewFactory viewFactory;
 
     /**
      * Exports the entities from the database, producing a stream which can be streamed to the user over HTTP.
@@ -55,7 +56,7 @@ public class ExcelExport {
         try {
             final File temporaryFile = File.createTempFile("temp", "xlsx");
             FileOutputStream outputStream = new FileOutputStream(temporaryFile);
-            workbook.write(outputStream);          
+            workbook.write(outputStream);
             outputStream.close();
             inputStream = new FileInputStream(temporaryFile);
             temporaryFile.delete();
@@ -111,7 +112,7 @@ public class ExcelExport {
                     appendCell(row, childView.getNamePart().getUuid().toString());
                     appendCell(row, childView.getName());
                     appendCell(row, childView.getMnemonic());
-                    appendCell(row, new SimpleDateFormat("yyyy-MM-dd").format(childView.getCurrentRevision().getProcessDate()));
+                    appendCell(row, new SimpleDateFormat("yyyy-MM-dd").format(As.notNull(childView.getCurrentRevision()).getProcessDate()));
                 }
             } else {
                 return;
@@ -120,15 +121,19 @@ public class ExcelExport {
     }
     
     private void fillDeviceSheet(XSSFSheet sheet, List<DeviceRevision> devices) {
+        final List<NamePartRevision> sectionRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, false);
+        final List<NamePartRevision> deviceTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false);
+        final List<DeviceRevision> deviceRevisions = namePartService.currentDeviceRevisions(false);
+        final BatchViewProvider viewProvider = new BatchViewProvider(sectionRevisions, deviceTypeRevisions, deviceRevisions);
         for (DeviceRevision device : devices) {
             final Row row = appendRow(sheet);
             appendCell(row, device.getDevice().getUuid().toString());
-            appendCell(row, viewFactory.getView(device.getSection()).getParent().getMnemonic());
-            appendCell(row, viewFactory.getView(device.getSection()).getMnemonic());
-            appendCell(row, viewFactory.getView(device.getDeviceType()).getParent().getParent().getMnemonic());
-            appendCell(row, viewFactory.getView(device.getDeviceType()).getMnemonic());
-            appendCell(row, viewFactory.getView(device).getInstanceIndex());
-            appendCell(row, viewFactory.getView(device).getConventionName());
+            appendCell(row, As.notNull(viewProvider.view(device.getSection()).getParent()).getMnemonic());
+            appendCell(row, viewProvider.view(device.getSection()).getMnemonic());
+            appendCell(row, As.notNull(As.notNull(viewProvider.view(device.getDeviceType()).getParent()).getParent()).getMnemonic());
+            appendCell(row, viewProvider.view(device.getDeviceType()).getMnemonic());
+            appendCell(row, viewProvider.view(device).getInstanceIndex());
+            appendCell(row, viewProvider.view(device).getConventionName());
             appendCell(row, new SimpleDateFormat("yyyy-MM-dd").format(device.getRequestDate()));
         }
     }
