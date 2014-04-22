@@ -177,7 +177,8 @@
 				</p:panelGrid>
 				<p:separator />
                 <p:commandButton value="Cancel" style="float: right" onclick="delDeviceName.hide()" />
-			</p:dialog>
+                <p:commandButton value="Delete" style="float: right" update=":ManageNameForm :ManageNameForm:ncReqMenu" oncomplete="delDeviceName.hide(); resizePanel()" action="#{devicesController.onDelete()}" />
+            </p:dialog>
 		</h:form>
 		
 		
