@@ -26,6 +26,7 @@ public class EssNamingConventionTest {
         assertFalse(namingConvention.isSectionNameValid(ImmutableList.of("Acc"), "001"));
         assertFalse(namingConvention.isSectionNameValid(ImmutableList.of("Acc", "Sec", "SubS"), "001"));
         assertTrue(namingConvention.isSectionNameValid(parentPath, "01"));
+        assertTrue(namingConvention.isSectionNameValid(parentPath, "00"));
         assertTrue(namingConvention.isSectionNameValid(parentPath, "123"));
     }
     
@@ -75,6 +76,8 @@ public class EssNamingConventionTest {
         assertFalse(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "1"));
         assertFalse(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "1a"));
         assertFalse(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "a!"));
+        assertFalse(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "a0123as"));
+        assertTrue(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "a0123a"));
         assertTrue(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "a"));
         assertTrue(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "a1"));
         assertTrue(namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "aA1"));
@@ -128,6 +131,28 @@ public class EssNamingConventionTest {
     public void zeroPrefixedNumberTest() {
         assertEquals(namingConvention.equivalenceClassRepresentative("zero01"), namingConvention.equivalenceClassRepresentative("zero1"));
         assertEquals(namingConvention.equivalenceClassRepresentative("ze01ro"), namingConvention.equivalenceClassRepresentative("ze1ro"));
+    }
+    
+    @Test
+    public void zeroAfterAlphaCharacterTest() {
+        assertEquals(namingConvention.equivalenceClassRepresentative("Sub0001"), namingConvention.equivalenceClassRepresentative("Sub1"));
+        assertEquals(namingConvention.equivalenceClassRepresentative("Sub00"), namingConvention.equivalenceClassRepresentative("Sub"));
+    }
+    
+    @Test
+    public void typeAConventionNameTest() {
+        final List<String> sectionPath = ImmutableList.of("Acc", "A2T", "01");
+        final List<String> deviceTypePath = ImmutableList.of("BMD", "Chop", "ChopG");
+        assertEquals(namingConvention.conventionName(sectionPath, deviceTypePath, null), "A2T-BMD:ChopG-01");
+        assertEquals(namingConvention.conventionName(sectionPath, deviceTypePath, "a01"), "A2T-BMD:ChopG-01a01");
+    }
+    
+    @Test
+    public void typeDConventionNameTest() {
+        final List<String> sectionPath = ImmutableList.of("TS", "ActC", "Cn");
+        final List<String> deviceTypePath = ImmutableList.of("BMD", "Chop", "ChopG");
+        assertEquals(namingConvention.conventionName(sectionPath, deviceTypePath, null), "ActC-Cn:ChopG");
+        assertEquals(namingConvention.conventionName(sectionPath, deviceTypePath, "001"), "ActC-Cn:ChopG-001");
     }
 }
 

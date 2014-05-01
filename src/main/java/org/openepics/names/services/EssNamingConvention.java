@@ -19,7 +19,7 @@ public class EssNamingConvention implements NamingConvention {
             return false;
         } else {
             if (parentPath.size() == 2 && parentPath.get(0).equals("Acc")) {
-                return name.matches("^([1-9][0-9][0-9])|([0-9]?[1-9][0-9])|[0-9]?[0-9]?[1-9]$");
+                return name.matches("^([0-9][0-9][0-9])|([0-9]?[0-9][0-9])|[0-9]?[0-9]?[0-9]$");
             } else {
                 return name.matches("^[a-zA-Z][a-zA-Z0-9]*$");
             }
@@ -37,6 +37,8 @@ public class EssNamingConvention implements NamingConvention {
     @Override public boolean isInstanceIndexValid(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
         if (instanceIndex == null) {
             return true;
+        } else if (instanceIndex.length() > 6) {
+            return false;
         } else if (sectionPath.get(0).equals("Acc")) {
             return instanceIndex.matches("^[a-zA-Z][a-zA-Z0-9]*$");
         } else {
@@ -45,7 +47,7 @@ public class EssNamingConvention implements NamingConvention {
     }
 
     @Override public String equivalenceClassRepresentative(String name) {
-        return name.toUpperCase().replace('I', '1').replace('L', '1').replace('O', '0').replace('W', 'V').replaceAll("(?<!\\d)0+(?=\\d)", "");
+        return name.toUpperCase().replace('I', '1').replace('L', '1').replace('O', '0').replace('W', 'V').replaceAll("(?<!\\d)0+(?=\\d)", "").replaceAll("(?<!\\[A-Za-z])0+", "");
     }
 
     @Override public String conventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
@@ -57,7 +59,7 @@ public class EssNamingConvention implements NamingConvention {
         if (supersection.equals("Acc")) {
             return section + "-" + discipline + ":" + genericDeviceType + "-" + subsection + (instanceIndex != null ? instanceIndex : "");
         } else {
-            return section + "-" + subsection + ":" + discipline + (instanceIndex != null ? "-" + instanceIndex : "");
+            return section + "-" + subsection + ":" + genericDeviceType + (instanceIndex != null ? "-" + instanceIndex : "");
         }
     }
     
