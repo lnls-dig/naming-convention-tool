@@ -92,12 +92,18 @@
 
                     <h:outputLabel for="icode" value="Mnemonic:" />
                     <h:panelGroup>
-                        <p:inputText id="icode" value="#{namePartsController.formMnemonic}" required="true" requiredMessage="Please enter a mnemonic.">
+                        <p:inputText id="icode" value="#{namePartsController.formMnemonic}" onkeyup="displayMnemonicLengthWarningOnAdd()" required="true" requiredMessage="Please enter a mnemonic.">
                             <f:validator validatorId="custom.addMnemonicValidator" />
+                            
                         </p:inputText>
                         <p:watermark for="icode" value="e.g. FluxC" />
-                        <p:message for="icode" />
-                    </h:panelGroup>
+                        <p:message for="icode"/>
+						<div id="addNameForm:mnemonicLengthWarning" class="ui-message ui-message-warn ui-widget ui-corner-all" style="display:none">
+							<span class="ui-message-warn-icon"></span>
+							<span class="ui-message-warn-detail">Mnemonic should be between 2 and 4 characters long.</span>
+						</div>
+
+					</h:panelGroup>
 
                     <h:outputLabel for="icomm" value="Comment (optional):" />
                     <h:panelGroup>
@@ -142,10 +148,14 @@
                         <p:column><h:outputLabel for="mcode" value="Mnemonic:" /> </p:column>
                         <p:column><h:outputText value="#{namePartsController.selectedName.pendingOrElseCurrentRevision.mnemonic}" /></p:column>
                         <p:column>
-                            <p:inputText id="mcode" value="#{namePartsController.formMnemonic}" required="true" requiredMessage="Please enter a mnemonic.">
+                            <p:inputText id="mcode" value="#{namePartsController.formMnemonic}" onkeyup="displayMnemonicLengthWarningOnMod()" required="true" requiredMessage="Please enter a mnemonic.">
                                 <f:validator validatorId="custom.modifyMnemonicValidator" />
                             </p:inputText>
-                            <p:message for="mcode" />
+                            <p:message for="mcode"/>
+                            <div id="ModNameForm:mnemonicLengthWarning" class="ui-message ui-message-warn ui-widget ui-corner-all" style="display:none">
+                                <span class="ui-message-warn-icon"></span>
+                                <span class="ui-message-warn-detail">Mnemonic should be between 2 and 4 characters long.</span>
+                            </div>
                         </p:column>
                     </p:row>
                     <p:row>

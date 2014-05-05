@@ -21,7 +21,7 @@ public class AddMnemonicValidator implements Validator {
 
     @Override public void validate(FacesContext facesContext, UIComponent uiComponent, Object o) throws ValidatorException {
         final NamePartsController controller = (NamePartsController) facesContext.getApplication().getExpressionFactory().createValueExpression(facesContext.getELContext(), "#{namePartsController}", Object.class).getValue(facesContext.getELContext());
-
+        
         if (!controller.isAddMnemonicValid((String) o)) {
             throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Error", "The mnemonic does not conform to the Naming Convention rules."));
         } else if (!controller.isAddMnemonicUnique((String) o)) {

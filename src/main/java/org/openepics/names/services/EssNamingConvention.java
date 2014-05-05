@@ -19,7 +19,7 @@ public class EssNamingConvention implements NamingConvention {
             return false;
         } else {
             if (parentPath.size() == 2 && parentPath.get(0).equals("Acc")) {
-                return name.matches("^([0-9][0-9][0-9])|([0-9]?[0-9][0-9])|[0-9]?[0-9]?[0-9]$");
+                return name.matches("^[0-9]*$");
             } else {
                 return name.matches("^[a-zA-Z][a-zA-Z0-9]*$");
             }

@@ -107,7 +107,7 @@ public class NamePartsController implements Serializable {
         final @Nullable NamePart parent = getSelectedName() != null ? getSelectedName().getNamePart() : null;
         return namePartService.isMnemonicValid(namePartType, parent, mnemonic);
     }
-
+    
     public boolean isModifyMnemonicValid(String mnemonic) {
         final NamePartView namePart = As.notNull(getSelectedName());
         final @Nullable NamePart parent = namePart.getParent() != null ? namePart.getParent().getNamePart() : null;

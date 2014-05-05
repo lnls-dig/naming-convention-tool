@@ -34,10 +34,14 @@
                     <p:column>
                         <h:outputLabel value="Instance index:" />
                         <p:spacer width="5" />
-                        <p:inputText id="instanceIndex" value="#{devicesController.formInstanceIndex}">
+                        <p:inputText id="instanceIndex" onkeyup="displayIndexLengthWarningOnAdd()" value="#{devicesController.formInstanceIndex}">
                             <f:validator validatorId="custom.addInstanceIndexValidator" />
                         </p:inputText>
                         <p:message for="instanceIndex"/>
+                        <div id="#{widgetName}:indexLengthWarning" class="ui-message ui-message-warn ui-widget ui-corner-all" style="display:none">
+                            <span class="ui-message-warn-icon"></span>
+                            <span class="ui-message-warn-detail">Instance index should be between 1 and 3 characters long.</span>
+                        </div>
                     </p:column>
                 </p:row>
             </p:panelGrid>

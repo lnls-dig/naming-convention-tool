@@ -25,9 +25,12 @@ public class EssNamingConventionTest {
         assertFalse(namingConvention.isSectionNameValid(parentPath, "00:1"));
         assertFalse(namingConvention.isSectionNameValid(ImmutableList.of("Acc"), "001"));
         assertFalse(namingConvention.isSectionNameValid(ImmutableList.of("Acc", "Sec", "SubS"), "001"));
+        assertFalse(namingConvention.isSectionNameValid(parentPath, "0012345"));
         assertTrue(namingConvention.isSectionNameValid(parentPath, "01"));
         assertTrue(namingConvention.isSectionNameValid(parentPath, "00"));
         assertTrue(namingConvention.isSectionNameValid(parentPath, "123"));
+        assertTrue(namingConvention.isSectionNameValid(parentPath, "1234"));
+        assertTrue(namingConvention.isSectionNameValid(parentPath, "00123"));
     }
     
     @Test

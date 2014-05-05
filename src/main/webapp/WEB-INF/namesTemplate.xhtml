@@ -39,6 +39,38 @@
     		function stop() {  
     		    statusDialog.hide();  
     		}  
+
+    		function displayMnemonicLengthWarningOnAdd() {
+    			if ($('#addNameForm\\:icode').val().length > 4) {
+    				$('#addNameForm\\:mnemonicLengthWarning').css({"display":"block"});
+    	        } else {
+    	        	$('#addNameForm\\:mnemonicLengthWarning').css({"display":"none"});
+            	}
+            }
+
+    		function displayMnemonicLengthWarningOnMod() {
+                if ($('#ModNameForm\\:mcode').val().length > 4) {
+                    $('#ModNameForm\\:mnemonicLengthWarning').css({"display":"block"});
+                } else {
+                    $('#ModNameForm\\:mnemonicLengthWarning').css({"display":"none"});
+                }
+            }
+
+    		function displayIndexLengthWarningOnAdd() {
+                if ($('#addDeviceNameForm\\:instanceIndex').val().length > 3) {
+                    $('#addDeviceName\\:indexLengthWarning').css({"display":"block"});
+                } else {
+                    $('#addDeviceName\\:indexLengthWarning').css({"display":"none"});
+                }
+            }
+
+    		function displayIndexLengthWarningOnMod() {
+                if ($('#modDeviceNameForm\\:instanceIndex').val().length > 3) {
+                    $('#modDeviceName\\:indexLengthWarning').css({"display":"block"});
+                } else {
+                    $('#modDeviceName\\:indexLengthWarning').css({"display":"none"});
+                }
+            }
     	</script>
         <link rel="shortcut icon" href="resources/images/favicon.ico" />
         <title>Naming Convention Tool</title>
