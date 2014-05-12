@@ -47,7 +47,7 @@ public class EssNamingConvention implements NamingConvention {
     }
 
     @Override public String equivalenceClassRepresentative(String name) {
-        return name.toUpperCase().replace('I', '1').replace('L', '1').replace('O', '0').replace('W', 'V').replaceAll("(?<!\\d)0+(?=\\d)", "").replaceAll("(?<!\\[A-Za-z])0+", "");
+        return name.toUpperCase().replaceAll("(?<=[A-Za-z])0+", "").replace('I', '1').replace('L', '1').replace('O', '0').replace('W', 'V').replaceAll("(?<!\\d)0+(?=\\d)", "");
     }
 
     @Override public String conventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {

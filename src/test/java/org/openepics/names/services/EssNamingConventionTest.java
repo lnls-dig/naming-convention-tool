@@ -139,7 +139,7 @@ public class EssNamingConventionTest {
     @Test
     public void zeroAfterAlphaCharacterTest() {
         assertEquals(namingConvention.equivalenceClassRepresentative("Sub0001"), namingConvention.equivalenceClassRepresentative("Sub1"));
-        assertEquals(namingConvention.equivalenceClassRepresentative("Sub00"), namingConvention.equivalenceClassRepresentative("Sub"));
+        assertEquals(namingConvention.equivalenceClassRepresentative("01Sub001"), namingConvention.equivalenceClassRepresentative("01Sub1"));
     }
     
     @Test
