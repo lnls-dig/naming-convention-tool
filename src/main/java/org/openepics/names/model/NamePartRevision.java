@@ -22,6 +22,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
+
 import java.util.Date;
 
 /**
@@ -57,6 +58,8 @@ public class NamePartRevision extends Persistable {
     private @Nullable Date processDate = null;
 
     private @Nullable String processorComment = null;
+    
+    private String mnemonicEqClass;
 
     protected NamePartRevision() {}
 
@@ -70,13 +73,17 @@ public class NamePartRevision extends Persistable {
      * @param parent the parent of this name part in the hierarchy. Null if at the top of the hierarchy.
      * @param name the long, descriptive name of the part. Does not need to follow a convention.
      * @param mnemonic the short, mnemonic name of the part in accordance with the naming convention
+     * @param mnemonicEqClass the representative of the equivalence class the mnemonic belongs to. This is
+     * used to ensure uniqueness of mnemonics on certain levels when treating similar looking names (for example, containing 0 vs.
+     * O, 1 vs. l) as equal.
      */
-    public NamePartRevision(NamePart namePart, Date requestDate, @Nullable UserAccount requestedBy, @Nullable String requesterComment, boolean deleted, @Nullable NamePart parent, String name, String mnemonic) {
+    public NamePartRevision(NamePart namePart, Date requestDate, @Nullable UserAccount requestedBy, @Nullable String requesterComment, boolean deleted, @Nullable NamePart parent, String name, String mnemonic, String mnemonicEqClass) {
         Preconditions.checkNotNull(namePart);
         Preconditions.checkNotNull(requestDate);
         Preconditions.checkArgument(requesterComment == null || !requesterComment.isEmpty());
         Preconditions.checkArgument(name != null && !name.isEmpty());
         Preconditions.checkArgument(mnemonic != null && !mnemonic.isEmpty());
+        Preconditions.checkArgument(mnemonicEqClass != null);
         this.namePart = namePart;
         this.requestDate = requestDate;
         this.requestedBy = requestedBy;
@@ -86,6 +93,7 @@ public class NamePartRevision extends Persistable {
         this.name = name;
         this.mnemonic = mnemonic;
         this.status = NamePartRevisionStatus.PENDING;
+        this.mnemonicEqClass = mnemonicEqClass;
     }
 
     /**
@@ -149,7 +157,16 @@ public class NamePartRevision extends Persistable {
      * or if no comment was given.
      */
     public @Nullable String getProcessorComment() { return processorComment; }
-
+    
+    /**
+     * The representative of the equivalence class the mnemonic belongs to. This is used to ensure uniqueness of
+     * mnemonics on certain level when treating similar looking names (for example, containing 0 vs. O, 1 vs. l) as equal.
+     */
+    public String getMnemonicEqClass() { return mnemonicEqClass; }
+    
+    //TODO Remove after first deploy!!!
+    public void setMnemonicEqClass(String mnemonicEqClass) { this.mnemonicEqClass = mnemonicEqClass; }
+ 
     /**
      * Updates the revision's status in the request / approve workflow as either approved, rejected or canceled. This
      * completes the workflow and no further status changes are possible after that.

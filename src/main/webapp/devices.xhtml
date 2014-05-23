@@ -189,8 +189,8 @@
 					<h:outputText value="Batch Import" />
 				</f:facet>
                 <h:panelGroup id="grp" layout="block">
-                    <h:panelGroup rendered="#{devicesController.importFileName == null}" layout="block" style="padding: 0 0 7px 0">Please choose an Excel file to import device names from.</h:panelGroup>
-                    <p:fileUpload fileUploadListener="#{devicesController.handleFileUpload}" update="grp" mode="advanced" auto="true" fileLimit="1" dragDropSupport="true" allowTypes="/(\.|\/)(xlsx|xls)$/" rendered="#{devicesController.importFileName == null}" />
+                    <h:panelGroup rendered="#{devicesController.importFileName == null}" layout="block" style="padding: 0 0 7px 0">Please choose an Excel file (*.xlsx) to import device names from.</h:panelGroup>
+                    <p:fileUpload fileUploadListener="#{devicesController.handleFileUpload}" update="grp" mode="advanced" auto="true" fileLimit="1" dragDropSupport="true" allowTypes="/(\.|\/)(xlsx)$/" rendered="#{devicesController.importFileName == null}" />
                     <h:outputText value="#{devicesController.importFileName}"/>
                     <p:separator />
                     <p:commandButton id="downloadLink" style="float: left" value="Download Template" ajax="false" icon="ui-icon-disk" onclick="PrimeFaces.monitorDownload(start, stop)" disabled="#{devicesController.importFileName != null}">

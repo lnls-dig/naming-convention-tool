@@ -52,23 +52,28 @@ public class NamePartService {
     }
 
     /**
-     * True if the mnemonic of a name part is unique in the context of the parent.
+     * True if the mnemonic of a name part is unique. Second level mnemonic, that is sections and disciplines, must be
+     * unique within this level while other mnemonics need to be unique in the context of parent.
      *
      * @param namePartType the type of the name part
      * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
      * @param mnemonic the mnemonic name of the name part to test for uniqueness
      */
     public boolean isMnemonicUnique(NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {
-        final String mnemonicEquivalenceClass = namingConvention.equivalenceClassRepresentative(mnemonic);
-        final List<NamePartRevision> siblings = em.createQuery("SELECT r FROM NamePartRevision r WHERE (r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) OR r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :pending)) AND r.namePart.namePartType = :type AND r.deleted = FALSE AND r.parent = :parent", NamePartRevision.class).setParameter("type", namePartType).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("parent", parent).getResultList();
-        for (NamePartRevision sibling : siblings) {
-            if (namingConvention.equivalenceClassRepresentative(sibling.getMnemonic()).equals(mnemonicEquivalenceClass)) {
-                return false;
+        if (parent != null && approvedRevision(parent).getParent() == null) {
+            return isSecondLevelMnemonicUnique(namePartType, mnemonic);
+        } else {
+            final String mnemonicEquivalenceClass = namingConvention.equivalenceClassRepresentative(mnemonic);
+            final List<NamePartRevision> siblings = em.createQuery("SELECT r FROM NamePartRevision r WHERE (r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) OR r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :pending)) AND r.namePart.namePartType = :type AND r.deleted = FALSE AND r.parent = :parent", NamePartRevision.class).setParameter("type", namePartType).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("parent", parent).getResultList();
+            for (NamePartRevision sibling : siblings) {
+                if (namingConvention.equivalenceClassRepresentative(sibling.getMnemonic()).equals(mnemonicEquivalenceClass)) {
+                    return false;
+                }
             }
+            return true;
         }
-        return true;
     }
-
+    
     /**
      * True if the instance index of a device defined by a section and device type is valid.
      *
@@ -129,9 +134,11 @@ public class NamePartService {
 
         Preconditions.checkState(isMnemonicValid(namePartType, parent, mnemonic));
         Preconditions.checkState(isMnemonicUnique(namePartType, parent, mnemonic));
+        
+        final String mnemonicEqClass = namingConvention.equivalenceClassRepresentative(mnemonic);
 
         final NamePart namePart = new NamePart(UUID.randomUUID(), namePartType);
-        final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, false, parent, name, mnemonic);
+        final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, false, parent, name, mnemonic, mnemonicEqClass);
 
         em.persist(namePart);
         em.persist(newRevision);
@@ -164,8 +171,10 @@ public class NamePartService {
         if (pendingRevision != null) {
             updateRevisionStatus(pendingRevision, NamePartRevisionStatus.CANCELLED, user, null);
         }
+        
+        final String mnemonicEqClass = namingConvention.equivalenceClassRepresentative(mnemonic);
 
-        final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, false, baseRevision.getParent(), name, mnemonic);
+        final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, false, baseRevision.getParent(), name, mnemonic, mnemonicEqClass);
 
         em.persist(newRevision);
 
@@ -194,7 +203,7 @@ public class NamePartService {
             }
 
             if (approvedRevision != null) {
-                final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, true, approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getMnemonic());
+                final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, true, approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getMnemonic(), approvedRevision.getMnemonicEqClass());
                 em.persist(newRevision);
                 return newRevision;
             } else {
@@ -209,8 +218,8 @@ public class NamePartService {
      * Cancels or rejects the currently proposed modification, deletion or addition of the given name part.
      *
      * @param namePart the affected name part
-     * @param user the user cancelling or rejecting the proposal. Null if done by an automated process.
-     * @param comment the comment the user gave when cancelling or rejecting the proposal. Null if no comment was given.
+     * @param user the user canceling or rejecting the proposal. Null if done by an automated process.
+     * @param comment the comment the user gave when canceling or rejecting the proposal. Null if no comment was given.
      * @param markAsRejected true if this is a rejection by the administrator and not a cancel by the original submitter
      * of the proposal
      * @return the affected NamePart revision
@@ -316,6 +325,13 @@ public class NamePartService {
         else {
             return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :approved) AND r.deleted = FALSE", NamePartRevision.class).setParameter("type", type).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
         }
+    }
+    
+    /**
+     * The list of all revisions
+     */
+    public List<NamePartRevision> allNamePartRevisions() {
+        return em.createQuery("SELECT r FROM NamePartRevision r", NamePartRevision.class).getResultList();
     }
 
     /**
@@ -510,6 +526,21 @@ public class NamePartService {
      */
     public @Nullable DeviceRevision currentDeviceRevision(UUID deviceUuid) {
         return JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device.uuid = :uuid ORDER BY r.id DESC", DeviceRevision.class).setParameter("uuid", deviceUuid.toString()).setMaxResults(1));
+    }
+    
+    private boolean isSecondLevelMnemonicUnique(NamePartType namePartType, String mnemonic) {
+        final String mnemonicEquivalenceClass = namingConvention.equivalenceClassRepresentative(mnemonic);
+        @Nullable final List<NamePartRevision> sameEqClassRevisions = em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart.namePartType = :namePartType AND r2.namePart = r.namePart) AND r.deleted = false AND r.mnemonicEqClass = :mnemonicEqClass", NamePartRevision.class).setParameter("mnemonicEqClass", mnemonicEquivalenceClass).setParameter("namePartType", namePartType).getResultList();
+        if (sameEqClassRevisions == null || sameEqClassRevisions.isEmpty()) {
+            return true;
+        } else {
+            for (NamePartRevision revision : sameEqClassRevisions) {
+                if (revision.getParent() != null && approvedRevision(revision.getParent()).getParent() == null) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     private boolean canCancelChild(@Nullable NamePart parent) {

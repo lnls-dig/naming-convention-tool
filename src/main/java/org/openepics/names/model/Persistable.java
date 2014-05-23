@@ -29,4 +29,9 @@ public class Persistable implements Serializable {
      * The JPA entity version.
      */
     public @Nullable Integer getVersion() { return version; }
+    
+    /**
+     * If database has been modified this method should be celled so that application version is bumped by one.
+     */
+    public void upgradeAppVersion() { version = version + 1; }
 }

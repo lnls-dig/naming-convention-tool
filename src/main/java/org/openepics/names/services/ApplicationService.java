@@ -20,6 +20,7 @@ public class ApplicationService {
 
     @PersistenceContext private EntityManager em;
     @Inject private InitialDataImportService importService;
+    @Inject private UpgradeDatabaseService upgradeDatabase;
 
     /**
      * The singleton entity representing the installed Naming Tool application and its configuration.
@@ -36,6 +37,13 @@ public class ApplicationService {
         if (em.createQuery("SELECT a FROM AppInfo a", AppInfo.class).getResultList().size() != 1) {
             em.persist(new AppInfo());
             importService.fillDatabaseWithInitialData();
+        } else if (em.createQuery("SELECT a FROM AppInfo a", AppInfo.class).getResultList().get(0).getVersion() == 0) {
+            //TODO Remove after first deploy!!!
+            
+            upgradeDatabase.calculateMnemonicEquvalenceClassForRevisions();
+            final AppInfo info = em.createQuery("SELECT a FROM AppInfo a", AppInfo.class).getResultList().get(0);
+            info.upgradeAppVersion();
+            em.persist(info);
         }
     }
 }
