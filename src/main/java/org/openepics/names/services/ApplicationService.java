@@ -1,5 +1,7 @@
 package org.openepics.names.services;
 
+import java.util.List;
+
 import org.openepics.names.model.AppInfo;
 
 import javax.annotation.PostConstruct;
@@ -20,6 +22,8 @@ public class ApplicationService {
 
     @PersistenceContext private EntityManager em;
     @Inject private InitialDataImportService importService;
+    
+    //TODO Remove after first deploy!!!
     @Inject private UpgradeDatabaseService upgradeDatabase;
 
     /**
@@ -34,15 +38,16 @@ public class ApplicationService {
      */
     @PostConstruct
     private void init() {
-        if (em.createQuery("SELECT a FROM AppInfo a", AppInfo.class).getResultList().size() != 1) {
-            em.persist(new AppInfo());
+        final List<AppInfo> appInfo = em.createQuery("SELECT a FROM AppInfo a", AppInfo.class).getResultList();
+        if (appInfo.size() != 1) {
+            em.persist(new AppInfo(0));
             importService.fillDatabaseWithInitialData();
-        } else if (em.createQuery("SELECT a FROM AppInfo a", AppInfo.class).getResultList().get(0).getVersion() == 0) {
+        } else if (appInfo.get(0).getSchemaVersion() == 0) {
             //TODO Remove after first deploy!!!
             
             upgradeDatabase.calculateMnemonicEquvalenceClassForRevisions();
-            final AppInfo info = em.createQuery("SELECT a FROM AppInfo a", AppInfo.class).getResultList().get(0);
-            info.upgradeAppVersion();
+            final AppInfo info = appInfo.get(0);
+            info.updateSchemaVersion();
             em.persist(info);
         }
     }

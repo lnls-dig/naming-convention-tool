@@ -11,4 +11,16 @@ import javax.persistence.Entity;
  */
 @Entity
 public class AppInfo extends Persistable {
+    
+    private int schemaVersion;
+    
+    public AppInfo(int schemaVersion) {
+        this.schemaVersion = schemaVersion;
+    }
+    
+    protected AppInfo() {}
+    
+    public int getSchemaVersion() { return schemaVersion; }
+    
+    public void updateSchemaVersion() { schemaVersion++; }
 }
