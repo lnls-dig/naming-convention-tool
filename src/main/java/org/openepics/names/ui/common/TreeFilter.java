@@ -41,7 +41,7 @@ public abstract class TreeFilter<T> {
         final @Nullable T nodeData = (T) node.getData();
         if (!childImages.isEmpty() || (nodeData != null && accepts(As.notNull(nodeData)))) {
             final TreeNode result = new DefaultTreeNode(nodeData, null);
-            result.setExpanded(true);
+            result.setExpanded(false);
             for (TreeNode childImage : childImages) {
                 result.getChildren().add(childImage);
                 childImage.setParent(result);
