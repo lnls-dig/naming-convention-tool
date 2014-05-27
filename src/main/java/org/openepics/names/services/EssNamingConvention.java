@@ -3,6 +3,9 @@ package org.openepics.names.services;
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Alternative;
+
+import org.openepics.names.model.NamePartType;
+
 import java.util.List;
 
 /**
@@ -48,6 +51,18 @@ public class EssNamingConvention implements NamingConvention {
 
     @Override public String equivalenceClassRepresentative(String name) {
         return name.toUpperCase().replaceAll("(?<=[A-Za-z])0+", "").replace('I', '1').replace('L', '1').replace('O', '0').replace('W', 'V').replaceAll("(?<!\\d)0+(?=\\d)", "");
+    }
+    
+    @Override public boolean canMnemonicsCoexist(List<String> newMnemonicPath, NamePartType newMnemonicType, List<String> comparableMnemonicPath, NamePartType comparableMnemonicType) {
+        if (comparableMnemonicPath.size() == 1 || comparableMnemonicType.equals(NamePartType.SECTION) && comparableMnemonicPath.size() == 2) {
+            return false;
+        } else if (newMnemonicPath.size() == 1 || newMnemonicType.equals(NamePartType.SECTION) && newMnemonicPath.size() == 2) {
+            return false;
+        } else if (newMnemonicType.equals(NamePartType.DEVICE_TYPE) && newMnemonicPath.size() == 3 && comparableMnemonicType.equals(NamePartType.DEVICE_TYPE) && comparableMnemonicPath.size() == 3 && newMnemonicPath.get(0).equals(comparableMnemonicPath.get(0))) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     @Override public String conventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {

@@ -1,10 +1,12 @@
 package org.openepics.names.services;
 
+import org.openepics.names.model.NamePartType;
 import org.openepics.names.util.NotImplementedException;
 
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Alternative;
+
 import java.util.List;
 
 /**
@@ -33,6 +35,10 @@ public class FribNamingConvention implements NamingConvention {
     }
 
     @Override public String conventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
+        throw new NotImplementedException();
+    }
+
+    @Override public boolean canMnemonicsCoexist(List<String> newMnemonicPath, NamePartType newMnemonicType, List<String> comparableMnemonicPath, NamePartType comparableMnemonicType) {
         throw new NotImplementedException();
     }
 }

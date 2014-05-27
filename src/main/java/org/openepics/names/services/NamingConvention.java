@@ -1,6 +1,9 @@
 package org.openepics.names.services;
 
 import javax.annotation.Nullable;
+
+import org.openepics.names.model.NamePartType;
+
 import java.util.List;
 
 /**
@@ -55,7 +58,18 @@ public interface NamingConvention {
      * @param name the name of which to determine the equivalence class
      */
     String equivalenceClassRepresentative(String name);
-
+    
+    /**
+     * Due to differences in mnemonic uniqueness checking this method provides possibility to implement additional restrictions
+     * on when the mnemonic we want to add or modify is unique or not according to the convention rules. 
+     * 
+     * @param newMnemonicPath mnemonic path of he mnemonic to be added 
+     * @param newMnemonicType on which name part type is this mnemonic added
+     * @param comparableMnemonicPath mnemonic path of the mnemonic we compare new the mnemonic against
+     * @param comparableMnemonicType name part type of the mnemonic we compare the new mnemonic against
+     */
+    boolean canMnemonicsCoexist(List<String> newMnemonicPath, NamePartType newMnemonicType, List<String> comparableMnemonicPath, NamePartType comparableMnemonicType);
+    
     /**
      * The convention name of the device defined by it's section, device type and instance index
      *
@@ -66,4 +80,5 @@ public interface NamingConvention {
      * @param instanceIndex the device instance index. Null if omitted.
      */
     String conventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex);
+    
 }

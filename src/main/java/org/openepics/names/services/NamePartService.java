@@ -59,28 +59,22 @@ public class NamePartService {
      * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
      * @param mnemonic the mnemonic name of the name part to test for uniqueness
      */
-    public boolean isMnemonicUnique(NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {
+    public boolean isMnemonicUnique(NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {        
         final String mnemonicEquivalenceClass = namingConvention.equivalenceClassRepresentative(mnemonic);
-        if (parent == null || parent != null && lastPendingOrApprovedRevision(parent).getParent() == null && namePartType.equals(NamePartType.SECTION)) {
-            return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart) AND r.deleted = false AND r.mnemonicEqClass = :mnemonicEqClass", NamePartRevision.class).setParameter("mnemonicEqClass", mnemonicEquivalenceClass).getResultList().isEmpty();
-        } else if (parent != null && lastPendingOrApprovedRevision(parent).getParent() != null && namePartType.equals(NamePartType.DEVICE_TYPE)) {
-            final NamePart grandparent = lastPendingOrApprovedRevision(parent).getParent();
-            final List<NamePartRevision> sameEqClassRevisions = Lists.newArrayList(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart.namePartType = :namePartType AND r2.namePart = r.namePart) AND r.deleted = false AND r.mnemonicEqClass = :mnemonicEqClass", NamePartRevision.class).setParameter("mnemonicEqClass", mnemonicEquivalenceClass).setParameter("namePartType", namePartType).getResultList());
-            for (NamePartRevision revision : sameEqClassRevisions) {
-                if (revision.getParent() != null && Objects.equal(lastPendingOrApprovedRevision(revision.getParent()).getParent(), grandparent)) {
-                    return false;
-                }
-            }
-            return isMnemonicUniqueUnderHigherLevels(namePartType, mnemonic);
+        if (!em.createQuery("SELECT r FROM NamePartRevision r WHERE (r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) OR r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :pending)) AND r.namePart.namePartType = :type AND r.deleted = FALSE AND r.parent = :parent AND r.mnemonicEqClass = :mnemonicEquivalenceClass", NamePartRevision.class).setParameter("type", namePartType).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("parent", parent).setParameter("mnemonicEquivalenceClass", mnemonicEquivalenceClass).getResultList().isEmpty()) {
+            return false;
         } else {
-            final List<NamePartRevision> siblings = em.createQuery("SELECT r FROM NamePartRevision r WHERE (r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) OR r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :pending)) AND r.namePart.namePartType = :type AND r.deleted = FALSE AND r.parent = :parent", NamePartRevision.class).setParameter("type", namePartType).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("parent", parent).getResultList();
-            for (NamePartRevision sibling : siblings) {
-                if (sibling.getMnemonicEqClass().equals(mnemonicEquivalenceClass)) {
+            final List<NamePartRevision> sameEqClassRevisions = em.createQuery("SELECT r FROM NamePartRevision r WHERE (r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) OR r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :pending)) AND r.deleted = FALSE AND r.mnemonicEqClass = :mnemonicEquivalenceClass", NamePartRevision.class).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("mnemonicEquivalenceClass", mnemonicEquivalenceClass).getResultList();
+            final List<String> newMnemonicPath = parent == null ? Lists.<String>newArrayList() : Lists.newArrayList(view(parent).getMnemonicPath());
+            newMnemonicPath.add(mnemonic);
+            for (NamePartRevision sameEqClassRevision : sameEqClassRevisions) {
+                if (!namingConvention.canMnemonicsCoexist(newMnemonicPath, namePartType, view(sameEqClassRevision.getNamePart()).getMnemonicPath(), sameEqClassRevision.getNamePart().getNamePartType())) {
                     return false;
                 }
             }
-            return isMnemonicUniqueUnderHigherLevels(namePartType, mnemonic);
+            return true;
         }
+        
     }
     
     /**
@@ -142,11 +136,8 @@ public class NamePartService {
         }
 
         Preconditions.checkState(isMnemonicValid(namePartType, parent, mnemonic));
-        try {
-            Preconditions.checkState(isMnemonicUnique(namePartType, parent, mnemonic));
-        } catch (IllegalStateException e ) {
-            int a = 1;
-        }
+        Preconditions.checkState(isMnemonicUnique(namePartType, parent, mnemonic));
+
         
         final String mnemonicEqClass = namingConvention.equivalenceClassRepresentative(mnemonic);
 
@@ -385,7 +376,7 @@ public class NamePartService {
      * @param namePart the name part
      */
     public @Nullable NamePartRevision pendingRevision(NamePart namePart) {
-        final @Nullable NamePartRevision lastPendingOrApprovedRevision = lastPendingOrApprovedRevision(namePart);
+        final @Nullable NamePartRevision lastPendingOrApprovedRevision = JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND (r.status = :approved OR r.status = :pending) ORDER BY r.id DESC", NamePartRevision.class).setParameter("namePart", namePart).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setMaxResults(1));
         if (lastPendingOrApprovedRevision == null) return null;
         else if (lastPendingOrApprovedRevision.getStatus() == NamePartRevisionStatus.PENDING) return lastPendingOrApprovedRevision;
         else return null;
@@ -539,24 +530,6 @@ public class NamePartService {
      */
     public @Nullable DeviceRevision currentDeviceRevision(UUID deviceUuid) {
         return JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device.uuid = :uuid ORDER BY r.id DESC", DeviceRevision.class).setParameter("uuid", deviceUuid.toString()).setMaxResults(1));
-    }
-    
-    private @Nullable NamePartRevision lastPendingOrApprovedRevision(NamePart namePart) {
-        return JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND (r.status = :approved OR r.status = :pending) ORDER BY r.id DESC", NamePartRevision.class).setParameter("namePart", namePart).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setMaxResults(1));
-    }
-    
-    /**
-     * Check if mnemonic is unique under super section, section and discipline.
-     */
-    private boolean isMnemonicUniqueUnderHigherLevels(NamePartType namePartType, String mnemonic) {
-        final String mnemonicEquivalenceClass = namingConvention.equivalenceClassRepresentative(mnemonic);
-        final List<NamePartRevision> sameEquivalenceClassRevisions = Lists.newArrayList(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart) AND r.deleted = false AND r.mnemonicEqClass = :mnemonicEqClass", NamePartRevision.class).setParameter("mnemonicEqClass", mnemonicEquivalenceClass).getResultList());
-        for (NamePartRevision sameEqClassRevision : sameEquivalenceClassRevisions) {
-            if (sameEqClassRevision.getParent() == null || namePartType.equals(NamePartType.SECTION) && sameEqClassRevision.getParent() != null && lastPendingOrApprovedRevision(sameEqClassRevision.getParent()).getParent() == null) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private boolean canCancelChild(@Nullable NamePart parent) {

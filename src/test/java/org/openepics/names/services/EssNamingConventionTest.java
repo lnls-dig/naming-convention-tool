@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openepics.names.model.NamePartType;
 
 import com.google.common.collect.ImmutableList;
 
@@ -156,6 +157,29 @@ public class EssNamingConventionTest {
         final List<String> deviceTypePath = ImmutableList.of("BMD", "Chop", "ChopG");
         assertEquals(namingConvention.conventionName(sectionPath, deviceTypePath, null), "ActC-Cn:ChopG");
         assertEquals(namingConvention.conventionName(sectionPath, deviceTypePath, "001"), "ActC-Cn:ChopG-001");
+    }
+    
+    @Test
+    public void canFirstLevelMnemonicsCoexistTest() {
+        assertFalse(namingConvention.canMnemonicsCoexist(ImmutableList.of("Acc"), NamePartType.SECTION, ImmutableList.of("Test", "Acc"), NamePartType.SECTION));
+        assertFalse(namingConvention.canMnemonicsCoexist(ImmutableList.of("Acc"), NamePartType.SECTION, ImmutableList.of("Acc"), NamePartType.DEVICE_TYPE));
+        assertFalse(namingConvention.canMnemonicsCoexist(ImmutableList.of("Chop"), NamePartType.DEVICE_TYPE, ImmutableList.of("Test", "A2T", "Chop"), NamePartType.SECTION));
+    }
+    
+    @Test
+    public void canSectionMnemonicsCoexistTest() {
+        assertFalse(namingConvention.canMnemonicsCoexist(ImmutableList.of("Acc", "A2T"), NamePartType.SECTION, ImmutableList.of("Test", "Acc", "A2T"), NamePartType.SECTION));
+        assertFalse(namingConvention.canMnemonicsCoexist(ImmutableList.of("Acc", "A2T"), NamePartType.SECTION, ImmutableList.of("A2T"), NamePartType.DEVICE_TYPE));
+        assertFalse(namingConvention.canMnemonicsCoexist(ImmutableList.of("Acc", "A2T"), NamePartType.DEVICE_TYPE, ImmutableList.of("Test", "A2T"), NamePartType.SECTION));
+    }
+    
+    @Test
+    public void canGenericDeviceTypeMnemonicsCoexistTest() {
+        assertTrue(namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("Test", "Acc", "ChopG"), NamePartType.SECTION));
+        assertTrue(namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BML", "Chop", "ChopG"), NamePartType.DEVICE_TYPE));
+        assertTrue(namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "ChopG"), NamePartType.DEVICE_TYPE));
+        assertFalse(namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "ChopN", "ChopG"), NamePartType.DEVICE_TYPE));
+        assertFalse(namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "ChopN", "ChopG"), NamePartType.DEVICE_TYPE));
     }
 }
 
