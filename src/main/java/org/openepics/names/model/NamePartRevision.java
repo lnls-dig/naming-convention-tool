@@ -49,6 +49,8 @@ public class NamePartRevision extends Persistable {
     private String name;
 
     private String mnemonic;
+    
+    private String mnemonicEqClass;
 
     @Enumerated(EnumType.STRING)
     private NamePartRevisionStatus status;
@@ -59,8 +61,6 @@ public class NamePartRevision extends Persistable {
 
     private @Nullable String processorComment = null;
     
-    private String mnemonicEqClass;
-
     protected NamePartRevision() {}
 
     /**
@@ -92,8 +92,8 @@ public class NamePartRevision extends Persistable {
         this.parent = parent;
         this.name = name;
         this.mnemonic = mnemonic;
-        this.status = NamePartRevisionStatus.PENDING;
         this.mnemonicEqClass = mnemonicEqClass;
+        this.status = NamePartRevisionStatus.PENDING;
     }
 
     /**
@@ -135,6 +135,15 @@ public class NamePartRevision extends Persistable {
      * The short, mnemonic name of the part in accordance with the naming convention.
      */
     public String getMnemonic() { return mnemonic; }
+    
+    /**
+     * The representative of the equivalence class the mnemonic belongs to. This is used to ensure uniqueness of
+     * mnemonics on certain level when treating similar looking names (for example, containing 0 vs. O, 1 vs. l) as equal.
+     */
+    public String getMnemonicEqClass() { return mnemonicEqClass; }
+    
+    //TODO Remove after first deploy!!!
+    public void setMnemonicEqClass(String mnemonicEqClass) { this.mnemonicEqClass = mnemonicEqClass; }
 
     /**
      * The status of the name part in the request / approve workflow.
@@ -158,15 +167,6 @@ public class NamePartRevision extends Persistable {
      */
     public @Nullable String getProcessorComment() { return processorComment; }
     
-    /**
-     * The representative of the equivalence class the mnemonic belongs to. This is used to ensure uniqueness of
-     * mnemonics on certain level when treating similar looking names (for example, containing 0 vs. O, 1 vs. l) as equal.
-     */
-    public String getMnemonicEqClass() { return mnemonicEqClass; }
-    
-    //TODO Remove after first deploy!!!
-    public void setMnemonicEqClass(String mnemonicEqClass) { this.mnemonicEqClass = mnemonicEqClass; }
- 
     /**
      * Updates the revision's status in the request / approve workflow as either approved, rejected or canceled. This
      * completes the workflow and no further status changes are possible after that.

@@ -59,16 +59,18 @@ public interface NamingConvention {
      */
     String equivalenceClassRepresentative(String name);
     
-    /**
-     * Due to differences in mnemonic uniqueness checking this method provides possibility to implement additional restrictions
-     * on when the mnemonic we want to add or modify is unique or not according to the convention rules. 
+    /** 
+     * True if two mnemonics with given mnemonic paths and name part types can coexist within the application at the same time
+     * according to the convention rules.
      * 
-     * @param newMnemonicPath mnemonic path of he mnemonic to be added 
-     * @param newMnemonicType on which name part type is this mnemonic added
-     * @param comparableMnemonicPath mnemonic path of the mnemonic we compare new the mnemonic against
-     * @param comparableMnemonicType name part type of the mnemonic we compare the new mnemonic against
+     * @param mnemonicPath1 the list of mnemonics starting from the root of the hierarchy to the mnemonic for which we are testing the name
+     * @param mnemonicType1 type of a mnemonic specifying whether it belongs to the Logical Area Structure or the Device
+     * Category Structure.
+     * @param mnemonicPath2 the list of mnemonics starting from the root of the hierarchy to the mnemonic for which we are testing the name
+     * @param mnemonicType2 type of a mnemonic specifying whether it belongs to the Logical Area Structure or the Device
+     * Category Structure.
      */
-    boolean canMnemonicsCoexist(List<String> newMnemonicPath, NamePartType newMnemonicType, List<String> comparableMnemonicPath, NamePartType comparableMnemonicType);
+    boolean canMnemonicsCoexist(List<String> mnemonicPath1, NamePartType mnemonicType1, List<String> mnemonicPath2, NamePartType mnemonicType2);
     
     /**
      * The convention name of the device defined by it's section, device type and instance index

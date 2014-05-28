@@ -22,7 +22,7 @@ public class EssNamingConvention implements NamingConvention {
             return false;
         } else {
             if (parentPath.size() == 2 && parentPath.get(0).equals("Acc")) {
-                return name.matches("^[0-9]*$");
+                return name.matches("^[0-9]+$");
             } else {
                 return name.matches("^[a-zA-Z][a-zA-Z0-9]*$");
             }
@@ -53,12 +53,12 @@ public class EssNamingConvention implements NamingConvention {
         return name.toUpperCase().replaceAll("(?<=[A-Za-z])0+", "").replace('I', '1').replace('L', '1').replace('O', '0').replace('W', 'V').replaceAll("(?<!\\d)0+(?=\\d)", "");
     }
     
-    @Override public boolean canMnemonicsCoexist(List<String> newMnemonicPath, NamePartType newMnemonicType, List<String> comparableMnemonicPath, NamePartType comparableMnemonicType) {
-        if (comparableMnemonicPath.size() == 1 || comparableMnemonicType.equals(NamePartType.SECTION) && comparableMnemonicPath.size() == 2) {
+    @Override public boolean canMnemonicsCoexist(List<String> mnemonicPath1, NamePartType mnemonicType1, List<String> mnemonicPath2, NamePartType mnemonicType2) {
+        if (mnemonicPath2.size() == 1 || mnemonicType2.equals(NamePartType.SECTION) && mnemonicPath2.size() == 2) {
             return false;
-        } else if (newMnemonicPath.size() == 1 || newMnemonicType.equals(NamePartType.SECTION) && newMnemonicPath.size() == 2) {
+        } else if (mnemonicPath1.size() == 1 || mnemonicType1.equals(NamePartType.SECTION) && mnemonicPath1.size() == 2) {
             return false;
-        } else if (newMnemonicType.equals(NamePartType.DEVICE_TYPE) && newMnemonicPath.size() == 3 && comparableMnemonicType.equals(NamePartType.DEVICE_TYPE) && comparableMnemonicPath.size() == 3 && newMnemonicPath.get(0).equals(comparableMnemonicPath.get(0))) {
+        } else if (mnemonicType1.equals(NamePartType.DEVICE_TYPE) && mnemonicPath1.size() == 3 && mnemonicType2.equals(NamePartType.DEVICE_TYPE) && mnemonicPath2.size() == 3 && mnemonicPath1.get(0).equals(mnemonicPath2.get(0))) {
             return false;
         } else {
             return true;

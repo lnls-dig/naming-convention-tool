@@ -22,6 +22,7 @@ public class EssNamingConventionTest {
     public void isTypeASubSectionNameValidTest() {
         List<String> parentPath = ImmutableList.of("Acc", "Sec");
         assertFalse(namingConvention.isSectionNameValid(parentPath, "SubS"));
+        assertFalse(namingConvention.isSectionNameValid(parentPath, "   "));
         assertFalse(namingConvention.isSectionNameValid(parentPath, "1sub1"));
         assertFalse(namingConvention.isSectionNameValid(parentPath, "00:1"));
         assertFalse(namingConvention.isSectionNameValid(ImmutableList.of("Acc"), "001"));

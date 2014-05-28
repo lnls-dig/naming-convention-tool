@@ -61,20 +61,20 @@ public class NamePartService {
      */
     public boolean isMnemonicUnique(NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {        
         final String mnemonicEquivalenceClass = namingConvention.equivalenceClassRepresentative(mnemonic);
-        if (!em.createQuery("SELECT r FROM NamePartRevision r WHERE (r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) OR r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :pending)) AND r.namePart.namePartType = :type AND r.deleted = FALSE AND r.parent = :parent AND r.mnemonicEqClass = :mnemonicEquivalenceClass", NamePartRevision.class).setParameter("type", namePartType).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("parent", parent).setParameter("mnemonicEquivalenceClass", mnemonicEquivalenceClass).getResultList().isEmpty()) {
-            return false;
-        } else {
-            final List<NamePartRevision> sameEqClassRevisions = em.createQuery("SELECT r FROM NamePartRevision r WHERE (r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) OR r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :pending)) AND r.deleted = FALSE AND r.mnemonicEqClass = :mnemonicEquivalenceClass", NamePartRevision.class).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("mnemonicEquivalenceClass", mnemonicEquivalenceClass).getResultList();
-            final List<String> newMnemonicPath = parent == null ? Lists.<String>newArrayList() : Lists.newArrayList(view(parent).getMnemonicPath());
-            newMnemonicPath.add(mnemonic);
-            for (NamePartRevision sameEqClassRevision : sameEqClassRevisions) {
-                if (!namingConvention.canMnemonicsCoexist(newMnemonicPath, namePartType, view(sameEqClassRevision.getNamePart()).getMnemonicPath(), sameEqClassRevision.getNamePart().getNamePartType())) {
-                    return false;
-                }
+        final List<NamePartRevision> sameEqClassRevisions = em.createQuery("SELECT r FROM NamePartRevision r WHERE (r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) OR r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :pending)) AND r.deleted = FALSE AND r.mnemonicEqClass = :mnemonicEquivalenceClass", NamePartRevision.class).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("mnemonicEquivalenceClass", mnemonicEquivalenceClass).getResultList();
+        for (NamePartRevision sameEqClassRevision : sameEqClassRevisions) {
+            if (Objects.equal(sameEqClassRevision.getParent(), parent)) {
+                return false;
             }
-            return true;
-        }
+        }   
         
+        final List<String> newMnemonicPath = ImmutableList.<String>builder().addAll(parent == null ? ImmutableList.<String>of() : view(parent).getMnemonicPath()).add(mnemonic).build();
+        for (NamePartRevision sameEqClassRevision : sameEqClassRevisions) {
+            if (!namingConvention.canMnemonicsCoexist(newMnemonicPath, namePartType, view(sameEqClassRevision.getNamePart()).getMnemonicPath(), sameEqClassRevision.getNamePart().getNamePartType())) {
+                return false;
+            }
+        }
+        return true;     
     }
     
     /**
