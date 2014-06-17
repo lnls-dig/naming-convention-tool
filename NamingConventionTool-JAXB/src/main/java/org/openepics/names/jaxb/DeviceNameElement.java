@@ -1,4 +1,4 @@
-package org.openepics.names.webservice;
+package org.openepics.names.jaxb;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.UUID;

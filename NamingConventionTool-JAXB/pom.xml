@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.openepics</groupId>
+	<artifactId>names-jaxb</artifactId>
+	<description>JAXB objects used by NamingServiceTool. These objects are used by the services and the clients.</description>
+	<name>NamingConventionTool-JAXB</name>
+	<version>3.0.0</version>
+
+	<parent>
+		<groupId>se.lu.esss.ics</groupId>
+		<artifactId>ess-java-config</artifactId>
+		<version>1.0.0</version>
+		<relativePath></relativePath>
+	</parent>
+</project>

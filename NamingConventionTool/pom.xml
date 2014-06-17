@@ -62,7 +62,12 @@
             <artifactId>poi-ooxml</artifactId>
             <version>3.10-FINAL</version>
         </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>org.openepics</groupId>
+			<artifactId>names-jaxb</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+	</dependencies>
     
     
     <build>
