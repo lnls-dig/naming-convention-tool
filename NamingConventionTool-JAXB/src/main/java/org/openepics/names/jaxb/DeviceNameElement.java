@@ -20,7 +20,7 @@ public class DeviceNameElement {
     private String instanceIndex;
     private String name;
     
-    protected DeviceNameElement() {}
+    public DeviceNameElement() {}
     
     public UUID getUuid() { return uuid; }
     public void setUuid(UUID uuid) { this.uuid = uuid; }

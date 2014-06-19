@@ -1,33 +1,33 @@
 package org.openepics.names.webservice;
 
-import com.google.common.collect.Lists;
+import java.util.List;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
+import org.openepics.names.jaxb.DeviceNameElement;
+import org.openepics.names.jaxb.SpecificDeviceNameResource;
+import org.openepics.names.jaxb.DeviceNamesResource;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.NamePartService;
-import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.BatchViewProvider;
-import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.util.As;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 /**
+ * This is implementation of {@link DeviceNamesResource} interface.
+ * 
  * @author Andraz Pozar <andraz.pozar@cosylab.com>
  */
 @Stateless
-@Path("deviceNames")
-public class AllDeviceNamesResource {
+public class DeviceNamesResourceImpl implements DeviceNamesResource {
     @Inject private NamePartService namePartService;
+    @Inject private SpecificDeviceNameResource deviceNameResource;
 
-    @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	@Override
     public List<DeviceNameElement> getAllDeviceNames() {
         final List<NamePartRevision> sectionRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, false);
         final List<NamePartRevision> deviceTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false);
@@ -50,4 +50,9 @@ public class AllDeviceNamesResource {
         
         return deviceNames;
     }
+
+	@Override
+	public SpecificDeviceNameResource getSpecificDeviceNameSubresource() {
+		return deviceNameResource;
+	}
 }

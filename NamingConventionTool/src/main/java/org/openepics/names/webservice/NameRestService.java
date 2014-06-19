@@ -1,13 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.openepics.names.webservice;
 
-import javax.ws.rs.core.Application;
 import java.util.Set;
 
+import javax.ws.rs.core.Application;
+
 /**
+ * This represents the JAX-RS application which hosts all REST resources of the naming tool.
  *
  * @author Andraz Pozar <andraz.pozar@cosylab.com>
  */
@@ -23,5 +21,4 @@ public class NameRestService extends Application {
         Set<Class<?>> resources = new java.util.HashSet<Class<?>>();
         return resources;
     }
-
 }
