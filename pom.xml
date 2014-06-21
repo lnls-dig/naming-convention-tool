@@ -11,6 +11,8 @@
 	
 	<modules>
 		<module>NamingConventionTool</module>
+		<module>NamingConventionTool-JAXB</module>
+		<module>NamingConventionTool-Client</module>
 	</modules>
 	
 </project>
