@@ -1,7 +1,6 @@
 src/main/java/resources
 /target
 .classpath
-.project
 .settings/
 .idea
 names.iml
