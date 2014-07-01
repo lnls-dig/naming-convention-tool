@@ -1,8 +1,7 @@
 package org.openepics.names.model;
 
 /**
- * Type of a NamePart specifying whether it belongs to the Logical Area Structure or the Device
- * Category Structure.
+ * Type of a NamePart specifying whether it belongs to the Area Structure or the Device Structure.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
