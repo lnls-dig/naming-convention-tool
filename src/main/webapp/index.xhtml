@@ -1,70 +1,221 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
-                template="/WEB-INF/namesTemplate.xhtml"
-                xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:fc="http://java.sun.com/jsf/composite/comps">
+	template="/WEB-INF/namesTemplate.xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fc="http://java.sun.com/jsf/composite/comps"
+	xmlns:rich="http://richfaces.org/rich">
 
-    <ui:define name="content">
-    
-	<div class="ui-treetable-scrollable-body" id="indexDiv">
-		<div class="textScreen">
-	        <h2 class="heading">Introduction</h2>
-	        <p:panel  styleClass="para">
-	            Format and syntax of the name components shall be as shown in the figure below.
-	            Only the device name is required on drawings, name tags, etc. where the drawing or device name clearly
-	            indicates the system and subsystem including the equipment.
-	            However, where the system and/or subsystem are not apparent, the full name must be shown.
-	        </p:panel>
-	
-	        <p:panel style="border: none">
-	            <p:graphicImage value="resources/images/format.png"  />
-	        </p:panel>
-	
-	        <h2 class="heading">System Description</h2>
-	        <p:panel styleClass="para"> 
-	        Tools to enforce the ESS Naming Convention and to support the process of naming. This includes:
-	           <ul>
-	               <li>Name Administration Tool: Tools to administer mnemonic name components in the logical area structure and device category structure.</li>
-	               <li>Device Naming Tool: Tool to construct and edit instances of device names according to a set of rules described in the naming convention document.</li>
-	           </ul>
-	           
-               In summary, all names are constructed from two structures, hierarchically arranged as
-               <ul>
-                    <li>Logical Area Structure Level 1. Super Section (SupS)</li>
-                    <li>Logical Area Structure Level 2. Section (Sect)</li>
-                    <li>Logical Area Structure Level 3. Subsection (SubS)</li>
-                    <li>Device Category Structure Level 1. Discipline (Dis)</li>
-                    <li>Device Category Structure Level 2. Category (Cat)</li>
-                    <li>Device Category Structure Level 3. Generic Device Type (GDev)</li>
-                </ul>
-                where SupS, Sect, SubS, Dis, Cat and GDev represents the mnemonic name components. These are then put together into a device name
-                <br/><br/> 
-                SSSS-BBBB:DDDD-III
-                <br/><br/>
-                Dections are assigned either as the default type (D) or as the alternative (A) type. D-type sections have alphanumeric mnemonic name components, whereas mnemonic name components of subsections under A-type sections are numbers (of string format). From here on, there are two methods of constructing a device name. 
-                <br/>
-                
-                <h3 class="heading">Device names in D-type sections</h3>
-	                <ul>
-	                    <li>SSSS – Sect.</li>
-						<li>BBBB – SubS.</li>
-						<li>DDDD – GDev.</li>
-						<li>III – An arbitrary instance index needed to make device name unique.</li>
-					</ul>   
-                <h3 class="heading">Device names in A-type sections</h3>
-	                <ul>
-	                    <li>SSSS –Sect</li>
-						<li>BBBB –Dis</li>
-						<li>DDDD – GDev</li>
-						<li>III – SubS followed by an optional alphabetic instance index, used for differentiating devices of the same type on the same subsection.</li>
-					</ul>	        
-	        </p:panel>
-	        
-	        </div>
-        </div>
-    </ui:define>
+	<ui:define name="content">
+		<div class="ui-treetable-scrollable-body" id="indexDiv">
+			<div class="textScreen">
+
+				<h1 class="heading">Format</h1>
+
+				<p:panel header="Functional Area Name">
+					<kbd style="color: #006699">Sec-Sub</kbd>
+				</p:panel>
+				
+				<p:panel header="Device Name">
+					<kbd style="color: #006699">Sec-Sub</kbd>
+					<kbd>:</kbd>
+					<kbd style="color: #99CC00">Dis-Dev-Idx</kbd>
+				</p:panel>
+				
+				<p:panel header="Process Variable Name" footer="Not implemeted in the Naming Service">
+					<kbd style="color: #006699">Sec-Sub</kbd>
+					<kbd>:</kbd>
+					<kbd style="color: #99CC00">Dis-Dev-Idx</kbd>
+					<kbd>:</kbd>
+					<kbd style="color: #CC6600">Property</kbd>
+					<kbd>.</kbd>
+					<kbd style="color: grey">FIELD</kbd>
+				</p:panel>
+
+				<h1 class="heading"> Name Elements </h1>
+
+				<p:panelGrid>
+					<f:facet name="header">
+						<p:row>
+							<p:column> Element</p:column>
+							<p:column> Full Name</p:column>
+							<p:column> Description</p:column>
+						</p:row>
+					</f:facet>
+
+					<p:row>
+						<p:column colspan="3">
+							<strong> Area Structure</strong>
+						</p:column>
+					</p:row>
+
+					<p:row>
+						<p:column>
+							<kbd>Sup</kbd>
+						</p:column>
+						<p:column>Super Section</p:column>
+						<p:column>High level area of the facility restricted to a particular use. Used for filtering and sorting purposes only. Not part of the convention names</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<kbd style="color: #006699"> Sec </kbd>
+						</p:column>
+						<p:column>Section</p:column>
+						<p:column>Level 2 of Area Structure</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<kbd style="color: #006699"> Sub </kbd>
+						</p:column>
+						<p:column>Subsection</p:column>
+						<p:column>Level 3 of Area Structure</p:column>
+					</p:row>
+
+					<p:row>
+						<p:column colspan="3">
+							<strong> Device Structure</strong>
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<kbd style="color: #99CC00"> Dis </kbd>
+						</p:column>
+						<p:column>Discipline </p:column>
+						<p:column>Branch of knowledge indicating the context in which a device is used</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<kbd>Cat</kbd>
+						</p:column>
+						<p:column>Category</p:column>
+						<p:column>Introdued to allow certain devices to be grouped together in list. Not part of the convention names. Default is Miscellaneous (Misc)</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<kbd style="color: #99CC00"> Dev </kbd>
+						</p:column>
+						<p:column>Generic Device type</p:column>
+						<p:column>Two devices of the same generic device type provide the same function</p:column>
+					</p:row>
+
+					<p:row>
+						<p:column colspan="3">
+							<strong> Instance Index</strong>
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<kbd style="color: #99CC00"> Idx </kbd>
+						</p:column>
+						<p:column>Instance index</p:column>
+						<p:column>To distinguish devices of the same type in the same area</p:column>
+					</p:row>
+
+					<p:row>
+						<p:column colspan="3">
+							<strong> Configuration Structure</strong> (not implemented by the naming service)
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<kbd> SDev </kbd>
+						</p:column>
+						<p:column>Specific Device Type </p:column>
+						<p:column>Two devices of the same specific device type are identical from a controls perspective and among others have the same set of control signals. Not displayed in names. </p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<kbd style="color: #CC6600"> Property </kbd>
+						</p:column>
+						<p:column>Observable Property</p:column>
+						<p:column>E.g. Current, Time or Temperature</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<kbd style="color: grey"> FIELD </kbd>
+						</p:column>
+						<p:column>EPICS Field</p:column>
+						<p:column>Predefined for the record type. Example: value (VAL), units (EGU), alarmlimits (HIGH, LOW etc).  </p:column>
+					</p:row>
+
+				</p:panelGrid>
+
+				<h1 class="heading">Validation</h1>
+
+				<p:panel header="Device registry"> 
+				Device names are validated against the following set of rules
+					in the device registry:
+				<ol>
+					<li>Instance index (<kbd style="color: #99CC00">Idx</kbd>)
+						shall be alphanumeric. I.e., only upper and lower case
+						alphanumeric characters (a-z, A-Z, 0-9) are allowed.
+					</li>
+					<li>The device names <kbd style="color: #006699">Sec-Sub</kbd>
+						<kbd>:</kbd>
+						<kbd style="color: #99CC00">Dis-Dev-Idx</kbd> shall be
+						distinguishable, which means that names shall be unique
+						irrespective of
+						<ul>
+							<li>Letter case</li>
+							<li>Letters I, l and number 1</li>
+							<li>Letter O and number 0</li>
+							<li>Letters V and W</li>
+							<li>Leading zeros, i.e., number 0 immediately following a
+								non-numerical character</li>
+						</ul>
+					</li>
+					<li>The instance index (<kbd style="color: #99CC00">Idx</kbd>)
+						shall be 1 to 6 characters long.
+					</li>
+				</ol>
+				</p:panel>
+				
+				
+				<p:panel header="Area Structure">
+				
+				Proposed name elements in the area structures are
+					validated against the following set of rules:
+				<ol>
+					<li>Names elements for any of the items in the area
+						structure shall be alphanumeric. I.e., only upper and lower case
+						alphanumeric characters (a-z, A-Z, 0-9) are allowed.</li>
+					<li>Name elements for super section (<kbd>Sup</kbd>) and section
+						(<kbd style="color: #006699">Sec</kbd>) shall be globally
+						distinguishable.
+					</li>
+					<li>Name elements for subsection <kbd style="color: #006699">Sub</kbd>
+						shall be distinguishable under the same parent section.
+					</li>
+					<li>Names elements for any of the items in the area structure shall 
+					have 1 to 6 charachers. </li>
+				</ol>
+				</p:panel>
+				
+				
+			   <p:panel header="Device Structure">				
+				Proposed name elements in the Device structure are
+					validated against the following set of rules:
+				<ol>
+					<li>Names elements for any of the items in the device
+						structure shall be alphanumeric. I.e., only upper and lower case
+						alphanumeric characters (a-z, A-Z, 0-9) are allowed.</li>
+					<li>Name elements for and discipline(<kbd
+							style="color: #99CC00">Dis</kbd>) shall be globally
+						distinguishable.
+					</li>
+					<li>Name elements for device category (<kbd>Cat</kbd>) and
+						type (<kbd style="color: #99CC00">Dev</kbd>) shall be
+						distinguishable under the same discipline.
+					</li>
+					<li>Names elements for any of the items in the device structure shall 
+					have 1 to 4 charachers. </li>
+				</ol>
+				</p:panel>
+
+			</div>
+		</div>
+	</ui:define>
 
 </ui:composition>
