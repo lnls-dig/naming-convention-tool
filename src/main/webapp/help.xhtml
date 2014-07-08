@@ -8,27 +8,32 @@
                 xmlns:fc="http://java.sun.com/jsf/composite/comps">
 
     <ui:define name="content">
-        <p:panel header="#{msgs.title} Manual" styleClass="Help" >
+        <p:panel header="#{msgs.title} Manual" styleClass="Help" style ="border: none" >
             <h:outputText value="Listed below are some of the frequently-used work-flows and frequently-asked questions related to the Naming System" />
         </p:panel>
 
         <p:accordionPanel styleClass="Help">
-            <p:tab title="To see the list of current names">
+            <p:tab title="To view registred device names">
                 <h:outputText value="Select" />
-                <h:link value=" Device Names " outcome="devices.xhtml" styleClass="Link"/>
+                <h:link value=" Device Registry " outcome="devices.xhtml" styleClass="Link"/>
                 <h:outputText value="from the menu bar." />
+            </p:tab>
+            <p:tab title="To register a new device name">
+                <li>•   If you are not logged in, you must first log in.</li>
+                <li>•   Click on <h:link value=" Device Registry " outcome="parts.xhtml?type=section" styleClass="Link"/> tab in menu bar.</li>
+                <li>•   Open "Actions" menu and select "Add".</li>
             </p:tab>
             <p:tab title="To submit a device name changes ">                
                 <li>•   If you are not logged in, you must first log in.</li>
-                <li>•   Click on <h:link value=" Device Names " outcome="parts.xhtml?type=section" styleClass="Link"/> tab in menu bar.</li>
+                <li>•   Click on <h:link value=" Device Registry " outcome="parts.xhtml?type=section" styleClass="Link"/> tab in menu bar.</li>
                 <li>•   Select a device name you would like to change.</li>
                 <li>•   Open "Actions" menu.</li>
                 <li>•   Here you can select a desired option.</li>                
             </p:tab>
-            <p:tab title="To submit a name part change request ">                
+            <p:tab title="To submit a name element change request ">                
                 <li>•   If you are not logged in, you must first log in.</li>
-                <li>•   Click on <h:link value=" Logical Area Structure " outcome="parts.xhtml?type=section" styleClass="Link"/> or 
-                            <h:link value=" Device Category Structure " outcome="parts.xhtml?type=deviceType" styleClass="Link"/>tab in menu bar, 
+                <li>•   Click on <h:link value=" Area Structure " outcome="parts.xhtml?type=section" styleClass="Link"/> or 
+                            <h:link value=" Device Structure " outcome="parts.xhtml?type=deviceType" styleClass="Link"/>tab in menu bar, 
                             depending which structure you would like to propose changes to.</li>
                 <li>•   Select a node or multiple nodes from the tree view.</li>
                 <li>•   Open "Actions" menu.</li>
@@ -36,8 +41,8 @@
             </p:tab>
             <p:tab title="To cancel your request " >
                 <li>•   If you are not logged in, you must first log in.</li>
-                <li>•   Click on <h:link value=" Logical Area Structure " outcome="parts.xhtml?type=section" styleClass="Link"/> or 
-                            <h:link value=" Device Category Structure " outcome="parts.xhtml?type=deviceType" styleClass="Link"/>tab in menu bar, 
+                <li>•   Click on <h:link value=" Area Structure " outcome="parts.xhtml?type=section" styleClass="Link"/> or 
+                            <h:link value=" Device Structure " outcome="parts.xhtml?type=deviceType" styleClass="Link"/>tab in menu bar, 
                             depending which structure you would like to cancel changes to.</li>
                 <li>•   Select a node or multiple nodes on which you requested changes from the tree view.</li>
                 <li>•   Open "Actions" menu.</li>
@@ -45,8 +50,8 @@
             </p:tab>
             <p:tab title="To process requests">
                 <li>•   If you are not logged in, you must first log in and be authorized to process requests.</li>
-                <li>•   Click on <h:link value=" Logical Area Structure " outcome="parts.xhtml?type=section" styleClass="Link"/> or 
-                            <h:link value=" Device Category Structure " outcome="parts.xhtml?type=deviceType" styleClass="Link"/>tab in menu bar, 
+                <li>•   Click on <h:link value=" Area Structure " outcome="parts.xhtml?type=section" styleClass="Link"/> or 
+                            <h:link value=" Device Structure " outcome="parts.xhtml?type=deviceType" styleClass="Link"/>tab in menu bar, 
                             depending which structure you would like to process requests to.</li>
                 <li>•   Select a node or multiple nodes to process requests for.</li>
                 <li>•   Open "Actions" menu.</li>
