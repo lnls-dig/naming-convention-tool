@@ -9,8 +9,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * An entity representing either a named section of the Logical Area Structure or a named device type of the Device
- * Category Structure, depending on the specified namePartType.
+ * An entity representing either a named section of the Area Structure or a named device type of the Device
+ * Structure, depending on the specified namePartType.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
