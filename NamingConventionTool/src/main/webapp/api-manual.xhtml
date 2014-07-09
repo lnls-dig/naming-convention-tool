@@ -1,71 +1,72 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
-                template="/WEB-INF/namesTemplate.xhtml"
-                xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:fc="http://java.sun.com/jsf/composite/comps">
+	template="/WEB-INF/namesTemplate.xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fc="http://java.sun.com/jsf/composite/comps">
 
-    <ui:define name="content" >
-    <div class="ui-treetable-scrollable-body" id="apiManualDiv">
+	<ui:define name="content">
 
-        <ui:param name="restRoot" value="#{request.scheme}://#{request.serverName}:#{request.serverPort}#{request.contextPath}/rest" />
+		<div class="ui-treetable-scrollable-body" id="apiManualDiv">
 
-        <div style="text-align: left">
-            <h3> Application Programming Interface</h3>
-            <p>Data in the Naming System can be accessed programmatically through a
-                <a href="http://en.wikipedia.org/wiki/Representational_state_transfer" target="_blank">RESTful</a>
-                Application Programming Interface (API). The Naming System API follows
-                <a href="http://semver.org/" target="_blank">Semantic Versioning</a> for its version numbers. The current API version number is #{msgs.apiversion}.
-            </p>
-            <h3>Introduction</h3>
-            <p>
-                A Name is a unique identifier for a component (device, rack, power-supply etc) in an Accelerator Facility.
-                It is divided into several Name Parts (such as Section Part and Device Part).
-                Each Name Part is further divided into Name Elements. For example, the Section Part may have Section and Sub-section as its elements.
-                The Naming System manages Name Elements. There are several type or categories of Name Elements.
-            </p>
-           
-            <h3>Representations</h3>
+			<ui:param name="restRoot"
+				value="#{request.scheme}://#{request.serverName}:#{request.serverPort}#{request.contextPath}/rest" />
 
-            The representations of the resources must be specified through HTTP ACCEPT header.
-            This API supports JSON and XML representations.
-            Examples:
-            <ul>
-                <li>Accept: application/json</li>
-                <li>Accept: application/xml</li>
-            </ul>
-            <h3>Base URL</h3>
-            The base URL for Resource Identifiers is #{restRoot}.
-            <h3>Resources</h3>
-            <p:panelGrid style="text-align: left">
-                <f:facet name="header">
-                    <p:row>
-                        <p:column>Name</p:column>
-                        <p:column>Method</p:column>
-                        <p:column>Resource ID</p:column>
-                        <p:column>Description</p:column>
-                        <p:column>Example</p:column>
-                    </p:row>
-                </f:facet>
-                <p:row>
-                    <p:column>All Device Names</p:column>
-                    <p:column>GET</p:column>
-                    <p:column>/deviceNames</p:column>
-                    <p:column>List of all device names</p:column>
-                    <p:column>#{restRoot}/deviceNames</p:column>
-                </p:row>
-                <p:row>
-                    <p:column>Device Name With UUID</p:column>
-                    <p:column>GET</p:column>
-                    <p:column>/deviceNames/{uuid}</p:column>
-                    <p:column>Information of device name for given UUID. </p:column>
-                    <p:column>#{restRoot}/deviceNames/354fc899-add8-494c-a62e-1250837e1135</p:column>
-                </p:row>
-            </p:panelGrid>
-        </div>
-        </div>
-    </ui:define>
+
+			<div style="text-align: left">
+
+				<h2>#{msgs.title} API Manual</h2>
+				<p>
+					Data in the Naming Service can be accessed programmatically through
+					a <a
+						href="http://en.wikipedia.org/wiki/Representational_state_transfer"
+						target="_blank">RESTful</a> Application Programming Interface
+					(API). The Naming System API follows <a href="http://semver.org/"
+						target="_blank">Semantic Versioning</a> for its version numbers.
+					The current API version number is #{msgs.apiversion}.
+				</p>
+
+				<h3>Representations</h3>
+
+				The representations of the resources must be specified through HTTP
+				ACCEPT header. This API supports JSON and XML representations.
+				Examples:
+				<ul>
+					<li>Accept: application/json</li>
+					<li>Accept: application/xml</li>
+				</ul>
+				<h3>Base URL</h3>
+				The base URL for Resource Identifiers is #{restRoot}.
+				<h3>Resources</h3>
+				<p:panelGrid style="text-align: left">
+					<f:facet name="header">
+						<p:row>
+							<p:column>Name</p:column>
+							<p:column>Method</p:column>
+							<p:column>Resource ID</p:column>
+							<p:column>Description</p:column>
+							<p:column>Example</p:column>
+						</p:row>
+					</f:facet>
+					<p:row>
+						<p:column>All Device Names</p:column>
+						<p:column>GET</p:column>
+						<p:column>/deviceNames</p:column>
+						<p:column>List of all device names</p:column>
+						<p:column>#{restRoot}/deviceNames</p:column>
+					</p:row>
+					<p:row>
+						<p:column>Device Name With UUID</p:column>
+						<p:column>GET</p:column>
+						<p:column>/deviceNames/{uuid}</p:column>
+						<p:column>Information of device name for given UUID. </p:column>
+						<p:column>#{restRoot}/deviceNames/354fc899-add8-494c-a62e-1250837e1135</p:column>
+					</p:row>
+				</p:panelGrid>
+			</div>
+		</div>
+	</ui:define>
 
 </ui:composition>

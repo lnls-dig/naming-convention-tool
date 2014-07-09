@@ -13,7 +13,7 @@ public enum Role {
     EDITOR,
 
     /**
-     * Super user role giving permission to approve or reject proposed changes to Logical Area and Device Category
+     * Super user role giving permission to approve or reject proposed changes to Area and Device
      * structures, in addition to normal Editor permissions.
      */
     SUPERUSER

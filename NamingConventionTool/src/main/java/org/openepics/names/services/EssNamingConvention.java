@@ -3,47 +3,44 @@ package org.openepics.names.services;
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Alternative;
-
 import org.openepics.names.model.NamePartType;
-
 import java.util.List;
 
 /**
  * A naming convention definition used by ESS.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar <marko.kolar@cosylab.com>,  
  */
 @Alternative
 @Stateless
 public class EssNamingConvention implements NamingConvention {
 
     @Override public boolean isSectionNameValid(List<String> parentPath, String name) {
-        if (!isNameLengthValid(name)) {
+        if (!isNameLengthValid(name,1,6)) {
             return false;
-        } else {
-            if (parentPath.size() == 2 && parentPath.get(0).equals("Acc")) {
-                return name.matches("^[0-9]+$");
-            } else {
-                return name.matches("^[a-zA-Z][a-zA-Z0-9]*$");
-            }
+        } else {        	
+    		return name.matches("^[a-zA-Z0-9]+$");
         }
     }
 
     @Override public boolean isDeviceTypeNameValid(List<String> parentPath, String name) {
-        if (!isNameLengthValid(name)) {
+        if (!isNameLengthValid(name,1,4)) {
             return false;
         } else {
-            return name.matches("^[a-zA-Z][a-zA-Z0-9]*$");
+        	if (parentPath.size() == 2 ) {
+        		return name.matches("^[a-zA-Z][a-zA-Z0-9]+$");
+    	} else {
+    		return name.matches("^[a-zA-Z0-9]+$");
+    	}
+        	
         }
     }
 
     @Override public boolean isInstanceIndexValid(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
         if (instanceIndex == null) {
             return true;
-        } else if (instanceIndex.length() > 6) {
+        } else if (!isNameLengthValid(instanceIndex,1,6)) {
             return false;
-        } else if (sectionPath.get(0).equals("Acc")) {
-            return instanceIndex.matches("^[a-zA-Z][a-zA-Z0-9]*$");
         } else {
             return instanceIndex.matches("^[a-zA-Z0-9]+$");
         }
@@ -71,12 +68,9 @@ public class EssNamingConvention implements NamingConvention {
         final String subsection = sectionPath.get(2);
         final String discipline = deviceTypePath.get(0);
         final String genericDeviceType = deviceTypePath.get(2);
-        if (supersection.equals("Acc")) {
-            return section + "-" + discipline + ":" + genericDeviceType + "-" + subsection + (instanceIndex != null ? instanceIndex : "");
-        } else {
-            return section + "-" + subsection + ":" + genericDeviceType + (instanceIndex != null ? "-" + instanceIndex : "");
-        }
+        return section + "-" + subsection + ":" + discipline + "-" + genericDeviceType + "-" + instanceIndex;
     }
     
-    private boolean isNameLengthValid(String name) { return name.length() >= 2 && name.length() <= 6; }
+    private boolean isNameLengthValid(String name,int nMin, int nMax) { 
+    	return name.length() >= nMin && name.length() <= nMax; }
 }
