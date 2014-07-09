@@ -1,4 +1,4 @@
-package org.openepics.names.webservice;
+package org.openepics.names.jaxb;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.UUID;
@@ -20,7 +20,7 @@ public class DeviceNameElement {
     private String instanceIndex;
     private String name;
     
-    protected DeviceNameElement() {}
+    public DeviceNameElement() {}
     
     public UUID getUuid() { return uuid; }
     public void setUuid(UUID uuid) { this.uuid = uuid; }
