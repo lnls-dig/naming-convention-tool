@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jboss-web>
-	<context-root>/names</context-root>
+	<context-root>/</context-root>
 	<security-domain>names.security-domain</security-domain>
-	<!--  
 	<virtual-host>names</virtual-host>
-	-->
 </jboss-web>
