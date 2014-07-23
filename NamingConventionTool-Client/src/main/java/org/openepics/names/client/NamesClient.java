@@ -30,6 +30,9 @@ public class NamesClient {
 	 * <ul>
 	 * <li><code>names.servicesBaseURL<code> = https://localhost:8080/names/rest</li>
 	 * </ul>
+	 * 
+	 * Values can also be specified by setting the system properties, which override the default and file definitions.
+	 * The system properties must be set before this constructor is invoked.
 	 */
 	public NamesClient() {
 	
@@ -39,6 +42,7 @@ public class NamesClient {
 	        LOGGER.log(Level.SEVERE, "Loading properties from file " + PROPERTIES_FILENAME + " failed. Using default.", e);
 	        properties.setProperty(BASE_URL_PROPERTY_NAME, "https://localhost:8080/names/rest");
 	    }
+		properties.putAll(System.getProperties());
 	}
 
 	/**
@@ -48,7 +52,6 @@ public class NamesClient {
 	 */
 	public DeviceNamesResource getNamesResource() {
         LOGGER.fine("Invoking getNamesResource");
-        LOGGER.fine("Version 3");
         
         final String baseUrl = properties.getProperty(BASE_URL_PROPERTY_NAME);
         
