@@ -104,6 +104,61 @@
             </resource>
         </resources>
     </build>
+
+    <profiles>
+        <profile>
+            <id>production</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<webResources>
+								<resource>
+									<directory>${basedir}/src/main/webapp/WEB-INF/production</directory>
+									<targetPath>WEB-INF/</targetPath>
+									<includes>
+										<include>jboss-web.xml</include>
+									</includes>
+								</resource>
+							</webResources>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+        </profile>
+
+        <profile>
+            <id>test</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<webResources>
+								<resource>
+									<directory>${basedir}/src/main/webapp/WEB-INF/test</directory>
+									<targetPath>WEB-INF/</targetPath>
+									<includes>
+										<include>jboss-web.xml</include>
+									</includes>
+								</resource>
+							</webResources>
+						</configuration>
+					</plugin>
+				</plugins>
+            </build>
+        </profile>
+    </profiles>	
+
     <repositories>
         <repository>
             <url>http://repository.primefaces.org/</url>
