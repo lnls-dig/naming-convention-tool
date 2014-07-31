@@ -39,7 +39,7 @@ public class NamesClient {
 		try (final InputStream stream = NamesClient.class.getClassLoader().getResourceAsStream(PROPERTIES_FILENAME)) {
 	        properties.load(stream);
 	    } catch (IOException | NullPointerException e) {
-	        LOGGER.log(Level.SEVERE, "Loading properties from file " + PROPERTIES_FILENAME + " failed. Using default.", e);
+	        LOGGER.log(Level.INFO, "Loading properties from file " + PROPERTIES_FILENAME + " failed.", e);
 	        properties.setProperty(BASE_URL_PROPERTY_NAME, "https://localhost:8080/names/rest");
 	    }
 		properties.putAll(System.getProperties());
