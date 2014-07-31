@@ -21,10 +21,19 @@
 			<version>3.0.0-milestone1</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-wsdl</artifactId>
+			<version>3.0.0-milestone1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-ws-policy</artifactId>
+			<version>3.0.0-milestone1</version>
+		</dependency>
+		<dependency>
 			<groupId>org.openepics</groupId>
 			<artifactId>names-jaxb</artifactId>
 			<version>3.0.0</version>
 		</dependency>
-		
 	</dependencies>
 </project>
