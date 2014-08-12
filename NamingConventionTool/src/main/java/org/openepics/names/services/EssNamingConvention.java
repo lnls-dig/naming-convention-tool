@@ -37,9 +37,7 @@ public class EssNamingConvention implements NamingConvention {
     }
 
     @Override public boolean isInstanceIndexValid(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
-        if (instanceIndex == null) {
-            return true;
-        } else if (!isNameLengthValid(instanceIndex,1,6)) {
+    	if (!isNameLengthValid(instanceIndex,0,6)) {
             return false;
         } else {
             return instanceIndex.matches("^[a-zA-Z0-9]+$");
@@ -68,9 +66,14 @@ public class EssNamingConvention implements NamingConvention {
         final String subsection = sectionPath.get(2);
         final String discipline = deviceTypePath.get(0);
         final String genericDeviceType = deviceTypePath.get(2);
-        return section + "-" + subsection + ":" + discipline + "-" + genericDeviceType + "-" + instanceIndex;
+        return section + "-" + subsection + ":" + discipline + "-" + genericDeviceType + (instanceIndex != null ? "-" + instanceIndex : "");
     }
     
     private boolean isNameLengthValid(String name,int nMin, int nMax) { 
-    	return name.length() >= nMin && name.length() <= nMax; }
+    	if(name==null) {
+    		return nMin==0; 	
+    	} else {
+    		return name.length() >= nMin && name.length() <= nMax; 
+    	}
+    }
 }

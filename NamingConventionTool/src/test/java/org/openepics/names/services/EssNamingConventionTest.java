@@ -86,9 +86,9 @@ public class EssNamingConventionTest {
     public void isInstanceIndexValidTest() {
         final List<String> sectionPath = ImmutableList.of("Sup", "Sec", "Sub");
         final List<String> deviceTypePath = ImmutableList.of("Dis", "Cat", "Dev");
-        assertFalse("Inx cannot be empty",namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "  "));
-        assertTrue("Numeric Inx is allowed", namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "123"));
-        assertTrue("Alphabetic Ins is allowed",namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "abc"));
+        assertTrue("Idx can be null",namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "  "));
+        assertTrue("Numeric Idx is allowed", namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "123"));
+        assertTrue("Alphabetic Idx is allowed",namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "abc"));
         assertFalse("Non-alphanumical char is not allowed", namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "a!"));
         assertTrue("One charaters is allowed", namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "1"));
         assertTrue("Six Char is allowed",namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "abcdef"));
