@@ -2,5 +2,6 @@
 <jboss-web>
 	<context-root>/</context-root>
 	<security-domain>names.security-domain</security-domain>
+	<security-domain>namesRBAC.security-domain</security-domain>
 	<virtual-host>names</virtual-host>
 </jboss-web>

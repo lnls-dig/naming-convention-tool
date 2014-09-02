@@ -2,4 +2,5 @@
 <jboss-web>
 	<context-root>/names-test</context-root>
 	<security-domain>names.security-domain</security-domain>
+	<security-domain>namesRBAC.security-domain</security-domain>
 </jboss-web>
