@@ -43,7 +43,7 @@ public class InitialDataImportService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        fillUserAccounts();
+ //       fillUserAccounts();
         fillNameParts(true);
         fillNameParts(false);
         fillDeviceNames();
