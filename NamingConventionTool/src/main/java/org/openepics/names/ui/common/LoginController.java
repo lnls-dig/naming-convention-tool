@@ -9,26 +9,23 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-//import javax.servlet.RequestDispatcher;
-
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A UI controller bean for the login / logout button and form.
  *
  * @author Vasu V <vuppala@frib.msu.org>
- * @author K. Rathsman
  */
 @ManagedBean
 @ViewScoped
 public class LoginController implements Serializable {
-    private static final Logger LOGGER = Logger.getLogger(LoginController.class.getCanonicalName());
 
     @Inject private SessionService sessionService;
-    
+
     private String inputUsername;
     private String inputPassword;
     private String originalURL;
@@ -36,7 +33,7 @@ public class LoginController implements Serializable {
     @PostConstruct
     public void init() {
         FacesContext context = FacesContext.getCurrentInstance();
-//        originalURL = (String) context.getExternalContext().getRequestMap().get(RequestDispatcher.FORWARD_REQUEST_URI);
+        originalURL = (String) context.getExternalContext().getRequestMap().get(RequestDispatcher.FORWARD_REQUEST_URI);
     }
 
     public void prepareLoginPopup() {
@@ -46,32 +43,32 @@ public class LoginController implements Serializable {
     }
 
     public void onLogin() throws IOException {
- 
-    	try {
-			sessionService.login(inputUsername,inputPassword);            
+        FacesContext context = FacesContext.getCurrentInstance();
+        try {
+            sessionService.login(inputUsername, inputPassword);
             RequestContext.getCurrentInstance().addCallbackParam("loginSuccess", true);
-            showMessage(FacesMessage.SEVERITY_INFO, "You are logged in. Welcome!", inputUsername);
-			LOGGER.log(Level.INFO, "Login successful for " + inputUsername);
+            showMessage(FacesMessage.SEVERITY_INFO, "You are logged in. Welcome to Proteus.", inputUsername);
             if (originalURL != null) {
-    			FacesContext.getCurrentInstance().getExternalContext().redirect(originalURL);
+                context.getExternalContext().redirect(originalURL);
             }
         } catch (SecurityException e) {
-        	showMessage(FacesMessage.SEVERITY_ERROR, "Login Failed! Please try again. ", "Status: ");
+            showMessage(FacesMessage.SEVERITY_ERROR, "Login Failed! Please try again. ", "Status: ");
             RequestContext.getCurrentInstance().addCallbackParam("loginSuccess", false);
-			LOGGER.log(Level.INFO, "Login failed for " + inputUsername);            
         } finally {
             inputPassword = null;
+            sessionService.update();
         }
         updatePageElements();
     }
 
     public void onLogout() {
         try {
-            sessionService.logout();            
+            sessionService.logout();
             showMessage(FacesMessage.SEVERITY_INFO, "You have been logged out.", "Thank you!");
         } catch (SecurityException e) {
-        	showMessage(FacesMessage.SEVERITY_ERROR, "Logout failed! ", "Unexpected");
-        	throw new RuntimeException(e);
+            throw new RuntimeException(e);
+        } finally {
+            sessionService.update();
         }
         updatePageElements();
     }

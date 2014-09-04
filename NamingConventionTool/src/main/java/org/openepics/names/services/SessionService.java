@@ -3,7 +3,7 @@ package org.openepics.names.services;
 import java.io.Serializable;
 import org.openepics.names.model.UserAccount;
 
-public interface SessionService extends Serializable{
+public interface SessionService {
 
 	public abstract void login(String userName, String password);
 
@@ -29,5 +29,7 @@ public interface SessionService extends Serializable{
 	 * True if the user is a superuser.
 	 */
 	public abstract boolean isSuperUser();
+
+	public abstract void update();
 
 }

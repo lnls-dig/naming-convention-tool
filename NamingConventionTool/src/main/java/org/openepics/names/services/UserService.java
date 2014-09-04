@@ -1,11 +1,14 @@
 package org.openepics.names.services;
 
+import java.util.logging.Logger;
+
 import org.openepics.names.model.Role;
 import org.openepics.names.model.UserAccount;
 import org.openepics.names.util.As;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
 /**
@@ -29,6 +32,20 @@ public class UserService {
 	}
 
 	/**
+	 * The UserAccount of the user with given name. Updates the db if username does not exist. 
+	 * @param username
+	 * @param role
+	 */
+	public UserAccount updatedUserWithName(String username, Role role) {
+		try{
+			return em.createQuery("SELECT u FROM UserAccount u WHERE u.username = :username", UserAccount.class).setParameter("username", username).getSingleResult();
+		} catch (NoResultException e){
+			em.persist(new UserAccount(username, role));
+			return em.createQuery("SELECT u FROM UserAccount u WHERE u.username = :username", UserAccount.class).setParameter("username", username).getSingleResult();
+		} 
+	}
+
+	/**
 	 * The EntityManager-attached entity corresponding to the given UserAccount entity.
 	 *
 	 * @param user the (possibly detached) UserAccount entity
@@ -37,13 +54,4 @@ public class UserService {
 		return As.notNull(em.find(UserAccount.class, user.getId()));
 	}
 
-	/**
-	 * add user to UserAccounts. 
-	 * @param userAccount
-	 */
-	public void update(UserAccount userAccount) {
-		if(userAccount!=null && emAttached(userAccount)==null){
-			em.persist(userAccount);
-		} 
-	}
 }

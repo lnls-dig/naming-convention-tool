@@ -2,6 +2,7 @@ package org.openepics.names.services;
 
 import org.openepics.names.model.Role;
 import org.openepics.names.model.UserAccount;
+import org.openepics.names.services.UserService;
 
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Alternative;
@@ -20,8 +21,7 @@ import java.security.Principal;
  */
 @Alternative
 @SessionScoped
-public class SessionServiceNotRBAC implements SessionService {
-
+public class SessionServiceNotRBAC implements SessionService, Serializable {
     @Inject private UserService userService;
     private UserAccount user = null;
 
@@ -29,6 +29,7 @@ public class SessionServiceNotRBAC implements SessionService {
      * Updates the session information with that of the current user, taken from the JSF context. Should be called on
      * each login and logout.
      */
+    @Override
     public void update() {
         final Principal principal = FacesContext.getCurrentInstance().getExternalContext().getUserPrincipal();
         user = principal != null ? userService.userWithName(principal.getName()) : null;
@@ -43,19 +44,12 @@ public class SessionServiceNotRBAC implements SessionService {
 	      HttpServletRequest servletRequest = (HttpServletRequest) context.getExternalContext().getRequest();
 			try {
 				servletRequest.login(userName, password);
-				updateUserAccounts(userName);
 			} catch (ServletException e){
 				throw new SecurityException("Login Failed !", e); 
 			} finally {
 				password = null;
-				update();
 			}
-		}
-
-		private void updateUserAccounts(String userName) {
-		// TODO Auto-generated method stub
-		
-	}
+		}		
 
 		/* (non-Javadoc)
 		 * @see org.openepics.names.services.SessionService#logout()
@@ -68,8 +62,6 @@ public class SessionServiceNotRBAC implements SessionService {
 	            servletRequest.logout();
 	        } catch (ServletException e) {
 	            throw new SecurityException("Logout Failed", e);
-	        } finally {
-	            update();
 	        }
 	    }
         
