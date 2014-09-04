@@ -44,16 +44,14 @@ public class LoginController implements Serializable {
 
     public void onLogin() throws IOException {
         FacesContext context = FacesContext.getCurrentInstance();
-        HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
-
         try {
-            request.login(inputUsername, inputPassword);
+            sessionService.login(inputUsername, inputPassword);
             RequestContext.getCurrentInstance().addCallbackParam("loginSuccess", true);
             showMessage(FacesMessage.SEVERITY_INFO, "You are logged in. Welcome to Proteus.", inputUsername);
             if (originalURL != null) {
                 context.getExternalContext().redirect(originalURL);
             }
-        } catch (ServletException e) {
+        } catch (SecurityException e) {
             showMessage(FacesMessage.SEVERITY_ERROR, "Login Failed! Please try again. ", "Status: ");
             RequestContext.getCurrentInstance().addCallbackParam("loginSuccess", false);
         } finally {
@@ -64,12 +62,10 @@ public class LoginController implements Serializable {
     }
 
     public void onLogout() {
-        final FacesContext context = FacesContext.getCurrentInstance();
-        final HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
         try {
-            request.logout();
+            sessionService.logout();
             showMessage(FacesMessage.SEVERITY_INFO, "You have been logged out.", "Thank you!");
-        } catch (ServletException e) {
+        } catch (SecurityException e) {
             throw new RuntimeException(e);
         } finally {
             sessionService.update();

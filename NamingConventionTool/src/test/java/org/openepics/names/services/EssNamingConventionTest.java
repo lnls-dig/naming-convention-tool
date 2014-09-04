@@ -37,7 +37,6 @@ public class EssNamingConventionTest {
     @Test
     public void isSectionNameValidTest() {
         List<String> parentPath = ImmutableList.of("Sup");
-
         assertTrue("Alphabetic section is allowed",namingConvention.isSectionNameValid(parentPath, "Sec"));
         assertTrue("Alphanumeric section is allowed",namingConvention.isSectionNameValid(parentPath, "Sec01"));
         assertTrue("Numeric section is allowed",namingConvention.isSectionNameValid(parentPath, "01"));
@@ -57,8 +56,7 @@ public class EssNamingConventionTest {
         assertFalse(namingConvention.isSectionNameValid(parentPath, "Section"));
         assertTrue(namingConvention.isSectionNameValid(parentPath, "Se"));
         assertTrue(namingConvention.isSectionNameValid(parentPath, "Sectio"));
-        assertTrue(namingConvention.isSectionNameValid(parentPath, "Sec"));
-       
+        assertTrue(namingConvention.isSectionNameValid(parentPath, "Sec")); 
     }
     
     @Test
@@ -86,9 +84,9 @@ public class EssNamingConventionTest {
     public void isInstanceIndexValidTest() {
         final List<String> sectionPath = ImmutableList.of("Sup", "Sec", "Sub");
         final List<String> deviceTypePath = ImmutableList.of("Dis", "Cat", "Dev");
-        assertFalse("Inx cannot be empty",namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "  "));
-        assertTrue("Numeric Inx is allowed", namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "123"));
-        assertTrue("Alphabetic Ins is allowed",namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "abc"));
+        assertTrue("Idx can be null",namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, null));
+        assertTrue("Numeric Idx is allowed", namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "123"));
+        assertTrue("Alphabetic Idx is allowed",namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "abc"));
         assertFalse("Non-alphanumical char is not allowed", namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "a!"));
         assertTrue("One charaters is allowed", namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "1"));
         assertTrue("Six Char is allowed",namingConvention.isInstanceIndexValid(sectionPath, deviceTypePath, "abcdef"));
@@ -139,19 +137,11 @@ public class EssNamingConventionTest {
         assertEquals(namingConvention.equivalenceClassRepresentative("01Sub001"), namingConvention.equivalenceClassRepresentative("01Sub1"));
     }
     
-//    @Test
-//    public void typeAConventionNameTest() {
-//        final List<String> sectionPath = ImmutableList.of("Acc", "A2T", "01");
-//        final List<String> deviceTypePath = ImmutableList.of("BMD", "Chop", "ChopG");
-//        assertEquals(namingConvention.conventionName(sectionPath, deviceTypePath, null), "A2T-BMD:ChopG-01");
-//        assertEquals(namingConvention.conventionName(sectionPath, deviceTypePath, "a01"), "A2T-BMD:ChopG-01a01");
-//    }
-    
     @Test
     public void typeDConventionNameTest() {
         final List<String> sectionPath = ImmutableList.of("Sup", "Sec", "Sub");
         final List<String> deviceTypePath = ImmutableList.of("Dis", "Cat", "Dev");
-        assertEquals(namingConvention.conventionName(sectionPath, deviceTypePath, "Inx"), "Sec-Sub:Dis-Dev-Inx");
+        assertEquals(namingConvention.conventionName(sectionPath, deviceTypePath, "Idx"), "Sec-Sub:Dis-Dev-Idx");
     }
     
     @Test
