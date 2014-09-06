@@ -70,6 +70,7 @@ public class DevicesController implements Serializable {
     private TreeNode formSelectedSection;
     private TreeNode formSelectedDeviceType;
     private String formInstanceIndex = "";
+    private String formAdditionalInfo = "";
 
     private byte[] importData;
     private String importFileName;
@@ -117,7 +118,7 @@ public class DevicesController implements Serializable {
         try {
             final NamePart subsection = As.notNull(getSelectedSection()).getNamePart();
             final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
-            final DeviceRevision rev = namePartService.addDevice(subsection, deviceType, getFormInstanceIndex());
+            final DeviceRevision rev = namePartService.addDevice(subsection, deviceType, getFormInstanceIndex(), getFormAdditionalInfo());
             showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been added.");
         } finally {
             init();
@@ -128,7 +129,7 @@ public class DevicesController implements Serializable {
         try {
         	final NamePart subsection = ((NamePartView) formSelectedSection.getData()).getNamePart();
             final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
-            namePartService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), subsection, deviceType, getFormInstanceIndex());
+            namePartService.modifyDevice(As.notNull(getSelectedDevice()).getDevice().getDevice(), subsection, deviceType, getFormInstanceIndex(), getFormAdditionalInfo());
             showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been modified.");
         } finally {
             init();
@@ -203,6 +204,9 @@ public class DevicesController implements Serializable {
 
     public String getFormInstanceIndex() { return formInstanceIndex; }
     public void setFormInstanceIndex(String formInstanceIndex) { this.formInstanceIndex = !formInstanceIndex.isEmpty() ? formInstanceIndex : null; }
+    
+    public String getFormAdditionalInfo(){ return formAdditionalInfo;}
+    public void setFormAdditionalInfo(String formAdditionalInfo){ this.formAdditionalInfo = !formAdditionalInfo.isEmpty() ? formAdditionalInfo : null; }
 
     public String getImportFileName() { return importFileName; }
 

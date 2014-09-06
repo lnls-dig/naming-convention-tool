@@ -47,7 +47,7 @@ public class DeviceView {
     @Deprecated
     public Long getId() { return currentRevision.getId(); }
 
-    /**
+    /**A
      * The convention name of the device.
      */
     public String getConventionName() {
@@ -84,4 +84,10 @@ public class DeviceView {
      * The user who proposed the current device revision.
      */
     public UserAccount getRequestedBy() { return currentRevision.getRequestedBy(); }
+
+    /** 
+     * Additional information (description, comment etc.) of the device
+     * @return
+     */
+	public @Nullable String getAdditionalInfo() { return currentRevision.getAdditionalInfo();}
 }

@@ -215,11 +215,12 @@ public class RestrictedNamePartService {
      * @param section the section containing the device
      * @param deviceType the device type of the device
      * @param instanceIndex the instance index of the device, null if omitted
+     * @param additionalInfo Additional information (description, comment etc) of the device.
      * @return current revision of the added device
      */
-    public DeviceRevision addDevice(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+    public DeviceRevision addDevice(NamePart section, NamePart deviceType, @Nullable String instanceIndex, @Nullable String additionalInfo) {
         Preconditions.checkState(sessionService.isEditor());
-        return namePartService.addDevice(section, deviceType, instanceIndex, sessionService.user());
+        return namePartService.addDevice(section, deviceType, instanceIndex, additionalInfo, sessionService.user());
     }
 
     /**
@@ -229,11 +230,12 @@ public class RestrictedNamePartService {
      * @param section the new section containing the device
      * @param deviceType the new device type of the device
      * @param instanceIndex the new instance index of the device, null no instance index is to be assigned to the device
+     * @param additionalInfo Additional information (description, comment etc) of the device.
      * @return the revision of the device resulting from the modification
      */
-    public DeviceRevision modifyDevice(Device device, NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+    public DeviceRevision modifyDevice(Device device, NamePart section, NamePart deviceType, @Nullable String instanceIndex, @Nullable String additionalInfo) {
         Preconditions.checkState(sessionService.isEditor());
-        return namePartService.modifyDevice(device, section, deviceType, instanceIndex, sessionService.user());
+        return namePartService.modifyDevice(device, section, deviceType, instanceIndex, additionalInfo, sessionService.user());
     }
 
     /**

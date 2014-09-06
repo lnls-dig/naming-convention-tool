@@ -1,6 +1,7 @@
 package org.openepics.names.services;
 
 import com.google.common.base.Objects;
+
 import org.openepics.names.model.NamePart;
 
 import javax.annotation.Nullable;
@@ -14,6 +15,7 @@ public final class DeviceDefinition {
     private final NamePart section;
     private final NamePart deviceType;
     private final @Nullable String instanceIndex;
+    private final @Nullable String additionalInfo;
 
     /**
      * @param section the section containing the device
@@ -21,10 +23,11 @@ public final class DeviceDefinition {
      * @param instanceIndex an additional identifier that, in combination with other attributes, determine the unique
      * convention name of the device. Null if omitted.
      */
-    public DeviceDefinition(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+    public DeviceDefinition(NamePart section, NamePart deviceType, @Nullable String instanceIndex, @Nullable String additionalInfo) {
         this.section = section;
         this.deviceType = deviceType;
         this.instanceIndex = instanceIndex;
+        this.additionalInfo=additionalInfo;
     }
 
     /**
@@ -55,4 +58,8 @@ public final class DeviceDefinition {
     @Override public int hashCode() {
         return Objects.hashCode(section(), deviceType(), instanceIndex());
     }
+
+	public @Nullable String additionalInfo() {
+		return additionalInfo;
+	}
 }

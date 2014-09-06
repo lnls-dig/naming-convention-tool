@@ -81,8 +81,8 @@ public class InitialDataImportService {
                 final int subsectionId = (int) ExcelCell.asNumber(row.getCell(1));
                 final int deviceTypeId = (int) ExcelCell.asNumber(row.getCell(2));
                 @Nullable final String instanceIndex = ExcelCell.asString(row.getCell(3));
-                @Nullable final String comment = ExcelCell.asString(row.getCell(4));
-                devices.add(new DeviceDefinition(namePartsMap.get(subsectionId), namePartsMap.get(deviceTypeId), instanceIndex));
+                @Nullable final String additionalInfo = ExcelCell.asString(row.getCell(4));
+                devices.add(new DeviceDefinition(namePartsMap.get(subsectionId), namePartsMap.get(deviceTypeId), instanceIndex, additionalInfo));
             }
         }
         namePartService.batchAddDevices(devices, null);
