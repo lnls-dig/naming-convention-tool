@@ -13,10 +13,13 @@
             <p:column id="histName" headerText="Name" styleClass="#{devicesController.historyRevisionStyleClass(ncname)}">
                 <h:outputText value="#{ncname.conventionName}" />
             </p:column>
-            <p:column id="histNameSect" headerText="Section">
+            <p:column id="histInfo" headerText="Comment" >
+                <h:outputText value="#{ncname.additionalInfo}" />
+            </p:column>
+            <p:column id="histNameSect" headerText="Area Structure">
                 <h:outputText value="#{devicesController.sectionPath(ncname)}" />
             </p:column>
-            <p:column id="histNameDscp" headerText="Device Type">
+            <p:column id="histNameDscp" headerText="Device Structure">
                 <h:outputText value="#{devicesController.deviceTypePath(ncname)}" />
             </p:column>
             <p:column id="histReqBy" headerText="Modified By" sortBy="#{ncname.requestedBy}">

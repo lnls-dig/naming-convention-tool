@@ -66,12 +66,17 @@ public class EssNamingConvention implements NamingConvention {
 	}
 
 	@Override public String conventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
+		if(sectionPath.size()>=3 || deviceTypePath.size()>=3){
 		final String supersection = sectionPath.get(0);
 		final String section = sectionPath.get(1);
 		final String subsection = sectionPath.get(2);
 		final String discipline = deviceTypePath.get(0);
 		final String genericDeviceType = deviceTypePath.get(2);
 		return section + "-" + subsection + ":" + discipline + "-" + genericDeviceType + (instanceIndex != null ? "-" + instanceIndex : "");
+		}
+		else {
+			return null;
+		}
 	}
 
 	private boolean isNameLengthValid(String name,int nMin, int nMax) { 

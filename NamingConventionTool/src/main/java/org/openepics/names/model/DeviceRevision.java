@@ -32,6 +32,8 @@ public class DeviceRevision extends Persistable {
     private String conventionName;
 
     private String conventionNameEqClass;
+    
+    private @Nullable String additionalInfo;
 
     protected DeviceRevision() {}
 
@@ -49,8 +51,9 @@ public class DeviceRevision extends Persistable {
      * @param conventionNameEqClass the representative of the equivalence class the convention name belongs to. This is
      * used to ensure uniqueness of convention names when treating similar looking names (for example, containing 0 vs.
      * O, 1 vs. l) as equal.
+     * @param additionalInfo Additional information (description, comment etc) about the device. 
      */
-    public DeviceRevision(Device device, Date requestDate, @Nullable UserAccount requestedBy, boolean deleted, NamePart section, NamePart deviceType, @Nullable String instanceIndex, String conventionName, String conventionNameEqClass) {
+    public DeviceRevision(Device device, Date requestDate, @Nullable UserAccount requestedBy, boolean deleted, NamePart section, NamePart deviceType, @Nullable String instanceIndex, String conventionName, String conventionNameEqClass, @Nullable String additionalInfo) {
         Preconditions.checkNotNull(device);
         Preconditions.checkNotNull(requestDate);
         Preconditions.checkNotNull(section);
@@ -58,6 +61,7 @@ public class DeviceRevision extends Persistable {
         Preconditions.checkArgument(instanceIndex == null || !instanceIndex.isEmpty());
         Preconditions.checkArgument(conventionName != null && !conventionName.isEmpty());
         Preconditions.checkArgument(conventionNameEqClass != null);
+        Preconditions.checkArgument(additionalInfo == null || !additionalInfo.isEmpty());
         this.device = device;
         this.requestedBy = requestedBy;
         this.requestDate = requestDate;
@@ -67,6 +71,7 @@ public class DeviceRevision extends Persistable {
         this.instanceIndex = instanceIndex;
         this.conventionName = conventionName;
         this.conventionNameEqClass = conventionNameEqClass;
+        this.additionalInfo=additionalInfo;
     }
 
     /**
@@ -115,4 +120,9 @@ public class DeviceRevision extends Persistable {
      * convention names when treating similar looking names (for example, containing 0 vs. O, 1 vs. l) as equal.
      */
     public String getConventionNameEqClass() { return conventionNameEqClass; }
+    
+    /** 
+     * Additional information (description, comment etc) about the device. 
+     */
+    public @Nullable String getAdditionalInfo(){ return additionalInfo;}
 }

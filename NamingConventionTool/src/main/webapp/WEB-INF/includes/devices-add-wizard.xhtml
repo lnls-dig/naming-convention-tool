@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:form id="#{formId}">
+		<p:dialog widgetVar="#{widgetName}" modal="true">
+			<f:facet name="header">
+				<h:outputText value="#{dialogTitle}" />
+			</f:facet>
+
+			<p:growl id="growl" sticky="true" showDetail="true" />
+			<p:wizard  widgetVar="wiz" flowListener="#{devicesController.onFlowProcess}"
+				showStepStatus="false">
+				<p:tab id="where" title="Where">
+					<p:panel
+						header="Select area of the facility that the device provides service to:" style="width: 500 px; height: 300px; margin-bottom: 20px;"
+						footer="Name elements (Super Section, Section and Subsection) are described and managed in the area structure.">
+						<p:messages />
+						<p:tree value="#{devicesController.sections}"
+							selectionMode="single" var="section"
+							selection="#{devicesController.formSelectedSection}"
+							style="width: inherit ; height: inherit; overflow: auto;">
+
+							<p:ajax event="select" update=":#{formId}:bsub" />
+							<p:ajax event="unselect" update=":#{formId}:bsub" />
+
+							<p:treeNode>
+								<h:outputText value="#{section.name} (#{section.mnemonic})" />
+							</p:treeNode>
+						</p:tree>
+
+					</p:panel>
+				</p:tab>
+
+				<p:tab id="what" title="What?">
+					<p:panel header="Select generic device type:" style="width: 500 px; height: 300px; margin-bottom: 20px;"
+						footer="Name elements (disicpline, category and generic device type) are described and managed in the device structure.">
+						<p:messages />
+						<p:tree value="#{devicesController.deviceTypes}"
+							selectionMode="single" var="devType"
+							selection="#{devicesController.formSelectedDeviceType}"
+							style="width: inherit; height: inherit; overflow: auto;">
+							<p:ajax event="select" update=":#{formId}:bsub" />
+							<p:ajax event="unselect" update=":#{formId}:bsub" />
+							<p:treeNode>
+								<h:outputText value="#{devType.name}" />
+								<h:outputText value=" (#{devType.mnemonic})"
+									rendered="#{not empty devType.mnemonic}" />
+							</p:treeNode>
+						</p:tree>
+					</p:panel>
+				</p:tab>
+
+				<p:tab id="which" title="Which">
+					<p:panel header=" Enter Instance Index" style="width: 500 px; height: 300px; margin-bottom: 20px;"
+						footer="Optional. Alphanumeric only. Maximum 6 characters.">
+						<p:inputText 
+							id="instanceIndex"
+							onkeyup="displayIndexLengthWarningOnMod()"
+							value="#{devicesController.formInstanceIndex}"
+							style="width: 500px"
+						>
+							<f:validator validatorId="custom.addInstanceIndexValidator" />
+						</p:inputText>
+						<p:message for="instanceIndex" />
+						<div id="#{widgetName}:indexLengthWarning"
+							class="ui-message ui-message-warn ui-widget ui-corner-all"
+							style="display: none">
+							<span class="ui-message-warn-icon"></span> <span
+								class="ui-message-warn-detail">Instance index should
+								preferably be less than 4 characters.</span>
+						</div>
+
+					</p:panel>
+				</p:tab>
+
+				<p:tab id="comment" title="Comment">
+
+					<p:panel header="Enter a Comment" style="width: 500 px; height: 300px; margin-bottom: 20px;"
+						footer="Optional. Maximum 100 characters" >
+
+						<p:inputText id="additionalInfo"
+							value="#{devicesController.formAdditionalInfo}" style="width: 500px" />
+							
+					</p:panel>
+				</p:tab>
+
+
+				<p:tab id="confirm" title="Confirm">
+					<p:panel header="Review and submit generated name" style="width: 500 px; height: 300px; margin-bottom: 20px;">
+					<p:panelGrid style="width: 400px; height: inherit;">
+					<p:row>
+					<p:column>
+							<h:outputText value="Device Name:" />
+					</p:column>
+					<p:column>
+							<h:outputText value="#{devicesController.formDeviceName} " />
+					</p:column>
+					</p:row>
+
+					<p:row>
+					<p:column>
+						  <h:outputText value="Comment:"/>						
+					</p:column>
+					<p:column>
+							<h:outputText value="#{devicesController.formAdditionalInfo}"/>						
+					</p:column>
+					</p:row>
+					<p:row >
+					<p:column colspan="2" style="text-align: right">					
+						<p:commandButton value="Cancel"  onclick=" wiz.loadStep(wiz.cfg.steps[0],true);  #{widgetName}.hide(); "  /> 	
+						<p:commandButton id="bsub" value="Submit" 
+							update="growl :ManageNameForm"
+							action="#{devicesController[submitHandler]}"
+							disabled="#{devicesController.formSelectedSection == null || devicesController.formSelectedDeviceType == null}" 
+							oncomplete="wiz.loadStep(wiz.cfg.steps[0],true); #{widgetName}.hide();"
+							/>					
+					</p:column>
+					</p:row>
+					</p:panelGrid>	
+					</p:panel>
+													
+				</p:tab>
+			</p:wizard>
+		</p:dialog>
+
+	</h:form>
+
+
+</ui:composition>

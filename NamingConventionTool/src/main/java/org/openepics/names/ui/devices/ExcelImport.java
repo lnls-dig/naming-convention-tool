@@ -115,7 +115,8 @@ public class ExcelImport {
                         final String discipline = As.notNull(ExcelCell.asString(row.getCell(2)));
                         final String deviceType = As.notNull(ExcelCell.asString(row.getCell(3)));
                         final @Nullable String index = ExcelCell.asString(row.getCell(4));
-                        final ExcelImportResult addDeviceNameResult = addDeviceName(section, subsection, discipline, deviceType, index, row.getRowNum());
+                        final @Nullable String additionalInfo =ExcelCell.asString(row.getCell(5));
+                        final ExcelImportResult addDeviceNameResult = addDeviceName(section, subsection, discipline, deviceType, index, additionalInfo, row.getRowNum());
                         if (addDeviceNameResult instanceof FailureExcelImportResult) {
                             return addDeviceNameResult;
                         }
@@ -144,11 +145,11 @@ public class ExcelImport {
 
         existingDevices = Sets.newHashSet();
         for (DeviceRevision deviceRevision : namePartService.currentDeviceRevisions(false)) {
-            existingDevices.add(new DeviceDefinition(deviceRevision.getSection(), deviceRevision.getDeviceType(), deviceRevision.getInstanceIndex()));
+            existingDevices.add(new DeviceDefinition(deviceRevision.getSection(), deviceRevision.getDeviceType(), deviceRevision.getInstanceIndex(), deviceRevision.getAdditionalInfo()));
         }
     }
     
-    private ExcelImportResult addDeviceName(String section, String subsection, String discipline, String deviceType, @Nullable String instanceIndex, int rowCounter) {
+    private ExcelImportResult addDeviceName(String section, String subsection, String discipline, String deviceType, @Nullable String instanceIndex, @Nullable String additionalInfo, int rowCounter) {
         final  @Nullable NamePart sectionPart = sectionsTable.get(section, subsection);
         final @Nullable NamePart typePart = typesTable.get(discipline, deviceType);
 
@@ -157,7 +158,7 @@ public class ExcelImport {
         } else if (typePart == null) {
             return new CellValueFailureExcelImportResult(rowCounter + 1, NamePartType.DEVICE_TYPE);
         } else {
-            final DeviceDefinition newDevice = new DeviceDefinition(sectionPart, typePart, instanceIndex);
+            final DeviceDefinition newDevice = new DeviceDefinition(sectionPart, typePart, instanceIndex, additionalInfo);
             if (!existingDevices.contains(newDevice)) {
                 newDevices.add(newDevice);
             }

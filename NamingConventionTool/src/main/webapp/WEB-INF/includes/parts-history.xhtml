@@ -18,6 +18,9 @@
             <p:column id="nameCode" headerText="Mnemonic" styleClass="#{namePartsController.historyRevisionStyleClass(nevent)}">
                 <h:outputText value="#{nevent.mnemonic}" />
             </p:column>
+            <p:column id="comment" headerText="Comment">
+            	<h:outputText value="#{nevent.nameEvent.requesterComment}"/>
+            </p:column>
             <p:column id="reqBy" headerText="Proposed By" sortBy="#{nevent.nameEvent.requestedBy.username}" >
                 <h:outputText value="#{nevent.nameEvent.requestedBy.username}" />
                  <h:outputLink id="pendingReqComment" value="#" rendered="#{nevent.nameEvent.requesterComment.length() > 0}">
