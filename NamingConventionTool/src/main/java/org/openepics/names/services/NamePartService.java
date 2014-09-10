@@ -18,6 +18,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.xml.stream.events.Comment;
 
 import java.util.Date;
 import java.util.List;
@@ -104,7 +105,25 @@ public class NamePartService {
         final String conventionName = conventionName(section, deviceType, instanceIndex);
         return isDeviceConventionNameUnique(conventionName);
     }
+    /**
+     * True if the device defined by the given section, devicetype and instance index would have a unique convention name, not taking into account itself.  
+     * @param section
+     * @param deviceType
+     * @param instanceIndex
+     * @param device
+     * @return
+     */
+    
+    public boolean isDeviceConventionNameUniqueExceptForItself(Device device, NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
+    	final String conventionName=conventionName(section, deviceType, instanceIndex);
+    	final String conventionNameEqClass = namingConvention.equivalenceClassRepresentative(conventionName);
+        final DeviceRevision currentRevision = currentRevision(device);
+        String currentConventionNameEqClass=currentRevision.getConventionNameEqClass();
+        boolean nameIsEquivalentToCurrentRevision=conventionNameEqClass.equals(currentConventionNameEqClass);
+        return isDeviceConventionNameUnique(conventionName) || nameIsEquivalentToCurrentRevision;
+    }
 
+    
     /**
      * True if the device with the given convention name have a unique convention name.
      *
@@ -456,6 +475,7 @@ public class NamePartService {
     public DeviceRevision modifyDevice(Device device, NamePart section, NamePart deviceType, @Nullable String instanceIndex,@Nullable String additionalInfo, @Nullable UserAccount user) {
         final DeviceRevision currentRevision = currentRevision(device);
         Preconditions.checkArgument(!currentRevision.isDeleted());
+        device.getUuid();
 
         final NamePartRevision sectionRevision = As.notNull(approvedRevision(section));
         final NamePartRevision deviceTypeRevision = As.notNull(approvedRevision(deviceType));
@@ -464,20 +484,31 @@ public class NamePartService {
 
         final String conventionName = conventionName(section, deviceType, instanceIndex);
         final String conventionNameEqClass = namingConvention.equivalenceClassRepresentative(conventionName);
-
-        if (!(section.equals(currentRevision.getSection()) && deviceType.equals(currentRevision.getDeviceType()) && Objects.equal(instanceIndex, currentRevision.getInstanceIndex()) && conventionName.equals(currentRevision.getConventionName()))) {
+        
+        final boolean sameName=
+        		section.equals(currentRevision.getSection()) && 
+        		deviceType.equals(currentRevision.getDeviceType()) && 
+        		Objects.equal(instanceIndex, currentRevision.getInstanceIndex()) && 
+        		conventionName.equals(currentRevision.getConventionName());
+        if (!sameName) {
             Preconditions.checkState(isInstanceIndexValid(section, deviceType, instanceIndex));
-            Preconditions.checkState(isDeviceConventionNameUnique(section, deviceType, instanceIndex));
-
-            final DeviceRevision newRevision = new DeviceRevision(device, new Date(), user, false, section, deviceType, instanceIndex, conventionName, conventionNameEqClass, additionalInfo);
+            Preconditions.checkState(isDeviceConventionNameUniqueExceptForItself(device,section,deviceType,instanceIndex));
+        	final DeviceRevision newRevision = new DeviceRevision(device, new Date(), user, false, section, deviceType, instanceIndex, conventionName, conventionNameEqClass, additionalInfo);
             em.persist(newRevision);
             return newRevision;
-        } else {
-            return currentRevision;
+
+        } else if(sameName && ! additionalInfo.equals(currentRevision.getAdditionalInfo()) ) {
+        	final DeviceRevision newRevision = new DeviceRevision(device, new Date(), user, false, section, deviceType, instanceIndex, conventionName, conventionNameEqClass, additionalInfo);
+            em.persist(newRevision);
+            return newRevision;
+        } else {   	
+        	return currentRevision;
+            //TODO: Throw exception if no changes was made. 
         }
     }
 
-    /**
+ 
+	/**
      * Deletes the given device
      *
      * @param device the device to delete

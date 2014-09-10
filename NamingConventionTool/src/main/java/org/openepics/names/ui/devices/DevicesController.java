@@ -5,11 +5,13 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
+
 import org.apache.commons.io.FilenameUtils;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
+import org.openepics.names.services.NamingConvention;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.DeviceView;
 import org.openepics.names.services.views.NamePartView;
@@ -23,6 +25,7 @@ import org.openepics.names.util.As;
 import org.openepics.names.util.UnhandledCaseException;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.FileUploadEvent;
+import org.primefaces.event.FlowEvent;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.StreamedContent;
@@ -35,6 +38,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,6 +59,7 @@ public class DevicesController implements Serializable {
     @Inject private ViewFactory viewFactory;
     @Inject private ExcelImport excelImport;
     @Inject private ExcelExport excelExport;
+    @Inject private NamingConvention namingConvention;
 
     private List<DeviceView> historyDeviceNames;
 
@@ -71,6 +76,8 @@ public class DevicesController implements Serializable {
     private TreeNode formSelectedDeviceType;
     private String formInstanceIndex = "";
     private String formAdditionalInfo = "";
+    private String formDeviceName="";
+
 
     private byte[] importData;
     private String importFileName;
@@ -107,17 +114,36 @@ public class DevicesController implements Serializable {
         final DeviceView deviceView = As.notNull(getSelectedDevice());
         final NamePart section = ((NamePartView) formSelectedSection.getData()).getNamePart();
         final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
-        if (!(section.equals(deviceView.getSection().getNamePart()) && deviceType.equals(deviceView.getDeviceType().getNamePart()) && Objects.equals(instanceIndex, deviceView.getInstanceIndex()))) {
-            return namePartService.isDeviceConventionNameUnique(section, deviceType, instanceIndex);
+        boolean isSame = section.equals(deviceView.getSection().getNamePart()) && 
+        		deviceType.equals(deviceView.getDeviceType().getNamePart()) && 
+        		Objects.equals(instanceIndex, deviceView.getInstanceIndex());
+        if (!(isSame)) {
+            return namePartService.isDeviceConventionNameUniqueExceptForItself(As.notNull(getSelectedDevice()).getDevice().getDevice(),section, deviceType, instanceIndex);
         } else {
             return true;
         }
     }
+    
+    public String onFlowProcess(FlowEvent event){    	
+    	return event.getNewStep();
+    }
+    
+    public void setFormDeviceName(){
+    	final List<String> sectionPath = ((NamePartView) formSelectedSection.getData()).getMnemonicPath();
+        final List<String> devicePath = ((NamePartView) formSelectedDeviceType.getData()).getMnemonicPath();
+        String formDeviceName=namingConvention.conventionName(sectionPath, devicePath, getFormInstanceIndex());
+    	this.formDeviceName= formDeviceName != null ? formDeviceName: "";
+    }
+    
+    public String getFormDeviceName(){
+    	return formDeviceName;
+    }
 
     public void onAdd() {
         try {
-            final NamePart subsection = As.notNull(getSelectedSection()).getNamePart();
-            final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
+//            final NamePart subsection = As.notNull(getSelectedSection()).getNamePart();
+          	final NamePart subsection = ((NamePartView) formSelectedSection.getData()).getNamePart();
+        	final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
             final DeviceRevision rev = namePartService.addDevice(subsection, deviceType, getFormInstanceIndex(), getFormAdditionalInfo());
             showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been added.");
         } finally {
@@ -125,6 +151,7 @@ public class DevicesController implements Serializable {
         }
     }
 
+    
     public void onModify() {
         try {
         	final NamePart subsection = ((NamePartView) formSelectedSection.getData()).getNamePart();
@@ -203,7 +230,10 @@ public class DevicesController implements Serializable {
     public void setFormSelectedDeviceType(TreeNode formSelectedDeviceType) { this.formSelectedDeviceType = formSelectedDeviceType; }
 
     public String getFormInstanceIndex() { return formInstanceIndex; }
-    public void setFormInstanceIndex(String formInstanceIndex) { this.formInstanceIndex = !formInstanceIndex.isEmpty() ? formInstanceIndex : null; }
+    public void setFormInstanceIndex(String formInstanceIndex) { 
+    	this.formInstanceIndex = !formInstanceIndex.isEmpty() ? formInstanceIndex : null; 
+    	setFormDeviceName();
+    }
     
     public String getFormAdditionalInfo(){ return formAdditionalInfo;}
     public void setFormAdditionalInfo(String formAdditionalInfo){ this.formAdditionalInfo = !formAdditionalInfo.isEmpty() ? formAdditionalInfo : null; }
@@ -274,11 +304,17 @@ public class DevicesController implements Serializable {
     public boolean canModify() { return getSelectedDevice() != null && !getSelectedDevice().getDevice().isDeleted(); }
 
     public void prepareAddPopup() {
+
+        final List<NamePartRevision> approvedSectionRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, false);
+        sections = namePartTreeBuilder.newNamePartTree(approvedSectionRevisions, Lists.<NamePartRevision>newArrayList(), false, 2, As.notNull(getSelectedSection().getNamePart()));
+        formSelectedSection = findSelectedTreeNode(sections); 
         formSelectedDeviceType = null;
         formInstanceIndex = null;
+        formAdditionalInfo=null;
+        formDeviceName=null;
         final List<NamePartRevision> approvedDeviceTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false);
         deviceTypes = namePartTreeBuilder.newNamePartTree(approvedDeviceTypeRevisions, Lists.<NamePartRevision>newArrayList(), false, 2);
-        RequestContext.getCurrentInstance().reset("addDeviceNameForm:grid");
+        RequestContext.getCurrentInstance().reset("addDeviceNameForm:growl");
     }
 
     public void prepareModifyPopup() {
@@ -290,8 +326,10 @@ public class DevicesController implements Serializable {
         formSelectedSection = findSelectedTreeNode(sections);
         formSelectedDeviceType = findSelectedTreeNode(deviceTypes);
         formInstanceIndex = As.notNull(getSelectedDevice()).getInstanceIndex();
+        formAdditionalInfo=As.notNull(getSelectedDevice()).getAdditionalInfo();
+        formDeviceName=As.notNull(getSelectedDevice()).getConventionName();
 
-        RequestContext.getCurrentInstance().reset("modDeviceNameForm:grid");
+        RequestContext.getCurrentInstance().reset("modDeviceNameForm:growl");
     }
 
     public void prepareImportPopup() {

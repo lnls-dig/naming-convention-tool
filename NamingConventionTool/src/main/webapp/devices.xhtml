@@ -88,7 +88,7 @@
 				<p:ajax event="unselect"
 					update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />
 
-				<p:column id="devName" headerText="Section / Device Name">
+				<p:column id="devName" headerText="Area Structure / Device Name">
 					<h:outputText value=""
 						style="display:inline-block; vertical-align:bottom !important"
 						styleClass="ui-icon ui-icon-wrench"
@@ -100,7 +100,10 @@
 						styleClass="#{namePart.deleted ? 'Deleted' : 'Insert-Approved-Old'}"
 						rendered="#{namePart['class'].simpleName eq 'NamePartView'}" />
 				</p:column>
-				<p:column id="devType" headerText="Device Type" style="width: 30%">
+<!-- 				<p:column id="addInfo" headerText="Comment " style="width: 30%"> -->
+<!-- 				</p:column> -->
+
+				<p:column id="devType" headerText="Device Structure" style="width: 30%">
 					<h:outputText value="#{devicesController.deviceTypePath(namePart)}"
 						styleClass="#{namePart.device.deleted ? 'Deleted' : 'Insert-Approved-Old'}"
 						rendered="#{namePart['class'].simpleName eq 'DeviceView'}" />
@@ -118,14 +121,16 @@
 
 		</h:form>
 
-		<ui:include src="/WEB-INF/includes/devices-add-form.xhtml">
+<!-- 		<ui:include src="/WEB-INF/includes/devices-add-form.xhtml"> -->
+		<ui:include src="/WEB-INF/includes/devices-add-wizard.xhtml">
 			<ui:param name="formId" value="addDeviceNameForm" />
 			<ui:param name="dialogTitle" value="Add Device Name" />
 			<ui:param name="widgetName" value="addDeviceName" />
 			<ui:param name="submitHandler" value="onAdd" />
 		</ui:include>
 
-		<ui:include src="/WEB-INF/includes/devices-mod-form.xhtml">
+<!-- 		<ui:include src="/WEB-INF/includes/devices-mod-form.xhtml"> -->
+		<ui:include src="/WEB-INF/includes/devices-modify-wizard.xhtml">
 			<ui:param name="formId" value="modDeviceNameForm" />
 			<ui:param name="dialogTitle" value="Modify Device Name" />
 			<ui:param name="widgetName" value="modDeviceName" />

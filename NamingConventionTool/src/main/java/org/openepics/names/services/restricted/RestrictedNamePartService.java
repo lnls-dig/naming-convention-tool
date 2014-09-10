@@ -1,6 +1,7 @@
 package org.openepics.names.services.restricted;
 
 import com.google.common.base.Preconditions;
+
 import org.openepics.names.model.*;
 import org.openepics.names.services.DeviceDefinition;
 import org.openepics.names.services.NamePartService;
@@ -9,6 +10,7 @@ import org.openepics.names.services.SessionService;
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -69,6 +71,19 @@ public class RestrictedNamePartService {
         return namePartService.isDeviceConventionNameUnique(section, deviceType, instanceIndex);
     }
 
+    /**
+     * True if the device defined by the given section, devicetype and instance index would have a unique convention name, not taking into account itself.  
+     * @param device
+     * @param section
+     * @param deviceType
+     * @param instanceIndex
+     * @return
+     */
+   
+    public boolean isDeviceConventionNameUniqueExceptForItself( Device device,NamePart section, NamePart deviceType, @Nullable String instanceIndex){
+    	return  namePartService.isDeviceConventionNameUniqueExceptForItself(device,section, deviceType, instanceIndex);
+    }
+    
     /**
      * Submits a proposal for addition of a new name part.
      *

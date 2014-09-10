@@ -87,7 +87,7 @@ public class ExcelExport {
         final XSSFSheet deviceTypeSheet = createSheetWithHeader(workbook, "DeviceType", "Discipline::FullName", "Discipline::Name", "Category::FullName", "Category::Name", "DeviceType::ID", "DeviceType::FullName", "DeviceType::Name", "DeviceType::Date Modified");
         fillNamePartSheet(deviceTypeSheet, 3, typesTree);
 
-        final XSSFSheet namedDeviceSheet = createSheetWithHeader(workbook, "NamedDevice", "ID", "Section", "SubSection", "Discipline", "DeviceType", "InstanceIndex", "Additional Information","Name", "Date Modified");
+        final XSSFSheet namedDeviceSheet = createSheetWithHeader(workbook, "NamedDevice", "ID", "Section", "SubSection", "Discipline", "DeviceType", "InstanceIndex", "Comment", "Name", "Date Modified");
         fillDeviceSheet(namedDeviceSheet, devices);
         
         return workbook;
