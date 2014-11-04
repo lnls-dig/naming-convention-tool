@@ -24,7 +24,7 @@
   <filter-mapping>
     <filter-name>PrimeFaces FileUpload Filter</filter-name>
     <servlet-name>Faces Servlet</servlet-name>
-  </filter-mapping>
+  </filter-mapping>  
   <session-config>
     <session-timeout>30</session-timeout>
   </session-config>
@@ -35,33 +35,4 @@
     <exception-type>javax.faces.application.ViewExpiredException</exception-type>
     <location>/expired.xhtml</location>
   </error-page>
-  <context-param>
-    <param-name>primefaces.THEME</param-name>
-    <param-value>#{preferencesController.currentTheme}</param-value>
-  </context-param>
-  <security-constraint>
-    <web-resource-collection>
-      <web-resource-name>auth</web-resource-name>
-      <url-pattern>/request-proc.xhtml</url-pattern>
-      <url-pattern>/request-sub.xhtml</url-pattern>
-      <url-pattern>/publish.xhtml</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>USER</role-name>
-    </auth-constraint>
-    <user-data-constraint>
-      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-    </user-data-constraint>
-  </security-constraint>
-  <login-config>
-    <auth-method>FORM</auth-method>
-    <realm-name>org.openepics.names.realm</realm-name>
-    <form-login-config>
-      <form-error-page>/error.xhtml</form-error-page>
-    </form-login-config>
-  </login-config>
-  <security-role>
-    <description>Users</description>
-    <role-name>USER</role-name>
-  </security-role>
 </web-app>
