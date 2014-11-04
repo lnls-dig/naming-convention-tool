@@ -1,9 +1,10 @@
 package org.openepics.names.services;
 
 import java.io.Serializable;
+
 import org.openepics.names.model.UserAccount;
 
-public interface SessionService {
+public interface SessionService extends Serializable{
 
 	public abstract void login(String userName, String password);
 
