@@ -8,6 +8,8 @@
                 xmlns:fc="http://java.sun.com/jsf/composite/comps">
 
     <ui:define name="content">
+    	<ui:fragment rendered="#{userManager.loggedIn}">
+    
         <p:panel header="#{msgs.title} Manual" styleClass="Help" style ="border: none" >
             <h:outputText value="Listed below are some of the frequently-used work-flows and frequently-asked questions related to the Naming System" />
         </p:panel>
@@ -58,6 +60,7 @@
                 <li>•   Select "Approve" of "Reject" option.</li>         
             </p:tab>
         </p:accordionPanel>
+        </ui:fragment>
     </ui:define>
 
 </ui:composition>

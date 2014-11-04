@@ -1,61 +1,93 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:h="http://java.sun.com/jsf/html">
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fc="http://java.sun.com/jsf/composite/comps"
+	xmlns:h="http://java.sun.com/jsf/html">
 
-    <h:form id="menuform">
-        <p:growl globalOnly="true" id="messages" showDetail="true" sticky="false" life="30000" />
+	<h:form id="menuform">
+		<p:growl globalOnly="true" id="messages" showDetail="true"
+			sticky="false" life="5000" />
 
-        <p:menubar id="mainMenu" style="padding-left: 8px; padding-right: 8px">
-            <p:menuitem value="Home" icon="ui-icon-home" url="index.xhtml" />
-            <p:menuitem value="Device Registry" icon="ui-icon-wrench" url="devices.xhtml"/>
-            <p:menuitem value="Area Structure" icon="ui-icon-folder-open" url="parts.xhtml?type=section" />
-            <p:menuitem value="Device Structure" icon="ui-icon-lightbulb" url="parts.xhtml?type=deviceType" />
-            <p:submenu label="Tools">
-                <p:menuitem value="Export Approved Data" ajax="false" icon="ui-icon-disk" immediate="true" onclick="PrimeFaces.monitorDownload(start, stop)">
-                    <p:fileDownload value="#{devicesController.allDataExport}" />
-                </p:menuitem>
-            </p:submenu>
-            <p:menuitem value="Preferences" title="Preferences" icon="ui-icon-gear" url="preferences.xhtml" />
-            <p:submenu label="Help" icon="ui-icon-help">
-                <p:menuitem value=" Online Help" icon="ui-icon-help" url="help.xhtml" />
-                <p:menuitem value=" API Manual" icon="ui-icon-script" url="api-manual.xhtml" />
-            </p:submenu>
+		<p:menubar id="mainMenu" style="padding-left: 8px; padding-right: 8px">
+			<p:menuitem value="Home" icon="ui-icon-home" url="index.xhtml" />
+			<p:menuitem value="Device Registry" icon="ui-icon-wrench"
+				url="devices.xhtml" />
+			<p:menuitem value="Area Structure" icon="ui-icon-folder-open"
+				url="parts.xhtml?type=section" />
+			<p:menuitem value="Device Structure" icon="ui-icon-lightbulb"
+				url="parts.xhtml?type=deviceType" />
+			<p:submenu label="Tools" >
+				<p:menuitem value="Export Approved Data" ajax="false"
+					icon="ui-icon-disk" disabled="#{!userManager.loggedIn}" immediate="true"
+					onclick="PrimeFaces.monitorDownload(start, stop)">
+					<p:fileDownload value="#{devicesController.allDataExport}" />
+				</p:menuitem>
+			</p:submenu>
+			<!-- <p:menuitem value="Preferences" title="Preferences"
+				icon="ui-icon-gear" url="preferences.xhtml" />
+ -->
+			<p:submenu label="Help" icon="ui-icon-help">
+				<p:menuitem value=" Online Help" icon="ui-icon-help" disabled="#{!userManager.loggedIn}"
+					url="help.xhtml" />
+				<p:menuitem value=" API Manual" icon="ui-icon-script" disabled="#{!userManager.loggedIn}"
+					url="api-manual.xhtml" />
+			</p:submenu>
 
-            <f:facet name="options">
-                <h:outputText value="#{userManager.user.username}" style="margin-right:10px" rendered="#{userManager.loggedIn}" />
-                <p:commandButton process="@this" actionListener="#{loginController.prepareLoginPopup()}" update=":loginForm:loginDialog" value="Login" icon="ui-icon-person" oncomplete="loginDialog.show()" rendered="#{not userManager.loggedIn}"/>
-                <p:commandButton process="@this" value="Logout" icon="ui-icon-person" update=":menuform:mainMenu messages" action="#{loginController.onLogout()}" immediate="true" rendered="#{userManager.loggedIn}" />
-            </f:facet>
-        </p:menubar>
-    </h:form>
+			<f:facet name="options">
+				<h:outputText value="#{userManager.user.username}"
+					style="margin-right:10px" rendered="#{userManager.loggedIn}" />
+				<p:commandButton process="@this" value="Sign In"
+					icon="ui-icon-person" update=":full"
+					action="#{loginController.prepareLoginPopup()}"
+					rendered="#{not userManager.loggedIn}" />
+				<p:commandButton process="@this" value="Sign Out"
+					icon="ui-icon-person" update=":full"
+					action="#{loginController.signOut()}"
+					rendered="#{userManager.loggedIn}" />
+			</f:facet>
+		</p:menubar>
+	</h:form>
 
-    <h:form id="loginForm">
-        <p:dialog id="loginDialog" widgetVar="loginDialog" modal="true">
-            <f:facet name="header">
-                <h:outputText value="Sign in"/>
-            </f:facet>
-            <p:panelGrid id="grid" columns="2">
-                <h:outputLabel for="userid" value="User ID" />
-                <h:panelGroup>
-                    <p:inputText id="userid" value="#{loginController.inputUsername}" required="true" requiredMessage="Please enter a user ID." label="User ID" />
-                    <p:watermark for="userid" value="Enter user id" />
-                    <p:message for="userid" />
-                </h:panelGroup>
-                <h:outputLabel for="passwd" value="Password" />
-                <h:panelGroup>
-                    <p:password id="passwd" value="#{loginController.inputPassword}" label="Password"/>
-                    <p:watermark for="passwd" value="Enter password" />
-                    <p:message for="passwd" />
-                </h:panelGroup>
-            </p:panelGrid>
+	<h:form id="loginForm">
+		<!--         <p:dialog id="loginDialog" widgetVar="loginDialog" modal="true"> -->
+		<p:dialog id="loginDialog" widgetVar="loginDialog" modal="true"
+			visible="#{loginController.isLoginRequested()}" closable="false">
 
-            <p:messages id="loginmsgs" globalOnly="true"/>
-            <p:commandButton value="Cancel" onclick="loginDialog.hide()" type="button" style="float: right" />
-            <p:commandButton value="Login" update="grid loginmsgs :menuform:mainMenu" action="#{loginController.onLogin}" style="float: right" oncomplete="if (args &amp;&amp; !args.validationFailed &amp;&amp; args.loginSuccess) loginDialog.hide()"/>
-        </p:dialog>
-    </h:form>
+			<f:facet name="header">
+				<h:outputText value="Sign In" />
+			</f:facet>
+			<p:panelGrid id="grid" columns="2" styleClass="borderless">
+				<h:outputLabel for="userid" value="Username" />
+				<h:panelGroup>
+					<p:inputText id="userid" value="#{loginController.inputUsername}"
+						label="Username" />
+					<p:watermark for="userid" value="Enter username" />
+					<p:message for="userid" />
+				</h:panelGroup>
+				<h:outputLabel for="passwd" value="Password" />
+				<h:panelGroup>
+					<p:password id="passwd" value="#{loginController.inputPassword}"
+						label="Password" />
+					<p:watermark for="passwd" value="Enter password" />
+					<p:message for="passwd" />
+				</h:panelGroup>
+			</p:panelGrid>
+			<p:separator />
+
+			<p:commandButton value="Sign In" update=":full"
+				action="#{loginController.signIn()}" style="float: left" />
+			<p:commandButton value="Cancel" update=":full"
+				action="#{loginController.cancel()}" style="float: right" />
+		</p:dialog>
+	</h:form>
+
+
+
+
+
+
+
 </ui:composition>

@@ -8,6 +8,8 @@
 	xmlns:fc="http://java.sun.com/jsf/composite/comps">
 
 	<ui:define name="content">
+		<ui:fragment rendered="#{userManager.loggedIn}">
+	
 
 		<div class="ui-treetable-scrollable-body" id="apiManualDiv">
 
@@ -67,6 +69,7 @@
 				</p:panelGrid>
 			</div>
 		</div>
+		</ui:fragment>
 	</ui:define>
 
 </ui:composition>

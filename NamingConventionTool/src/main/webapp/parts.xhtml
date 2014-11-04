@@ -8,6 +8,8 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 >
     <ui:define name="content">
+    	<ui:fragment rendered="#{userManager.loggedIn}">
+    
         
 
         <h:form id="ReqSubForm">
@@ -345,5 +347,6 @@
                 <p:commandButton value="Reject" style="float: right" update="pgrid :ReqSubForm" oncomplete="if (args &amp;&amp; !args.validationFailed) rejectRequest.hide(); resizePanel()" action="#{namePartsController.onReject()}"/>
             </p:dialog>
         </h:form>
+        </ui:fragment>
     </ui:define>
 </ui:composition>

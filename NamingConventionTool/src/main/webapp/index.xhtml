@@ -8,7 +8,8 @@
 	xmlns:fc="http://java.sun.com/jsf/composite/comps"
 	xmlns:rich="http://richfaces.org/rich">
 
-	<ui:define name="content">
+	<ui:define name="content" >
+	<ui:fragment rendered="#{userManager.loggedIn}">
 		<div class="ui-treetable-scrollable-body" id="indexDiv">
 			<div class="textScreen">
 
@@ -215,6 +216,7 @@
 
 			</div>
 		</div>
+		</ui:fragment>
 	</ui:define>
 
 </ui:composition>
