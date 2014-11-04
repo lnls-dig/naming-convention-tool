@@ -8,14 +8,7 @@
 	<name>NamingConventionTool-Client</name>
 	<version>3.0.1</version>
 
-	<parent>
-		<groupId>se.lu.esss.ics</groupId>
-		<artifactId>ess-java-config</artifactId>
-		<version>1.1.0</version>
-	</parent>
-
 	<dependencies>
-	
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-core</artifactId>
