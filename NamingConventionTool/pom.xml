@@ -4,7 +4,7 @@
 
 	<groupId>org.openepics</groupId>
 	<artifactId>names</artifactId>
-	<version>3.1.0</version>
+	<version>3.1.1</version>
 	<packaging>war</packaging>
 
 	<name>names</name>
@@ -19,6 +19,12 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>se.lu.esss.ics.rbac</groupId>
+			<artifactId>dsaccess-ldap</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>se.lu.esss.ics.rbac</groupId>
 			<artifactId>loginmodules</artifactId>
