@@ -13,11 +13,11 @@
 
 		<p:menubar id="mainMenu" style="padding-left: 8px; padding-right: 8px">
 			<p:menuitem value="Home" icon="ui-icon-home" url="index.xhtml" />
-			<p:menuitem value="Device Registry" icon="ui-icon-wrench"
+			<p:menuitem value="Device Registry" icon="ui-icon-wrench" disabled="#{!userManager.loggedIn}"
 				url="devices.xhtml" />
-			<p:menuitem value="Area Structure" icon="ui-icon-folder-open"
+			<p:menuitem value="Area Structure" icon="ui-icon-folder-open" disabled="#{!userManager.loggedIn}"
 				url="parts.xhtml?type=section" />
-			<p:menuitem value="Device Structure" icon="ui-icon-lightbulb"
+			<p:menuitem value="Device Structure" icon="ui-icon-lightbulb" disabled="#{!userManager.loggedIn}"
 				url="parts.xhtml?type=deviceType" />
 			<p:submenu label="Tools" >
 				<p:menuitem value="Export Approved Data" ajax="false"
