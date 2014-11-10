@@ -21,14 +21,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>se.lu.esss.ics.rbac</groupId>
-			<artifactId>dsaccess-ldap</artifactId>
-			<version>1.1.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>se.lu.esss.ics.rbac</groupId>
 			<artifactId>loginmodules</artifactId>
-			<version>1.1.0</version>
+			<version>1.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.primefaces</groupId>
@@ -96,13 +90,6 @@
 				</excludes>
 			</resource>
 		</resources>
-		<plugins>
-			<plugin>
-				<groupId>se.lu.esss.ics.rbac</groupId>
-				<artifactId>loginmodules</artifactId>
-				<version>1.1.0</version>
-			</plugin>
-		</plugins>
 	</build>
 
 	<profiles>
