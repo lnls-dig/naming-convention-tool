@@ -41,12 +41,11 @@ public class LoginController implements Serializable {
         try {
           sessionService.login(inputUsername, inputPassword);
           loginRequested=false;
-          showMessage(FacesMessage.SEVERITY_INFO, "Signed In ",inputUsername);
+//          showMessage(FacesMessage.SEVERITY_INFO, "Signed In ",inputUsername);
         } catch (SecurityException e) {
             showMessage(FacesMessage.SEVERITY_ERROR, "Failed! Please try again. ", "Status: ");
         } finally {
             inputPassword = null;
-            sessionService.update();
         }
     }
 
@@ -54,13 +53,12 @@ public class LoginController implements Serializable {
         try {
             sessionService.logout();
             loginRequested=false;
-           showMessage(FacesMessage.SEVERITY_INFO, "You have been signed out.", "Thank you!");
+//           showMessage(FacesMessage.SEVERITY_INFO, "You have been signed out.", "Thank you!");
         } catch (SecurityException e) {
             throw new RuntimeException(e);
-        } finally {
-           sessionService.update();
-        }
+        } 
     }
+    
     public void cancel(){
     	prepareLoginPopup();
     	loginRequested=false;
