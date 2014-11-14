@@ -6,31 +6,40 @@ import org.openepics.names.model.UserAccount;
 
 public interface SessionService extends Serializable{
 
-	public abstract void login(String userName, String password);
+	void login(String userName, String password);
 
-	public abstract void logout();
+	void logout();
 
 	/**
-	 * Name of logged in user. 
-	 * @return username
+	 * Logged in user. 
+	 * @return
 	 */
-	public abstract UserAccount user();
+	UserAccount user();
 	
 	/**
 	 * True if the user is logged in.
 	 */
-	public abstract boolean isLoggedIn();
+	boolean isLoggedIn();
 
 	/**
 	 * True if the user is an editor.
 	 */
-	public abstract boolean isEditor();
+	boolean isEditor();
 
 	/**
 	 * True if the user is a superuser.
 	 */
-	public abstract boolean isSuperUser();
+	boolean isSuperUser();
 
-	public abstract void update();
+	/**
+	 * Updates the session information with that of the current user, taken from the JSF context. Should be called on
+	 * each login and logout.
+	 */
+	void update();
 
+	/**
+	 * Username of logged in user.
+	 * @return
+	 */
+	String getUsername();
 }
