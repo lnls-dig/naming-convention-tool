@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jboss-web>
 	<context-root>/names-test</context-root>
-<!-- 	<security-domain>names.security-domain</security-domain> -->
+<!-- 	<security-domain>namesTest.security-domain</security-domain> -->
 	<security-domain>namesRBAC.security-domain</security-domain>
 </jboss-web>
