@@ -31,20 +31,21 @@ public class UserService {
 		return em.createQuery("SELECT u FROM UserAccount u WHERE u.username = :userName", UserAccount.class).setParameter("userName", userName).getSingleResult();
 	}
 
-	/**
-	 * The UserAccount of the user with given name. Updates the db if username does not exist. 
-	 * @param username
-	 * @param role
-	 */
-	public UserAccount updatedUserWithName(String username, Role role) {
-		try{
-			return em.createQuery("SELECT u FROM UserAccount u WHERE u.username = :username", UserAccount.class).setParameter("username", username).getSingleResult();
-		} catch (NoResultException e){
-			em.persist(new UserAccount(username, role));
-			return em.createQuery("SELECT u FROM UserAccount u WHERE u.username = :username", UserAccount.class).setParameter("username", username).getSingleResult();
-		} 
-	}
-
+/**
+ * 
+ * @param userName
+ * @param role
+ * @return
+ */
+	public UserAccount getExisitngOrCreatedUser(String userName, Role role){
+		try {
+			return userWithName(userName);
+		} catch (NoResultException e) {
+			em.persist(new UserAccount(userName, role));
+			return userWithName(userName);
+		}
+	} 
+	
 	/**
 	 * The EntityManager-attached entity corresponding to the given UserAccount entity.
 	 *

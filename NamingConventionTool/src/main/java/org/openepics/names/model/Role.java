@@ -1,20 +1,14 @@
 package org.openepics.names.model;
 
 /**
- * UserAccount's role that determines the user's access control permissions.
+ * UserAccount's role that determines the user's access control permissions. Used by the SessionServiceTst (not RBAC)
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 public enum Role {
 	/**
-     * Login role giving permissions to login,
-     * 
-     */
-	LOGIN,
-
-	/**
      * Editor role giving permissions to propose changes to the Logical Area and Device Category structures and to add,
-     * modify or delete Devices
+     * modify or delete Devices.
      */
     EDITOR,
 
