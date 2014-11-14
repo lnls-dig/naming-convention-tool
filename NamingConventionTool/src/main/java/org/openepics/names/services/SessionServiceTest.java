@@ -3,6 +3,7 @@ package org.openepics.names.services;
 import org.openepics.names.model.Role;
 import org.openepics.names.model.UserAccount;
 import org.openepics.names.services.UserService;
+
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Alternative;
 import javax.faces.context.FacesContext;
@@ -10,6 +11,7 @@ import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import java.io.Serializable;
 import java.security.Principal;
 
 /**
@@ -19,89 +21,83 @@ import java.security.Principal;
  */
 @Alternative
 @SessionScoped
-public class SessionServiceTest implements SessionService {
-	@Inject private UserService userService;
-	private UserAccount user = null;
+public class SessionServiceTest implements SessionService, Serializable {
+    @Inject private UserService userService;
+    private UserAccount user = null;
 
-	/* 
-	 * (non-Javadoc)
-	 * @see org.openepics.names.services.SessionService#update()
-	 */
-	@Override
-	public void update() {
-		final Principal principal = FacesContext.getCurrentInstance().getExternalContext().getUserPrincipal();
-		user = principal != null ? userService.userWithName(principal.getName()) : null;
-	}
+    /**
+     * Updates the session information with that of the current user, taken from the JSF context. Should be called on
+     * each login and logout.
+     */
+    @Override
+    public void update() {
+        final Principal principal = FacesContext.getCurrentInstance().getExternalContext().getUserPrincipal();
+        user = principal != null ? userService.userWithName(principal.getName()) : null;
+    }
 
 	/* (non-Javadoc)
 	 * @see org.openepics.names.services.SessionService#login(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public void login(String userName, String password) {
-		FacesContext context = FacesContext.getCurrentInstance();
-		HttpServletRequest servletRequest = (HttpServletRequest) context.getExternalContext().getRequest();
-		try {
-			servletRequest.login(userName, password);
-		} catch (ServletException e){
-			throw new SecurityException("Login Failed !", e); 
-		} finally {
-			password = null;
-			update();
-		}
-	}		
+	      FacesContext context = FacesContext.getCurrentInstance();
+	      HttpServletRequest servletRequest = (HttpServletRequest) context.getExternalContext().getRequest();
+			try {
+				servletRequest.login(userName, password);
+			} catch (ServletException e){
+				throw new SecurityException("Login Failed !", e); 
+			} finally {
+				password = null;
+			}
+		}		
 
-	/* (non-Javadoc)
-	 * @see org.openepics.names.services.SessionService#logout()
-	 */
-	@Override
-	public void logout() {
-		final FacesContext context = FacesContext.getCurrentInstance();
-		final HttpServletRequest servletRequest = (HttpServletRequest) context.getExternalContext().getRequest();
-		try {
-			servletRequest.logout();
-		} catch (ServletException e) {
-			throw new SecurityException("Logout Failed", e);
-		} finally {
-			update();
-		}
-	}
-
-	/* (non-Javadoc)
+		/* (non-Javadoc)
+		 * @see org.openepics.names.services.SessionService#logout()
+		 */
+		@Override
+		public void logout() {
+	        final FacesContext context = FacesContext.getCurrentInstance();
+	        final HttpServletRequest servletRequest = (HttpServletRequest) context.getExternalContext().getRequest();
+	        try {
+	            servletRequest.logout();
+	        } catch (ServletException e) {
+	            throw new SecurityException("Logout Failed", e);
+	        }
+	    }
+        
+    /* (non-Javadoc)
 	 * @see org.openepics.names.services.SessionService#user()
 	 */
-	@Override
+    @Override
 	public UserAccount user() { 
-		return user != null ? userService.emAttached(user) : null; 
-	}
+    	return user != null ? userService.emAttached(user) : null; 
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see org.openepics.names.services.SessionService#isLoggedIn()
 	 */
-	@Override
+    @Override
 	public boolean isLoggedIn() { 
-		return user != null; 
-	}
+    	return user != null; 
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see org.openepics.names.services.SessionService#isEditor()
 	 */
-	@Override
-	public boolean isEditor() { 
-		return user != null && (user.getRole() == Role.EDITOR || user.getRole() == Role.SUPERUSER); 
-	}
+    @Override
+	public boolean isEditor() { return user != null && (user.getRole() == Role.EDITOR || user.getRole() == Role.SUPERUSER); }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see org.openepics.names.services.SessionService#isSuperUser()
 	 */
-	@Override
+    @Override
 	public boolean isSuperUser() { return user != null && user.getRole() == Role.SUPERUSER; }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.openepics.names.services.SessionService#getUsername()
-	 */
+    /* (non-Javadoc)
+     * @see org.openepics.names.services.SessionService#getUsername()
+     */
 	@Override
 	public String getUsername() {
-		return user != null ? userService.emAttached(user).getUsername() : null;
+		return user != null ? user.getUsername(): null;
 	}
 }
