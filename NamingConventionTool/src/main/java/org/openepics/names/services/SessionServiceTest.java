@@ -10,8 +10,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-
-import java.io.Serializable;
 import java.security.Principal;
 
 /**
@@ -21,13 +19,13 @@ import java.security.Principal;
  */
 @Alternative
 @SessionScoped
-public class SessionServiceTest implements SessionService, Serializable {
+public class SessionServiceTest implements SessionService {
     @Inject private UserService userService;
     private UserAccount user = null;
 
-    /**
-     * Updates the session information with that of the current user, taken from the JSF context. Should be called on
-     * each login and logout.
+    /*
+     * (non-Javadoc)
+     * @see org.openepics.names.services.SessionService#update()
      */
     @Override
     public void update() {
