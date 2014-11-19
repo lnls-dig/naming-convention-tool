@@ -77,7 +77,7 @@ public class EssNamingConventionTest {
         assertTrue(namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD"), "C"));
         assertTrue(namingConvention.isDeviceTypeNameValid(ImmutableList.<String>of(), "BMD"));
         assertTrue(namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD"), "Ch"));
-        assertFalse(namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD"), "Choppe"));        
+        assertTrue(namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD"), "Choppe"));        
     }
         
     @Test

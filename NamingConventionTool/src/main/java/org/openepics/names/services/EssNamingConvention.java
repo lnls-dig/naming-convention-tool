@@ -25,7 +25,7 @@ public class EssNamingConvention implements NamingConvention {
 	}
 
 	@Override public boolean isDeviceTypeNameValid(List<String> parentPath, String name) {
-		if (!isNameLengthValid(name,1,4)) {
+		if (!isNameLengthValid(name,1,6)) {
 			return false;
 		} else {
 			if (parentPath.size() == 2 ) {
