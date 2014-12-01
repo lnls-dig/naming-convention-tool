@@ -104,10 +104,9 @@ public class ExcelImport {
         try {
             final XSSFWorkbook workbook = new XSSFWorkbook(input);
             final XSSFSheet sheet = workbook.getSheetAt(0);
-            
             for (Row row : sheet) {
-                if (row.getRowNum() >= 2) {
-                    if (row.getLastCellNum() != 6) {
+                if (row.getRowNum() > 0) {
+                	if (row.getLastCellNum() < 4 ) {
                         return new ColumnCountFailureExcelImportResult();
                     } else {
                         final String section = As.notNull(ExcelCell.asString(row.getCell(0)));
