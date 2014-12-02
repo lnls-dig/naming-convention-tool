@@ -49,6 +49,18 @@ public class RestrictedNamePartService {
     }
 
     /**
+     * True if the mnemonic of a name part is unique when placed under the parent.
+     * @param currentMnemonic the current (approved) mnemonic
+     * @param namePartType the type of the name part
+     * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
+     * @param mnemonic the mnemonic name of the name part to test for uniqueness
+     */
+    public boolean isMnemonicUniqueExceptForItself(String currentMnemonic,NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {
+        return namePartService.isMnemonicUniqueExceptForItself(currentMnemonic,namePartType, parent, mnemonic);
+    }
+    
+    
+    /**
      * True if the instance index of a device defined by a section and device type is valid.
      *
      * @param section the section containing the device

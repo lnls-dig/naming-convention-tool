@@ -69,8 +69,7 @@ public class NamePartService {
             if (Objects.equal(sameEqClassRevision.getParent(), parent)) {
                 return false;
             }
-        }   
-        
+        }           
         final List<String> newMnemonicPath = ImmutableList.<String>builder().addAll(parent == null ? ImmutableList.<String>of() : view(parent).getMnemonicPath()).add(mnemonic).build();
         for (NamePartRevision sameEqClassRevision : sameEqClassRevisions) {
             if (!namingConvention.canMnemonicsCoexist(newMnemonicPath, namePartType, view(sameEqClassRevision.getNamePart()).getMnemonicPath(), sameEqClassRevision.getNamePart().getNamePartType())) {
@@ -78,6 +77,13 @@ public class NamePartService {
             }
         }
         return true;     
+    }
+    
+    public boolean isMnemonicUniqueExceptForItself(String currentMnemonic, NamePartType namePartType, @Nullable NamePart parent, String mnemonic){
+        final String mnemonicEquivalenceClass = namingConvention.equivalenceClassRepresentative(mnemonic);
+        final String currentMnemonicEqClasss = namingConvention.equivalenceClassRepresentative(currentMnemonic);
+        boolean nameIsEquivalentToCurrent= mnemonicEquivalenceClass.equals(currentMnemonicEqClasss);
+        return isMnemonicUnique(namePartType, parent, mnemonic)|| nameIsEquivalentToCurrent;
     }
     
     /**
@@ -190,7 +196,7 @@ public class NamePartService {
         Preconditions.checkState(!baseRevision.isDeleted() && (pendingRevision == null || !pendingRevision.isDeleted()));
         if (!mnemonic.equals(baseRevision.getMnemonic())) {
             Preconditions.checkState(isMnemonicValid(namePart.getNamePartType(), namePartView.getParent() != null ? namePartView.getParent().getNamePart() : null, mnemonic));
-            Preconditions.checkState(isMnemonicUnique(namePart.getNamePartType(), namePartView.getParent() != null ? namePartView.getParent().getNamePart() : null, mnemonic));
+            Preconditions.checkState(isMnemonicUniqueExceptForItself(baseRevision.getMnemonic(), namePart.getNamePartType(), namePartView.getParent() != null ? namePartView.getParent().getNamePart() : null, mnemonic));
         }
 
         if (pendingRevision != null) {

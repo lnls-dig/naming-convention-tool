@@ -121,9 +121,10 @@ public class NamePartsController implements Serializable {
 
     public boolean isModifyMnemonicUnique(String mnemonic) {
         final NamePartView namePart = As.notNull(getSelectedName());
+        String currentMnemonic = namePart.getPendingOrElseCurrentRevision().getMnemonic();
         if (!mnemonic.equals(namePart.getPendingOrElseCurrentRevision().getMnemonic())) {
             final @Nullable NamePart parent = namePart.getParent() != null ? namePart.getParent().getNamePart() : null;
-            return namePartService.isMnemonicUnique(namePartType, parent, mnemonic);
+            return namePartService.isMnemonicUniqueExceptForItself(currentMnemonic,namePartType, parent, mnemonic);
         } else {
             return true;
         }
