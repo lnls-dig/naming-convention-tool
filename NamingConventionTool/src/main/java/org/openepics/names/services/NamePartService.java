@@ -190,7 +190,7 @@ public class NamePartService {
         Preconditions.checkState(!baseRevision.isDeleted() && (pendingRevision == null || !pendingRevision.isDeleted()));
         if (!mnemonic.equals(baseRevision.getMnemonic())) {
             Preconditions.checkState(isMnemonicValid(namePart.getNamePartType(), namePartView.getParent() != null ? namePartView.getParent().getNamePart() : null, mnemonic));
-            Preconditions.checkState(isMnemonicUnique(namePart.getNamePartType(), namePartView.getParent().getNamePart(), mnemonic));
+            Preconditions.checkState(isMnemonicUnique(namePart.getNamePartType(), namePartView.getParent() != null ? namePartView.getParent().getNamePart() : null, mnemonic));
         }
 
         if (pendingRevision != null) {
