@@ -64,7 +64,7 @@
 							value="#{devicesController.formInstanceIndex}"
 							style="width: 500px"
 						>
-							<f:validator validatorId="custom.addInstanceIndexValidator" />
+							<f:validator validatorId="#{instanceIndexValidator}" />
 						</p:inputText>
 						<p:message for="instanceIndex" />
 						<div id="#{widgetName}:indexLengthWarning"
@@ -81,7 +81,7 @@
 				<p:tab id="comment" title="Comment">
 
 					<p:panel header="Enter a Comment" style="width: 500 px; height: 300px; margin-bottom: 20px;"
-						footer="Optional. Maximum 100 characters" >
+						footer="Optional description, comment, etc. Maximum 100 characters" >
 
 						<p:inputText id="additionalInfo"
 							value="#{devicesController.formAdditionalInfo}" style="width: 500px" />
@@ -129,6 +129,5 @@
 		</p:dialog>
 
 	</h:form>
-
 
 </ui:composition>
