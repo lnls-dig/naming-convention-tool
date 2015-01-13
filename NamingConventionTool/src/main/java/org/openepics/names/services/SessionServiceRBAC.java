@@ -5,9 +5,9 @@ import org.openepics.names.model.UserAccount;
 
 import se.lu.esss.ics.rbac.loginmodules.RBACPrincipal;
 
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Alternative;
-import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -25,7 +25,6 @@ import java.util.logging.Logger;
  */
 @Alternative
 @SessionScoped
-@ManagedBean
 public class SessionServiceRBAC implements SessionService {
 	private static final Logger LOGGER = Logger.getLogger(SessionServiceRBAC.class.getName());
 	private static final String EDIT ="Edit";
@@ -37,10 +36,8 @@ public class SessionServiceRBAC implements SessionService {
 	private boolean loggedIn=false;
 	private UserAccount user=null;
 
-	/**
-	 * Updates the session information with that of the current user, taken from the JSF context. Should be called on
-	 * each login and logout.
-	 * 
+	/* (non-Javadoc)
+	 * @see org.openepics.names.services.SessionService#update()
 	 */
 	@Override
 	public void update() {
@@ -50,7 +47,7 @@ public class SessionServiceRBAC implements SessionService {
 			rbacPermissions=rbacPrincipal.getPermissions();
 			username=rbacPrincipal.getName();
 			if(isEditor()) user=userService.getExisitngOrCreatedUser(username, Role.EDITOR);
-			// TODO Implement useraccountrevision in the model to allow revisions of UserAccounts. (can only be changed in the database). On the other hand, the class role is not used, since permissions are given directly from rbac.   
+			//  TODO: The class role is not used with rbac but still needs to be set for the user class.   
 		} else {
 			loggedIn=false;
 			rbacPermissions=null;
@@ -58,39 +55,21 @@ public class SessionServiceRBAC implements SessionService {
 			user=null;
 		}
 	}
-
-	/* (non-Javadoc)
-	 * @see org.openepics.names.services.SessionService#login(java.lang.String, java.lang.String)
-	 */
-	@Override
-	public void login(String userName, String password) {
-		try {
-			getRequest().login(userName, password);	
-			LOGGER.log(Level.INFO, "Login successful for "+ userName);
-		} catch (ServletException e){
-			throw new SecurityException("Login Failed !", e); 
-		} finally {
-			password = null;
-			update();
+	
+	@PreDestroy
+	public void cleanup(){
+		if(isLoggedIn()) {
+			try {
+				getRequest().logout();
+				LOGGER.log(Level.INFO, "Logout successful");	        	
+			} catch (ServletException e) {
+				throw new SecurityException("Logout Failed", e);
+			} finally {
+				update();
+			}			
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openepics.names.services.SessionService#logout()
-	 */
-	@Override
-	public void logout() {
-		try {
-			getRequest().logout();
-			getRequest().getSession().invalidate();
-			LOGGER.log(Level.INFO, "Logout successful");
-
-		} catch (ServletException e) {
-			throw new SecurityException("Logout Failed", e);
-		} finally {
-			update();
-		}
-	}
 
 	/* (non-Javadoc)
 	 * @see org.openepics.names.services.SessionService#user()
@@ -131,10 +110,16 @@ public class SessionServiceRBAC implements SessionService {
 		return isLoggedIn() ? rbacPermissions.contains(permission): false;
 	}
 	
-    private HttpServletRequest getRequest() {
+	/* (non-Javadoc)
+	 * @see org.openepics.names.services.SessionService#getRequest()
+	 */
+    public HttpServletRequest getRequest() {
         return (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
     }
 
+	/* (non-Javadoc)
+	 * @see org.openepics.names.services.SessionService#getUsername()
+	 */
 	@Override
 	public String getUsername() {
 		return isLoggedIn() ? username:null;

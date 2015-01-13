@@ -1,14 +1,10 @@
 package org.openepics.names.services;
 
 import java.io.Serializable;
-
+import javax.servlet.http.HttpServletRequest;
 import org.openepics.names.model.UserAccount;
 
 public interface SessionService extends Serializable{
-
-	void login(String userName, String password);
-
-	void logout();
 
 	/**
 	 * Logged in user. 
@@ -42,4 +38,10 @@ public interface SessionService extends Serializable{
 	 * @return
 	 */
 	String getUsername();
+	
+	/** 
+	 * ServletRequest
+	 * @return
+	 */
+	HttpServletRequest getRequest();
 }

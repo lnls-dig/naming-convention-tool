@@ -3,7 +3,7 @@ package org.openepics.names.services;
 import org.openepics.names.model.Role;
 import org.openepics.names.model.UserAccount;
 import org.openepics.names.services.UserService;
-
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Alternative;
 import javax.faces.context.FacesContext;
@@ -11,6 +11,8 @@ import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A session bean holding the UserAccount entity representing the signed in user.
@@ -21,6 +23,8 @@ import java.security.Principal;
 @SessionScoped
 public class SessionServiceTest implements SessionService {
     @Inject private UserService userService;
+	@Inject protected HttpServletRequest servletRequest;
+	private static final Logger LOGGER = Logger.getLogger(SessionServiceTest.class.getName());
     private UserAccount user = null;
 
     /*
@@ -34,36 +38,6 @@ public class SessionServiceTest implements SessionService {
     }
 
 	/* (non-Javadoc)
-	 * @see org.openepics.names.services.SessionService#login(java.lang.String, java.lang.String)
-	 */
-	@Override
-	public void login(String userName, String password) {
-	      FacesContext context = FacesContext.getCurrentInstance();
-	      HttpServletRequest servletRequest = (HttpServletRequest) context.getExternalContext().getRequest();
-			try {
-				servletRequest.login(userName, password);
-			} catch (ServletException e){
-				throw new SecurityException("Login Failed !", e); 
-			} finally {
-				password = null;
-			}
-		}		
-
-		/* (non-Javadoc)
-		 * @see org.openepics.names.services.SessionService#logout()
-		 */
-		@Override
-		public void logout() {
-	        final FacesContext context = FacesContext.getCurrentInstance();
-	        final HttpServletRequest servletRequest = (HttpServletRequest) context.getExternalContext().getRequest();
-	        try {
-	            servletRequest.logout();
-	        } catch (ServletException e) {
-	            throw new SecurityException("Logout Failed", e);
-	        }
-	    }
-        
-    /* (non-Javadoc)
 	 * @see org.openepics.names.services.SessionService#user()
 	 */
     @Override
@@ -97,5 +71,27 @@ public class SessionServiceTest implements SessionService {
 	@Override
 	public String getUsername() {
 		return user != null ? user.getUsername(): null;
+	}	
+		
+	/* (non-Javadoc)
+	 * @see org.openepics.names.services.SessionService#getRequest()
+	 */
+	@Override
+	public HttpServletRequest getRequest() {
+		return (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+	}
+
+	@PreDestroy
+	public void cleanup(){
+		if(isLoggedIn()) {
+			try {
+				getRequest().logout();
+				LOGGER.log(Level.INFO, "Logout successful");	        	
+			} catch (ServletException e) {
+				throw new SecurityException("Logout Failed", e);
+			} finally {
+				update();
+			}			
+		}
 	}
 }
