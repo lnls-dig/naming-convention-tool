@@ -18,6 +18,8 @@ import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.ui.common.OperationTreeGenerator;
 import org.openepics.names.ui.common.OperationView;
 import org.openepics.names.ui.common.TreeFilter;
+import org.openepics.names.ui.common.TreeNodeManager;
+import org.openepics.names.ui.common.UserManager;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.export.ExcelExport;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
@@ -26,6 +28,8 @@ import org.openepics.names.util.UnhandledCaseException;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.FlowEvent;
+import org.primefaces.event.NodeCollapseEvent;
+import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.StreamedContent;
@@ -60,6 +64,7 @@ public class DevicesController implements Serializable {
     @Inject private ExcelImport excelImport;
     @Inject private ExcelExport excelExport;
     @Inject private NamingConvention namingConvention;
+    @Inject private TreeNodeManager treeNodeManager;
 
     private List<DeviceView> historyDeviceNames;
 
@@ -67,8 +72,6 @@ public class DevicesController implements Serializable {
     private TreeNode deviceTypes;
     private TreeNode viewRoot;
     private TreeNode viewDevice;
-    
-
     private TreeNode[] selectedNodes = new TreeNode[0];
     private TreeNode deleteView;
 
@@ -78,19 +81,28 @@ public class DevicesController implements Serializable {
     private String formAdditionalInfo = "";
     private String formDeviceName="";
 
-
     private byte[] importData;
     private String importFileName;
-
     private String deviceNameFilter, appliedDeviceNameFilter = "";
     private String deviceTypeFilter, appliedDeviceTypeFilter = "";
-
     private DevicesViewFilter displayView = DevicesViewFilter.ACTIVE;
 
     @PostConstruct
     public void init() {
         modifyDisplayView();
     }
+
+	public void onNodeExpand(NodeExpandEvent event){
+		if(event!=null && event.getTreeNode() !=null){
+			treeNodeManager.expand(event.getTreeNode());
+		}
+	}
+
+	public void onNodeCollapse(NodeCollapseEvent event){
+		if(event!=null && event.getTreeNode() !=null){
+			treeNodeManager.collapse(event.getTreeNode());    	
+		}
+	}
 
     public boolean isAddInstanceIndexValid(String instanceIndex) {
         final NamePart section = As.notNull(getSelectedSection()).getNamePart();
@@ -141,7 +153,6 @@ public class DevicesController implements Serializable {
 
     public void onAdd() {
         try {
-//            final NamePart subsection = As.notNull(getSelectedSection()).getNamePart();
           	final NamePart subsection = ((NamePartView) formSelectedSection.getData()).getNamePart();
         	final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
             final DeviceRevision rev = namePartService.addDevice(subsection, deviceType, getFormInstanceIndex(), getFormAdditionalInfo());
@@ -210,7 +221,6 @@ public class DevicesController implements Serializable {
         return targets;
     }
 
-
     public void loadHistory() {
         historyDeviceNames = Lists.transform(namePartService.revisions(As.notNull(getSelectedDevice()).getDevice().getDevice()), new Function<DeviceRevision, DeviceView>() {
             @Override public DeviceView apply(DeviceRevision f) { return viewFactory.getView(f);}
@@ -218,7 +228,7 @@ public class DevicesController implements Serializable {
     }
 
     public List<DeviceView> getHistoryEvents() { return historyDeviceNames; }
-
+    
     public TreeNode getSections() { return sections; }
 
     public TreeNode getDeviceTypes() { return deviceTypes; }
@@ -230,6 +240,7 @@ public class DevicesController implements Serializable {
     public void setFormSelectedDeviceType(TreeNode formSelectedDeviceType) { this.formSelectedDeviceType = formSelectedDeviceType; }
 
     public String getFormInstanceIndex() { return formInstanceIndex; }
+
     public void setFormInstanceIndex(String formInstanceIndex) { 
     	this.formInstanceIndex = !formInstanceIndex.isEmpty() ? formInstanceIndex : null; 
     	setFormDeviceName();
@@ -409,7 +420,8 @@ public class DevicesController implements Serializable {
                 }
             }
         }).apply(node);
-        
+                
+        treeNodeManager.expandCustomized(filteredView);
         return filteredView != null ? filteredView : new DefaultTreeNode(null, null); 
     }
     

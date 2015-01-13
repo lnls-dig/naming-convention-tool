@@ -1,12 +1,15 @@
 package org.openepics.names.ui.common;
 
 import com.google.common.collect.Lists;
+
 import org.openepics.names.util.As;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
+
 
 /**
  * A filter that transforms a TreeNode tree into a new filtered tree based on acceptance criteria for node's data.
@@ -40,9 +43,8 @@ public abstract class TreeFilter<T> {
 
         final @Nullable T nodeData = (T) node.getData();
         if (!childImages.isEmpty() || (nodeData != null && accepts(As.notNull(nodeData)))) {
-            final TreeNode result = new DefaultTreeNode(nodeData, null);
-            result.setExpanded(false);
-            for (TreeNode childImage : childImages) {
+        final TreeNode result = new DefaultTreeNode(nodeData, null);
+           for (TreeNode childImage : childImages) {
                 result.getChildren().add(childImage);
                 childImage.setParent(result);
             }

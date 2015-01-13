@@ -15,6 +15,10 @@
     opacity:  0.6;
 }
 
+.Header{
+    font-size: 24px !important;
+}
+
 .Help {
     text-align: left;
 }

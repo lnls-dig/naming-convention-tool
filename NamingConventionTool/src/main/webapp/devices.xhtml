@@ -8,7 +8,7 @@
 	xmlns:h="http://java.sun.com/jsf/html">
 
 	<ui:define name="content">
-		<ui:fragment rendered="#{userManager.loggedIn}">
+		<ui:fragment rendered="#{userManager.isLoggedIn()}">
 
 			<h:form id="ManageNameForm">
 				<p:growl globalOnly="true" id="devicesMsgs" showDetail="true"
@@ -16,7 +16,12 @@
 				<!-- =================== Menus ============================ -->
 				<table width="100%" id="filterTable">
 					<tr>
-						<td align="left" width="10%">
+						<td align="left" width = "10%">
+							<div>
+								<h:outputText value="Device Registry" />
+							</div>
+						</td>
+						<td align="center" width="10%">
 							<div>
 								<h:panelGrid columns="8">
 									<h:outputText value="Show: " />
@@ -30,7 +35,7 @@
 								</h:panelGrid>
 							</div>
 						</td>
-						<td align="center" width="40%">
+						<td align="center" width="30%">
 							<div>
 								<h:panelGrid columns="3">
 									<h:outputText value="Filter by device name: " />
@@ -46,7 +51,7 @@
 								</h:panelGrid>
 							</div>
 						</td>
-						<td align="left" width="40%">
+						<td align="left" width="30%">
 							<div>
 								<h:panelGrid columns="3">
 									<h:outputText value="Filter by device type: " />
@@ -103,6 +108,8 @@
 						update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />
 					<p:ajax event="unselect"
 						update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />
+					<p:ajax event="expand" listener="#{devicesController.onNodeExpand}"/>
+					<p:ajax event="collapse" listener="#{devicesController.onNodeCollapse}"/>
 
 					<p:column id="devName" headerText="Area Structure / Device Name">
 						<h:outputText value=""
