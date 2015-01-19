@@ -8,6 +8,13 @@
 	<name>NamingConventionTool-Client</name>
 	<version>3.0.2-SNAPSHOT</version>
 
+    <parent>
+        <groupId>se.lu.esss.ics</groupId>
+        <artifactId>ess-java-config</artifactId>
+        <version>1.1.0</version>
+        <relativePath></relativePath>
+    </parent>
+
 	<dependencies>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
