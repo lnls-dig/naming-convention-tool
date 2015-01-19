@@ -2,12 +2,23 @@ package org.openepics.names.client;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
+import org.openepics.names.jaxb.DeviceNameElement;
 import org.openepics.names.jaxb.DeviceNamesResource;
+
+import javax.ws.rs.PathParam;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 /**
  * This is the naming service client API that clients can use to access the service.
@@ -20,6 +31,11 @@ public class NamesClient {
 
     private static final String BASE_URL_PROPERTY_NAME = "names.servicesBaseURL";
     private static final String PROPERTIES_FILENAME = "names.properties";
+    
+    private static final String MEDIA_TYPE_APPLICATION_JSON = "application/json";
+    private static final String DEVICE_NAMES_PATH = "deviceNames";
+    private static final String SLASH = "/";
+    
     
     private Properties properties = new Properties();
 
@@ -45,20 +61,56 @@ public class NamesClient {
 		properties.putAll(System.getProperties());
 	}
 
-	/**
-	 * Connects to naming service and returns {@link DeviceNamesResource} to access the device names data.
-	 * 
-	 * @return the resource
-	 */
-	public DeviceNamesResource getNamesResource() {
-        LOGGER.fine("Invoking getNamesResource");
+    /**
+     * Connects to naming service and returns bulk data on all device names.
+     * 
+     * @return the list of all device names
+     */
+    public List<DeviceNameElement> getAllDeviceNames() {
+        LOGGER.fine("Invoking getAllDeviceNames");
         
-        final String baseUrl = properties.getProperty(BASE_URL_PROPERTY_NAME);
-        
+        final String url = getBaseUrl() + SLASH + DEVICE_NAMES_PATH;
+
         try {
-        	return JAXRSClientFactory.create(baseUrl, DeviceNamesResource.class);
+            Response response = getResponse(url);
+            List<DeviceNameElement> list = response.readEntity(new GenericType<List<DeviceNameElement>>(){});
+            response.close();
+            
+            return list;
         } catch (Exception e) {
-        	throw new RuntimeException("Could not retrieve data from naming service at " + baseUrl + ".", e);
+            throw new RuntimeException("Could not retrieve data from naming service at " + url + ".", e);
         }
-	}
+    }
+
+    /**
+     * Connects to naming service and returns data of a single device names.
+     * 
+     * @param reqUuid the uuid of the device name
+     * @return the device name data element
+     */
+    public DeviceNameElement getDeviceName(String reqUuid) {
+        LOGGER.fine("Invoking getAllDeviceNames");
+        
+        final String url = getBaseUrl() + SLASH + DEVICE_NAMES_PATH + SLASH + reqUuid;
+
+        try {
+            Response response = getResponse(url);
+            DeviceNameElement deviceName = response.readEntity(DeviceNameElement.class);
+            response.close();
+            
+            return deviceName;
+        } catch (Exception e) {
+            throw new RuntimeException("Could not retrieve data from naming service at " + url + ".", e);
+        }
+    }
+    
+    private String getBaseUrl() {
+        return properties.getProperty(BASE_URL_PROPERTY_NAME);
+    }
+    
+    private Response getResponse(String url) {
+        ResteasyClient client = new ResteasyClientBuilder().build();
+        ResteasyWebTarget target = client.target(url);
+        return target.request("application/json").get();
+    }
 }
