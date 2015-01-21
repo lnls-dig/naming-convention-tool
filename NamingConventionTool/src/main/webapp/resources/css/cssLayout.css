@@ -1,22 +1,52 @@
+:root {
+	--previous:#ff7d00;
+	--green:#9bbe05;
+	--blue:#0094ca;
+	--new:#005d79;
+	--orange:#ff7d00;
+	--cancel:#aaaaaa;
+	--reject:#c00000;
+	--yellow:#ffd92a;
+	--darkblue: #005d79;
+	--lightblue:#e5eef2;
+	--lightgrey:#f3f3f5;
+	--grey:#dadadc;
+	--delete:#aaaaaa;
+}
+
+.ui-widget-content {
+	background-color: var(--lightblue);
+}
+
+.ui-widget-header {
+	border: 1px solid var(--blue);
+	background-color: var(--blue);
+	color: white;
+	font-weight: bold;
+}
+.ui-widget-header a {
+	color: white;
+}
+
 .Modified {
-    background-color:   palegreen;
+/*     background-color:   palegreen; */
 }
 
 .Added {
-    background-color:   palegreen;
+/*     background-color:   palegreen; */
 }
 
 .In-Process {
-    background-color:    salmon;
+/*     background-color:    salmon; */
 }
 
 .Deleted {
-    text-decoration:   line-through;
-    opacity:  0.6;
+	text-decoration:   line-through;
+    color: var(--delete);
 }
 
 .Header{
-    font-size: 24px !important;
+    font-size: 1em !important;
 }
 
 .Help {
@@ -29,6 +59,8 @@
 
 .unknown, .Cancelled  {
     text-decoration:   blink;
+    color: var(cancel);
+    text-style:italic;
 }
 
 /* styles for the new UI : row backgrounds */
@@ -36,16 +68,16 @@
 }
 
 .Approved {
-    background-color: #DAEEF3;
+/*     background-color: #DAEEF3; */
 }
 
 .Processing {
-    background-color: #FCD5B4;
+/*     background-color: #FCD5B4; */
 }
 
 /* styles for the new UI : text style */
 .Insert-Processing, .Insert-Processing-New {
-    color: #366092;
+    color: var(--new) !important;
 }
 
 .Insert-Approved, .Insert-Approved-New {
@@ -53,22 +85,22 @@
 }
 
 .Insert-Cancelled, .Insert-Cancelled-New {
-    color: #BFBFBF;
+    color: var(--cancel) !important;
     font-style: italic;
 }
 
 .Insert-Rejected, .Insert-Rejected-New {
-    color: #632523;
+    color: var(--reject) !important;
     font-style: italic;
-    font-weight: bold;
+/*     font-weight: bold; */
 }
 
 .Modify-Processing, .Modify-Processing-New {
-    color: #963634;
+    color: var(--new) !important;
 }
 
 .Modify-Processing-Old {
-    color: #F5A52F;
+    color: var(--previous);
     text-decoration: line-through;
 }
 
@@ -77,56 +109,54 @@
 }
 
 .Modify-Cancelled, .Modify-Cancelled-New {
-    color: #BFBFBF;
+    color: var(--cancel);
     font-style: italic;
 }
 
 .Modify-Cancelled-Old {
-    color: #BFBFBF;
+    color: var(--cancel);
     font-style: italic;
     text-decoration: line-through;
 }
 
 .Modify-Rejected, .Modify-Rejected-New {
-    color: #632523;
+    color: var(--reject);
     font-style: italic;
-    font-weight: bold;
+    text-decoration: line-through;
 }
 
 .Modify-Rejected-Old {
-    color: #632523;
+    color: var(--red);
     font-style: italic;
-    font-weight: bold;
     text-decoration: line-through;
 }
 
 .Delete-Processing, .Delete-Processing-New {
-    color: #F5A52F;
+    color: var(--previous);
     text-decoration: line-through;
 }
 
 .Delete-Approved, .Delete-Approved-New {
-    color: #BFBFBF;
+    color:var(--delete);
     text-decoration: line-through;
 }
 
 .Delete-Cancelled, .Delete-Cancelled-New {
-    color: #BFBFBF;
+    color:  var(--delete);
     font-style: italic;
-    text-decoration: line-through;
 }
 
 .Delete-Rejected, .Delete-Rejected-New {
-    color: #632523;
+    color: var(--reject);
     font-style: italic;
-    font-weight: bold;
-    text-decoration: line-through;
 }
+
+
 
 .noBorders>tbody>tr, .noBorders>tbody>tr>td {
     background: none;
     border: none;
-    /* vertical-align: top; */
+    vertical-align: top;
 }
 
 .heading {
@@ -142,13 +172,13 @@
 .box {
     margin: 0px;
     padding: 10px;
-    border: 0px solid LightGray;
+    border: 0px solid var(--lightgrey);
     border-radius: 7px;
     box-shadow: 0 0 7px 2px #888888;
-    color: black;
-    /* text-align: left; */
-    /* width: 80%; */
-    /* background-color: #FFFFFF;  */
+    color: white;
+    text-align: left;
+    width: 80%;
+    background-color: #FFFFFF; 
 }
 
 .boxf {
@@ -158,10 +188,10 @@
     color: black;
     width: 90%;
     margin: 0  auto;
-    /* background-color: #FFFFFF; */
+    background-color: #FFFFFF;
 }
 
-/* text wrap around in data table*/
+/* text wrap around in data table */
 .ui-datatable td {
    white-space: normal !important;
 }
@@ -172,24 +202,26 @@
     text-align: left;
     border: none;
 }
+
 .menubar {
-    /* color: LightSlateGray; */
+    color: LightSlateGray;
 }
 
 
 .title {
-    font-family: Georgia, "Times New Roman", Times, serif;
-    font-size: 24px;
-    font-style: normal;
-    font-weight: bold;
-}
+    color: #ffffff;
+	font-style: normal;
+	font-size: 2.5em;
+	}
+
 .Logo
 {
-    font-style: normal;
-    vertical-align: middle;
-    text-decoration: none;
-    background-image: url('../images/header-bg.png');
-    background-repeat: repeat;
+    background-color: #0094ca;
+	background-image: url('brand/logo-white.png');
+    background-repeat: no-repeat;
+   	background-position: left;
+   	padding:10px;
+   	text-align: center;
 }
 
 .ui-datatable-data {
