@@ -114,7 +114,6 @@
 					<p:column id="devName" headerText="Area Structure / Device Name">
 						<h:outputText value=""
 							style="display:inline-block; vertical-align:bottom !important"
-							styleClass="ui-icon ui-icon-wrench"
 							rendered="#{namePart['class'].simpleName eq 'DeviceView'}" />
 						<h:outputText value="#{namePart.conventionName}"
 							styleClass="#{namePart.device.deleted ? 'Deleted' : 'Insert-Approved-Old'}"
@@ -123,9 +122,14 @@
 							styleClass="#{namePart.deleted ? 'Deleted' : 'Insert-Approved-Old'}"
 							rendered="#{namePart['class'].simpleName eq 'NamePartView'}" />
 					</p:column>
-					<!-- 				<p:column id="addInfo" headerText="Comment " style="width: 30%"> -->
-					<!-- 				</p:column> -->
-
+					<p:column id="addInfo" headerText="Comment " style="width: 30%"> 						
+						<h:outputText
+							value="#{namePart.additionalInfo}"
+							styleClass="#{namePart.device.deleted ? 'Deleted' : 'Insert-Approved-Old'}"
+							rendered="#{namePart['class'].simpleName eq 'DeviceView'}" />
+						<h:outputText value="" styleClass="Insert-Approved-Old"
+							rendered="#{namePart['class'].simpleName eq 'NamePartView'}" />
+					</p:column> 
 					<p:column id="devType" headerText="Device Structure"
 						style="width: 30%">
 						<h:outputText
