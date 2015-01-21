@@ -26,9 +26,6 @@
 					<p:fileDownload value="#{devicesController.allDataExport}" />
 				</p:menuitem>
 			</p:submenu>
-			<!-- <p:menuitem value="Preferences" title="Preferences"
-				icon="ui-icon-gear" url="preferences.xhtml" />
- -->
 			<p:submenu label="Help" icon="ui-icon-help">
 				<p:menuitem value=" Online Help" icon="ui-icon-help" disabled="#{!userManager.isLoggedIn()}"
 					url="help.xhtml" />
@@ -52,7 +49,6 @@
 	</h:form>
 
 	<h:form id="loginForm">
-		<!--         <p:dialog id="loginDialog" widgetVar="loginDialog" modal="true"> -->
 		<p:dialog id="loginDialog" widgetVar="loginDialog" modal="true"
 			visible="#{loginController.isLoginRequested()}" closable="false">
 
