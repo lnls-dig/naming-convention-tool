@@ -1,29 +1,13 @@
-:root {
-	--previous:#ff7d00;
-	--green:#9bbe05;
-	--blue:#0094ca;
-	--new:#005d79;
-	--orange:#ff7d00;
-	--cancel:#aaaaaa;
-	--reject:#c00000;
-	--yellow:#ffd92a;
-	--darkblue: #005d79;
-	--lightblue:#e5eef2;
-	--lightgrey:#f3f3f5;
-	--grey:#dadadc;
-	--delete:#aaaaaa;
-}
-
 .ui-widget-content {
-	background-color: var(--lightblue);
+	background-color: #e5eef2;
 }
 
 .ui-widget-header {
-	border: 1px solid var(--blue);
-	background-color: var(--blue);
+	background-color: #0094ca;
 	color: white;
 	font-weight: bold;
 }
+
 .ui-widget-header a {
 	color: white;
 }
@@ -42,7 +26,7 @@
 
 .Deleted {
 	text-decoration:   line-through;
-    color: var(--delete);
+    color: #aaaaaa;
 }
 
 .Header{
@@ -77,7 +61,7 @@
 
 /* styles for the new UI : text style */
 .Insert-Processing, .Insert-Processing-New {
-    color: var(--new) !important;
+    color: #005d79 !important;
 }
 
 .Insert-Approved, .Insert-Approved-New {
@@ -85,22 +69,22 @@
 }
 
 .Insert-Cancelled, .Insert-Cancelled-New {
-    color: var(--cancel) !important;
+    color: #aaaaaa !important;
     font-style: italic;
 }
 
 .Insert-Rejected, .Insert-Rejected-New {
-    color: var(--reject) !important;
+    color: #c00000 !important;
     font-style: italic;
 /*     font-weight: bold; */
 }
 
 .Modify-Processing, .Modify-Processing-New {
-    color: var(--new) !important;
+    color: #005d79 !important;
 }
 
 .Modify-Processing-Old {
-    color: var(--previous);
+    color: #ff7d00;
     text-decoration: line-through;
 }
 
@@ -109,45 +93,45 @@
 }
 
 .Modify-Cancelled, .Modify-Cancelled-New {
-    color: var(--cancel);
+    color: #aaaaaa;
     font-style: italic;
 }
 
 .Modify-Cancelled-Old {
-    color: var(--cancel);
+    color: #aaaaaa;
     font-style: italic;
     text-decoration: line-through;
 }
 
 .Modify-Rejected, .Modify-Rejected-New {
-    color: var(--reject);
+    color: #c00000;
     font-style: italic;
     text-decoration: line-through;
 }
 
 .Modify-Rejected-Old {
-    color: var(--red);
+    color: #c00000;
     font-style: italic;
     text-decoration: line-through;
 }
 
 .Delete-Processing, .Delete-Processing-New {
-    color: var(--previous);
+    color: #ff7d00;
     text-decoration: line-through;
 }
 
 .Delete-Approved, .Delete-Approved-New {
-    color:var(--delete);
+    color:#aaaaaa;
     text-decoration: line-through;
 }
 
 .Delete-Cancelled, .Delete-Cancelled-New {
-    color:  var(--delete);
+    color:  #aaaaaa;
     font-style: italic;
 }
 
 .Delete-Rejected, .Delete-Rejected-New {
-    color: var(--reject);
+    color: #c00000;
     font-style: italic;
 }
 
@@ -172,7 +156,7 @@
 .box {
     margin: 0px;
     padding: 10px;
-    border: 0px solid var(--lightgrey);
+    border: 0px solid #f3f3f5;
     border-radius: 7px;
     box-shadow: 0 0 7px 2px #888888;
     color: white;
@@ -204,7 +188,7 @@
 }
 
 .menubar {
-    color: LightSlateGray;
+    color: #e5eef2;
 }
 
 
@@ -220,7 +204,7 @@
 	background-image: url('brand/logo-white.png');
     background-repeat: no-repeat;
    	background-position: left;
-   	padding:10px;
+   	padding:20px;
    	text-align: center;
 }
 
@@ -248,78 +232,3 @@
 .textScreen {
 	max-width: 1100px;
 }
-
-/*
-
-#top {
-    position: relative;
-    border: 1px;
-    padding: 5px;
-    margin: 0px 0px 10px 0px;
-}
-
-#bottom {
-    position: relative;
-    background-color: #FFFFFF;
-    color: LightSlateGray;
-    padding: 10px;
-    margin: 10px 0px 0px 0px;
-}
-
-.h1 {
-    font-size:  16px;
-    margin-bottom: 10px;
-    padding: 0px;
-    color: #086A87;
-    text-align: left;
-}
-
-#content {
-    text-align: left;
-}
-
-#left {
-    float: left;
-    background-color: #ece3a5;
-    padding: 5px;
-    width: 150px;
-}
-
-#right {
-    float: right;
-    background-color: #ece3a5;
-    padding: 5px;
-    width: 150px;
-}
-
-.center_content {
-    position: relative;
-    background-color: #dddddd;
-    padding: 5px;
-}
-
-.left_content {
-    background-color: #dddddd;
-    padding: 5px;
-    margin-left: 170px;
-}
-
-.right_content {
-    background-color: #dddddd;
-    padding: 5px;
-    margin: 0px 170px 0px 170px;
-}
-*/
-/*
-#top a:link, #top a:visited {
-    color: black;
-    font-weight : bold;
-    text-decoration: none;
-}
-
-#top a:link:hover, #top a:visited:hover  {
-    color: lightslategrey;
-    font-weight : bold;
-    text-decoration : underline;
-}
-*/
