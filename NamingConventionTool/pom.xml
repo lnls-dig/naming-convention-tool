@@ -4,7 +4,7 @@
 
 	<groupId>org.openepics</groupId>
 	<artifactId>names</artifactId>
-	<version>3.1.5</version>
+	<version>3.1.6</version>
 	<packaging>war</packaging>
 
 	<name>names</name>
