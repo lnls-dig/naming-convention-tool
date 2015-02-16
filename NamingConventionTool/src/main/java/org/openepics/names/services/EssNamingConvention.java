@@ -67,12 +67,11 @@ public class EssNamingConvention implements NamingConvention {
 
 	@Override public String conventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
 		if(sectionPath.size()>=3 || deviceTypePath.size()>=3){
-		final String supersection = sectionPath.get(0);
 		final String section = sectionPath.get(1);
 		final String subsection = sectionPath.get(2);
 		final String discipline = deviceTypePath.get(0);
-		final String genericDeviceType = deviceTypePath.get(2);
-		return section + "-" + subsection + ":" + discipline + "-" + genericDeviceType + (instanceIndex != null ? "-" + instanceIndex : "");
+		final String deviceType = deviceTypePath.get(2);
+		return section + "-" + subsection + ":" + discipline + "-" + deviceType + (instanceIndex != null ? "-" + instanceIndex : "");
 		}
 		else {
 			return null;
@@ -81,5 +80,28 @@ public class EssNamingConvention implements NamingConvention {
 
 	private boolean isNameLengthValid(String name,int nMin, int nMax) { 
 		return name.length() >= nMin && name.length() <= nMax; 
+	}
+
+	@Override
+	public String deviceDefinition(List<String> deviceTypePath) {
+		if(deviceTypePath.size()>=3 ){
+		final String discipline = deviceTypePath.get(0);
+		final String deviceType = deviceTypePath.get(2);
+		return discipline + "-" + deviceType;
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public String areaName(List<String> sectionPath) {
+		if(sectionPath.size()>=3 ){
+		final String section = sectionPath.get(1);
+		final String subsection = sectionPath.get(2);
+		return section + "-" + subsection ;
+		}
+		else {
+			return null;
+		}
 	}
 }

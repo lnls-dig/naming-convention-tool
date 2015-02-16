@@ -41,4 +41,14 @@ public class FribNamingConvention implements NamingConvention {
     @Override public boolean canMnemonicsCoexist(List<String> newMnemonicPath, NamePartType newMnemonicType, List<String> comparableMnemonicPath, NamePartType comparableMnemonicType) {
         throw new NotImplementedException();
     }
+
+	@Override
+	public String deviceDefinition(List<String> deviceTypePath) {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public String areaName(List<String> sectionPath) {
+		throw new NotImplementedException();
+	}
 }

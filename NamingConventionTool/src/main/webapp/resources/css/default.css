@@ -34,3 +34,19 @@ body {
     font-size: 12px;
     font-family: Verdana, "Verdana CE",  Arial, "Arial CE", "Lucida Grande CE", lucida, "Helvetica CE", sans-serif;
 }
+
+h3 {
+	color:#005d79;
+}
+
+sec{
+/* 	color:  #0094ca; */
+	color:#005d79;
+	font-family: monospace;
+}
+
+dev{
+/* 	color:  #99CC00; */
+	color: green;
+	font-family: monospace;
+}

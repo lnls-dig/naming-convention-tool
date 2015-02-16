@@ -82,5 +82,20 @@ public interface NamingConvention {
      * @param instanceIndex the device instance index. Null if omitted.
      */
     String conventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex);
-    
+
+    /**
+     * The device definition of the device defined by it device type. 
+     * @param deviceTypePath the list of device type names starting from the root of the hierarchy to the specific
+     * subtype of the device
+     * @return
+     */
+	String deviceDefinition(List<String> deviceTypePath);
+
+    /**
+     * The area name of the device defined by it area. 
+     * @param sectionPath the list of section names starting from the root of the hierarchy to the specific subsection
+     * containing the device
+     * @return
+     */
+	String areaName(List<String> sectionPath);
 }

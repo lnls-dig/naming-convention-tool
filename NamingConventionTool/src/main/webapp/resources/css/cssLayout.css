@@ -1,3 +1,4 @@
+
 .ui-widget-content {
 	background-color: #e5eef2;
 }
@@ -11,6 +12,41 @@
 .ui-widget-header a {
 	color: white;
 }
+.wizardStyleClass {
+	width:500;
+	height:500;
+}
+
+.ui-tree{
+	background-color:white;
+	width:480px;
+	height:300px;
+	overflow:auto;
+}
+.ui-tree-content{
+	width:400px;
+}
+
+div.wizardStyle{
+	width: 460px; 
+	height: 450px;
+}
+
+.sec{
+/* 	color:  #0094ca; */
+	color:#005d79;
+	font-family: monospace;
+	size:0.9em;
+}
+
+.dev{
+/* 	color:  #99CC00; */
+	color: green;
+	font-family: monospace;
+	size:0.9em;
+}
+
+
 
 .Modified {
 /*     background-color:   palegreen; */

@@ -11,59 +11,65 @@
 			<f:facet name="header">
 				<h:outputText value="#{dialogTitle}" />
 			</f:facet>
-
 			<p:growl id="growl" sticky="true" showDetail="true" />
-			<p:wizard  widgetVar="wiz" flowListener="#{devicesController.onFlowProcess}"
-				showStepStatus="false">
-				<p:tab id="where" title="Where">
-					<p:panel
-						header="Select area of the facility that the device provides service to:" style="width: 500 px; height: 300px; margin-bottom: 20px;"
-						footer="Name elements (Super Section, Section and Subsection) are described and managed in the area structure.">
-						<p:messages />
+			<p:wizard widgetVar="wiz"
+				flowListener="#{devicesController.onFlowProcess}"
+				showStepStatus="false" styleClass="wizardStyleClass">
+
+				<p:tab id="areaTab" title="Area">
+					<div class="wizardStyle">
+						<p>Which part of the facility does the device provide service to?</p>
+						<h3>1. Select functional area:</h3>
 						<p:tree value="#{devicesController.sections}"
 							selectionMode="single" var="section"
 							selection="#{devicesController.formSelectedSection}"
-							style="width: inherit ; height: inherit; overflow: auto;">
-
+							dynamic="true">
 							<p:ajax event="select" update=":#{formId}:bsub" />
 							<p:ajax event="unselect" update=":#{formId}:bsub" />
-
-							<p:treeNode>
+							<p:ajax event="expand" listener="#{devicesController.onNodeExpand}"/>
+							<p:ajax event="collapse" listener="#{devicesController.onNodeCollapse}"/>	
+							<p:treeNode >
+								<h:outputText value="#{devicesController.mnemonic(section)} " styleClass="sec" rendered="#{devicesController.mnemonic(section) != null}"/>
 								<h:outputText value="#{section.name} (#{section.mnemonic})" />
 							</p:treeNode>
+												
 						</p:tree>
-
-					</p:panel>
+						<p:messages />
+						<p>Name elements (Super section, Section and Subsection) are
+							described and managed in the area structure.</p>
+					</div>
 				</p:tab>
 
-				<p:tab id="what" title="What?">
-					<p:panel header="Select generic device type:" style="width: 500 px; height: 300px; margin-bottom: 20px;"
-						footer="Name elements (disicpline, category and generic device type) are described and managed in the device structure.">
-						<p:messages />
+				<p:tab id="deviceTab" title="Device">
+					<div class="wizardStyle">
+						<p>What kind of device is it?</p>
+						<h3>2. Select device type:</h3>
 						<p:tree value="#{devicesController.deviceTypes}"
 							selectionMode="single" var="devType"
 							selection="#{devicesController.formSelectedDeviceType}"
-							style="width: inherit; height: inherit; overflow: auto;">
+							dynamic="true">
 							<p:ajax event="select" update=":#{formId}:bsub" />
 							<p:ajax event="unselect" update=":#{formId}:bsub" />
+							<p:ajax event="expand" listener="#{devicesController.onNodeExpand}"/>
+							<p:ajax event="collapse" listener="#{devicesController.onNodeCollapse}"/>	
 							<p:treeNode>
-								<h:outputText value="#{devType.name}" />
-								<h:outputText value=" (#{devType.mnemonic})"
-									rendered="#{not empty devType.mnemonic}" />
+								<h:outputText value=" #{devicesController.mnemonic(devType)} " styleClass="dev" rendered="#{devicesController.mnemonic(devType) != null}"/>
+								<h:outputText value="#{devType.name} (#{devType.mnemonic})" />
 							</p:treeNode>
 						</p:tree>
-					</p:panel>
+						<p:messages />
+						<p>Name elements (discipline, category and device type) are
+							described and managed in the device structure.</p>
+					</div>
 				</p:tab>
 
-				<p:tab id="which" title="Which">
-					<p:panel header=" Enter Instance Index" style="width: 500 px; height: 300px; margin-bottom: 20px;"
-						footer="Optional. Alphanumeric only. Maximum 6 characters.">
-						<p:inputText 
-							id="instanceIndex"
+				<p:tab id="instanceTab" title="Instance">
+					<div class="wizardStyle">
+						<h3>3. Enter instance index:</h3>
+						<p:inputText id="instanceIndex"
 							onkeyup="displayIndexLengthWarningOnMod()"
 							value="#{devicesController.formInstanceIndex}"
-							style="width: 500px"
-						>
+							style="width:480px" maxlenght="6">
 							<f:validator validatorId="#{instanceIndexValidator}" />
 						</p:inputText>
 						<p:message for="instanceIndex" />
@@ -72,58 +78,63 @@
 							style="display: none">
 							<span class="ui-message-warn-icon"></span> <span
 								class="ui-message-warn-detail">Instance index should
-								preferably be less than 4 characters.</span>
+								preferably be less than 4 characters although 6 is allowed.</span>
+						</div>
+						<div>
+							<h4>The instance index is validated against the following
+								rules:</h4>
+							<ol>
+								<li>The instance index is alphanumeric. I.e., only upper
+									and lower case alphanumeric characters (a-z, A-Z, 0-9) are
+									allowed.</li>
+								<li>The instance instance index ranges between 0 and 6
+									characters.</li>
+								<li>Within the selected area (<sec>Sec-Sub</sec>) and for
+									the selected device definition (<dev>Dis-Dev</dev>) the
+									instance index is unique, irrespective of
+									<ul>
+										<li>Letter case</li>
+										<li>Letters I, l and number 1</li>
+										<li>Letter O and number 0</li>
+										<li>Letters V and W</li>
+										<li>Leading zeros, i.e., number 0 immediately following a
+											non-numerical character</li>
+									</ul>
+								</li>
+							</ol>
+							<h4>Guidelines:</h4>
+							<ol>
+								<li>Names should be short, meaningful and easy to read.
+									Abbreviate and use CamelCase.</li>
+								<li>Names should be easy to pronounce and memorize.</li>
+							</ol>
+						</div>
+					</div>
+				</p:tab>
+
+				<p:tab id="finishTab" title="Finish">
+					<div class="wizardStyle">
+						<h3>4. Finish:</h3>
+							<h4>Review the Device Name:</h4>
+							<div align="right"> <h:outputText value="#{devicesController.formDeviceName}" style="font-family:monospace" /></div>
+							<h4>Enter a Comment (optional):</h4>
+							<p:inputTextarea id="additionalInfo"
+								value="#{devicesController.formAdditionalInfo}"
+								style="width:460px; height:200px" />
+
+							<h4>Confirm:</h4>
+							<div align="right">
+							<p:commandButton id="bsub" value="Complete"
+								update="growl :ManageNameForm" style="float:right"
+								action="#{devicesController[submitHandler]}"
+								disabled="#{devicesController.formSelectedSection == null || devicesController.formSelectedDeviceType == null}"
+								oncomplete="wiz.loadStep(wiz.cfg.steps[0],true); #{widgetName}.hide();" />
+							<p:commandButton value="Cancel"
+								onclick=" wiz.loadStep(wiz.cfg.steps[0],true);  #{widgetName}.hide(); "
+								style="float:right" />
+							</div>
 						</div>
 
-					</p:panel>
-				</p:tab>
-
-				<p:tab id="comment" title="Comment">
-
-					<p:panel header="Enter a Comment" style="width: 500 px; height: 300px; margin-bottom: 20px;"
-						footer="Optional description, comment, etc. Maximum 100 characters" >
-
-						<p:inputText id="additionalInfo"
-							value="#{devicesController.formAdditionalInfo}" style="width: 500px" />
-							
-					</p:panel>
-				</p:tab>
-
-
-				<p:tab id="confirm" title="Confirm">
-					<p:panel header="Review and submit generated name" style="width: 500 px; height: 300px; margin-bottom: 20px;">
-					<p:panelGrid style="width: 400px; height: inherit;">
-					<p:row>
-					<p:column>
-							<h:outputText value="Device Name:" />
-					</p:column>
-					<p:column>
-							<h:outputText value="#{devicesController.formDeviceName} " />
-					</p:column>
-					</p:row>
-
-					<p:row>
-					<p:column>
-						  <h:outputText value="Comment:"/>						
-					</p:column>
-					<p:column>
-							<h:outputText value="#{devicesController.formAdditionalInfo}"/>						
-					</p:column>
-					</p:row>
-					<p:row >
-					<p:column colspan="2" style="text-align: right">					
-						<p:commandButton value="Cancel"  onclick=" wiz.loadStep(wiz.cfg.steps[0],true);  #{widgetName}.hide(); "  /> 	
-						<p:commandButton id="bsub" value="Submit" 
-							update="growl :ManageNameForm"
-							action="#{devicesController[submitHandler]}"
-							disabled="#{devicesController.formSelectedSection == null || devicesController.formSelectedDeviceType == null}" 
-							oncomplete="wiz.loadStep(wiz.cfg.steps[0],true); #{widgetName}.hide();"
-							/>					
-					</p:column>
-					</p:row>
-					</p:panelGrid>	
-					</p:panel>
-													
 				</p:tab>
 			</p:wizard>
 		</p:dialog>
