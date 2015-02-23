@@ -28,11 +28,11 @@ public class EssNamingConvention implements NamingConvention {
 		if (!isNameLengthValid(name,1,6)) {
 			return false;
 		} else {
-			if (parentPath.size() == 2 ) {
-				return name.matches("^[a-zA-Z][a-zA-Z0-9]+$");
-			} else {
+//			if (parentPath.size() == 2 ) {
+//				return name.matches("^[a-zA-Z][a-zA-Z0-9]+$");
+//			} else {
 				return name.matches("^[a-zA-Z0-9]+$");
-			}
+//			}
 
 		}
 	}
