@@ -73,11 +73,17 @@ public class EssNamingConventionTest {
     
     @Test
     public void deviceTypeNameLengthTest() {
-        assertFalse("Device type longer than 6 chars is not allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD"), "Chopper"));
-        assertTrue("One charater device type is allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD"), "C"));
-        assertTrue(namingConvention.isDeviceTypeNameValid(ImmutableList.<String>of(), "BMD"));
+        assertFalse("Discipline name with 0 chars is not allowed",namingConvention.isDeviceTypeNameValid(ImmutableList.<String>of(), ""));    	
+        assertTrue("Discipline name shorter than 6 chars is allowed",namingConvention.isDeviceTypeNameValid(ImmutableList.<String>of(), "BMD"));
+        assertTrue("Discipline name of 6 chars is allowed",namingConvention.isDeviceTypeNameValid(ImmutableList.<String>of(), "BMD123"));
+        assertFalse("Discipline name longer than 6 chars is not allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.<String>of(), "BMD1234"));
+        assertTrue("Device category with 0 chars is allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD"), ""));
         assertTrue(namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD"), "Ch"));
-        assertTrue("Six char device type is allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD"), "Choppe"));        
+        assertTrue("Device category longer than 6 chars is allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD"), "Choppers"));
+        assertFalse("Device type with 0 chars is not allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD", "Choppers"), ""));
+        assertTrue("One charater device type is allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD","Choppers"), "C"));
+        assertTrue("Six char device type is allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD","Choppers"), "Choppe"));  
+        assertFalse("Device type longer than 6 chars is not allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD", "Choppers"), "Chopper"));    	
     }
         
     @Test
@@ -159,12 +165,13 @@ public class EssNamingConventionTest {
     }
     
     @Test
-    public void canGenericDeviceTypeMnemonicsCoexistTest() {
-        assertTrue(namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("Test", "Acc", "ChopG"), NamePartType.SECTION));
-        assertTrue(namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BML", "Chop", "ChopG"), NamePartType.DEVICE_TYPE));
-        assertTrue(namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "ChopG"), NamePartType.DEVICE_TYPE));
-        assertFalse(namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "ChopN", "ChopG"), NamePartType.DEVICE_TYPE));
-        assertFalse(namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "ChopN", "ChopG"), NamePartType.DEVICE_TYPE));
+    public void canDeviceTypeMnemonicsCoexistTest() {
+        assertTrue("Device type and subsection can coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("Acc", "HBL", "ChopG"), NamePartType.SECTION));
+        assertTrue("Two device types can coexist under different disicplines", namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BML", "Chop", "ChopG"), NamePartType.DEVICE_TYPE));
+        assertTrue("Device type and device group can coexist",namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "ChopG"), NamePartType.DEVICE_TYPE));
+        assertTrue("Device groups can coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "Chop"), NamePartType.DEVICE_TYPE));
+        assertFalse("Two device types cannot coexist under the same discipline",namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "ChopN", "ChopG"), NamePartType.DEVICE_TYPE));
+        assertFalse("Two device types cannot coexist under the same discipline", namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "ChopN", "ChopG"), NamePartType.DEVICE_TYPE));
     }
 }
 
