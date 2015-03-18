@@ -16,12 +16,7 @@
 				<!-- =================== Menus ============================ -->
 				<table width="100%" id="filterTable">
 					<tr>
-						<td align="left" width = "10%">
-							<div>
-								<h:outputText value="Device Registry" />
-							</div>
-						</td>
-						<td align="center" width="10%">
+						<td align="left" >
 							<div>
 								<h:panelGrid columns="8">
 									<h:outputText value="Show: " />
@@ -35,7 +30,7 @@
 								</h:panelGrid>
 							</div>
 						</td>
-						<td align="center" width="30%">
+						<td align="center" >
 							<div>
 								<h:panelGrid columns="3">
 									<h:outputText value="Filter by device name: " />
@@ -51,7 +46,7 @@
 								</h:panelGrid>
 							</div>
 						</td>
-						<td align="left" width="30%">
+						<td align="center">
 							<div>
 								<h:panelGrid columns="3">
 									<h:outputText value="Filter by device type: " />
@@ -67,8 +62,9 @@
 								</h:panelGrid>
 							</div>
 						</td>
-						<td align="right" width="10%"><p:menuButton id="ncReqMenu"
-								value="Actions" style="width: 8%; z-index: 100;">
+						<td align="right" ><p:menuButton id="ncReqMenu"
+								value="Actions"> 
+<!-- 								style="width: 8%; z-index: 100;"> -->
 								<p:menuitem value="Add" icon="ui-icon-plus"
 									update=":addDeviceNameForm" oncomplete="addDeviceName.show()"
 									title="Add Device Name"

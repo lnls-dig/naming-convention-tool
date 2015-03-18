@@ -10,42 +10,53 @@
 	<h:form id="menuform">
 		<p:growl globalOnly="true" id="messages" showDetail="true"
 			sticky="false" life="5000" />
+		<p:tabMenu id="mainMenu" activeIndex="${param.i}" >
+			<p:menuitem value="Home" icon="ui-icon-home" outcome="index.xhtml">
+				<f:param name="i" value="0" />
+			</p:menuitem>
+			<p:menuitem value="Device Registry" icon="ui-icon-wrench"
+				disabled="#{!userManager.isLoggedIn()}" outcome="devices.xhtml">
+				<f:param name="i" value="1" />
+			</p:menuitem>
+			<p:menuitem value="Area Structure" icon="ui-icon-folder-open"
+				disabled="#{!userManager.isLoggedIn()}"
+				outcome="parts.xhtml?type=section">
+				<f:param name="i" value="2"/>
+			</p:menuitem>
+			<p:menuitem value="Device Structure" icon="ui-icon-folder-open"
+				disabled="#{!userManager.isLoggedIn()}"
+				outcome="parts.xhtml?type=deviceType" >
+				<f:param name="i" value="3"/>
+			</p:menuitem>
+<!-- 			<p:submenu label="Tools"> -->
+<!-- 				<p:menuitem value="Export Approved Data" ajax="false" -->
+<!-- 					icon="ui-icon-disk" disabled="#{!userManager.isLoggedIn()}" -->
+<!-- 					immediate="true" onclick="PrimeFaces.monitorDownload(start, stop)"> -->
+<!-- 					<p:fileDownload value="#{devicesController.allDataExport}" /> -->
+<!-- 				</p:menuitem> -->
+<!-- 				<f:param name="i" value="4"/>			 -->
+<!-- 			</p:submenu> -->
+<!-- 			<p:submenu label="Help" icon="ui-icon-help"> -->
+<!-- 				<p:menuitem value=" Online Help" icon="ui-icon-help" -->
+<!-- 					disabled="#{!userManager.isLoggedIn()}" url="help.xhtml" /> -->
+<!-- 				<p:menuitem value=" API Manual" icon="ui-icon-script" -->
+<!-- 					disabled="#{!userManager.isLoggedIn()}" url="api-manual.xhtml" /> -->
+<!-- 			</p:submenu> -->
 
-		<p:menubar id="mainMenu" style="padding-left: 8px; padding-right: 8px">
-			<p:menuitem value="Home" icon="ui-icon-home" url="index.xhtml" />
-			<p:menuitem value="Device Registry" icon="ui-icon-wrench" disabled="#{!userManager.isLoggedIn()}"
-				url="devices.xhtml" />
-			<p:menuitem value="Area Structure" icon="ui-icon-folder-open" disabled="#{!userManager.isLoggedIn()}"
-				url="parts.xhtml?type=section" />
-			<p:menuitem value="Device Structure" icon="ui-icon-lightbulb" disabled="#{!userManager.isLoggedIn()}"
-				url="parts.xhtml?type=deviceType" />
-			<p:submenu label="Tools" >
-				<p:menuitem value="Export Approved Data" ajax="false"
-					icon="ui-icon-disk" disabled="#{!userManager.isLoggedIn()}" immediate="true"
-					onclick="PrimeFaces.monitorDownload(start, stop)">
-					<p:fileDownload value="#{devicesController.allDataExport}" />
-				</p:menuitem>
-			</p:submenu>
-			<p:submenu label="Help" icon="ui-icon-help">
-				<p:menuitem value=" Online Help" icon="ui-icon-help" disabled="#{!userManager.isLoggedIn()}"
-					url="help.xhtml" />
-				<p:menuitem value=" API Manual" icon="ui-icon-script" disabled="#{!userManager.isLoggedIn()}"
-					url="api-manual.xhtml" />
-			</p:submenu>
-
-			<f:facet name="options">
-				<h:outputText value="#{userManager.getUsername()}"
-					style="margin-right:10px" rendered="#{userManager.isLoggedIn()}" />
-				<p:commandButton process="@this" value="Sign In"
-					icon="ui-icon-person" update=":full"
-					action="#{loginController.prepareLoginPopup()}"
-					rendered="#{not userManager.isLoggedIn()}" />
-				<p:commandButton process="@this" value="Sign Out"
-					icon="ui-icon-person" update=":full"
-					action="#{loginController.signOut()}"
-					rendered="#{userManager.isLoggedIn()}" />
-			</f:facet>
-		</p:menubar>
+<!-- 						<f:facet name="options"> -->
+<!-- 							<h:outputText value="#{userManager.getUsername()}" -->
+<!-- 								style="margin-right:10px" rendered="#{userManager.isLoggedIn()}" /> -->
+<!-- 							<p:commandButton process="@this" value="Sign In" -->
+<!-- 								icon="ui-icon-person" update=":full" -->
+<!-- 								action="#{loginController.prepareLoginPopup()}" -->
+<!-- 								rendered="#{not userManager.isLoggedIn()}" /> -->
+<!-- 							<p:commandButton process="@this" value="Sign Out" -->
+<!-- 								icon="ui-icon-person" update=":full" -->
+<!-- 								action="#{loginController.signOut()}" -->
+<!-- 								rendered="#{userManager.isLoggedIn()}" /> -->
+<!-- 						</f:facet> -->
+			
+		</p:tabMenu>
 	</h:form>
 
 	<h:form id="loginForm">

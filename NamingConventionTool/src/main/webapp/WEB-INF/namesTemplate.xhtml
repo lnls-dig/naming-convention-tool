@@ -79,9 +79,21 @@
 
 <h:body>
 	<p:outputPanel id="full" layout="block">
-		<p:panel id="logoPanel" styleClass="Logo">
-			<h:outputText value="#{msgs.title}" styleClass="title" />
-		</p:panel>
+		<p:panel id="logoPanel" styleClass="Logo">				
+				<h:outputText value="#{msgs.title}" styleClass="title" />
+				<p:commandButton process="@this" value="Sign In"
+					style="float:right;"
+					icon="ui-icon-person" update=":full"
+					action="#{loginController.prepareLoginPopup()}"
+					rendered="#{not userManager.isLoggedIn()}" />
+				<p:commandButton process="@this" value="Sign Out"
+					style="float:right"
+					update=":full"
+					action="#{loginController.signOut()}"
+					rendered="#{userManager.isLoggedIn()}" />
+				<h:outputText icon="ui-icon-person" value="#{userManager.getUsername()}"
+					 rendered="#{userManager.isLoggedIn()}" styleClass="user" style="float:right" />
+			</p:panel>
 		<div id="menu">
 			<ui:include src="/WEB-INF/includes/menubar.xhtml" />
 		</div>

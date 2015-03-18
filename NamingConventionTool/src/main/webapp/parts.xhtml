@@ -17,11 +17,6 @@
 					<tr>
 						<td align="left">
 							<div>
-								<h:outputText value="#{namePartsController.getNamePartTitle()}" />
-							</div>
-						</td>
-						<td align="right">
-							<div>
 								<h:panelGrid columns="2">
 									<h:outputText value="Show: " />
 									<p:selectOneMenu value="#{namePartsController.viewFilter}"
@@ -38,8 +33,9 @@
 								</h:panelGrid>
 							</div>
 						</td>
-						<td align="right"><p:menuButton value="Actions" id="reqMenu"
-								style="width: 8%">
+						<td align="right" >
+						<p:menuButton value="Actions" id="reqMenu">
+<!-- 								style="width: 8%"> -->
 								<p:menuitem value="Add"
 									actionListener="#{namePartsController.prepareAddPopup()}"
 									title="Add Name" icon="ui-icon-plus"
