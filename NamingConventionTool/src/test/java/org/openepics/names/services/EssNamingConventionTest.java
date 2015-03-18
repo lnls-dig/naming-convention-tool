@@ -144,10 +144,12 @@ public class EssNamingConventionTest {
     }
     
     @Test
-    public void typeDConventionNameTest() {
+    public void conventionNameTest() {
         final List<String> sectionPath = ImmutableList.of("Sup", "Sec", "Sub");
         final List<String> deviceTypePath = ImmutableList.of("Dis", "Cat", "Dev");
         assertEquals(namingConvention.conventionName(sectionPath, deviceTypePath, "Idx"), "Sec-Sub:Dis-Dev-Idx");
+        assertEquals(namingConvention.conventionName(sectionPath, deviceTypePath, ""),"Sec-Sub:Dis-Dev");
+        assertEquals(namingConvention.conventionName(sectionPath, ImmutableList.of("Dis","Cat"), "Idx"),null);
     }
     
     @Test
