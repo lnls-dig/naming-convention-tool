@@ -94,7 +94,7 @@ public class EssNamingConvention implements NamingConvention {
 			this.level= !( path==null || path.isEmpty())  ? path.size(): 0;
 		}
 
-		public String getDefinition() {
+		String getDefinition() {
 			if(isDeviceType()){
 				return getDiscipline()+"-"+getDeviceType();
 			} else if (isSubsection()){
@@ -104,49 +104,49 @@ public class EssNamingConvention implements NamingConvention {
 			}			
 		}
 
-		private boolean isDeviceRoot() {
+		boolean isDeviceRoot() {
 			return deviceStructure && level==0;
 		}
 		
-		private boolean isDiscipline() {
+		boolean isDiscipline() {
 			return deviceStructure&& level==1;
 		}
 		
-		private boolean isDeviceGroup() {
+		boolean isDeviceGroup() {
 			return deviceStructure && level==2;
 		}
 
-		private boolean isDeviceType() {
+		boolean isDeviceType() {
 			return deviceStructure && level==3;
 		}
-		private boolean isAreaRoot() {
+		boolean isAreaRoot() {
 			return areaStructure&& level==0;
 		}
 
-		private boolean isSuperSection() {
+		boolean isSuperSection() {
 			return areaStructure&& level==1;
 		}
 
-		private boolean isSection() {
+		boolean isSection() {
 			return areaStructure && level==2;
 		}
-		private boolean isSubsection() {
+		boolean isSubsection() {
 			return areaStructure && level==3;
 		}
 		
-		private String getSection(){
+		String getSection(){
 			return isSection() || isSubsection() ? path.get(1): null;
 		}
 
-		private String getDiscipline(){
+		String getDiscipline(){
 			return isDiscipline() || isDeviceGroup() || isDeviceType()  ? path.get(0): null;
 		}
 		
-		private String getSubsection() {
+		String getSubsection() {
 			return isSubsection() ? path.get(2): null;
 		}
 
-		private String getDeviceType() {
+		String getDeviceType() {
 			return isDeviceType() ? path.get(2): null;
 		}
 
