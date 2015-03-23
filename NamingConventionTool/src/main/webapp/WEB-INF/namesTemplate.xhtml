@@ -12,91 +12,115 @@
 	<link href="resources/css/cssLayout.css" rel="stylesheet"
 		type="text/css" />
 	<script type="text/javascript">
-	        function resizePanel() {
-	            var menusHeight = $('#logoPanel').outerHeight()+$('#menu').outerHeight()+15;
-	            $('#indexDiv').css({"height":window.innerHeight-menusHeight});
-	            $('#apiManualDiv').css({"height":window.innerHeight-menusHeight});
-	            var headerHeight = $('#ReqSubForm\\:namePartsTree\\:nameDesc').outerHeight();
-	            if (headerHeight == null) {
-	                headerHeight = $('#ManageNameForm\\:devicesTree\\:devName').outerHeight();
-	            }
-	            
-	            menusHeight = menusHeight+$('#filterTable').outerHeight() + headerHeight + 7;
-	            $('.ui-treetable-scrollable-body').css({"height":window.innerHeight-menusHeight});  
-	        }
+		function resizePanel() {
+			var menusHeight = $('#logoPanel').outerHeight()
+					+ $('#menu').outerHeight() + 15;
+			$('#indexDiv').css({
+				"height" : window.innerHeight - menusHeight
+			});
+			$('#apiManualDiv').css({
+				"height" : window.innerHeight - menusHeight
+			});
+			var headerHeight = $('#ReqSubForm\\:namePartsTree\\:nameDesc')
+					.outerHeight();
+			if (headerHeight == null) {
+				headerHeight = $('#ManageNameForm\\:devicesTree\\:devName')
+						.outerHeight();
+			}
 
-            $(window).resize(function() {
-                resizePanel();
-                });
+			menusHeight = menusHeight + $('#filterTable').outerHeight()
+					+ headerHeight + 7;
+			$('.ui-treetable-scrollable-body').css({
+				"height" : window.innerHeight - menusHeight
+			});
+		}
 
-    		$(window).ready(function() {
-                resizePanel();
-            });
+		$(window).resize(function() {
+			resizePanel();
+		});
 
-    		function start() {  
-    		    statusDialog.show();  
-    		}  
-    		  
-    		function stop() {  
-    		    statusDialog.hide();  
-    		}  
+		$(window).ready(function() {
+			resizePanel();
+		});
 
-    		function displayMnemonicLengthWarningOnAdd() {
-    			if ($('#addNameForm\\:icode').val().length > 4) {
-    				$('#addNameForm\\:mnemonicLengthWarning').css({"display":"block"});
-    	        } else {
-    	        	$('#addNameForm\\:mnemonicLengthWarning').css({"display":"none"});
-            	}
-            }
+		function start() {
+			statusDialog.show();
+		}
 
-    		function displayMnemonicLengthWarningOnMod() {
-                if ($('#ModNameForm\\:mcode').val().length > 4) {
-                    $('#ModNameForm\\:mnemonicLengthWarning').css({"display":"block"});
-                } else {
-                    $('#ModNameForm\\:mnemonicLengthWarning').css({"display":"none"});
-                }
-            }
+		function stop() {
+			statusDialog.hide();
+		}
 
-    		function displayIndexLengthWarningOnAdd() {
-                if ($('#addDeviceNameForm\\:instanceIndex').val().length > 3) {
-                    $('#addDeviceName\\:indexLengthWarning').css({"display":"block"});
-                } else {
-                    $('#addDeviceName\\:indexLengthWarning').css({"display":"none"});
-                }
-            }
+		function displayMnemonicLengthWarningOnAdd() {
+			if ($('#addNameForm\\:icode').val().length > 4) {
+				$('#addNameForm\\:mnemonicLengthWarning').css({
+					"display" : "block"
+				});
+			} else {
+				$('#addNameForm\\:mnemonicLengthWarning').css({
+					"display" : "none"
+				});
+			}
+		}
 
-    		function displayIndexLengthWarningOnMod() {
-                if ($('#modDeviceNameForm\\:instanceIndex').val().length > 3) {
-                    $('#modDeviceName\\:indexLengthWarning').css({"display":"block"});
-                } else {
-                    $('#modDeviceName\\:indexLengthWarning').css({"display":"none"});
-                }
-            }
-    	</script>
+		function displayMnemonicLengthWarningOnMod() {
+			if ($('#ModNameForm\\:mcode').val().length > 4) {
+				$('#ModNameForm\\:mnemonicLengthWarning').css({
+					"display" : "block"
+				});
+			} else {
+				$('#ModNameForm\\:mnemonicLengthWarning').css({
+					"display" : "none"
+				});
+			}
+		}
+
+		function displayIndexLengthWarningOnAdd() {
+			if ($('#addDeviceNameForm\\:instanceIndex').val().length > 3) {
+				$('#addDeviceName\\:indexLengthWarning').css({
+					"display" : "block"
+				});
+			} else {
+				$('#addDeviceName\\:indexLengthWarning').css({
+					"display" : "none"
+				});
+			}
+		}
+
+		function displayIndexLengthWarningOnMod() {
+			if ($('#modDeviceNameForm\\:instanceIndex').val().length > 3) {
+				$('#modDeviceName\\:indexLengthWarning').css({
+					"display" : "block"
+				});
+			} else {
+				$('#modDeviceName\\:indexLengthWarning').css({
+					"display" : "none"
+				});
+			}
+		}
+	</script>
 	<link rel="shortcut icon" href="resources/images/favicon.ico" />
-<!-- 	<title>Naming Service</title> -->
 </h:head>
 
 <h:body>
 	<p:outputPanel id="full" layout="block">
-		<p:panel id="logoPanel" styleClass="Logo">				
-				<h:outputText value="#{msgs.title}" styleClass="title" />
+		<p:panel id="logoPanel" styleClass="ui-widget-header">
+			<div id="user" style="float: right" >
 				<p:commandButton process="@this" value="Sign In"
-					style="float:right;"
 					icon="ui-icon-person" update=":full"
 					action="#{loginController.prepareLoginPopup()}"
 					rendered="#{not userManager.isLoggedIn()}" />
-				<p:commandButton process="@this" value="Sign Out"
-					style="float:right"
-					update=":full"
+				<p:outputLabel for="signout" value="#{userManager.getUsername()}" styleClass="ui-widget-header"/>
+				<p:commandButton id="signout" process="@this" value="Sign Out"
+					icon="ui-icon-person" update=":full"
 					action="#{loginController.signOut()}"
 					rendered="#{userManager.isLoggedIn()}" />
-				<h:outputText icon="ui-icon-person" value="#{userManager.getUsername()}"
-					 rendered="#{userManager.isLoggedIn()}" styleClass="user" style="float:right" />
-			</p:panel>
-		<div id="menu">
-			<ui:include src="/WEB-INF/includes/menubar.xhtml" />
-		</div>
+			</div>
+			<div id="title">
+					<h:outputText value="#{msgs.title}" />
+			</div>
+		</p:panel>
+		<ui:include src="/WEB-INF/includes/menubar.xhtml" />
 
 		<div style="padding: 15px 15px 0px 15px">
 			<ui:insert name="content">Content</ui:insert>

@@ -14,57 +14,56 @@
 				<p:growl globalOnly="true" id="devicesMsgs" showDetail="true"
 					sticky="false" life="30000" />
 				<!-- =================== Menus ============================ -->
-				<table width="100%" id="filterTable">
-					<tr>
-						<td align="left" >
-							<div>
-								<h:panelGrid columns="8">
-									<h:outputText value="Show: " />
-									<p:selectOneMenu value="#{devicesController.viewFilter}">
-										<p:ajax listener="#{devicesController.modifyDisplayView}"
-											event="change" update="devicesTree ncReqMenu"
-											oncomplete="resizePanel()" />
-										<f:selectItem itemLabel="Active" itemValue="ACTIVE" />
-										<f:selectItem itemLabel="Archived" itemValue="ARCHIVED" />
-									</p:selectOneMenu>
-								</h:panelGrid>
-							</div>
-						</td>
-						<td align="center" >
-							<div>
-								<h:panelGrid columns="3">
-									<h:outputText value="Filter by device name: " />
-									<p:inputText id="deviceNameFilter"
-										value="#{devicesController.deviceNameFilter}">
-										<p:ajax event="keyup"
-											listener="#{devicesController.checkForFilterChanges()}"
-											oncomplete="resizePanel()" />
-									</p:inputText>
-									<p:commandButton value="X"
-										actionListener="#{devicesController.clearDeviceNameFilter()}"
-										update="deviceNameFilter" oncomplete="resizePanel()" />
-								</h:panelGrid>
-							</div>
-						</td>
-						<td align="center">
-							<div>
-								<h:panelGrid columns="3">
-									<h:outputText value="Filter by device type: " />
-									<p:inputText id="deviceTypeFilter"
-										value="#{devicesController.deviceTypeFilter}">
-										<p:ajax event="keyup"
-											listener="#{devicesController.checkForFilterChanges()}"
-											oncomplete="resizePanel()" />
-									</p:inputText>
-									<p:commandButton value="X"
-										actionListener="#{devicesController.clearDeviceTypeFilter()}"
-										update="deviceTypeFilter" oncomplete="resizePanel()" />
-								</h:panelGrid>
-							</div>
-						</td>
-						<td align="right" ><p:menuButton id="ncReqMenu"
-								value="Actions"> 
-<!-- 								style="width: 8%; z-index: 100;"> -->
+
+
+				<p:panelGrid id="filterTable" style="width:100%;" styleClass="ui-widget" >
+					<p:row>
+						<p:column>
+							<p:outputLabel for="status" value="Show: " />
+<!-- 						</p:column> -->
+
+<!-- 						<p:column> -->
+							<p:selectOneMenu id="status"
+								value="#{devicesController.viewFilter}">
+								<p:ajax listener="#{devicesController.modifyDisplayView}"
+									event="change" update="devicesTree ncReqMenu"
+									oncomplete="resizePanel()"  />
+								<f:selectItem itemLabel="Active" itemValue="ACTIVE" />
+								<f:selectItem itemLabel="Archived" itemValue="ARCHIVED" />
+							</p:selectOneMenu>
+						</p:column>
+
+						<p:column>
+							<p:outputLabel for="deviceNameFilter"
+								value="Filter by device name: " />
+							<p:inputText id="deviceNameFilter"
+								value="#{devicesController.deviceNameFilter}">
+								<p:ajax event="keyup"
+									listener="#{devicesController.checkForFilterChanges()}"
+									oncomplete="resizePanel()" />
+							</p:inputText>
+							<p:commandButton icon="ui-icon-close"
+								actionListener="#{devicesController.clearDeviceNameFilter()}"
+								update="deviceNameFilter" oncomplete="resizePanel()" />
+						</p:column>
+
+						<p:column>
+							<p:outputLabel for="deviceTypeFilter"
+								value="Filter by device type: " />
+							<p:inputText id="deviceTypeFilter"
+								value="#{devicesController.deviceTypeFilter}">
+								<p:ajax event="keyup"
+									listener="#{devicesController.checkForFilterChanges()}"
+									oncomplete="resizePanel()" />
+							</p:inputText>
+							<p:commandButton icon="ui-icon-close"
+								actionListener="#{devicesController.clearDeviceTypeFilter()}"
+								update="deviceTypeFilter" oncomplete="resizePanel()" />
+						</p:column>
+
+						<p:column>
+							<p:menuButton id="ncReqMenu" value="Actions"
+								style="z-index: 100; float:right;">
 								<p:menuitem value="Add" icon="ui-icon-plus"
 									update=":addDeviceNameForm" oncomplete="addDeviceName.show()"
 									title="Add Device Name"
@@ -90,9 +89,10 @@
 									actionListener="#{devicesController.prepareImportPopup()}"
 									update=":batchImportForm" oncomplete="batchImport.show()"
 									rendered="#{userManager.editor}" />
-							</p:menuButton></td>
-					</tr>
-				</table>
+							</p:menuButton>
+						</p:column>
+					</p:row>
+				</p:panelGrid>
 
 				<p:treeTable id="devicesTree"
 					value="#{devicesController.viewDevice}" resizableColumns="true"
@@ -104,8 +104,9 @@
 						update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />
 					<p:ajax event="unselect"
 						update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />
-					<p:ajax event="expand" listener="#{devicesController.onNodeExpand}"/>
-					<p:ajax event="collapse" listener="#{devicesController.onNodeCollapse}"/>
+					<p:ajax event="expand" listener="#{devicesController.onNodeExpand}" />
+					<p:ajax event="collapse"
+						listener="#{devicesController.onNodeCollapse}" />
 
 					<p:column id="devName" headerText="Area Structure / Device Name">
 						<h:outputText value=""
@@ -118,14 +119,13 @@
 							styleClass="#{namePart.deleted ? 'Deleted' : 'Insert-Approved-Old'}"
 							rendered="#{namePart['class'].simpleName eq 'NamePartView'}" />
 					</p:column>
-					<p:column id="addInfo" headerText="Comment " style="width: 30%"> 						
-						<h:outputText
-							value="#{namePart.additionalInfo}"
+					<p:column id="addInfo" headerText="Comment " style="width: 30%">
+						<h:outputText value="#{namePart.additionalInfo}"
 							styleClass="#{namePart.device.deleted ? 'Deleted' : 'Insert-Approved-Old'}"
 							rendered="#{namePart['class'].simpleName eq 'DeviceView'}" />
 						<h:outputText value="" styleClass="Insert-Approved-Old"
 							rendered="#{namePart['class'].simpleName eq 'NamePartView'}" />
-					</p:column> 
+					</p:column>
 					<p:column id="devType" headerText="Device Structure"
 						style="width: 30%">
 						<h:outputText
@@ -152,7 +152,8 @@
 				<ui:param name="dialogTitle" value="Add Device Name" />
 				<ui:param name="widgetName" value="addDeviceName" />
 				<ui:param name="submitHandler" value="onAdd" />
-				<ui:param name="instanceIndexValidator" value="custom.addInstanceIndexValidator" />
+				<ui:param name="instanceIndexValidator"
+					value="custom.addInstanceIndexValidator" />
 			</ui:include>
 
 			<!-- 		<ui:include src="/WEB-INF/includes/devices-mod-form.xhtml"> -->
@@ -161,7 +162,8 @@
 				<ui:param name="dialogTitle" value="Modify Device Name" />
 				<ui:param name="widgetName" value="modDeviceName" />
 				<ui:param name="submitHandler" value="onModify" />
-				<ui:param name="instanceIndexValidator" value="custom.modifyInstanceIndexValidator" />
+				<ui:param name="instanceIndexValidator"
+					value="custom.modifyInstanceIndexValidator" />
 			</ui:include>
 
 
