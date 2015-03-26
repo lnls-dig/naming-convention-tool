@@ -15,16 +15,12 @@
 					sticky="false" life="30000" />
 				<!-- =================== Menus ============================ -->
 
-
-				<p:panelGrid id="filterTable" style="width:100%;" styleClass="ui-widget" >
+				<p:panelGrid id="filterTable" style="width:100%; border-type:none;" >
 					<p:row>
 						<p:column>
 							<p:outputLabel for="status" value="Show: " />
-<!-- 						</p:column> -->
-
-<!-- 						<p:column> -->
 							<p:selectOneMenu id="status"
-								value="#{devicesController.viewFilter}">
+								value="#{devicesController.viewFilter}" >
 								<p:ajax listener="#{devicesController.modifyDisplayView}"
 									event="change" update="devicesTree ncReqMenu"
 									oncomplete="resizePanel()"  />
@@ -85,10 +81,15 @@
 									oncomplete="nameDetail.show()"
 									disabled="#{!devicesController.canShowHistory()}" />
 								<p:menuitem value="Batch Import" icon="ui-icon-folder-open"
-									title="Batch Import"
+									title="Import"
 									actionListener="#{devicesController.prepareImportPopup()}"
 									update=":batchImportForm" oncomplete="batchImport.show()"
 									rendered="#{userManager.editor}" />
+								<p:menuitem value="Export" ajax="false" 
+									icon="ui-icon-disk" disabled="#{!userManager.isLoggedIn()}"
+									immediate="true" onclick="PrimeFaces.monitorDownload(start, stop)">
+									<p:fileDownload value="#{devicesController.allDataExport}" />
+								</p:menuitem>	
 							</p:menuButton>
 						</p:column>
 					</p:row>

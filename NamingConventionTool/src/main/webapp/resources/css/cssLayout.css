@@ -1,8 +1,9 @@
 /* Component containers
 ----------------------------------*/
 .ui-widget {
-	font-family: Verdana, Ariel, Tahoma, sans-serif;
+	font-family: Arial, sans-serif;
 	font-size: 0.9em;
+	background: #FFFFFF;
 }
 
 .ui-widget .ui-widget {
@@ -10,13 +11,13 @@
 }
 
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
-	font-family: Verdana, Ariel, Tahoma, sans-serif;
-	font-size: 0.9em;
+	font-family: Arial, sans-serif;
+	font-size: 1.0em;
 }
 
 .ui-widget-content {
-	border: 0px solid #E5EEF2;
-	background: #E5EEF2;
+	border: 1px solid #FFFFFF;
+	background: #FFFFFF;
 	color: #000000;
 }
 
@@ -25,7 +26,7 @@
 }
 
 .ui-widget-header{
-	border: 0px solid #0094ca;
+	border: 1px solid #0094ca;
 	background: #0094ca;
 	color: #FFFFFF;
 	font-weight: normal;
@@ -37,22 +38,12 @@
 	text-decoration: none;
 }
 
-.ui-widget-header .ui-inputfield,
-.ui-widget-content .ui-inputfield {
-    font-weight: normal;
-    background:#FFFFFF;
-}
-
-
-
-
 /* Interaction states
 ----------------------------------*/
 .ui-state-default,
-.ui-widget-content .ui-state-default,
-	.ui-widget-header .ui-state-default {
+.ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
 	box-shadow: none;
-	border: 0px solid #0094ca;
+	border: 1px solid #0094ca;
 	background: #0094ca;
 	font-weight: normal;
 	color: #FFFFFF;
@@ -64,42 +55,39 @@
 	color: #FFFFFF;
 	text-decoration: none;
 }
-.ui-state-focus,
-.ui-widget-header .ui-state-hover, .ui-widget-content .ui-state-hover {
+
+.ui-state-hover, .ui-widget-header .ui-state-hover, .ui-widget-content .ui-state-hover {
 	box-shadow:none;
-	border: 0px solid #6fbee1;
+	border: 1px solid #6fbee1;
 	background: #6FBEE1;
 	font-weight: normal;
 	color: #FFFFFF;
 	text-shadow: none;
 }
 
-.ui-state-hover a, .ui-state-hover a:hover, .ui-state-hover a:link,
-	.ui-state-hover a:visited {
+.ui-state-hover a, .ui-state-hover a:hover, .ui-state-hover a:link, .ui-state-hover a:visited {
 	color: #FFFFFF;
 	text-decoration: none;
 }
-.ui-state-focus,
-.ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus {
-	box-shadow: 0px 0px 5px #005d79;
-	background: #FFFFFF;
+.ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus {
+	box-shadow: none;
+	border: 1px solid #6FBEE1;
+	background: #6FBEE1;
 	font-weight: normal;
-	color: #000000;
+	color: #FFFFFF;
 	text-shadow: none;
 }
 
-.ui-state-focus a, .ui-state-focus a:hover, .ui-state-focus a:link,
-	.ui-state-focus a:visited {
-	color: #000000;
+.ui-state-focus a, .ui-state-focus a:hover, .ui-state-focus a:link,	.ui-state-focus a:visited {
+	color: #FFFFFF;
 	text-decoration: none;
 	font-weight: normal;
 	text-shadow: none;
 }
-.ui-state-active,
-.ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active
-	{
+
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active {
 	box-shadow:none;
-	border: 0px solid #FFFFFF;
+	border: 1px solid #FFFFFF;
 	background: #FFFFFF;
 	font-weight: bold;
 	color: #0094ca;
@@ -118,9 +106,9 @@
 .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight
 	{
 	box-shadow:none;
-	border: 0px solid #ffffff;
+	border: 1px solid #DDDDDD;
 	text-shadow: none;
-	background: #ffffff;
+	background: #DDDDDD;
 	color:#000000;
 }
 
@@ -195,7 +183,7 @@
 }
 
 .ui-state-focus .ui-icon {
-	background-image: url("images/ui-icons_0094ca_256x240.png");
+	background-image: url("images/ui-icons_FFFFFF_256x240.png");
 }
 
 .ui-state-active .ui-icon {
@@ -241,40 +229,68 @@
 
 
 /* tabmenu */
-.ui-tabmenu-nav {
+.ui-tabmenu-nav, .ui-tabmenu {
 	border: 0px solid #006A91;
 	background: #006A91;
 	color: #FFFFFF;
 }
-
-/* Inputfield */
-
-.ui-inputfield {
-    margin: 0;
-    outline: medium none;
-    padding: 4px;
-    font-weight: normal;
+.ui-tabmenu .ui-tabmenu-nav {
+    margin: 0px;
+    padding: 0.2em 0.2em 0px;
 }
 
-.ui-widget-header .ui-inputfield, .ui-widget-content .ui-inputfield {
+li.ui-tabmenuitem.ui-status-active,
+li.ui-tabmenuitem.ui-status-default,
+li.ui-tabmenuitem.ui-status-hover{
+	border: 0px none; 	
+}
+/* button */
+.ui-button {
+	vertical-align:middle;
+	padding: 0px;
+	margin:0px;
+	height: 30px;
+}
+
+
+/* Inputfield */
+.ui-inputfield {
+	vertical-align:middle;
+	margin: 0px;
+    padding: 4px;
+	height: 30px;
     font-weight: normal;
 }
 
 .ui-inputfield, .ui-widget-content .ui-inputfield, .ui-widget-header .ui-inputfield {
     background: #ffffff;
     box-shadow: inset 0 2px 2px #8f8f8f;
-    color: #333333;
+    color: #000000;
     font-weight: normal;
 }
 
-.ui-inputfield.ui-state-focus, .ui-widget-content .ui-inputfield.ui-state-focus, .ui-widget-header .ui-inputfield.ui-state-focus {
-    box-shadow: 0px 0px 5px #006a91, inset 0 2px 2px #8f8f8f;
+/* .ui-inputfield.ui-state-focus, .ui-widget-content .ui-inputfield.ui-state-focus, .ui-widget-header .ui-inputfield.ui-state-focus { */
+/*     box-shadow: 0px 0px 5px #006a91, inset 0 2px 2px #8f8f8f; */
+/* } */
+
+/* Selectonemenu */
+.ui-selectonemenu{
+    vertical-align:middle; /* bug workaround to prevent outputLabel to be positioned at bottom.*/
+    padding:0px;
+	margin:0px;
+	overflow: hidden;
+}
+
+.ui-selectonemenu .ui-selectonemenu-label{
     font-weight: normal;
+    overflow: hidden;
+    padding:4px;
+    margin:0px;
+    width:100%;
+	height:20px;			/*bug workaround. Should be 30px inherited from .ui-inputfield, but have to remove padding+border. */ 
 }
 
 /* panelgrid */
-
-
 
 .wizardStyleClass {
 	width: 500;
@@ -442,39 +458,39 @@ div.wizardStyle {
 	font-style: italic;
 }
 
-.noBorders>tbody>tr, .noBorders>tbody>tr>td {
-	background: none;
-	border: none;
-	vertical-align: top;
-}
+/* .noBorders>tbody>tr, .noBorders>tbody>tr>td { */
+/* 	background: none; */
+/* 	border: none; */
+/* 	vertical-align: top; */
+/* } */
 
-.fixedPosition {
-	position: fixed;
-	right: 5%;
-	top: 10%;
-}
+/* .fixedPosition { */
+/* 	position: fixed; */
+/* 	right: 5%; */
+/* 	top: 10%; */
+/* } */
 
-.box {
-	margin: 0px;
-	padding: 10px;
-	border: 0px solid #f3f3f5;
-	border-radius: 7px;
-	box-shadow: 0 0 7px 2px #888888;
-	color: white;
-	text-align: left;
-	width: 80%;
-	background-color: #FFFFFF;
-}
+/* .box { */
+/* 	margin: 0px; */
+/* 	padding: 10px; */
+/* 	border: 0px solid #f3f3f5; */
+/* 	border-radius: 7px; */
+/* 	box-shadow: 0 0 7px 2px #888888; */
+/* 	color: white; */
+/* 	text-align: left; */
+/* 	width: 80%; */
+/* 	background-color: #FFFFFF; */
+/* } */
 
-.boxf {
-	margin: 0px;
-	padding: 10px;
-	border: 0px solid #000000;
-	color: black;
-	width: 90%;
-	margin: 0 auto;
-	background-color: #FFFFFF;
-}
+/* .boxf { */
+/* 	margin: 0px; */
+/* 	padding: 10px; */
+/* 	border: 0px solid #000000; */
+/* 	color: black; */
+/* 	width: 90%; */
+/* 	margin: 0 auto; */
+/* 	background-color: #FFFFFF; */
+/* } */
 
 /* text wrap around in data table */
 .ui-datatable td {
@@ -512,24 +528,19 @@ div.wizardStyle {
 	overflow: auto;
 }
 
-#top {
-	position: relative;
-	border: 1px;
-	padding: 5px;
-	margin: 0px 0px 10px 0px;
-}
+/* #top { */
+/* 	position: relative; */
+/* 	border: 1px; */
+/* 	padding: 5px; */
+/* 	margin: 0px 0px 10px 0px; */
+/* } */
 
-#menuform .ui-menuitem {
-	margin-right: 7px;
-}
+/* #menuform .ui-menuitem { */
+/* 	margin-right: 7px; */
+/* } */
 
 .textScreen {
 	max-width: 1100px;
 }
 
-input.ui-button::-moz-focus-inner,
-button.ui-button::-moz-focus-inner {
-	border: 0;
-	padding: 0;
-}
 

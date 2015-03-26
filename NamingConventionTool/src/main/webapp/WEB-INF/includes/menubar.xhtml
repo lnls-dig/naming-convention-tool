@@ -10,7 +10,7 @@
 	<h:form id="menuform">
 		<p:growl globalOnly="true" id="messages" showDetail="true"
 			sticky="false" life="5000" />
-		<p:tabMenu id="mainMenu" activeIndex="${param.i}" >
+		<p:tabMenu id="mainMenu" activeIndex="${param.i}">
 			<p:menuitem value="Home" icon="ui-icon-home" outcome="index.xhtml">
 				<f:param name="i" value="0" />
 			</p:menuitem>
@@ -21,60 +21,39 @@
 			<p:menuitem value="Area Structure" icon="ui-icon-folder-open"
 				disabled="#{!userManager.isLoggedIn()}"
 				outcome="parts.xhtml?type=section">
-				<f:param name="i" value="2"/>
+				<f:param name="i" value="2" />
 			</p:menuitem>
 			<p:menuitem value="Device Structure" icon="ui-icon-folder-open"
 				disabled="#{!userManager.isLoggedIn()}"
-				outcome="parts.xhtml?type=deviceType" >
-				<f:param name="i" value="3"/>
+				outcome="parts.xhtml?type=deviceType">
+				<f:param name="i" value="3" />
 			</p:menuitem>
-<!-- 			<p:submenu label="Tools"> -->
-<!-- 				<p:menuitem value="Export Approved Data" ajax="false" -->
-<!-- 					icon="ui-icon-disk" disabled="#{!userManager.isLoggedIn()}" -->
-<!-- 					immediate="true" onclick="PrimeFaces.monitorDownload(start, stop)"> -->
-<!-- 					<p:fileDownload value="#{devicesController.allDataExport}" /> -->
-<!-- 				</p:menuitem> -->
-<!-- 				<f:param name="i" value="4"/>			 -->
-<!-- 			</p:submenu> -->
-<!-- 			<p:submenu label="Help" icon="ui-icon-help"> -->
-<!-- 				<p:menuitem value=" Online Help" icon="ui-icon-help" -->
-<!-- 					disabled="#{!userManager.isLoggedIn()}" url="help.xhtml" /> -->
-<!-- 				<p:menuitem value=" API Manual" icon="ui-icon-script" -->
-<!-- 					disabled="#{!userManager.isLoggedIn()}" url="api-manual.xhtml" /> -->
-<!-- 			</p:submenu> -->
-
-<!-- 						<f:facet name="options"> -->
-<!-- 							<h:outputText value="#{userManager.getUsername()}" -->
-<!-- 								style="margin-right:10px" rendered="#{userManager.isLoggedIn()}" /> -->
-<!-- 							<p:commandButton process="@this" value="Sign In" -->
-<!-- 								icon="ui-icon-person" update=":full" -->
-<!-- 								action="#{loginController.prepareLoginPopup()}" -->
-<!-- 								rendered="#{not userManager.isLoggedIn()}" /> -->
-<!-- 							<p:commandButton process="@this" value="Sign Out" -->
-<!-- 								icon="ui-icon-person" update=":full" -->
-<!-- 								action="#{loginController.signOut()}" -->
-<!-- 								rendered="#{userManager.isLoggedIn()}" /> -->
-<!-- 						</f:facet> -->
-			
+			<p:menuitem value="Help" icon="ui-icon-help"
+				disabled="#{!userManager.isLoggedIn()}" outcome="help.xhtml" >			
+				<f:param name="i" value="4" />
+			</p:menuitem>
+			<p:menuitem value="API Manual" icon="ui-icon-help"
+				disabled="#{!userManager.isLoggedIn()}" outcome="api-manual.xhtml">
+				<f:param name="i" value="5" />
+			</p:menuitem>
 		</p:tabMenu>
 	</h:form>
 
 	<h:form id="loginForm">
 		<p:dialog id="loginDialog" widgetVar="loginDialog" modal="true"
 			visible="#{loginController.isLoginRequested()}" closable="false">
-
 			<f:facet name="header">
 				<h:outputText value="Sign In" />
 			</f:facet>
 			<p:panelGrid id="grid" columns="2" styleClass="borderless">
-				<h:outputLabel for="userid" value="Username" />
+				<p:outputLabel for="userid" value="Username" />
 				<h:panelGroup>
 					<p:inputText id="userid" value="#{loginController.inputUsername}"
 						label="Username" />
 					<p:watermark for="userid" value="Enter username" />
 					<p:message for="userid" />
 				</h:panelGroup>
-				<h:outputLabel for="passwd" value="Password" />
+				<p:outputLabel for="passwd" value="Password" />
 				<h:panelGroup>
 					<p:password id="passwd" value="#{loginController.inputPassword}"
 						label="Password" />

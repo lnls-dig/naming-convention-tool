@@ -1,5 +1,5 @@
 body {
-    height:100%;
+/*     height:100%; */
     width:100%;
     margin:0;
     padding:0;
@@ -8,9 +8,9 @@ body {
     background:transparent;
 }
 
-html {
-    height:100%;
-}
+/* html { */
+/*     height:100%; */
+/* } */
 
 
 table {
@@ -30,10 +30,10 @@ body:after,.cf:after {
     visibility:hidden;
 }
 
-body {
-    font-size: 12px;
-    font-family: Verdana, "Verdana CE",  Arial, "Arial CE", "Lucida Grande CE", lucida, "Helvetica CE", sans-serif;
-}
+/* body { */
+/*     font-size: 12px; */
+/*     font-family:Arial, sans-serif; */
+/* } */
 
 h3 {
 	color:#005d79;
