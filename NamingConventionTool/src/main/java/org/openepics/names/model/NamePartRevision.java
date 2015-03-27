@@ -52,6 +52,8 @@ public class NamePartRevision extends Persistable {
     
     private String mnemonicEqClass;
 
+    private @Nullable String description=null;
+    
     @Enumerated(EnumType.STRING)
     private NamePartRevisionStatus status;
 
@@ -60,7 +62,7 @@ public class NamePartRevision extends Persistable {
     private @Nullable Date processDate = null;
 
     private @Nullable String processorComment = null;
-    
+        
     protected NamePartRevision() {}
 
     /**
@@ -77,7 +79,7 @@ public class NamePartRevision extends Persistable {
      * used to ensure uniqueness of mnemonics on certain levels when treating similar looking names (for example, containing 0 vs.
      * O, 1 vs. l) as equal.
      */
-    public NamePartRevision(NamePart namePart, Date requestDate, @Nullable UserAccount requestedBy, @Nullable String requesterComment, boolean deleted, @Nullable NamePart parent, String name, String mnemonic, String mnemonicEqClass) {
+    public NamePartRevision(NamePart namePart, Date requestDate, @Nullable UserAccount requestedBy, @Nullable String requesterComment, boolean deleted, @Nullable NamePart parent, String name, String mnemonic, @Nullable String description, String mnemonicEqClass) {
         Preconditions.checkNotNull(namePart);
         Preconditions.checkNotNull(requestDate);
         Preconditions.checkArgument(requesterComment == null || !requesterComment.isEmpty());
@@ -92,6 +94,7 @@ public class NamePartRevision extends Persistable {
         this.parent = parent;
         this.name = name;
         this.mnemonic = mnemonic;
+        this.description = description;
         this.mnemonicEqClass = mnemonicEqClass;
         this.status = NamePartRevisionStatus.PENDING;
     }
@@ -135,6 +138,11 @@ public class NamePartRevision extends Persistable {
      * The short, mnemonic name of the part in accordance with the naming convention.
      */
     public String getMnemonic() { return mnemonic; }
+    
+    /** 
+     * The description or other relevant information of the namepart. Optional. 
+     */
+    public String getDescription(){ return description; }
     
     /**
      * The representative of the equivalence class the mnemonic belongs to. This is used to ensure uniqueness of

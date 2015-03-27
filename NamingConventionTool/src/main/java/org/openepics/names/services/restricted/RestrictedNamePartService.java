@@ -106,9 +106,9 @@ public class RestrictedNamePartService {
      * @param comment the comment the user gave when submitting the proposal. Null if no comment was given.
      * @return the resulting proposed NamePart revision
      */
-    public NamePartRevision addNamePart(String name, String mnemonic, NamePartType namePartType, @Nullable NamePart parent, @Nullable String comment) {
+    public NamePartRevision addNamePart(String name, String mnemonic,@Nullable String description, NamePartType namePartType, @Nullable NamePart parent, @Nullable String comment) {
         Preconditions.checkState(sessionService.isEditor());
-        return namePartService.addNamePart(name, mnemonic, namePartType, parent, sessionService.user(), comment);
+        return namePartService.addNamePart(name, mnemonic, description, namePartType, parent, sessionService.user(), comment);
     }
 
     /**
@@ -120,9 +120,9 @@ public class RestrictedNamePartService {
      * @param comment the comment the user gave when submitting the proposal. Null if no comment was given.
      * @return the resulting proposed NamePart revision
      */
-    public NamePartRevision modifyNamePart(NamePart namePart, String name, String mnemonic, @Nullable String comment) {
+    public NamePartRevision modifyNamePart(NamePart namePart, String name, String mnemonic, @Nullable String description, @Nullable String comment) {
         Preconditions.checkState(sessionService.isEditor());
-        return namePartService.modifyNamePart(namePart, name, mnemonic, sessionService.user(), comment);
+        return namePartService.modifyNamePart(namePart, name, mnemonic, description, sessionService.user(), comment);
     }
 
     /**

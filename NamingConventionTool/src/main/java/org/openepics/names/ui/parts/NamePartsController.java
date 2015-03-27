@@ -73,6 +73,7 @@ public class NamePartsController implements Serializable {
 
 	private String formName;
 	private String formMnemonic;
+	private String formDescription;
 	private String formComment;
 
 	private List<Device> affectedDevices;
@@ -82,6 +83,7 @@ public class NamePartsController implements Serializable {
 	public void init() {
 		formName = null;
 		formMnemonic = null;
+		formDescription=null;
 		formComment = null;
 		rootWithModifications = getRootTreeNode(true);
 		rootWithoutModifications = getRootTreeNode(false);
@@ -102,7 +104,7 @@ public class NamePartsController implements Serializable {
 	}
 
 	public String getNamePartTitle(){
-		return namePartTitle; 
+		return namePartTitle;
 	}
 
 	private TreeNode getRootTreeNode(boolean withModifications) {
@@ -155,7 +157,7 @@ public class NamePartsController implements Serializable {
 	public void onAdd() {
 		try {
 			final @Nullable NamePartView parent = getSelectedName();
-			namePartService.addNamePart(formName, formMnemonic, namePartType, parent != null ? parent.getNamePart() : null, formComment);
+			namePartService.addNamePart(formName, formMnemonic, formDescription, namePartType, parent != null ? parent.getNamePart() : null, formComment);
 			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Your addition proposal has been submitted.");
 		} finally {
 			init();
@@ -164,7 +166,7 @@ public class NamePartsController implements Serializable {
 
 	public void onModify() {
 		try {
-			namePartService.modifyNamePart(As.notNull(getSelectedName()).getNamePart(), formName, formMnemonic, formComment);
+			namePartService.modifyNamePart(As.notNull(getSelectedName()).getNamePart(), formName, formMnemonic, formDescription, formComment);
 			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Your modification proposal has been submitted.");
 		} finally {
 			init();

@@ -66,9 +66,9 @@ public class InitialDataImportService {
                 final int id = (int) ExcelCell.asNumber(row.getCell(1));
                 final String name = As.notNull(ExcelCell.asString(row.getCell(2)));
                 final String mnemonic = As.notNull(ExcelCell.asString(row.getCell(3)));
-                @Nullable final String comment = ExcelCell.asString(row.getCell(4));
+                @Nullable final String description = ExcelCell.asString(row.getCell(4));
                 @Nullable final String type = ExcelCell.asString(row.getCell(5));
-                namePartsMap.put(id, isSection ? addSection(namePartsMap.get(parent), name, mnemonic) : addDeviceType(namePartsMap.get(parent), name, mnemonic));
+                namePartsMap.put(id, isSection ? addSection(namePartsMap.get(parent), name, mnemonic, description) : addDeviceType(namePartsMap.get(parent), name, mnemonic, description));
             }
         }
     }
@@ -88,14 +88,14 @@ public class InitialDataImportService {
         namePartService.batchAddDevices(devices, null);
     }
 
-    private NamePart addSection(@Nullable NamePart parent, String name, String mnemonic) {
-        final NamePartRevision newRevision = namePartService.addNamePart(name, mnemonic, NamePartType.SECTION, parent, null, "Initial data");
+    private NamePart addSection(@Nullable NamePart parent, String name, String mnemonic, @Nullable String description) {
+        final NamePartRevision newRevision = namePartService.addNamePart(name, mnemonic, description, NamePartType.SECTION, parent, null, "Initial data");
         namePartService.approveNamePartRevision(newRevision, null, null);
         return newRevision.getNamePart();
     }
 
-    private NamePart addDeviceType(@Nullable NamePart parent, String name, String mnemonic) {
-        final NamePartRevision newRevision = namePartService.addNamePart(name, mnemonic, NamePartType.DEVICE_TYPE, parent, null, "Initial data");
+    private NamePart addDeviceType(@Nullable NamePart parent, String name, String mnemonic, @Nullable String description) {
+        final NamePartRevision newRevision = namePartService.addNamePart(name, mnemonic,description, NamePartType.DEVICE_TYPE, parent, null, "Initial data");
         namePartService.approveNamePartRevision(newRevision, null, null);
         return newRevision.getNamePart();
     }

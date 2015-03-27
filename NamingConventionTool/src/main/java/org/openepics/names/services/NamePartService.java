@@ -151,7 +151,7 @@ public class NamePartService {
      * @param comment the comment the user gave when submitting the proposal. Null if no comment was given.
      * @return the resulting proposed NamePart revision
      */
-    public NamePartRevision addNamePart(String name, String mnemonic, NamePartType namePartType, @Nullable NamePart parent, @Nullable UserAccount user, @Nullable String comment) {
+    public NamePartRevision addNamePart(String name, String mnemonic, @Nullable String description, NamePartType namePartType, @Nullable NamePart parent, @Nullable UserAccount user, @Nullable String comment) {
         Preconditions.checkArgument(parent == null || parent.getNamePartType() == namePartType);
 
         final @Nullable NamePartView parentView = parent != null ? view(parent) : null;
@@ -169,7 +169,7 @@ public class NamePartService {
         final String mnemonicEqClass = namingConvention.equivalenceClassRepresentative(mnemonic);
 
         final NamePart namePart = new NamePart(UUID.randomUUID(), namePartType);
-        final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, false, parent, name, mnemonic, mnemonicEqClass);
+        final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, false, parent, name, mnemonic, description, mnemonicEqClass);
 
         em.persist(namePart);
         em.persist(newRevision);
@@ -187,7 +187,7 @@ public class NamePartService {
      * @param comment the comment the user gave when submitting the proposal. Null if no comment was given.
      * @return the resulting proposed NamePart revision
      */
-    public NamePartRevision modifyNamePart(NamePart namePart, String name, String mnemonic, @Nullable UserAccount user, @Nullable String comment) {
+    public NamePartRevision modifyNamePart(NamePart namePart, String name, String mnemonic, @Nullable String description, @Nullable UserAccount user, @Nullable String comment) {
         final NamePartView namePartView = view(namePart);
 
         final NamePartRevision baseRevision = namePartView.getCurrentOrElsePendingRevision();
@@ -205,7 +205,7 @@ public class NamePartService {
         
         final String mnemonicEqClass = namingConvention.equivalenceClassRepresentative(mnemonic);
 
-        final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, false, baseRevision.getParent(), name, mnemonic, mnemonicEqClass);
+        final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, false, baseRevision.getParent(), name, mnemonic, description, mnemonicEqClass);
 
         em.persist(newRevision);
 
@@ -234,7 +234,7 @@ public class NamePartService {
             }
 
             if (approvedRevision != null) {
-                final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, true, approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getMnemonic(), approvedRevision.getMnemonicEqClass());
+                final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, true, approvedRevision.getParent(), approvedRevision.getName(), approvedRevision.getMnemonic(), approvedRevision.getDescription(), approvedRevision.getMnemonicEqClass());
                 em.persist(newRevision);
                 return newRevision;
             } else {
