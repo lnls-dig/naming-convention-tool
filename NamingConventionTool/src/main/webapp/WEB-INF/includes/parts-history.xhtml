@@ -8,18 +8,18 @@
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions"
                 >
     <p:dialog id="nameDetail" widgetVar="nameDetail" width="900" dynamic="true" maximizable="true" minimizable="true" modal="true" header="History">
-        <p:dataTable id="historyTable" var="nevent" value="#{historyHandler}" paginator="false" rows="50" resizableColumns="true" rowKey="#{nevent.id}" scrollable="true" scrollHeight="300">
+        <p:dataTable id="historyTable" var="nevent" value="#{historyHandler}" paginator="false" rows="50" resizableColumns="true" rowKey="#{nevent.id}" scrollable="true" scrollHeight="300" >
             <p:column id="id" headerText="Id" rendered="false" >
                 <h:outputText value="#{nevent.id}" />
             </p:column>
-            <p:column id="nameDesc" headerText="Name" styleClass="#{namePartsController.historyRevisionStyleClass(nevent)}">
+            <p:column id="nameDesc" headerText="Name" styleClass="#{namePartsController.statusStyleClass(nevent)}">
                 <h:outputText value="#{nevent.name}" />
             </p:column>
-            <p:column id="nameCode" headerText="Mnemonic" styleClass="#{namePartsController.historyRevisionStyleClass(nevent)}">
+            <p:column id="nameCode" headerText="Mnemonic" styleClass="#{namePartsController.statusStyleClass(nevent)}">
                 <h:outputText value="#{nevent.mnemonic}" />
             </p:column>
-            <p:column id="comment" headerText="Comment">
-            	<h:outputText value="#{nevent.nameEvent.requesterComment}"/>
+            <p:column id="comment" headerText="Comment" styleClass="#{namePartsController.statusStyleClass(nevent)}">
+            	<h:outputText value="#{nevent.description}"/>
             </p:column>
             <p:column id="reqBy" headerText="Proposed By" sortBy="#{nevent.nameEvent.requestedBy.username}" >
                 <h:outputText value="#{nevent.nameEvent.requestedBy.username}" />
@@ -36,8 +36,8 @@
                 </h:outputText>
             </p:column>
            
-            <p:column id="status" headerText="Status" >
-                <h:outputText value="#{namePartsController.nameHistoryStatus(nevent.nameEvent)}" title="status"/>
+            <p:column id="status" headerText="Status" styleClass="#{namePartsController.statusStyleClass(nevent)}">
+                <h:outputText value="#{namePartsController.nameStatus(nevent)}" title="status" />
             </p:column>
             <p:column id="By" headerText="Reviewed By" >
                 <h:outputText value="#{nevent.nameEvent.processedBy.username}" />

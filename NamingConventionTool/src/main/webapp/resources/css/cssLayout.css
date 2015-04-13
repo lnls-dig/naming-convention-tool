@@ -297,58 +297,39 @@ li.ui-tabmenuitem.ui-status-hover{
 	height: 500;
 }
 
-.ui-tree {
-	background-color: white;
-	width: 480px;
-	height: 300px;
-	overflow: auto;
+.ui-treetable table{
+	width: 100%;
 }
 
-.ui-tree-content {
-	width: 400px;
+.ui-treetable .ui-treetable-header{
+	text-align: left;
 }
+/* .ui-tree { */
+/* 	background-color: white; */
+/* 	width: 480px; */
+/* 	height: 300px; */
+/* 	overflow: auto; */
+/* } */
+
+/* .ui-tree-content { */
+/* 	width: 400px; */
+/* } */
 
 div.wizardStyle {
 	width: 460px;
 	height: 450px;
 }
 
-.sec {
-	/* 	color:  #0094ca; */
-	color: #005d79;
+sec, .sec {
+	color:  #0094ca;
 	font-family: monospace;
-	size: 0.9em;
+	font-size: 1.2em;
 }
 
-.dev {
-	/* 	color:  #99CC00; */
-	color: green;
+dev, .dev {
+	color:  #99CC00; 
 	font-family: monospace;
-	size: 0.9em;
-}
-
-.Modified {
-	/*     background-color:   palegreen; */
-	
-}
-
-.Added {
-	/*     background-color:   palegreen; */
-	
-}
-
-.In-Process {
-	/*     background-color:    salmon; */
-	
-}
-
-.Deleted {
-	text-decoration: line-through;
-	color: #aaaaaa;
-}
-
-.Header {
-	font-size: 0.9em !important;
+	font-size: 1.2em;
 }
 
 .Help {
@@ -359,104 +340,29 @@ div.wizardStyle {
 	font-weight: bold;
 }
 
-.unknown, .Cancelled {
-	text-decoration: blink;
-	color: var(cancel);
-	text-style: italic;
+/* styles for the new UI : */
+.Approved, .Pending-modification, .Cancel-pending-modification{
+	/* blank on purpose */	
 }
 
-/* styles for the new UI : row backgrounds */
-.Published, .defualt {
-	
+.In-Process, .Proposed, .Cancel-proposed{
+	color: #5D7204;
+	text-decoration: none;
 }
 
-.Approved {
-	/*     background-color: #DAEEF3; */
-	
+.Pending-deletion, .Process-deletion, .Cancel-pending-deletion {
+	color: #C81919;
+	text-decoration: none;
 }
 
-.Processing {
-	/*     background-color: #FCD5B4; */
-	
-}
-
-/* styles for the new UI : text style */
-.Insert-Processing, .Insert-Processing-New {
-	color: #005d79 !important;
-}
-
-.Insert-Approved, .Insert-Approved-New {
-	/* blank on purpose */
-	
-}
-
-.Insert-Cancelled, .Insert-Cancelled-New {
-	color: #aaaaaa !important;
-	font-style: italic;
-}
-
-.Insert-Rejected, .Insert-Rejected-New {
-	color: #c00000 !important;
-	font-style: italic;
-	/*     font-weight: bold; */
-}
-
-.Modify-Processing, .Modify-Processing-New {
-	color: #005d79 !important;
-}
-
-.Modify-Processing-Old {
-	color: #ff7d00;
-	text-decoration: line-through;
-}
-
-.Modify-Approved, .Modify-Approved-New {
-	/* blank on purpose */
-	
-}
-
-.Modify-Cancelled, .Modify-Cancelled-New {
+.Cancelled, .Rejected, .Deleted {
 	color: #aaaaaa;
-	font-style: italic;
 }
 
-.Modify-Cancelled-Old {
-	color: #aaaaaa;
-	font-style: italic;
+.Pending-deletion, .Process-deletion, .Cancel-proposed, .Deleted{
 	text-decoration: line-through;
 }
 
-.Modify-Rejected, .Modify-Rejected-New {
-	color: #c00000;
-	font-style: italic;
-	text-decoration: line-through;
-}
-
-.Modify-Rejected-Old {
-	color: #c00000;
-	font-style: italic;
-	text-decoration: line-through;
-}
-
-.Delete-Processing, .Delete-Processing-New {
-	color: #ff7d00;
-	text-decoration: line-through;
-}
-
-.Delete-Approved, .Delete-Approved-New {
-	color: #aaaaaa;
-	text-decoration: line-through;
-}
-
-.Delete-Cancelled, .Delete-Cancelled-New {
-	color: #aaaaaa;
-	font-style: italic;
-}
-
-.Delete-Rejected, .Delete-Rejected-New {
-	color: #c00000;
-	font-style: italic;
-}
 
 /* .noBorders>tbody>tr, .noBorders>tbody>tr>td { */
 /* 	background: none; */
@@ -493,9 +399,9 @@ div.wizardStyle {
 /* } */
 
 /* text wrap around in data table */
-.ui-datatable td {
-	white-space: normal !important;
-}
+/* .ui-datatable td { */
+/* 	white-space: normal !important; */
+/* } */
 
 .para {
 	margin-bottom: 10px;
@@ -518,15 +424,24 @@ div.wizardStyle {
 	background-repeat: no-repeat;
 }
 
-.ui-datatable-data {
-	text-align: left;
+/* .ui-datatable-data { */
+/* 	text-align: left; */
+/* } */
+
+
+.ui-treetable-scrollable .ui-treetable-scrollable-header{
+	background:transparent;
+	border:0px none;
 }
 
 .previewTreeTable {
-	width: 600px;
-	max-height: 300px;
+	width: 900px;
+	max-height: 500px;
 	overflow: auto;
 }
+
+
+
 
 /* #top { */
 /* 	position: relative; */

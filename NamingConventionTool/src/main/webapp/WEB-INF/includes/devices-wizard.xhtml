@@ -67,7 +67,7 @@
 					<div class="wizardStyle">
 						<h3>3. Enter instance index:</h3>
 						<p:inputText id="instanceIndex"
-							onkeyup="displayIndexLengthWarningOnMod()"
+							onkeyup="#{warning}"
 							value="#{devicesController.formInstanceIndex}"
 							style="width:480px" maxlenght="6">
 							<f:validator validatorId="#{instanceIndexValidator}" />

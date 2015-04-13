@@ -385,7 +385,7 @@ public class DevicesController implements Serializable {
 	}
 
 	public String historyRevisionStyleClass(DeviceView req) {
-		return req != null && req.getDevice().isDeleted() ? "Delete-Approved" : "";
+		return req != null && req.getDevice().isDeleted() ? "Deleted" : "Approved";
 	}
 
 	public String sectionPath(DeviceView deviceView) {

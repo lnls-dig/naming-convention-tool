@@ -13,125 +13,79 @@
 				<p:growl globalOnly="true" id="partsMsgs" showDetail="true"
 					sticky="false" life="30000" escape="false" />
 				<!-- =================== Menus      ============================ -->
-				<table width="100%" id="filterTable">
-					<tr>
-						<td align="left">
-							<div>
-								<h:panelGrid columns="2">
-									<h:outputText value="Show: " />
-									<p:selectOneMenu value="#{namePartsController.viewFilter}"
-										id="filterMenu">
-										<p:ajax listener="#{namePartsController.modifyDisplayView}"
-											event="change" update="namePartsTree reqMenu"
-											oncomplete="resizePanel()" />
-										<f:selectItem itemLabel="Approved and Proposed"
-											itemValue="APPROVED_AND_PROPOSED" />
-										<f:selectItem itemLabel="Approved" itemValue="APPROVED" />
-										<f:selectItem itemLabel="Proposed" itemValue="PROPOSED" />
-										<f:selectItem itemLabel="Archived" itemValue="ARCHIVED" />
-									</p:selectOneMenu>
-								</h:panelGrid>
-							</div>
-						</td>
-						<td align="right" >
-						<p:menuButton value="Actions" id="reqMenu">
-<!-- 								style="width: 8%"> -->
-								<p:menuitem value="Add"
-									actionListener="#{namePartsController.prepareAddPopup()}"
-									title="Add Name" icon="ui-icon-plus"
-									oncomplete="addName.show()" update=":addNameForm:addName"
-									disabled="#{!namePartsController.canAdd()}"
-									rendered="#{userManager.editor}" />
-								<p:menuitem value="Delete"
-									actionListener="#{namePartsController.prepareDeletePopup()}"
-									title="Delete Name" icon="ui-icon-trash"
-									update=":DelNameForm:delName" oncomplete="delName.show()"
-									disabled="#{!namePartsController.canDelete()}"
-									rendered="#{userManager.editor}" />
-								<p:menuitem value="Modify"
-									actionListener="#{namePartsController.prepareModifyPopup()}"
-									title="Modify Name" icon="ui-icon-pencil"
-									update=":ModNameForm:modName" oncomplete="modName.show()"
-									disabled="#{!namePartsController.canModify()}"
-									rendered="#{userManager.editor}" />
-								<p:menuitem value="Approve"
-									actionListener="#{namePartsController.prepareApprovePopup()}"
-									title="Approve Request" icon="ui-icon-check"
-									update=":ApproveForm" oncomplete="approveRequest.show()"
-									disabled="#{!namePartsController.canApprove()}"
-									rendered="#{userManager.superUser}" />
-								<p:menuitem value="Reject" title="Reject Request"
-									icon="ui-icon-close" update=":RejectForm"
-									oncomplete="rejectRequest.show()"
-									disabled="#{!namePartsController.canCancel()}"
-									rendered="#{userManager.superUser}" />
-								<p:menuitem value="Cancel" title="Cancel changes"
-									icon="ui-icon-close" update=":CancelReqForm:cancelReq"
-									oncomplete="cancelReq.show()"
-									disabled="#{!namePartsController.canCancel()}"
-									rendered="#{userManager.editor and !userManager.superUser}" />
-								<p:menuitem value="History" title="View History"
-									icon="ui-icon-search"
-									actionListener="#{namePartsController.prepareHistoryPopup()}"
-									update=":ReqSubForm:historyTable"
-									oncomplete="nameDetail.show()"
-									disabled="#{!namePartsController.canShowHistory()}" />
-							</p:menuButton></td>
-					</tr>
-				</table>
+				<div id="filterTable">
+					<p:panelGrid style="width:100%; padding:5px 0px 5px 0px; border-type:none;" >
+						<p:row>
+							<p:column >
+								<p:outputLabel for="filterMenu" value="Show: " />
+								<p:selectOneMenu value="#{namePartsController.viewFilter}"
+									id="filterMenu">
+									<p:ajax listener="#{namePartsController.modifyDisplayView}"
+										event="change" update="namePartsTree reqMenu"
+										oncomplete="resizePanel()" />
+									<f:selectItem itemLabel="Approved and Proposed"
+										itemValue="APPROVED_AND_PROPOSED" />
+									<f:selectItem itemLabel="Approved" itemValue="APPROVED" />
+									<f:selectItem itemLabel="Proposed" itemValue="PROPOSED" />
+									<f:selectItem itemLabel="Archived" itemValue="ARCHIVED" />
+								</p:selectOneMenu>
+							</p:column>
+							<p:column>
+								<p:menuButton value="Actions" id="reqMenu" style="z-index: 100; float:right">
+									<p:menuitem value="Add"
+										actionListener="#{namePartsController.prepareAddPopup()}"
+										title="Add Name" icon="ui-icon-plus"
+										oncomplete="addName.show()" update=":addNameForm:addName"
+										disabled="#{!(namePartsController.canAdd())}"
+										rendered="#{userManager.editor}" />
+									<p:menuitem value="Delete"
+										actionListener="#{namePartsController.prepareDeletePopup()}"
+										title="Delete Name" icon="ui-icon-trash"
+										update=":DelNameForm:delName" oncomplete="delName.show()"
+										disabled="#{!(namePartsController.canDelete())}"
+										rendered="#{userManager.editor}" />
+									<p:menuitem value="Modify"
+										actionListener="#{namePartsController.prepareModifyPopup()}"
+										title="Modify Name" icon="ui-icon-pencil"
+										update=":ModNameForm:modName" oncomplete="modName.show()"
+										disabled="#{!(namePartsController.canModify())}"
+										rendered="#{userManager.editor}" />
+									<p:menuitem value="Approve"
+										actionListener="#{namePartsController.prepareApprovePopup()}"
+										title="Approve Request" icon="ui-icon-check"
+										update=":ApproveForm" oncomplete="approveRequest.show()"
+										disabled="#{!(namePartsController.canApprove())}"
+										rendered="#{userManager.superUser}" />
+									<p:menuitem value="Reject" title="Reject Request"
+										icon="ui-icon-close" update=":RejectForm"
+										oncomplete="rejectRequest.show()"
+										disabled="#{!(namePartsController.canCancel())}"
+										rendered="#{userManager.superUser}" />
+									<p:menuitem value="Cancel" title="Cancel changes"
+										icon="ui-icon-close" update=":CancelReqForm:cancelReq"
+										oncomplete="cancelReq.show()"
+										disabled="#{!(namePartsController.canCancel())}"
+										rendered="#{userManager.editor and !userManager.superUser}" />
+									<p:menuitem value="History" title="View History"
+										icon="ui-icon-search"
+										actionListener="#{namePartsController.prepareHistoryPopup()}"
+										update=":ReqSubForm:historyTable"
+										oncomplete="nameDetail.show()"
+										disabled="#{!(namePartsController.canShowHistory())}" />
+								</p:menuButton>
+							</p:column>
+						</p:row>
+					</p:panelGrid>
+				</div>
+
 				<!-- =================== Tree Table ================================= -->
-				<!-- 				<div id="treeTable"> -->
-				<p:treeTable id="namePartsTree"
-					value="#{namePartsController.viewRoot}" var="namePart"
-					liveResize="true" selection="#{namePartsController.selectedNodes}"
-					dynamic="true" selectionMode="multiple" scrollable="true"
-					scrollWidth="auto" resizableColumns="true"
-					rowStyleClass="#{namePartsController.nameViewClass(namePart)}"
-					style="padding-top:5px;">
-					<p:ajax event="select" update=":ReqSubForm:reqMenu" />
-					<p:ajax event="unselect" update=":ReqSubForm:reqMenu" />
-					<p:ajax event="expand"
-						listener="#{namePartsController.onNodeExpand}" />
-					<p:ajax event="collapse"
-						listener="#{namePartsController.onNodeCollapse}" />
-					<p:column id="nameDesc" headerText="Name">
-						<h:outputText value="#{namePartsController.getNewName(namePart)}"
-							styleClass="#{namePartsController.getNameClass(namePart,true)}" />
-						<h:outputText value=" "
-							rendered="#{namePartsController.isModified(namePart,true)}" />
-						<h:outputText value="(#{namePart.name})"
-							styleClass="#{namePartsController.getNameClass(namePart,true)}-Old"
-							rendered="#{namePartsController.isModified(namePart,true)}" />
-					</p:column>
-					<p:column id="nameCode" headerText="Mnemonic" style="width: 10%">
-						<h:outputText
-							value="#{namePartsController.getNewMnemonic(namePart)}"
-							styleClass="#{namePartsController.getNameClass(namePart,false)}-New" />
-						<h:outputText value=" "
-							rendered="#{namePartsController.isModified(namePart,false)}" />
-						<h:outputText value="(#{namePart.mnemonic})"
-							styleClass="#{namePartsController.getNameClass(namePart,false)}-Old"
-							rendered="#{namePartsController.isModified(namePart,false)}" />
-					</p:column>
-					<p:column id="status" headerText="Status" style="width: 15%">
-						<h:outputText value="#{namePartsController.nameStatus(namePart)}"
-							styleClass="Insert-Approved" />
-
-						<h:outputLink id="pendingComment" value="#"
-							rendered="#{namePartsController.hasPendingComment(namePart)}">
-							<h:outputText styleClass="ui-icon ui-icon-info"
-								style="display:inline-block; margin-left:10px !important; vertical-align:bottom !important;" />
-						</h:outputLink>
-						<p:tooltip for="pendingComment">
-							<h:outputText
-								value="#{namePartsController.getPendingComment(namePart)}"
-								style="white-space: pre;" escape="false" />
-						</p:tooltip>
-
-					</p:column>
-
-				</p:treeTable>
-				<!-- 				</div> -->
+	
+				<ui:include src="/WEB-INF/includes/parts-treetable.xhtml">
+					<ui:param name="treeId" value="namePartsTree" />
+					<ui:param name="view" value="#{namePartsController.viewRoot}" />
+					<ui:param name="selectionMode" value="multiple" />
+					<ui:param name="update" value=":ReqSubForm:reqMenu" />
+				</ui:include>
 
 				<!-- =================== History ================================= -->
 				<ui:include src="/WEB-INF/includes/parts-history.xhtml">
@@ -141,201 +95,85 @@
 			</h:form>
 
 			<!-- ===================Add Form================================= -->
-			<h:form id="addNameForm">
-				<p:dialog id="addName" widgetVar="addName" modal="true"
-					resizable="false">
-					<f:facet name="header">
-						<h:outputText value="Request to Add Name" />
-					</f:facet>
-					<p:panelGrid id="grid" columns="2" style="text-align: left">
-						<h:outputLabel for="idesc" value="Name:" />
-						<h:panelGroup>
-							<p:inputText id="idesc" value="#{namePartsController.formName}"
-								required="true" requiredMessage="Please enter a name." />
-							<p:watermark for="idesc" value="e.g. Flux Capacitor" />
-							<p:message for="idesc" />
-						</h:panelGroup>
-
-						<h:outputLabel for="icode" value="Mnemonic:" />
-						<h:panelGroup>
-							<p:inputText id="icode"
-								value="#{namePartsController.formMnemonic}"
-								onkeyup="displayMnemonicLengthWarningOnAdd()" required="true"
-								requiredMessage="Please enter a mnemonic.">
-								<f:validator validatorId="custom.addMnemonicValidator" />
-
-							</p:inputText>
-							<p:watermark for="icode" value="e.g. FluxC" />
-							<p:message for="icode" />
-							<div id="addNameForm:mnemonicLengthWarning"
-								class="ui-message ui-message-warn ui-widget ui-corner-all"
-								style="display: none">
-								<span class="ui-message-warn-icon"></span> <span
-									class="ui-message-warn-detail">Mnemonic should be
-									between 2 and 4 characters long although 6 characters are allowed.</span>
-							</div>
-
-						</h:panelGroup>
-
-						<h:outputLabel for="icomm" value="Comment (optional):" />
-						<h:panelGroup>
-							<p:inputTextarea id="icomm" rows="5" cols="60" counter="icounter"
-								maxlength="254" value="#{namePartsController.formComment}"
-								counterTemplate="{0} characters remaining." autoResize="false" />
-							<br />
-							<h:outputText id="icounter" />
-						</h:panelGroup>
-					</p:panelGrid>
-
-					<p:separator />
-
-					<p:commandButton value="Cancel" style="float: right"
-						onclick="addName.hide()" />
-					<p:commandButton value="Submit" style="float: right"
-						update="grid :ReqSubForm"
-						oncomplete="if (args &amp;&amp; !args.validationFailed) addName.hide(); resizePanel()"
-						action="#{namePartsController.onAdd()}" />
-				</p:dialog>
-			</h:form>
+			<ui:include src="/WEB-INF/includes/parts-wizard.xhtml">
+				<ui:param name="formId" value="addNameForm" />
+				<ui:param name="widgetId" value="addName" />
+				<ui:param name="widgetTitle" value="Request to Add name element" />
+				<ui:param name="gridId" value="grid" />
+				<ui:param name="fullName" value="#{namePartsController.formName}" />
+				<ui:param name="validator" value="custom.addMnemonicValidator" />
+				<ui:param name="warning" value="displayMnemonicLengthWarningOnAdd()" />
+				<ui:param name="mnemonic"
+					value="#{namePartsController.formMnemonic}" />
+				<ui:param name="description"
+					value="#{namePartsController.formDescription}" />
+				<ui:param name="comment" value="#{namePartsController.formComment}" />
+				<ui:param name="description"
+					value="#{namePartsController.formDescription}" />
+				<ui:param name="submitHandler" value="onAdd" />
+			</ui:include>
 
 			<!-- ===================Modify Form================================= -->
-			<h:form id="ModNameForm">
-				<p:dialog id="modName" widgetVar="modName" modal="true"
-					resizable="false">
-					<f:facet name="header">
-						<h:outputText value="Request to Change Name" />
-					</f:facet>
-					<p:panelGrid id="pgrid" style="text-align: left">
-						<f:facet name="header">
-							<p:row>
-								<p:column>
-									<h:outputText value="" />
-								</p:column>
-								<p:column>
-									<h:outputText value="Current Value" />
-								</p:column>
-								<p:column>
-									<h:outputText value="New Value" />
-								</p:column>
-							</p:row>
-						</f:facet>
-
-						<p:row>
-							<p:column>
-								<h:outputLabel for="mdesc" value="Name:" />
-							</p:column>
-							<p:column>
-								<h:outputText
-									value="#{namePartsController.selectedName.pendingOrElseCurrentRevision.name}" />
-							</p:column>
-							<p:column>
-								<p:inputText id="mdesc" value="#{namePartsController.formName}"
-									required="true" requiredMessage="Please enter a name.">
-								</p:inputText>
-								<p:message for="mdesc" />
-							</p:column>
-						</p:row>
-						<p:row>
-							<p:column>
-								<h:outputLabel for="mcode" value="Mnemonic:" />
-							</p:column>
-							<p:column>
-								<h:outputText
-									value="#{namePartsController.selectedName.pendingOrElseCurrentRevision.mnemonic}" />
-							</p:column>
-							<p:column>
-								<p:inputText id="mcode"
-									value="#{namePartsController.formMnemonic}"
-									onkeyup="displayMnemonicLengthWarningOnMod()" required="true"
-									requiredMessage="Please enter a mnemonic.">
-									<f:validator validatorId="custom.modifyMnemonicValidator" />
-								</p:inputText>
-								<p:message for="mcode" />
-								<div id="ModNameForm:mnemonicLengthWarning"
-									class="ui-message ui-message-warn ui-widget ui-corner-all"
-									style="display: none">
-									<span class="ui-message-warn-icon"></span> <span
-										class="ui-message-warn-detail">Mnemonic should be
-										between 2 and 4 characters long.</span>
-								</div>
-							</p:column>
-						</p:row>
-						<p:row>
-							<p:column>
-								<h:outputLabel for="mcomm" value="Comment (optional):" />
-							</p:column>
-							<p:column colspan="2">
-								<p:inputTextarea id="mcomm" counter="mcounter" maxlength="254"
-									value="#{namePartsController.formComment}" rows="5" cols="60"
-									counterTemplate="{0} characters remaining." autoResize="false" />
-								<br />
-								<h:outputText id="mcounter" />
-							</p:column>
-						</p:row>
-
-					</p:panelGrid>
-					<p:separator />
-
-					<p:commandButton value="Cancel" style="float: right"
-						onclick="modName.hide()" />
-					<p:commandButton id="submitModify" value="Submit"
-						style="float: right" update="pgrid :ReqSubForm"
-						oncomplete="if (args &amp;&amp; !args.validationFailed) modName.hide(); resizePanel()"
-						action="#{namePartsController.onModify()}" />
-				</p:dialog>
-			</h:form>
+			<ui:include src="WEB-INF/includes/parts-wizard.xhtml">
+				<ui:param name="formId" value="ModNameForm" />
+				<ui:param name="widgetId" value="modName" />
+				<ui:param name="gridId" value="pgrid" />
+				<ui:param name="widgetTitle" value="Request to Change Name" />
+				<ui:param name="fullName" value="#{namePartsController.formName}" />
+				<ui:param name="mnemonic"
+					value="#{namePartsController.formMnemonic}" />
+				<ui:param name="validator" value="custom.modifyMnemonicValidator" />
+				<ui:param name="warning" value="displayMnemonicLengthWarningOnMod()" />
+				<ui:param name="description"
+					value="#{namePartsController.formDescription}" />
+				<ui:param name="comment" value="#{namePartsController.formComment}" />
+				<ui:param name="submitHandler" value="onModify" />
+			</ui:include>
 
 			<!-- ===================Delete Form================================= -->
 			<h:form id="DelNameForm">
-				<p:dialog id="delName" widgetVar="delName" modal="true"
-					resizable="false">
-					<f:facet name="header">
-						<h:outputText value="Request to Delete/Retire Names" />
-					</f:facet>
-					<p:panelGrid id="pgrid" style="text-align: left">
-						<p:row>
-							<p:column colspan="2"
-								rendered="#{namePartsController.canDelete()}">
-								<p:treeTable value="#{namePartsController.deleteView}"
-									var="candidate" liveResize="true" resizableColumns="true"
-									styleClass="previewTreeTable">
-									<p:column headerText="Name">
-										<h:outputText
-											styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}"
-											value="#{candidate.data.name}" />
-									</p:column>
-									<p:column headerText="Mnemonic" style="width: 30%">
-										<h:outputText
-											styleClass="#{candidate.affected ? 'Processing Delete-Processing' : ''}"
-											value="#{candidate.data.mnemonic}" />
-									</p:column>
-								</p:treeTable>
-							</p:column>
-						</p:row>
-
-						<p:row>
-							<p:column>
-								<h:outputLabel for="dcomm" value="Comment (optional):" />
-							</p:column>
-							<p:column>
-								<p:inputTextarea id="dcomm" rows="5" cols="60"
-									counter="dcounter" maxlength="254"
-									value="#{namePartsController.formComment}"
-									counterTemplate="{0} characters remaining." autoResize="false" />
-								<br />
-								<h:outputText id="dcounter" />
-							</p:column>
-						</p:row>
-					</p:panelGrid>
-					<h:panelGroup style="margin: 10px 0; padding: 10px"
-						styleClass="ui-message-warn ui-corner-all" layout="block"
-						rendered="#{namePartsController.affectedDevicesCount > 0}">
-						<span class="ui-message-warn-icon" />
-						<h:panelGroup class="ui-message-warn-detail">
+				<p:dialog header="Request to Delete" id="delName"
+					widgetVar="delName" modal="true" resizable="true">
+					<p:treeTable value="#{namePartsController.deleteView}"
+						var="candidate" resizableColumns="true" liveResize="true"
+						styleClass="previewTreeTable">
+						<p:column headerText="Full Name" style="width:25%">
 							<h:outputText
-								value="Warning: There are #{namePartsController.affectedDevicesCount} dependent devices that will be deleted once the change has been approved." />
+								styleClass="#{candidate.affected ? 'Pending-deletion' : ''}"
+								value="#{candidate.data.name}" />
+						</p:column>
+						<p:column headerText="Mnemonic" style="width:10%">
+							<h:outputText
+								styleClass="#{candidate.affected ? 'Pending-deletion' : ''}"
+								value="#{candidate.data.mnemonic}" />
+						</p:column>
+						<p:column headerText="Description/Comment">
+							<h:outputText
+								styleClass="#{candidate.affected ? 'Pending-deletion' : ''}"
+								value="#{candidate.data.description}" />
+						</p:column>
+					</p:treeTable>
+					<p:separator />
+					<h:panelGrid id="pgrid" style="text-align: left">
+						<h:outputLabel for="dcomm" value="Commit Message (optional):" />
+						<h:panelGroup>
+							<p:inputTextarea id="dcomm" rows="5" cols="60" counter="dcounter"
+								maxlength="254" value="#{namePartsController.formComment}"
+								counterTemplate="{0} characters remaining." autoResize="false" />
+							<br />
+							<h:outputText id="dcounter" />
 						</h:panelGroup>
-					</h:panelGroup>
+						<h:panelGroup style="margin: 10px 0; padding: 10px"
+							styleClass="ui-message-warn ui-corner-all" layout="block"
+							rendered="#{namePartsController.affectedDevicesCount > 0}">
+							<span class="ui-message-warn-icon" />
+							<h:panelGroup class="ui-message-warn-detail">
+								<h:outputText
+									value="Warning: There are #{namePartsController.affectedDevicesCount} dependent devices that will be deleted once the change has been approved." />
+							</h:panelGroup>
+						</h:panelGroup>
+					</h:panelGrid>
+
 					<p:separator />
 
 					<p:commandButton value="Cancel" style="float: right"
@@ -348,57 +186,55 @@
 
 			<!-- =================== Cancel Form ============================ -->
 			<h:form id="CancelReqForm">
-				<p:dialog id="cancelReq" widgetVar="cancelReq" modal="true"
-					resizable="false">
-					<f:facet name="header">
-						<h:outputText value="Cancel request" />
-					</f:facet>
-					<p:panelGrid id="pgrid" style="text-align: left">
-						<p:row>
-							<p:column colspan="2">
-								<p:treeTable value="#{namePartsController.cancelView}"
-									var="candidate" liveResize="true" resizableColumns="true"
-									styleClass="previewTreeTable">
-									<p:column headerText="Name">
-										<h:outputText
-											styleClass="#{namePartsController.getNameClass(candidate.data,true)}"
-											value="#{namePartsController.getOperationsNewName(candidate)}" />
-										<h:outputText value=" "
-											rendered="#{namePartsController.isModified(candidate.data,true)}" />
-										<h:outputText value="(#{candidate.data.name})"
-											styleClass="#{namePartsController.getNameClass(candidate.data,true)}-Old"
-											rendered="#{namePartsController.isModified(candidate.data,true)}" />
-									</p:column>
-									<p:column headerText="Mnemonic" style="width: 30%">
-										<h:outputText
-											value="#{namePartsController.getNewMnemonic(candidate.data)}"
-											styleClass="#{namePartsController.getNameClass(candidate.data,false)}-New" />
-										<h:outputText value=" "
-											rendered="#{namePartsController.isModified(candidate.data,false)}" />
-										<h:outputText value="(#{candidate.data.mnemonic})"
-											styleClass="#{namePartsController.getNameClass(candidate.data,false)}-Old"
-											rendered="#{namePartsController.isModified(candidate.data,false)}" />
-									</p:column>
-								</p:treeTable>
-							</p:column>
-						</p:row>
-
-						<p:row>
-							<p:column>
-								<h:outputLabel for="dcomm" value="Comment (optional):" />
-							</p:column>
-							<p:column>
-								<p:inputTextarea id="dcomm" rows="5" cols="60"
-									counter="dcounter" maxlength="254"
-									value="#{namePartsController.formComment}"
-									counterTemplate="{0} characters remaining." autoResize="false" />
-								<br />
-								<h:outputText id="dcounter" />
-							</p:column>
-						</p:row>
-					</p:panelGrid>
+				<p:dialog header="Cancel proposals, modifications and/or deletions"
+					id="cancelReq" widgetVar="cancelReq" modal="true" resizable="true">
+					<p:treeTable value="#{namePartsController.cancelView}"
+						var="candidate" resizableColumns="true" liveResize="true"
+						styleClass="previewTreeTable">
+						<p:column headerText="Full Name" style="width:25%">
+							<h:outputText
+								styleClass="#{namePartsController.isNameModified(candidate.data) ? 'Cancel-proposed' : namePartsController.nameCancelStyleClass(candidate.data)}"
+								value="#{namePartsController.getOperationsNewName(candidate)}" />
+							<h:outputText value=" "
+								rendered="#{namePartsController.isNameModified(candidate.data)}" />
+							<h:outputText value="#{candidate.data.name}"
+								styleClass="Cancel-pending-deletion"
+								rendered="#{namePartsController.isNameModified(candidate.data)}" />
+						</p:column>
+						<p:column headerText="Mnemonic" style="width: 10%">
+							<h:outputText
+								value="#{namePartsController.getNewMnemonic(candidate.data)}"
+								styleClass="#{namePartsController.isMnemonicModified(candidate.data) ? 'Cancel-proposed' : namePartsController.nameCancelStyleClass(candidate.data)}" />
+							<h:outputText value=" "
+								rendered="#{namePartsController.isMnemonicModified(candidate.data)}" />
+							<h:outputText value="#{candidate.data.mnemonic}"
+								styleClass="Cancel-pending-deletion"
+								rendered="#{namePartsController.isMnemonicModified(candidate.data)}" />
+						</p:column>
+						<p:column headerText="Description/Comment">
+							<h:outputText
+								value="#{namePartsController.getNewDescription(candidate.data)}"
+								styleClass="#{namePartsController.isDescriptionModified(candidate.data) ? 'Cancel-proposed' : namePartsController.nameCancelStyleClass(candidate.data)}" />
+							<h:outputText value=" "
+								rendered="#{namePartsController.isDescriptionModified(candidate.data)}" />
+							<h:outputText value="#{candidate.data.description}"
+								styleClass="Cancel-pending-deletion"
+								rendered="#{namePartsController.isDescriptionModified(candidate.data)}" />
+						</p:column>
+					</p:treeTable>
 					<p:separator />
 
+					<h:panelGrid id="pgrid" style="text-align: left">
+						<h:outputLabel for="dcomm" value="Commit Message (optional):" />
+						<h:panelGroup>
+							<p:inputTextarea id="dcomm" rows="5" cols="60" counter="dcounter"
+								maxlength="254" value="#{namePartsController.formComment}"
+								counterTemplate="{0} characters remaining." autoResize="false" />
+							<br />
+							<h:outputText id="dcounter" />
+						</h:panelGroup>
+					</h:panelGrid>
+					<p:separator />
 					<p:commandButton value="Cancel" style="float: right"
 						onclick="cancelReq.hide()" />
 					<p:commandButton value="Submit" style="float: right"
@@ -406,68 +242,67 @@
 						actionListener="#{namePartsController.onCancel()}" />
 				</p:dialog>
 			</h:form>
-
 			<!-- ===================    Approve Form    ============================ -->
+
 			<h:form id="ApproveForm">
-				<p:dialog id="approveRequest" widgetVar="approveRequest"
-					modal="true" resizable="false">
-					<f:facet name="header">
-						<h:outputText value="Approve" />
-					</f:facet>
-					<p:panelGrid style="text-align: left">
-						<p:row>
-							<p:column colspan="2">
-								<p:treeTable value="#{namePartsController.approveView}"
-									var="candidate" resizableColumns="true" liveResize="true"
-									styleClass="previewTreeTable">
-									<p:column headerText="Name">
-										<h:outputText
-											styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.data,true).concat('-New') : ''}"
-											value="#{namePartsController.getOperationsNewName(candidate)}" />
-										<h:outputText value=" "
-											rendered="#{namePartsController.isModified(candidate.data,true)}" />
-										<h:outputText value="(#{candidate.data.name})"
-											styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.data,true).concat('-Old') : ''}"
-											rendered="#{namePartsController.isModified(candidate.data,true)}" />
-									</p:column>
-									<p:column headerText="Mnemonic" style="width: 30%">
-										<h:outputText
-											value="#{namePartsController.getNewMnemonic(candidate.data)}"
-											styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.data,false).concat('-New') : ''}" />
-										<h:outputText value=" "
-											rendered="#{namePartsController.isModified(candidate.data,false)}" />
-										<h:outputText value="(#{candidate.data.mnemonic})"
-											styleClass="#{candidate.affected ? namePartsController.getNameClass(candidate.data,false).concat('-Old') : ''}"
-											rendered="#{namePartsController.isModified(candidate.data,false)}" />
-									</p:column>
-								</p:treeTable>
-							</p:column>
-						</p:row>
-
-						<p:row>
-							<p:column>
-								<h:outputLabel for="acomm" value="Comment (optional):" />
-							</p:column>
-							<p:column>
-								<p:inputTextarea id="acomm" rows="5" cols="60" counter="counter"
-									maxlength="254" value="#{namePartsController.formComment}"
-									counterTemplate="{0} characters remaining." autoResize="false" />
-								<br />
-								<h:outputText id="counter" />
-							</p:column>
-						</p:row>
-					</p:panelGrid>
-					<h:panelGroup style="margin: 10px 0; padding: 10px"
-						styleClass="ui-message-warn ui-corner-all" layout="block"
-						rendered="#{namePartsController.affectedDevicesCount > 0}">
-						<span class="ui-message-warn-icon" />
-						<h:panelGroup class="ui-message-warn-detail">
+				<p:dialog header="Approve proposals, modifications and/or deletions"
+					id="approveRequest" widgetVar="approveRequest" modal="true"
+					resizable="true">
+					<p:treeTable value="#{namePartsController.approveView}"
+						var="candidate" liveResize="true" resizableColumns="true"
+						styleClass="previewTreeTable">
+						<p:column headerText="Full Name" style="width:25%">
 							<h:outputText
-								value="Warning: There are #{namePartsController.affectedDevicesCount} dependent devices that will be deleted by this action!" />
-						</h:panelGroup>
-					</h:panelGroup>
+								styleClass="#{namePartsController.isNameModified(candidate.data) ? 'Proposed' : namePartsController.nameStyleClass(candidate.data)}"
+								value="#{namePartsController.getOperationsNewName(candidate)}" />
+							<h:outputText value=" "
+								rendered="#{namePartsController.isNameModified(candidate.data)}" />
+							<h:outputText value="#{candidate.data.name}"
+								styleClass="Pending-deletion"
+								rendered="#{namePartsController.isNameModified(candidate.data)}" />
+						</p:column>
+						<p:column headerText="Mnemonic" style="width: 10%">
+							<h:outputText
+								value="#{namePartsController.getNewMnemonic(candidate.data)}"
+								styleClass="#{namePartsController.isMnemonicModified(candidate.data) ? 'Proposed' : namePartsController.nameStyleClass(candidate.data)}" />
+							<h:outputText value=" "
+								rendered="#{namePartsController.isMnemonicModified(candidate.data)}" />
+							<h:outputText value="#{candidate.data.mnemonic}"
+								styleClass="Pending-deletion"
+								rendered="#{namePartsController.isMnemonicModified(candidate.data)}" />
+						</p:column>
+						<p:column headerText="Description/Comment">
+							<h:outputText
+								value="#{namePartsController.getNewDescription(candidate.data)}"
+								styleClass="#{namePartsController.isDescriptionModified(candidate.data) ? 'Proposed' : namePartsController.nameStyleClass(candidate.data)}" />
+							<h:outputText value=" "
+								rendered="#{namePartsController.isDescriptionModified(candidate.data)}" />
+							<h:outputText value="#{candidate.data.description}"
+								styleClass="Pending-deletion"
+								rendered="#{namePartsController.isDescriptionModified(candidate.data)}" />
+						</p:column>
+					</p:treeTable>
 					<p:separator />
-
+					<h:panelGrid style="text-align: left">
+						<h:outputLabel for="acomm" value="Comment (optional):" />
+						<h:panelGroup>
+							<p:inputTextarea id="acomm" rows="5" cols="60" counter="counter"
+								maxlength="254" value="#{namePartsController.formComment}"
+								counterTemplate="{0} characters remaining." autoResize="false" />
+							<br />
+							<h:outputText id="counter" />
+						</h:panelGroup>
+						<h:panelGroup style="margin: 10px 0; padding: 10px"
+							styleClass="ui-message-warn ui-corner-all" layout="block"
+							rendered="#{namePartsController.affectedDevicesCount > 0}">
+							<span class="ui-message-warn-icon" />
+							<h:panelGroup class="ui-message-warn-detail">
+								<h:outputText
+									value="Warning: There are #{namePartsController.affectedDevicesCount} dependent devices that will be deleted by this action!" />
+							</h:panelGroup>
+						</h:panelGroup>
+					</h:panelGrid>
+					<p:separator />
 					<p:commandButton value="Cancel" style="float: right"
 						onclick="approveRequest.hide()" />
 					<p:commandButton value="Approve" style="float: right"
@@ -478,56 +313,57 @@
 			</h:form>
 
 			<h:form id="RejectForm">
-				<p:dialog id="rejectRequest" widgetVar="rejectRequest" modal="true"
-					resizable="false">
-					<f:facet name="header">
-						<h:outputText value="Reject" />
-					</f:facet>
-					<p:panelGrid id="pgrid" style="text-align: left">
-						<p:row>
-							<p:column colspan="2">
-								<p:treeTable value="#{namePartsController.cancelView}"
-									var="candidate" liveResize="true" resizableColumns="true"
-									styleClass="previewTreeTable">
-									<p:column headerText="Name">
-										<h:outputText
-											styleClass="#{namePartsController.getNameClass(candidate.data,true)}"
-											value="#{namePartsController.getOperationsNewName(candidate)}" />
-										<h:outputText value=" "
-											rendered="#{namePartsController.isModified(candidate.data,true)}" />
-										<h:outputText value="(#{candidate.data.name})"
-											styleClass="#{namePartsController.getNameClass(candidate.data,true)}-Old"
-											rendered="#{namePartsController.isModified(candidate.data,true)}" />
-									</p:column>
-									<p:column headerText="Mnemonic" style="width: 30%">
-										<h:outputText
-											value="#{namePartsController.getNewMnemonic(candidate.data)}"
-											styleClass="#{namePartsController.getNameClass(candidate.data,false)}-New" />
-										<h:outputText value=" "
-											rendered="#{namePartsController.isModified(candidate.data,false)}" />
-										<h:outputText value="(#{candidate.data.mnemonic})"
-											styleClass="#{namePartsController.getNameClass(candidate.data,false)}-Old"
-											rendered="#{namePartsController.isModified(candidate.data,false)}" />
-									</p:column>
-								</p:treeTable>
-							</p:column>
-						</p:row>
+				<p:dialog header="Reject proposals, modifications and/or deletions"
+					id="rejectRequest" widgetVar="rejectRequest" modal="true"
+					resizable="true">
+					<p:treeTable value="#{namePartsController.cancelView}"
+						var="candidate" liveResize="true" resizableColumns="true"
+						styleClass="previewTreeTable">
+						<p:column headerText="Full Name" style="width: 25%">
+							<h:outputText
+								styleClass="#{namePartsController.isNameModified(candidate.data) ? 'Cancel-proposed' : namePartsController.nameCancelStyleClass(candidate.data)}"
+								value="#{namePartsController.getOperationsNewName(candidate)}" />
+							<h:outputText value=" "
+								rendered="#{namePartsController.isNameModified(candidate.data)}" />
+							<h:outputText value="#{candidate.data.name}"
+								styleClass="Cancel-pending-deletion"
+								rendered="#{namePartsController.isNameModified(candidate.data)}" />
+						</p:column>
+						<p:column headerText="Mnemonic" style="width: 10%">
+							<h:outputText
+								value="#{namePartsController.getNewMnemonic(candidate.data)}"
+								styleClass="#{namePartsController.isMnemonicModified(candidate.data) ? 'Cancel-proposed' : namePartsController.nameCancelStyleClass(candidate.data)}" />
+							<h:outputText value=" "
+								rendered="#{namePartsController.isMnemonicModified(candidate.data)}" />
+							<h:outputText value="#{candidate.data.mnemonic}"
+								styleClass="Cancel-pending-deletion"
+								rendered="#{namePartsController.isMnemonicModified(candidate.data)}" />
+						</p:column>
+						<p:column headerText="Description/Comment">
+							<h:outputText
+								value="#{namePartsController.getNewDescription(candidate.data)}"
+								styleClass="#{namePartsController.isDescriptionModified(candidate.data) ? 'Cancel-proposed' : namePartsController.nameCancelStyleClass(candidate.data)}" />
+							<h:outputText value=" "
+								rendered="#{namePartsController.isDescriptionModified(candidate.data)}" />
+							<h:outputText value="#{candidate.data.description}"
+								styleClass="Cancel-pending-deletion"
+								rendered="#{namePartsController.isDescriptionModified(candidate.data)}" />
+						</p:column>
+					</p:treeTable>
+					<p:separator />
 
-						<p:row>
-							<p:column>
-								<h:outputLabel for="rcomm" value="Comment:" />
-							</p:column>
-							<p:column>
-								<p:inputTextarea id="rcomm" rows="5" cols="70" counter="counter"
-									maxlength="254" value="#{namePartsController.formComment}"
-									counterTemplate="{0} characters remaining." autoResize="false"
-									required="true" requiredMessage="Please enter a comment." />
-								<br />
-								<h:outputText id="counter" />
-								<p:message for="rcomm" />
-							</p:column>
-						</p:row>
-					</p:panelGrid>
+					<h:panelGrid id="pgrid" style="text-align: left">
+						<h:outputLabel for="rcomm" value="Comment:" />
+						<h:panelGroup>
+							<p:inputTextarea id="rcomm" rows="5" cols="70" counter="counter"
+								maxlength="254" value="#{namePartsController.formComment}"
+								counterTemplate="{0} characters remaining." autoResize="false"
+								required="true" requiredMessage="Please enter a comment." />
+							<br />
+							<h:outputText id="counter" />
+							<p:message for="rcomm" />
+						</h:panelGroup>
+					</h:panelGrid>
 					<p:separator />
 					<p:commandButton value="Cancel" style="float: right"
 						onclick="rejectRequest.hide()" />

@@ -50,9 +50,9 @@ public class NamePartRevision extends Persistable {
 
     private String mnemonic;
     
-    private String mnemonicEqClass;
-
     private @Nullable String description=null;
+
+    private String mnemonicEqClass;
     
     @Enumerated(EnumType.STRING)
     private NamePartRevisionStatus status;
@@ -73,8 +73,9 @@ public class NamePartRevision extends Persistable {
      * @param requesterComment the comment the user gave when proposing the revision. Null if no comment was given.
      * @param deleted a flag signifying that the revision represents deletion of the name part
      * @param parent the parent of this name part in the hierarchy. Null if at the top of the hierarchy.
-     * @param name the long, descriptive name of the part. Does not need to follow a convention.
-     * @param mnemonic the short, mnemonic name of the part in accordance with the naming convention
+     * @param name is the full name of the part. Does not need to follow a convention.
+     * @param mnemonic is the short, mnemonic name of the part in accordance with the naming convention
+     * @param description is the (lengthy) description or comment of the part.  
      * @param mnemonicEqClass the representative of the equivalence class the mnemonic belongs to. This is
      * used to ensure uniqueness of mnemonics on certain levels when treating similar looking names (for example, containing 0 vs.
      * O, 1 vs. l) as equal.
@@ -130,7 +131,7 @@ public class NamePartRevision extends Persistable {
     public @Nullable NamePart getParent() { return parent; }
 
     /**
-     * The long, descriptive name of the part. Does not need to follow a convention.
+     * Full name of the part. Does not need to follow a convention.
      */
     public String getName() { return name; }
 
@@ -142,7 +143,7 @@ public class NamePartRevision extends Persistable {
     /** 
      * The description or other relevant information of the namepart. Optional. 
      */
-    public String getDescription(){ return description; }
+    public @Nullable String getDescription(){ return description; }
     
     /**
      * The representative of the equivalence class the mnemonic belongs to. This is used to ensure uniqueness of

@@ -29,7 +29,7 @@
 			}
 
 			menusHeight = menusHeight + $('#filterTable').outerHeight()
-					+ headerHeight + 7;
+					+ headerHeight + 20;
 			$('.ui-treetable-scrollable-body').css({
 				"height" : window.innerHeight - menusHeight
 			});
@@ -64,7 +64,7 @@
 		}
 
 		function displayMnemonicLengthWarningOnMod() {
-			if ($('#ModNameForm\\:mcode').val().length > 4) {
+			if ($('#ModNameForm\\:icode').val().length > 4) {
 				$('#ModNameForm\\:mnemonicLengthWarning').css({
 					"display" : "block"
 				});
@@ -104,13 +104,13 @@
 </h:head>
 
 <h:body>
-	<p:outputPanel id="full" layout="block">
+	<p:outputPanel id="full" layout="block" >
 		<p:panel id="logoPanel" styleClass="ui-widget-header">
 			<div id="user" style="float: right" >
 				<p:commandButton process="@this" value="Sign In"
 					icon="ui-icon-person" update=":full"
 					action="#{loginController.prepareLoginPopup()}"
-					rendered="#{not userManager.isLoggedIn()}" />
+					rendered="#{!(userManager.isLoggedIn())}" />
 				<p:outputLabel for="signout" value="#{userManager.getUsername()}" styleClass="ui-widget-header"/>
 				<p:commandButton id="signout" process="@this" value="Sign Out"
 					icon="ui-icon-person" update=":full"
@@ -121,9 +121,10 @@
 					<h:outputText value="#{msgs.title}" />
 			</div>
 		</p:panel>
+		<div id="menu">
 		<ui:include src="/WEB-INF/includes/menubar.xhtml" />
-
-		<div style="padding: 15px 15px 0px 15px">
+		</div>
+		<div style="padding: 0px 15px 0px 15px">
 			<ui:insert name="content">Content</ui:insert>
 		</div>
 	</p:outputPanel>

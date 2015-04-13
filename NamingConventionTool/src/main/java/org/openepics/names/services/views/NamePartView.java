@@ -1,11 +1,14 @@
 package org.openepics.names.services.views;
 
 import com.google.common.collect.ImmutableList;
+
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
+import org.openepics.names.util.UnhandledCaseException;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -39,7 +42,7 @@ public class NamePartView {
 
     /**
      * The name part this is a view of.
-     */
+     */    
     public NamePart getNamePart() { return getCurrentOrElsePendingRevision().getNamePart(); }
 
     /**
@@ -85,7 +88,10 @@ public class NamePartView {
             } else {
                 final @Nullable String newName = !pendingRevision.getName().equals(currentRevision.getName()) ? pendingRevision.getName() : null;
                 final @Nullable String newMnemonic = !pendingRevision.getMnemonic().equals(currentRevision.getMnemonic()) ? pendingRevision.getMnemonic() : null;
-                return new ModifyChange(pendingRevision.getStatus(), newName, newMnemonic);
+                @Nullable String pend = !(pendingRevision.getDescription()==null || pendingRevision.getDescription().isEmpty()) ? pendingRevision.getDescription() : null;
+                @Nullable String curr = !(currentRevision.getDescription()==null || currentRevision.getDescription().isEmpty()) ? currentRevision.getDescription() : null;
+                final @Nullable String newDescription= !(curr==null && pend==null || pend.equals(curr)) ? pendingRevision.getDescription() : null;
+                return new ModifyChange(pendingRevision.getStatus(), newName, newMnemonic, newDescription);
             }
         }
     }
@@ -106,9 +112,14 @@ public class NamePartView {
     public @Nullable NamePartRevision getPendingRevision() { return pendingRevision; }
 
     /**
-     * The long, descriptive name of the part. Does not need to follow a convention.
+     * The full name of the part. Does not need to follow a convention.
      */
     public String getName() { return getCurrentOrElsePendingRevision().getName(); }
+    
+    /**
+     * The description of the part.
+     */
+    public String getDescription() { return getCurrentOrElsePendingRevision().getDescription();}
 
     /**
      * The short, mnemonic name of the part in accordance with the naming convention.
@@ -117,7 +128,10 @@ public class NamePartView {
 
     /**
      * The list of name part descriptive names starting from the root of the hierarchy to this name part.
+     * @return 
      */
+    
+    
     public List<String> getNamePath() {
         final ImmutableList.Builder<String> pathElements = ImmutableList.builder();
         for (NamePartView pathElement = this; pathElement != null; pathElement = pathElement.getParent()) {
@@ -161,7 +175,7 @@ public class NamePartView {
         public Change(NamePartRevisionStatus status) {
             this.status = status;
         }
-
+                
         /**
          * The status of the proposed change in the request / approve workflow.
          */
@@ -176,7 +190,7 @@ public class NamePartView {
             super(status);
         }
     }
-
+    
     /**
      * A view of a proposed deletion of the name part.
      */
@@ -192,11 +206,13 @@ public class NamePartView {
     public class ModifyChange extends Change {
         private final @Nullable String newName;
         private final @Nullable String newMnemonic;
+        private final @Nullable String newDescription;
 
-        public ModifyChange(NamePartRevisionStatus status, String newName, String newMnemonic) {
+        public ModifyChange(NamePartRevisionStatus status, String newName, String newMnemonic, @Nullable String newDescription) {
             super(status);
             this.newName = newName;
             this.newMnemonic = newMnemonic;
+            this.newDescription=newDescription;
         }
 
         /**
@@ -208,5 +224,12 @@ public class NamePartView {
          * The new mnemonic name proposed by the change. Null if the name has not changed.
          */
         public @Nullable String getNewMnemonic() { return newMnemonic; }
+
+        
+        /** 
+         * The new description proposed by the change. Null if the description has not changed. 
+         * @return
+         */
+		public @Nullable String getNewDescription() { return newDescription; }
     }
 }

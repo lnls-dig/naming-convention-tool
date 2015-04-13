@@ -1,5 +1,5 @@
 body {
-/*     height:100%; */
+    height:100%; 
     width:100%;
     margin:0;
     padding:0;
@@ -39,14 +39,11 @@ h3 {
 	color:#005d79;
 }
 
-sec{
-/* 	color:  #0094ca; */
-	color:#005d79;
-	font-family: monospace;
+th{
+	border: 1px solid #FFFFFF !important;
+	background: #006A91 !important;
+	text-align:left !important;
 }
 
-dev{
-/* 	color:  #99CC00; */
-	color: green;
-	font-family: monospace;
-}
+
+

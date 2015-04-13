@@ -14,9 +14,9 @@
  *
  */
 package org.openepics.names.ui.parts;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+
 import org.openepics.names.model.*;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.NamePartView;
@@ -39,6 +39,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -66,7 +67,7 @@ public class NamePartsController implements Serializable {
 	private TreeNode rootWithoutModifications;
 	private TreeNode viewRoot;
 	private TreeNode[] selectedNodes;
-
+	
 	private TreeNode deleteView;
 	private TreeNode approveView;
 	private TreeNode cancelView;
@@ -231,34 +232,66 @@ public class NamePartsController implements Serializable {
 		}
 	}
 
-	public String getNewName(NamePartView req) {
-		final Change change = req.getPendingChange();
-		if (change instanceof NamePartView.ModifyChange && ((NamePartView.ModifyChange)change).getNewName() != null) {
-			return ((NamePartView.ModifyChange)change).getNewName();
+	private NamePartView.ModifyChange modifyChange(Change change){
+		if (change!= null && change instanceof NamePartView.ModifyChange) {
+			return (NamePartView.ModifyChange)change;
 		} else {
-			return req.getName();
+			return null;
 		}
+	}
+	
+	private String nameChange(NamePartView req){
+		final ModifyChange change = modifyChange(req.getPendingChange());
+		return change !=null && change.getNewName() != null ?  change.getNewName(): null;
+	}
+	
+	private String mnemonicChange(NamePartView req){
+		final ModifyChange change=modifyChange(req.getPendingChange());
+		return change !=null && change.getNewMnemonic() != null ? change.getNewMnemonic(): null;
+	}
+
+	private String descriptionChange(NamePartView req){
+		final ModifyChange change=modifyChange(req.getPendingChange());
+		return change!= null && change.getNewDescription()!=null ? change.getNewDescription(): null;
+	}
+	
+	public boolean isNameModified(NamePartView req){
+		return nameChange(req)!=null;
+	}
+
+	public boolean isMnemonicModified(NamePartView req){
+		return mnemonicChange(req)!=null;
+	}
+	
+	public boolean isDescriptionModified(NamePartView req){
+		return descriptionChange(req)!=null;
+	}	
+	
+	public String getNewName(NamePartView req) {
+		return isNameModified(req) ? nameChange(req): req.getName(); 
 	}
 
 	public String getNewMnemonic(NamePartView req) {
-		final Change change = req.getPendingChange();
-		if (change instanceof NamePartView.ModifyChange && ((NamePartView.ModifyChange)change).getNewMnemonic() != null) {
-			return ((NamePartView.ModifyChange)change).getNewMnemonic();
-		} else {
-			return req.getMnemonic();
-		}
+		return isMnemonicModified(req) ? mnemonicChange(req): req.getMnemonic();
 	}
 
+	public String getNewDescription(NamePartView req){
+		return isDescriptionModified(req) ? descriptionChange(req):req.getDescription();
+	}
+	
 	public String getOperationsNewName(OperationView<NamePartView> opReq) {
 		final NamePartView req = opReq.getData();
-		final Change change = req.getPendingChange();
-		if (change instanceof NamePartView.ModifyChange && ((NamePartView.ModifyChange)change).getNewName() != null && !((NamePartView.ModifyChange) change).getNewName().equals("")) {
-			return ((NamePartView.ModifyChange)change).getNewName();
-		} else {
-			return req.getName();
-		}
+		return  !getNewName(req).equals("")? getNewName(req): req.getName();
+//		final ModifyChange change = modifyChange(req.getPendingChange());
+//		final Change change = req.getPendingChange();
+//		if (change instanceof NamePartView.ModifyChange && ((NamePartView.ModifyChange)change).getNewName() != null && !((NamePartView.ModifyChange) change).getNewName().equals("")) {
+//			return ((NamePartView.ModifyChange)change).getNewName();
+//		} else {
+//			return req.getName();
+//		}
 	}
 
+	@Deprecated
 	public boolean isModified(NamePartView req, boolean isFullName) {
 		if (req.getPendingChange() instanceof NamePartView.ModifyChange) {
 			final ModifyChange modifyChange = (ModifyChange) req.getPendingChange();
@@ -288,54 +321,25 @@ public class NamePartsController implements Serializable {
 		updateOperationViews();		
 	}
 
-	public String getNameClass(NamePartView req, boolean isFullName) {
-		final Change change = req.getPendingChange();
-
-		final String prefix;
-		if (change == null) {
-			prefix = req.isDeleted() ? "Delete" : "Insert";
-		} else if (change instanceof NamePartView.AddChange) {
-			prefix = "Insert";
-		} else if (change instanceof NamePartView.ModifyChange) {
-			final ModifyChange modifyChange = (ModifyChange) change;
-			if ((isFullName && modifyChange.getNewName() != null) || !isFullName && modifyChange.getNewMnemonic() != null) {
-				prefix = "Modify";
-			} else {
-				prefix = "Insert";
-			}
-		} else if (change instanceof NamePartView.DeleteChange) {
-			prefix = "Delete";
-		} else {
-			throw new UnhandledCaseException();
-		}
-
-		final String postfix;
-		if (change == null) {
-			postfix = "Approved";
-		} else if (change instanceof NamePartView.ModifyChange && !((isFullName && ((ModifyChange) change).getNewName() != null) || !isFullName && ((ModifyChange) change).getNewMnemonic() != null)) {
-			postfix = "Approved";
-		} else if (change.getStatus() == NamePartRevisionStatus.APPROVED) {
-			postfix = "Approved";
-		} else if (change.getStatus() == NamePartRevisionStatus.CANCELLED) {
-			postfix = "Cancelled";
-		} else if (change.getStatus() == NamePartRevisionStatus.PENDING) {
-			postfix = "Processing";
-		} else if (change.getStatus() == NamePartRevisionStatus.REJECTED) {
-			postfix = "Rejected";
-		} else {
-			throw new IllegalStateException();
-		}
-
-		return prefix + "-" + postfix;
+	public String nameStyleClass(NamePartView req) {
+		return req!=null ? nameStatus(req).replace(" ","-"): "";
 	}
 
-	public String historyRevisionStyleClass(NamePartView req) {
-		return req != null && req.isDeleted() ? "Delete-Approved" : "";
+	public String nameCancelStyleClass(NamePartView req) {
+		return isPending(req.getPendingChange()) ? "Cancel-"+nameStyleClass(req).toLowerCase(): "";
 	}
 
+	public boolean isPending(Change change){
+		return change != null && change.getStatus() == NamePartRevisionStatus.PENDING ;
+	}
+	
+	public String statusStyleClass(NamePartView req) {
+		return req != null ? namePendingStatus(req).replace(" ", "-") : "";
+	}
+	
 	public String nameStatus(NamePartView req) {
 		final Change change = req.getPendingChange();
-		if (change != null && change.getStatus() == NamePartRevisionStatus.PENDING) {            
+		if (isPending(change)) {            
 			if (change instanceof NamePartView.DeleteChange) {
 				return "Pending deletion";
 			} else if (change instanceof NamePartView.ModifyChange) {
@@ -345,23 +349,27 @@ public class NamePartsController implements Serializable {
 			} else {
 				throw new UnhandledCaseException();
 			}
-		} else if (req.getCurrentRevision().getStatus().equals(NamePartRevisionStatus.APPROVED)) {
-			return req.getCurrentRevision().isDeleted() ? "Deleted" : "Approved";
 		} else {
-			throw new UnhandledCaseException();
+			return namePendingStatus(req);
 		}
 	}
-
-	public String nameHistoryStatus(NamePartRevision nreq) {
-		switch (nreq.getStatus()) {
+	
+    public String namePendingStatus(NamePartView req){
+		switch (req.getPendingOrElseCurrentRevision().getStatus()) {
 		case PENDING: return "In-Process";
 		case CANCELLED: return "Cancelled";
 		case REJECTED: return "Rejected";
-		case APPROVED: return nreq.isDeleted() ? "Deleted" : "Approved";
+		case APPROVED: return req.isDeleted() ? "Deleted" : "Approved";
 		default: throw new UnhandledCaseException();
 		}
-	}
+    }
 
+//	@Deprecated
+//	public String nameHistoryStatus(NamePartView req) {
+//		return namePendingStatus(req);
+//	}
+	
+	@Deprecated
 	public String nameViewClass(NamePartView entry) {
 		switch (entry.getNameEvent().getStatus()) {
 		case PENDING: return "Processing";
@@ -384,6 +392,9 @@ public class NamePartsController implements Serializable {
 
 	public String getFormComment() { return formComment != null ? formComment : ""; }
 	public void setFormComment(String formComment) { this.formComment = !formComment.isEmpty() ? formComment : null; }
+	
+	public String getFormDescription() { return formDescription !=null ? formDescription: "" ; }
+	public void setFormDescription(String formDescription){this.formDescription =!formDescription.isEmpty() ? formDescription : null;}
 
 	public void prepareHistoryPopup() {
 		final NamePart namePart = As.notNull(getSelectedName()).getNamePart();
@@ -397,6 +408,7 @@ public class NamePartsController implements Serializable {
 	public void prepareAddPopup() {
 		formName = null;
 		formMnemonic = null;
+		formDescription = null;
 		formComment = null;
 		RequestContext.getCurrentInstance().reset("addNameForm:grid");
 	}
@@ -405,6 +417,7 @@ public class NamePartsController implements Serializable {
 		final NamePartRevision namePartRevision = As.notNull(getSelectedName()).getPendingOrElseCurrentRevision();
 		formName = namePartRevision.getName();
 		formMnemonic = namePartRevision.getMnemonic();
+		formDescription = namePartRevision.getDescription();
 		formComment = null;
 		RequestContext.getCurrentInstance().reset("ModNameForm:pgrid");
 	}

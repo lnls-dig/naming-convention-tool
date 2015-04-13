@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fc="http://java.sun.com/jsf/composite/comps"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+	<p:treeTable id="#{treeId}" value="#{view}" var="namePart"
+		liveResize="true" selection="#{namePartsController.selectedNodes}"
+		dynamic="true" selectionMode="#{selectionMode}" scrollable="true" scrollWidth="auto"
+		resizableColumns="true">
+		<p:ajax event="select" update="#{update}" />
+		<p:ajax event="unselect" update="#{update}" />
+		<p:ajax event="expand" listener="#{namePartsController.onNodeExpand}" />
+		<p:ajax event="collapse"
+			listener="#{namePartsController.onNodeCollapse}" />
+		<p:column id="nameDesc" headerText="Full Name" style="width:25%">
+			<h:outputText value="#{namePartsController.getNewName(namePart)}"
+				styleClass="#{namePartsController.isNameModified(namePart) ? 'Proposed' : namePartsController.nameStyleClass(namePart)}" />
+			<h:outputText value=" "
+				rendered="#{namePartsController.isNameModified(namePart)}" />
+			<h:outputText value="#{namePart.name}"
+				styleClass="Pending-deletion"
+				rendered="#{namePartsController.isNameModified(namePart)}" />
+		</p:column>
+		<p:column id="nameCode" headerText="Mnemonic" style="width: 10%">
+			<h:outputText value="#{namePartsController.getNewMnemonic(namePart)}"
+				styleClass="#{namePartsController.isMnemonicModified(namePart) ? 'Proposed' : namePartsController.nameStyleClass(namePart)}" />
+			<h:outputText value=" "
+				rendered="#{namePartsController.isMnemonicModified(namePart)}" />
+			<h:outputText value="#{namePart.mnemonic}"
+				styleClass="Pending-deletion"
+				rendered="#{namePartsController.isMnemonicModified(namePart)}" />
+		</p:column>
+		<p:column id="description" headerText="Description/Comment"
+			style="width:50%">
+			<h:outputText
+				value="#{namePartsController.getNewDescription(namePart)}"
+				styleClass="#{namePartsController.isDescriptionModified(namePart) ? 'Proposed' : namePartsController.nameStyleClass(namePart)}" />
+			<h:outputText value=" "
+				rendered="#{namePartsController.isDescriptionModified(namePart)}" />
+			<h:outputText value="#{namePart.description}"
+				styleClass="Pending-deletion"
+				rendered="#{namePartsController.isDescriptionModified(namePart)}" />
+		</p:column>
+		<p:column id="status" headerText="Status" style="width: 10%">
+			<h:outputText value="#{namePartsController.nameStatus(namePart)}"
+				styleClass="#{namePartsController.statusStyleClass(namePart)}" />
+			<h:outputLink id="pendingComment" value="#"
+				rendered="#{namePartsController.hasPendingComment(namePart)}">
+				<h:outputText styleClass="ui-icon ui-icon-info"
+					style="display:inline-block; margin-left:10px !important; vertical-align:bottom !important;" />
+			</h:outputLink>
+			<p:tooltip for="pendingComment">
+				<h:outputText
+					value="#{namePartsController.getPendingComment(namePart)}"
+					style="white-space: pre;" escape="false" />
+			</p:tooltip>
+		</p:column>
+	</p:treeTable>
+</ui:composition>

@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+	<h:form id="#{formId}">
+		<p:dialog id="#{widgetId}" widgetVar="#{widgetId}" modal="true" resizable="false">
+			<f:facet name="header">
+				<h:outputText value="#{widgetTitle}" />
+			</f:facet>
+			<h:panelGrid id="#{gridId}" columns="2" style="text-align: left">
+				<h:outputLabel for="idesc" value="Full Name:" />
+				<h:panelGroup>
+					<p:inputText id="idesc" value="#{fullName}"
+						required="true" requiredMessage="Please enter a name." />
+					<p:watermark for="idesc" value="e.g. Flux Capacitor" />
+					<p:message for="idesc" />
+				</h:panelGroup>
+				
+				<h:outputLabel for="icode" value="Mnemonic:" />
+				<h:panelGroup>
+					<p:inputText id="icode" value="#{mnemonic}"
+						onkeyup="#{warning}" required="true" requiredMessage="Please enter a mnemonic.">
+						<f:validator validatorId="#{validator}" />
+					</p:inputText>
+					<p:watermark for="icode" value="e.g. FluxC" />
+					<p:message for="icode" />
+					<div id="addNameForm:mnemonicLengthWarning"
+						class="ui-message ui-message-warn ui-widget ui-corner-all"
+						style="display: none">
+						<span class="ui-message-warn-icon"></span> <span
+							class="ui-message-warn-detail">Mnemonic should be between
+							2 and 4 characters long although 6 characters are allowed.</span>
+					</div>
+				</h:panelGroup>
+
+				<h:outputLabel for="desc" value="Description (optional):" />
+				<h:panelGroup>
+					<p:inputTextarea id="desc" rows="5" cols="60" counter="dcounter"
+						maxlength="254" value="#{description}"
+						counterTemplate="{0} characters remaining." autoResize="false" />
+					<br />
+					<h:outputText id="dcounter" />
+				</h:panelGroup>
+
+				<h:outputLabel for="icomm" value="Commit Message (optional):" />
+				<h:panelGroup>
+					<p:inputTextarea id="icomm" rows="5" cols="60" counter="icounter"
+						maxlength="254" value="#{comment}"
+						counterTemplate="{0} characters remaining." autoResize="false" />
+					<br />
+					<h:outputText id="icounter" />
+				</h:panelGroup>
+			</h:panelGrid>
+			<p:separator />
+			<p:commandButton value="Cancel" style="float: right"
+				onclick="#{widgetId}.hide()" />
+			<p:commandButton value="Submit" style="float: right"
+				update="#{gridId} :ReqSubForm"
+				oncomplete="if (args &amp;&amp; !args.validationFailed) #{widgetId}.hide(); resizePanel()"
+				action="#{namePartsController[submitHandler]}" />
+		</p:dialog>
+	</h:form>
+</ui:composition>
