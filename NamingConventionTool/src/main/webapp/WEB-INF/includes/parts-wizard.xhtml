@@ -8,23 +8,18 @@
 	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
 	<h:form id="#{formId}">
-		<p:dialog id="#{widgetId}" widgetVar="#{widgetId}" modal="true" resizable="false">
-			<f:facet name="header">
-				<h:outputText value="#{widgetTitle}" />
-			</f:facet>
-			<h:panelGrid id="#{gridId}" columns="2" style="text-align: left">
-				<h:outputLabel for="idesc" value="Full Name:" />
+		<p:dialog id="#{widgetId}" widgetVar="#{widgetId}" header="#{widgetTitle}" modal="true" width="800" >
+			<h:panelGrid id="#{gridId}" columns="2" width="100%">
+				<p:outputLabel for="idesc" value="Full Name:" />
 				<h:panelGroup>
-					<p:inputText id="idesc" value="#{fullName}"
-						required="true" requiredMessage="Please enter a name." />
+					<p:inputText id="idesc" value="#{fullName}"	required="true" requiredMessage="Please enter a name." style="width:100%" />
 					<p:watermark for="idesc" value="e.g. Flux Capacitor" />
 					<p:message for="idesc" />
 				</h:panelGroup>
 				
-				<h:outputLabel for="icode" value="Mnemonic:" />
-				<h:panelGroup>
-					<p:inputText id="icode" value="#{mnemonic}"
-						onkeyup="#{warning}" required="true" requiredMessage="Please enter a mnemonic.">
+				<p:outputLabel for="icode" value="Mnemonic:" />
+				<h:panelGroup >
+					<p:inputText id="icode" value="#{mnemonic}"	onkeyup="#{warning}" required="true" requiredMessage="Please enter a mnemonic." style="width:100%">
 						<f:validator validatorId="#{validator}" />
 					</p:inputText>
 					<p:watermark for="icode" value="e.g. FluxC" />
@@ -38,7 +33,7 @@
 					</div>
 				</h:panelGroup>
 
-				<h:outputLabel for="desc" value="Description (optional):" />
+				<p:outputLabel for="desc" value="Description:" />	
 				<h:panelGroup>
 					<p:inputTextarea id="desc" rows="5" cols="60" counter="dcounter"
 						maxlength="254" value="#{description}"
@@ -46,23 +41,28 @@
 					<br />
 					<h:outputText id="dcounter" />
 				</h:panelGroup>
-
-				<h:outputLabel for="icomm" value="Commit Message (optional):" />
+			</h:panelGrid>
+			<p:separator />
+			<h:panelGrid width="100%">
 				<h:panelGroup>
+				<p:outputLabel for="icomm" value="Commit Message:" />
 					<p:inputTextarea id="icomm" rows="5" cols="60" counter="icounter"
 						maxlength="254" value="#{comment}"
 						counterTemplate="{0} characters remaining." autoResize="false" />
 					<br />
 					<h:outputText id="icounter" />
 				</h:panelGroup>
-			</h:panelGrid>
-			<p:separator />
-			<p:commandButton value="Cancel" style="float: right"
-				onclick="#{widgetId}.hide()" />
+
+			<f:facet name="footer">
 			<p:commandButton value="Submit" style="float: right"
 				update="#{gridId} :ReqSubForm"
 				oncomplete="if (args &amp;&amp; !args.validationFailed) #{widgetId}.hide(); resizePanel()"
 				action="#{namePartsController[submitHandler]}" />
+			<p:commandButton value="Cancel" style="float: right"
+				onclick="#{widgetId}.hide()" />
+			</f:facet>
+			</h:panelGrid>
+
 		</p:dialog>
 	</h:form>
 </ui:composition>

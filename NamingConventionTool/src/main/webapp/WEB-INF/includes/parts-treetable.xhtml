@@ -8,46 +8,32 @@
 	xmlns:h="http://java.sun.com/jsf/html">
 
 	<p:treeTable id="#{treeId}" value="#{view}" var="namePart"
-		liveResize="true" selection="#{namePartsController.selectedNodes}"
+		 selection="#{namePartsController.selectedNodes}"
 		dynamic="true" selectionMode="#{selectionMode}" scrollable="true" scrollWidth="auto"
-		resizableColumns="true">
+		resizableColumns="true" style="padding:0; margin:0">
 		<p:ajax event="select" update="#{update}" />
 		<p:ajax event="unselect" update="#{update}" />
 		<p:ajax event="expand" listener="#{namePartsController.onNodeExpand}" />
 		<p:ajax event="collapse"
 			listener="#{namePartsController.onNodeCollapse}" />
 		<p:column id="nameDesc" headerText="Full Name" style="width:25%">
-			<h:outputText value="#{namePartsController.getNewName(namePart)}"
-				styleClass="#{namePartsController.isNameModified(namePart) ? 'Proposed' : namePartsController.nameStyleClass(namePart)}" />
-			<h:outputText value=" "
-				rendered="#{namePartsController.isNameModified(namePart)}" />
-			<h:outputText value="#{namePart.name}"
-				styleClass="Pending-deletion"
-				rendered="#{namePartsController.isNameModified(namePart)}" />
+			<h:outputText value="#{namePart.newName}" styleClass="#{namePartsController.newStyleClass(namePart, namePart.isNameModified())}" />
+			<h:outputText value=" " rendered="#{namePart.isNameModified()}" />
+			<h:outputText value="#{namePart.name}" styleClass="#{namePartsController.oldStyleClass}" rendered="#{namePart.isNameModified()}" />
 		</p:column>
 		<p:column id="nameCode" headerText="Mnemonic" style="width: 10%">
-			<h:outputText value="#{namePartsController.getNewMnemonic(namePart)}"
-				styleClass="#{namePartsController.isMnemonicModified(namePart) ? 'Proposed' : namePartsController.nameStyleClass(namePart)}" />
-			<h:outputText value=" "
-				rendered="#{namePartsController.isMnemonicModified(namePart)}" />
-			<h:outputText value="#{namePart.mnemonic}"
-				styleClass="Pending-deletion"
-				rendered="#{namePartsController.isMnemonicModified(namePart)}" />
+			<h:outputText value="#{namePart.newMnemonic}"	styleClass="#{namePartsController.newStyleClass(namePart, namePart.isMnemonicModified())}" />
+			<h:outputText value=" " rendered="#{namePart.isMnemonicModified()}" />
+			<h:outputText value="#{namePart.mnemonic}" styleClass="#{namePartsController.oldStyleClass}" rendered="#{namePart.isMnemonicModified()}" />
 		</p:column>
-		<p:column id="description" headerText="Description/Comment"
-			style="width:50%">
-			<h:outputText
-				value="#{namePartsController.getNewDescription(namePart)}"
-				styleClass="#{namePartsController.isDescriptionModified(namePart) ? 'Proposed' : namePartsController.nameStyleClass(namePart)}" />
-			<h:outputText value=" "
-				rendered="#{namePartsController.isDescriptionModified(namePart)}" />
-			<h:outputText value="#{namePart.description}"
-				styleClass="Pending-deletion"
-				rendered="#{namePartsController.isDescriptionModified(namePart)}" />
+		<p:column id="description" headerText="Description/Comment" style="width:50%">
+			<h:outputText value="#{namePart.newDescription}" styleClass="#{namePartsController.newStyleClass(namePart, namePart.isDescriptionModified())}" />
+			<h:outputText value=" " rendered="#{namePart.isDescriptionModified()}" />
+			<h:outputText value="#{namePart.description}" styleClass="#{namePartsController.oldStyleClass}" rendered="#{namePart.isDescriptionModified()}" />
 		</p:column>
 		<p:column id="status" headerText="Status" style="width: 10%">
-			<h:outputText value="#{namePartsController.nameStatus(namePart)}"
-				styleClass="#{namePartsController.statusStyleClass(namePart)}" />
+			<h:outputText value="#{namePartsController.getStatus(namePart)}"
+				styleClass="#{namePartsController.getStatus(namePart)}"/>
 			<h:outputLink id="pendingComment" value="#"
 				rendered="#{namePartsController.hasPendingComment(namePart)}">
 				<h:outputText styleClass="ui-icon ui-icon-info"
