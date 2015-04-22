@@ -42,8 +42,8 @@
 	<h:form id="loginForm">
 		<p:dialog id="loginDialog" widgetVar="loginDialog" header="Sign In"
 			modal="true" visible="#{loginController.isLoginRequested()}"
-			closable="false" width="400">
-			<h:panelGrid id="grid" columns="2" width="100%">
+			closable="false" >
+			<h:panelGrid id="grid" columns="2">
 				<p:outputLabel for="userid" value="Username:" />
 				<h:panelGroup>
 					<p:inputText id="userid" value="#{loginController.inputUsername}"
