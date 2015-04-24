@@ -1,7 +1,7 @@
 package org.openepics.names.model;
 
 /**
- * UserAccount's role that determines the user's access control permissions. Used by the SessionServiceTst (not RBAC)
+ * UserAccount's role that determines the user's access control permissions. Used by the SessionServiceTest (not RBAC)
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */

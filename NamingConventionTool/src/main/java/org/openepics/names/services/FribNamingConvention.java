@@ -51,4 +51,9 @@ public class FribNamingConvention implements NamingConvention {
 	public String areaName(List<String> sectionPath) {
 		throw new NotImplementedException();
 	}
+
+	@Override
+	public boolean isMnemonicNullable(List<String> mnemonicPath, NamePartType mnemonicType) {
+		throw new NotImplementedException();
+	}
 }

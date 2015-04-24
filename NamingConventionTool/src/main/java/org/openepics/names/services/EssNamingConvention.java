@@ -3,7 +3,9 @@ package org.openepics.names.services;
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Alternative;
+
 import org.openepics.names.model.NamePartType;
+
 import java.util.List;
 
 /**
@@ -37,13 +39,17 @@ public class EssNamingConvention implements NamingConvention {
 		return false;
 		}		
 	}
+	
+	@Override public boolean isMnemonicNullable(List<String> parentPath, NamePartType mnemonicType){
+		return (new NameElement(parentPath, mnemonicType)).isNullable();
+	}
 
 	@Override public boolean isInstanceIndexValid(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
 		return isNameValid(instanceIndex, 0,6);
 	}
 
-	@Override public String equivalenceClassRepresentative(String name) {
-		return name.toUpperCase().replaceAll("(?<=[A-Za-z])0+", "").replace('I', '1').replace('L', '1').replace('O', '0').replace('W', 'V').replaceAll("(?<!\\d)0+(?=\\d)", "");
+	@Override public String equivalenceClassRepresentative(@Nullable String name) {
+		return name!=null ? name.toUpperCase().replaceAll("(?<=[A-Za-z])0+", "").replace('I', '1').replace('L', '1').replace('O', '0').replace('W', 'V').replaceAll("(?<!\\d)0+(?=\\d)", ""):null;
 	}
 
 	@Override public boolean canMnemonicsCoexist(List<String> mnemonicPath1, NamePartType mnemonicType1, List<String> mnemonicPath2, NamePartType mnemonicType2) {
@@ -84,8 +90,7 @@ public class EssNamingConvention implements NamingConvention {
 		List<String> path;
 		boolean areaStructure;
 		boolean deviceStructure;
-		Integer level;
-				
+		Integer level;				
 
 		NameElement(List<String> path, NamePartType type){
 			this.path=path;
@@ -130,8 +135,13 @@ public class EssNamingConvention implements NamingConvention {
 		boolean isSection() {
 			return areaStructure && level==2;
 		}
+		
 		boolean isSubsection() {
 			return areaStructure && level==3;
+		}
+
+		boolean isNullable(){
+			return isSuperSection()|| isDeviceGroup();
 		}
 		
 		String getSection(){
@@ -139,7 +149,7 @@ public class EssNamingConvention implements NamingConvention {
 		}
 
 		String getDiscipline(){
-			return isDiscipline() || isDeviceGroup() || isDeviceType()  ? path.get(0): null;
+			return isDiscipline() || isDeviceGroup() || isDeviceType() ? path.get(0): null;
 		}
 		
 		String getSubsection() {
@@ -151,7 +161,7 @@ public class EssNamingConvention implements NamingConvention {
 		}
 
 		boolean canCoexistWith(NameElement other) {
-			if(isDiscipline() ||  isSection() || other.isDiscipline() || other.isSection()){ 
+			if((isDiscipline() || isSection())&& !other.isNullable() || (other.isDiscipline()||other.isSection())&&!isNullable()){
 				return false;
 			} else if ((isDeviceType() && other.isDeviceType()) && getDiscipline().equals(other.getDiscipline())){
 				return false;

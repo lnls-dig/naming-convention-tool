@@ -310,4 +310,8 @@ public class RestrictedNamePartService {
     public @Nullable DeviceRevision currentDeviceRevision(UUID deviceUuid) {
         return namePartService.currentDeviceRevision(deviceUuid);
     }
+
+//	public boolean isMnemonicRequired(NamePartType namePartType, NamePart parent) {
+//		return namePartService.isMnemonicRequired(namePartType, parent);
+//	}
 }

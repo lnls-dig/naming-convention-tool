@@ -98,4 +98,13 @@ public interface NamingConvention {
      * @return
      */
 	String areaName(List<String> sectionPath);
+
+	
+	/**
+	 * True if the mnemonic can be null, i.e, the mnemonic is not part of the name. 
+	 * @param mnemonicPath
+	 * @param mnemonicType
+	 * @return
+	 */
+	boolean isMnemonicNullable(List<String> mnemonicPath, NamePartType mnemonicType);
 }

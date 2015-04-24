@@ -5,7 +5,7 @@
 
     <alternatives>
         <class>org.openepics.names.services.EssNamingConvention</class>
-        <class>org.openepics.names.services.SessionServiceRBAC</class>    
+        <class>org.openepics.names.services.SessionServiceTest</class>    
     </alternatives>
     
 </beans>
