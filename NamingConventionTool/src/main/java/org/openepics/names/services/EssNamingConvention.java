@@ -41,7 +41,12 @@ public class EssNamingConvention implements NamingConvention {
 	}
 	
 	@Override public boolean isMnemonicNullable(List<String> parentPath, NamePartType mnemonicType){
-		return (new NameElement(parentPath, mnemonicType)).isNullable();
+		NameElement parent= new NameElement(parentPath, mnemonicType);
+		if(parent.isAreaRoot()||parent.isDiscipline()){
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	@Override public boolean isInstanceIndexValid(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {

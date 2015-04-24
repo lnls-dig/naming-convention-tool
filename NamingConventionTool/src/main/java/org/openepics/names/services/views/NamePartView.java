@@ -111,7 +111,7 @@ public class NamePartView {
     }
     
     public boolean isMnemonicModified(){
-    	return isPendingModification() && !pendingRevision.getMnemonic().equals(currentRevision.getMnemonic());
+    	return isPendingModification() && !Objects.toString(pendingRevision.getMnemonic(),"").equals(Objects.toString(currentRevision.getMnemonic(),""));
     }
 
     public boolean isDescriptionModified(){
@@ -192,7 +192,7 @@ public class NamePartView {
     public List<String> getMnemonicPath() {
         final ImmutableList.Builder<String> pathElements = ImmutableList.builder();
         for (NamePartView pathElement = this; pathElement != null; pathElement = pathElement.getParent()) {
-            pathElements.add(pathElement.getMnemonic());
+            pathElements.add(pathElement.getMnemonic()!=null? pathElement.getMnemonic():"");
         }
         return pathElements.build().reverse();
     }

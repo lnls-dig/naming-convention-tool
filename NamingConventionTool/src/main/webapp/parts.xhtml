@@ -107,6 +107,7 @@
 				<ui:param name="warning" value="displayMnemonicLengthWarningOnAdd()" />
 				<ui:param name="mnemonic"
 					value="#{namePartsController.formMnemonic}" />
+				<ui:param name="required" value="#{namePartsController.isAddMnemonicRequired()}"/>
 				<ui:param name="description"
 					value="#{namePartsController.formDescription}" />
 				<ui:param name="comment" value="#{namePartsController.formComment}" />
@@ -122,6 +123,7 @@
 				<ui:param name="fullName" value="#{namePartsController.formName}" />
 				<ui:param name="mnemonic"
 					value="#{namePartsController.formMnemonic}" />
+				<ui:param name="required" value="#{namePartsController.isModifyMnemonicRequired()}"/>
 				<ui:param name="validator" value="custom.modifyMnemonicValidator" />
 				<ui:param name="warning" value="displayMnemonicLengthWarningOnMod()" />
 				<ui:param name="description"

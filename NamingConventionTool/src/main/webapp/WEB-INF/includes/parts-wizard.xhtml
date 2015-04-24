@@ -19,7 +19,7 @@
 				
 				<p:outputLabel for="icode" value="Mnemonic:" />
 				<h:panelGroup >
-					<p:inputText id="icode" value="#{mnemonic}"	onkeyup="#{warning}" required="true" requiredMessage="Please enter a mnemonic." style="width:100%">
+					<p:inputText id="icode" value="#{mnemonic}"	onkeyup="#{warning}" required="#{required}" requiredMessage="Please enter a mnemonic." style="width:100%">
 						<f:validator validatorId="#{validator}" />
 					</p:inputText>
 					<p:watermark for="icode" value="e.g. FluxC" />

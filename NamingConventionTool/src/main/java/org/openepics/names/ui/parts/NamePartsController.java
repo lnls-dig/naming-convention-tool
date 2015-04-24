@@ -140,16 +140,22 @@ public class NamePartsController implements Serializable {
 		final @Nullable NamePart parent = namePart.getParent() != null ? namePart.getParent().getNamePart() : null;
 		return namePartService.isMnemonicValid(namePartType, parent, mnemonic);
 	}
-//	public boolean isModifyMnemonicRequired(){
+		
+	public boolean isAddMnemonicRequired(){
+		final NamePart parent= getSelectedName() != null ? getSelectedName().getNamePart():null;
+		return namePartService.isMnemonicRequired(namePartType,parent);
+	}
+
+	public boolean isModifyMnemonicRequired(){
 //		final NamePartView namePart = As.notNull(getSelectedName());
-//		final @Nullable NamePart parent=namePart.getParent() !=null ? namePart.getParent().getNamePart():null;
-//		return namePartService.isMnemonicRequired(namePartType,parent);
-//	}
-//	
-//	public boolean isAddMnemonicRequired(){
-//		final NamePart parent= getSelectedName() != null ? getSelectedName().getNamePart():null;
-//		return namePartService.isMnemonicRequired(namePartType,parent);
-//	}
+		final @Nullable NamePartView namePart = getSelectedName();
+		if(namePart==null){
+			return true;
+		} else {
+		final @Nullable NamePart parent=namePart.getParent() !=null ? namePart.getParent().getNamePart():null;
+		return namePartService.isMnemonicRequired(namePartType,parent);
+		}
+	}
 
 	public boolean isAddMnemonicUnique(String mnemonic) {
 		final @Nullable NamePart parent = getSelectedName() != null ? getSelectedName().getNamePart() : null;
@@ -385,8 +391,8 @@ public class NamePartsController implements Serializable {
 	public String getFormName() { return formName; }
 	public void setFormName(String formName) { this.formName = formName; }
 
-	public String getFormMnemonic() { return formMnemonic; }
-	public void setFormMnemonic(String formMnemonic) { this.formMnemonic = formMnemonic; }
+	public String getFormMnemonic() { return formMnemonic !=null ? formMnemonic : ""; }
+	public void setFormMnemonic(String formMnemonic) { this.formMnemonic = !formMnemonic.isEmpty()? formMnemonic:null;}
 
 	public String getFormComment() { return formComment != null ? formComment : ""; }
 	public void setFormComment(String formComment) { this.formComment = !formComment.isEmpty() ? formComment : null; }

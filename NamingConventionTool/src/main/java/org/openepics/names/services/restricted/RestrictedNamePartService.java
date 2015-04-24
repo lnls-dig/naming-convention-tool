@@ -311,7 +311,7 @@ public class RestrictedNamePartService {
         return namePartService.currentDeviceRevision(deviceUuid);
     }
 
-//	public boolean isMnemonicRequired(NamePartType namePartType, NamePart parent) {
-//		return namePartService.isMnemonicRequired(namePartType, parent);
-//	}
+	public boolean isMnemonicRequired(NamePartType namePartType, NamePart parent) {
+		return namePartService.isMnemonicRequired(namePartType, parent);
+	}
 }

@@ -36,6 +36,17 @@ public class NamePartService {
     @PersistenceContext private EntityManager em;
 
     /**
+     * True if the mnemonic can be null.
+     * @param namePartType the type of the name part
+     * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
+     * @return
+     */
+    public boolean isMnemonicRequired(NamePartType namePartType, @Nullable NamePart parent) {
+        final @Nullable NamePartView parentView = parent != null ? view(parent) : null;
+        final List<String> parentPath = parentView != null ? parentView.getMnemonicPath() : ImmutableList.<String>of();
+            return !namingConvention.isMnemonicNullable(parentPath, namePartType);
+	}
+    /**
      * True if the mnemonic of a name part is valid in the context of the parent.
      *
      * @param namePartType the type of the name part
@@ -671,20 +682,5 @@ public class NamePartService {
         return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deviceType = :deviceType AND r.deleted = false", Device.class).setParameter("deviceType", deviceType).getResultList();
     }
 
-//	public boolean isMnemonicRequired(NamePartType namePartType, NamePart parent) {
-//        final @Nullable NamePartView parentView = parent != null ? view(parent) : null;
-//        final List<String> parentPath = parentView != null ? parentView.getMnemonicPath() : ImmutableList.<String>of();
-//            return namingConvention.isSectionNameValid(parentPath, namePartType);
-//        } else if (namePartType == NamePartType.DEVICE_TYPE) {
-//            return namingConvention.isDeviceTypeNameValid(parentPath, mnemonic);
-//        } else {
-//            throw new UnhandledCaseException();
-//        }
-//		
-//		
-//		
-//		
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
+
 }

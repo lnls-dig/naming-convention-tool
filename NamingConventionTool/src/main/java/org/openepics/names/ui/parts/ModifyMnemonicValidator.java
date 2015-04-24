@@ -24,7 +24,7 @@ public class ModifyMnemonicValidator implements Validator {
 
         if (!controller.isModifyMnemonicValid((String) o)) {
             throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Error", "The mnemonic does not conform to the Naming Convention rules."));
-        } else if (!controller.isModifyMnemonicUnique((String) o)) {
+        } else if ( controller.isModifyMnemonicRequired() && !controller.isModifyMnemonicUnique((String) o)) {
             throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Error", "The mnemonic is not unique or is too similar to an existing one."));
         } else {
             Marker.doNothing();
