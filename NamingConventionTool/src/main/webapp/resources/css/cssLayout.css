@@ -57,8 +57,7 @@
 	text-decoration: none;
 }
 
-.ui-state-hover, .ui-widget-header .ui-state-hover, .ui-widget-content .ui-state-hover
-	{
+.ui-state-hover, .ui-widget-header .ui-state-hover, .ui-widget-content .ui-state-hover{
 	box-shadow: none;
 	border: 1px solid #6fbee1;
 	background: #6FBEE1;

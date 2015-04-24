@@ -60,10 +60,12 @@
 				</h:panelGroup>
 				<f:facet name="footer">
 				<p:separator />					
-						<p:commandButton value="Cancel" update=":full"
+						<p:commandButton id="cancel" value="Cancel" update=":full"
 							action="#{loginController.cancel()}" style="float: left" />
-						<p:commandButton value="Sign In" update=":full"
+						<p:commandButton id="submit" value="Sign In" update=":full"
 							action="#{loginController.signIn()}" style="float: right" />
+	   					<p:defaultCommand target="submit" />
+	
 				</f:facet>
 			</h:panelGrid>
 
