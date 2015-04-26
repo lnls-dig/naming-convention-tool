@@ -6,19 +6,19 @@
 	<artifactId>names-jaxb</artifactId>
 	<description>JAXB objects used by NamingServiceTool. These objects are used by the services and the clients.</description>
 	<name>NamingConventionTool-JAXB</name>
-	<version>3.0.0</version>
+	<version>3.0.1</version>
 
 	<parent>
-		<groupId>se.lu.esss.ics</groupId>
+		<groupId>se.esss.ics</groupId>
 		<artifactId>ess-java-config</artifactId>
-		<version>1.1.0</version>
+		<version>2.0.0</version>
 		<relativePath></relativePath>
 	</parent>
 	<dependencies>
 		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-web-api</artifactId>
-			<version>6.0</version>
+			<version>7.0</version>
 		</dependency>
 	</dependencies>
 </project>
