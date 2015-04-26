@@ -29,7 +29,7 @@
 				<f:param name="i" value="3" />
 			</p:menuitem>
 			<p:menuitem value="Help" icon="ui-icon-help"
-				disabled="#{!(userManager.isLoggedIn())}" outcome="help.xhtml" >			
+				disabled="#{!(userManager.isLoggedIn())}" outcome="help.xhtml">
 				<f:param name="i" value="4" />
 			</p:menuitem>
 			<p:menuitem value="API Manual" icon="ui-icon-help"
@@ -40,33 +40,33 @@
 	</h:form>
 
 	<h:form id="loginForm">
-		<p:dialog id="loginDialog" widgetVar="loginDialog" modal="true"
-			visible="#{loginController.isLoginRequested()}" closable="false">
-			<f:facet name="header">
-				<h:outputText value="Sign In" />
-			</f:facet>
-			<p:panelGrid id="grid" columns="2" styleClass="borderless">
-				<p:outputLabel for="userid" value="Username" />
+		<p:dialog id="loginDialog" widgetVar="loginDialog" header="Sign In"
+			modal="true" visible="#{loginController.isLoginRequested()}"
+			closable="false" >
+			<h:panelGrid id="grid" columns="2">
+				<p:outputLabel for="userid" value="Username:" />
 				<h:panelGroup>
 					<p:inputText id="userid" value="#{loginController.inputUsername}"
-						label="Username" />
+						label="Username"  width="100%" min-width="100%" max-width="100%"/>
 					<p:watermark for="userid" value="Enter username" />
 					<p:message for="userid" />
 				</h:panelGroup>
-				<p:outputLabel for="passwd" value="Password" />
+				<p:outputLabel for="passwd" value="Password:" />
 				<h:panelGroup>
 					<p:password id="passwd" value="#{loginController.inputPassword}"
-						label="Password" />
+						label="Password"   width="100%" min-width="100%" max-width="100%"/>
 					<p:watermark for="passwd" value="Enter password" />
 					<p:message for="passwd" />
 				</h:panelGroup>
-			</p:panelGrid>
-			<p:separator />
+				<f:facet name="footer">
+				<p:separator />					
+						<p:commandButton value="Cancel" update=":full"
+							action="#{loginController.cancel()}" style="float: left" />
+						<p:commandButton value="Sign In" update=":full"
+							action="#{loginController.signIn()}" style="float: right" />
+				</f:facet>
+			</h:panelGrid>
 
-			<p:commandButton value="Sign In" update=":full"
-				action="#{loginController.signIn()}" style="float: left" />
-			<p:commandButton value="Cancel" update=":full"
-				action="#{loginController.cancel()}" style="float: right" />
 		</p:dialog>
 	</h:form>
 </ui:composition>

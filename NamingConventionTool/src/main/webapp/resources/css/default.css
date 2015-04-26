@@ -30,13 +30,11 @@ body:after,.cf:after {
     visibility:hidden;
 }
 
-/* body { */
-/*     font-size: 12px; */
-/*     font-family:Arial, sans-serif; */
-/* } */
-
 h3 {
-	color:#005d79;
+	color: #006A91;
+}
+td{
+	text-align:left;
 }
 
 th{

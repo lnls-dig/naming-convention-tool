@@ -10,7 +10,8 @@
 	font-size: 1.0em;
 }
 
-.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button
+	{
 	font-family: Arial, sans-serif;
 	font-size: 1.0em;
 }
@@ -25,7 +26,7 @@
 	color: #000000;
 }
 
-.ui-widget-header{
+.ui-widget-header {
 	border: 1px solid #0094ca;
 	background: #0094ca;
 	color: #FFFFFF;
@@ -40,8 +41,8 @@
 
 /* Interaction states
 ----------------------------------*/
-.ui-state-default,
-.ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+.ui-state-default, .ui-widget-content .ui-state-default,
+	.ui-widget-header .ui-state-default {
 	box-shadow: none;
 	border: 1px solid #0094ca;
 	background: #0094ca;
@@ -56,8 +57,9 @@
 	text-decoration: none;
 }
 
-.ui-state-hover, .ui-widget-header .ui-state-hover, .ui-widget-content .ui-state-hover {
-	box-shadow:none;
+.ui-state-hover, .ui-widget-header .ui-state-hover, .ui-widget-content .ui-state-hover
+	{
+	box-shadow: none;
 	border: 1px solid #6fbee1;
 	background: #6FBEE1;
 	font-weight: normal;
@@ -65,11 +67,14 @@
 	text-shadow: none;
 }
 
-.ui-state-hover a, .ui-state-hover a:hover, .ui-state-hover a:link, .ui-state-hover a:visited {
+.ui-state-hover a, .ui-state-hover a:hover, .ui-state-hover a:link,
+	.ui-state-hover a:visited {
 	color: #FFFFFF;
 	text-decoration: none;
 }
-.ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus {
+
+.ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus
+	{
 	box-shadow: none;
 	border: 1px solid #6FBEE1;
 	background: #6FBEE1;
@@ -78,20 +83,22 @@
 	text-shadow: none;
 }
 
-.ui-state-focus a, .ui-state-focus a:hover, .ui-state-focus a:link,	.ui-state-focus a:visited {
+.ui-state-focus a, .ui-state-focus a:hover, .ui-state-focus a:link,
+	.ui-state-focus a:visited {
 	color: #FFFFFF;
 	text-decoration: none;
 	font-weight: normal;
 	text-shadow: none;
 }
 
-.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active {
-	box-shadow:none;
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active
+	{
+	box-shadow: none;
 	border: 1px solid #FFFFFF;
 	background: #FFFFFF;
-	font-weight: bold;
+	font-weight: normal;
 	color: #0094ca;
-	text-shadow:none;
+	text-shadow: none;
 }
 
 .ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited
@@ -99,22 +106,25 @@
 	color: #0094ca;
 	text-decoration: none;
 	font-weight: normal;
+	text-shadow: none;
 }
 
 /* Interaction Cues
 ----------------------------------*/
 .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight
 	{
-	box-shadow:none;
+	box-shadow: none;
 	border: 1px solid #DDDDDD;
 	text-shadow: none;
 	background: #DDDDDD;
-	color:#000000;
+	color: #000000;
 }
 
 .ui-widget-content .ui-state-highlight a, .ui-widget-header .ui-state-highlight a
 	{
-	color:#000000;
+	color: #000000;
+	text-decoration: none;
+	font-weight: normal;
 }
 
 .ui-widget-content .ui-state-error, .ui-widget-header .ui-state-error {
@@ -122,16 +132,23 @@
 	background: #FF7D00;
 	background-image: none;
 	color: #FFFFFF;
+	text-shadow: none;
 }
 
 .ui-state-error a, .ui-widget-content .ui-state-error a,
 	.ui-widget-header .ui-state-error a {
 	color: #FFFFFF;
+	text-decoration: none;
+	font-weight: normal;
+	text-shadow: none;
 }
 
 .ui-state-error-text, .ui-widget-content .ui-state-error-text,
 	.ui-widget-header .ui-state-error-text {
 	color: #FFFFFF;
+	text-decoration: none;
+	font-weight: normal;
+	text-shadow: none;
 }
 
 .ui-widget-content .ui-priority-primary, .ui-widget-header .ui-priority-primary
@@ -227,46 +244,55 @@
 	support: IE8 border-radius: 0px;
 }
 
-
 /* tabmenu */
 .ui-tabmenu-nav, .ui-tabmenu {
 	border: 0px solid #006A91;
 	background: #006A91;
 	color: #FFFFFF;
 }
+
 .ui-tabmenu .ui-tabmenu-nav {
-    margin: 0px;
-    padding: 0.2em 0.2em 0px;
+	margin: 0px;
+	padding: 0.2em 0.2em 0px;
 }
 
-li.ui-tabmenuitem.ui-status-active,
-li.ui-tabmenuitem.ui-status-default,
-li.ui-tabmenuitem.ui-status-hover{
-	border: 0px none; 	
+li.ui-tabmenuitem.ui-status-active, li.ui-tabmenuitem.ui-status-default,
+	li.ui-tabmenuitem.ui-status-hover {
+	border: 0px none;
 }
 /* button */
 .ui-button {
-	vertical-align:middle;
-	padding: 0px;
-	margin:0px;
-	height: 30px;
+	vertical-align: middle;
+	padding: 0px !important;
+	margin: 0px !important;
+	height: 30px !important;
 }
-
 
 /* Inputfield */
 .ui-inputfield {
-	vertical-align:middle;
+	vertical-align: middle;
 	margin: 0px;
-    padding: 4px;
+	padding: 4px;
 	height: 30px;
-    font-weight: normal;
+	font-weight: normal;
 }
 
-.ui-inputfield, .ui-widget-content .ui-inputfield, .ui-widget-header .ui-inputfield {
-    background: #ffffff;
-    box-shadow: inset 0 2px 2px #8f8f8f;
-    color: #000000;
-    font-weight: normal;
+.ui-inputfield, .ui-widget-content .ui-inputfield, .ui-widget-header .ui-inputfield
+	{
+	background: #ffffff;
+	box-shadow: inset 0 2px 2px #8f8f8f;
+	color: #000000;
+	font-weight: normal;
+}
+
+.ui-inputtextarea {
+	min-width: 100%;
+	max-width: 100%;
+	height: 75px;
+}
+
+.ui-outputlabel {
+	
 }
 
 /* .ui-inputfield.ui-state-focus, .ui-widget-content .ui-inputfield.ui-state-focus, .ui-widget-header .ui-inputfield.ui-state-focus { */
@@ -274,60 +300,75 @@ li.ui-tabmenuitem.ui-status-hover{
 /* } */
 
 /* Selectonemenu */
-.ui-selectonemenu{
-    vertical-align:middle; /* bug workaround to prevent outputLabel to be positioned at bottom.*/
-    padding:0px;
-	margin:0px;
+.ui-selectonemenu {
+	vertical-align: middle;
+	/* bug workaround to prevent outputLabel to be positioned at bottom.*/
+	padding: 0px;
+	margin: 0px;
 	overflow: hidden;
 }
 
-.ui-selectonemenu .ui-selectonemenu-label{
-    font-weight: normal;
-    overflow: hidden;
-    padding:4px;
-    margin:0px;
-    width:100%;
-	height:20px;			/*bug workaround. Should be 30px inherited from .ui-inputfield, but have to remove padding+border. */ 
+.ui-selectonemenu .ui-selectonemenu-label {
+	font-weight: normal;
+	overflow: hidden;
+	padding: 4px;
+	margin: 0px;
+	width: 100%;
+	height: 20px;
+	/*bug workaround. Should be 30px inherited from .ui-inputfield, but have to remove padding+border. */
 }
 
-/* panelgrid */
-
-.wizardStyleClass {
-	width: 500;
-	height: 500;
+.ui-treetable-scrollable .ui-treetable-scrollable-header,
+	.ui-datatable-scrollable .ui-datatable-scrollable-header {
+	background: transparent;
+	border: 0px none;
 }
 
-.ui-treetable table{
+
+.ui-treetable-scrollable-body {
+	overflow-y: scroll !important;
+}
+
+.ui-treetable table {
 	width: 100%;
 }
 
-.ui-treetable .ui-treetable-header{
+.ui-treetable .ui-treetable-header {
 	text-align: left;
 }
-/* .ui-tree { */
-/* 	background-color: white; */
-/* 	width: 480px; */
-/* 	height: 300px; */
-/* 	overflow: auto; */
-/* } */
 
-/* .ui-tree-content { */
-/* 	width: 400px; */
-/* } */
+.ui-datatable table {
+	width:100%;
+}
 
-div.wizardStyle {
-	width: 460px;
-	height: 450px;
+.ui-tree {
+	width: 100%;
+	height: 300;
+	overflow: auto;
+}
+
+.ui-wizard {
+	width: 100%;
+	height: 100%;
+}
+
+.ui-wizard-navbar {
+	height: 50px;
+	 /* bug workaround to prevent overflow */
+}
+
+kbd {
+	font-size: 1.2em;
 }
 
 sec, .sec {
-	color:  #0094ca;
+	color: #0094ca;
 	font-family: monospace;
 	font-size: 1.2em;
 }
 
 dev, .dev {
-	color:  #99CC00; 
+	color: #99CC00;
 	font-family: monospace;
 	font-size: 1.2em;
 }
@@ -341,28 +382,30 @@ dev, .dev {
 }
 
 /* styles for the new UI : */
-.Approved, .Pending-modification, .Cancel-pending-modification{
-	/* blank on purpose */	
+.Approved, .Propose-default {
+	/* blank on purpose */
+	
 }
 
-.In-Process, .Proposed, .Cancel-proposed{
+.Propose-added {
 	color: #5D7204;
-	text-decoration: none;
 }
 
-.Pending-deletion, .Process-deletion, .Cancel-pending-deletion {
+.Propose-deleted {
 	color: #C81919;
-	text-decoration: none;
 }
 
 .Cancelled, .Rejected, .Deleted {
 	color: #aaaaaa;
 }
 
-.Pending-deletion, .Process-deletion, .Cancel-proposed, .Deleted{
-	text-decoration: line-through;
+.Proposed {
+	font-weight: bold;
 }
 
+.Propose-deleted, .Cancel .Propose-added, .Delete, .Deleted {
+	text-decoration: line-through;
+}
 
 /* .noBorders>tbody>tr, .noBorders>tbody>tr>td { */
 /* 	background: none; */
@@ -402,46 +445,29 @@ dev, .dev {
 /* .ui-datatable td { */
 /* 	white-space: normal !important; */
 /* } */
-
 .para {
 	margin-bottom: 10px;
-	padding:
-	text-align: left;
+	padding: text-align: left;
 	border: none;
 }
 
 #title {
 	font-style: normal;
 	font-size: 30px;
-	color:#FFFFFF;
+	color: #FFFFFF;
 	text-align: center;
 	margin-top: 20px;
 }
 
 #logoPanel {
-	height: 100px; 
-	background-image : url('brand/logo.png');
+	height: 100px;
+	background-image: url('brand/logo.png');
 	background-repeat: no-repeat;
 }
 
 /* .ui-datatable-data { */
 /* 	text-align: left; */
 /* } */
-
-
-.ui-treetable-scrollable .ui-treetable-scrollable-header{
-	background:transparent;
-	border:0px none;
-}
-
-.previewTreeTable {
-	width: 900px;
-	max-height: 500px;
-	overflow: auto;
-}
-
-
-
 
 /* #top { */
 /* 	position: relative; */
@@ -453,9 +479,6 @@ dev, .dev {
 /* #menuform .ui-menuitem { */
 /* 	margin-right: 7px; */
 /* } */
-
 .textScreen {
 	max-width: 1100px;
 }
-
-

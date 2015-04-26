@@ -7,7 +7,7 @@
                 xmlns:h="http://java.sun.com/jsf/html">
 
     <!-- ===================Name History============================ -->
-    <p:dialog id="nameDetail" widgetVar="nameDetail" width="900" dynamic="true" maximizable="true" minimizable="true" modal="true" header="History">
+    <p:dialog id="nameDetail" widgetVar="nameDetail" dynamic="true" maximizable="true" minimizable="true" modal="true" header="History" width="1000">
         <p:dataTable id="historyTable" var="ncname" value="#{historyHandler}" paginator="false" rows="50" resizableColumns="true" rowKey="#{ncname.id}" scrollable="true" scrollHeight="300">
 
             <p:column id="histName" headerText="Name" styleClass="#{devicesController.historyRevisionStyleClass(ncname)}">

@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fc="http://java.sun.com/jsf/composite/comps"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+
+	<h:form id="#{formId}" >
+		<p:dialog id="#{widgetId}" widgetVar="#{widgetId}"  header="#{dialogHeader}" dynamic="true"
+			maximizable="true" modal="true" width="800">
+			<p:treeTable id="operationTreeTable" value="#{view}" var="candidate" resizableColumns="true"
+				scrollable="true" scrollHeight="300px">
+				<p:column headerText="Full Name" style="width:40%">
+					<h:outputText value="#{candidate.data.newName}"
+						styleClass="#{namePartsController.operationNewStyleClass(candidate,candidate.data.isNameModified())}" />
+					<h:outputText value=" "
+						rendered="#{candidate.data.isNameModified()}" />
+					<h:outputText value="#{candidate.data.name}"
+						styleClass="#{namePartsController.operationOldStyleClass()}"
+						rendered="#{candidate.data.isNameModified()}" />
+				</p:column>
+				<p:column headerText="Mnemonic" style="width: 10%">
+					<h:outputText value="#{candidate.data.newMnemonic}"
+						styleClass="#{namePartsController.operationNewStyleClass(candidate,candidate.data.isMnemonicModified())}" />
+					<h:outputText value=" "
+						rendered="#{candidate.data.isMnemonicModified()}" />
+					<h:outputText value="#{candidate.data.mnemonic}"
+						styleClass="#{namePartsController.operationOldStyleClass()}"
+						rendered="#{candidate.data.isMnemonicModified()}" />
+				</p:column>
+				<p:column headerText="Description/Comment">
+					<h:outputText value="#{candidate.data.newDescription}"
+						styleClass="#{namePartsController.operationNewStyleClass(candidate,candidate.data.isDescriptionModified())}" />
+					<h:outputText value=" "
+						rendered="#{candidate.data.isDescriptionModified()}" />
+					<h:outputText value="#{candidate.data.description}"
+						styleClass="#{namePartsController.operationOldStyleClass()}"
+						rendered="#{candidate.data.isDescriptionModified()}" />
+				</p:column>
+				<p:column headerText="Request" style="width:20%">
+					<h:outputText
+						value="#{namePartsController.operationStatus(candidate)}"
+						rendered="#{candidate.isAffected()}" />
+				</p:column>
+			</p:treeTable>
+			<h:panelGrid id="pgrid" style="width:100%;text-align: left">
+				<p:outputLabel for="comm"
+					value="#{'Commit Message:'}" />
+				<h:panelGroup>
+					<p:inputTextarea id="comm" counter="counter"  
+						maxlength="254" value="#{namePartsController.formComment}"
+						counterTemplate="{0} characters remaining." autoResize="false"
+						required="#{messageRequired}"
+						requiredMessage="Please enter a message." />
+					<br />
+					<p:message for="comm" />
+					<h:outputText id="counter" />
+				</h:panelGroup>
+				<h:panelGroup 
+					styleClass="ui-message-warn ui-corner-all" layout="block"
+					rendered="#{namePartsController.affectedDevicesCount > 0}">
+					<span class="ui-message-warn-icon" />
+					<h:panelGroup class="ui-message-warn-detail">
+						<h:outputText
+							rendered="#{namePartsController.affectedDevicesCount > 1}"
+							value="WARNING!: There are #{namePartsController.affectedDevicesCount} registered device names that will be deleted by this action!" />
+						<h:outputText
+							rendered="#{namePartsController.affectedDevicesCount == 1}"
+							value="WARNING!: There is one registered device name that will be deleted by this action!" />
+					</h:panelGroup>
+				</h:panelGroup>
+				<p:separator />
+				<f:facet name="footer">
+					<p:commandButton value="Submit" style="float: right"
+						update="pgrid :ReqSubForm"
+						oncomplete="if (args &amp;&amp; !args.validationFailed) #{widgetId}.hide();resizePanel()"
+						action="#{namePartsController[submitHandler]}" />
+					<p:commandButton value="Cancel" style="float: right"
+						onclick="#{widgetId}.hide()" />
+				</f:facet>
+			</h:panelGrid>
+		</p:dialog>
+	</h:form>
+</ui:composition>

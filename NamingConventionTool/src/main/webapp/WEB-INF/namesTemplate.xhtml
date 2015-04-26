@@ -13,28 +13,30 @@
 		type="text/css" />
 	<script type="text/javascript">
 		function resizePanel() {
-			var menusHeight = $('#logoPanel').outerHeight()
-					+ $('#menu').outerHeight() + 15;
-			$('#indexDiv').css({
-				"height" : window.innerHeight - menusHeight
-			});
-			$('#apiManualDiv').css({
-				"height" : window.innerHeight - menusHeight
-			});
-			var headerHeight = $('#ReqSubForm\\:namePartsTree\\:nameDesc')
-					.outerHeight();
-			if (headerHeight == null) {
-				headerHeight = $('#ManageNameForm\\:devicesTree\\:devName')
-						.outerHeight();
-			}
+// 			$('#indexDiv').css({
+// 				"height" : window.innerHeight - menusHeight
+// 			});
+// 			$('#apiManualDiv').css({
+// 				"height" : window.innerHeight - menusHeight
+// 			});
 
-			menusHeight = menusHeight + $('#filterTable').outerHeight()
-					+ headerHeight + 20;
-			$('.ui-treetable-scrollable-body').css({
-				"height" : window.innerHeight - menusHeight
-			});
+			var menusHeight = $('#logoPanel').outerHeight(true) + $('#menu').outerHeight(true);
+			var filterHeight= $('#filterTable').outerHeight(true);
+			var panelHeight=window.innerHeight - menusHeight - filterHeight-30;			
+			
+			this.setTreeTableScrollHeight('#ReqSubForm\\:namePartsTree',panelHeight);
+			this.setTreeTableScrollHeight('#ManageNameForm\\:devicesTree',panelHeight);
+			
 		}
-
+	
+		function setTreeTableScrollHeight(treeTableId,panelHeight){
+			var headerHeight=$(treeTableId + ' .ui-treetable-scrollable-header').outerHeight(true);
+			var footerHeight=$(treeTableId + ' .ui-treetable-scrollable-footer').outerHeight(true);
+			var scrollHeight=panelHeight-headerHeight-footerHeight;
+			var scrollBody = $(treeTableId + ' .ui-treetable-scrollable-body');
+ 			scrollBody.height(scrollHeight);
+		}
+				
 		$(window).resize(function() {
 			resizePanel();
 		});
@@ -100,29 +102,30 @@
 		}
 	</script>
 	<link rel="shortcut icon" href="resources/images/favicon.ico" />
-	<title> Naming Service </title>
+	<title>Naming Service</title>
 </h:head>
 
 <h:body>
-	<p:outputPanel id="full" layout="block" >
+	<p:outputPanel id="full" layout="block" style="overflow:hidden">
 		<p:panel id="logoPanel" styleClass="ui-widget-header">
-			<div id="user" style="float: right" >
+			<div id="user" style="float: right">
 				<p:commandButton process="@this" value="Sign In"
 					icon="ui-icon-person" update=":full"
 					action="#{loginController.prepareLoginPopup()}"
 					rendered="#{!(userManager.isLoggedIn())}" />
-				<p:outputLabel for="signout" value="#{userManager.getUsername()}" styleClass="ui-widget-header"/>
+				<p:outputLabel for="signout" value="#{userManager.getUsername()}"
+					styleClass="ui-widget-header" />
 				<p:commandButton id="signout" process="@this" value="Sign Out"
 					icon="ui-icon-person" update=":full"
 					action="#{loginController.signOut()}"
 					rendered="#{userManager.isLoggedIn()}" />
 			</div>
 			<div id="title">
-					<h:outputText value="#{msgs.title}" />
+				<h:outputText value="#{msgs.title}" />
 			</div>
 		</p:panel>
 		<div id="menu">
-		<ui:include src="/WEB-INF/includes/menubar.xhtml" />
+			<ui:include src="/WEB-INF/includes/menubar.xhtml" />
 		</div>
 		<div style="padding: 0px 15px 0px 15px">
 			<ui:insert name="content">Content</ui:insert>

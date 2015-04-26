@@ -5,11 +5,13 @@ import com.google.common.collect.ImmutableList;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
+import org.openepics.names.util.As;
 import org.openepics.names.util.UnhandledCaseException;
 
 import javax.annotation.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A view of a NamePart that makes it easy to query some of its properties and relations in an object-related fashion.
@@ -38,6 +40,7 @@ public class NamePartView {
         this.currentRevision = currentRevision;
         this.pendingRevision = pendingRevision;
         this.parentView = parentView;
+        
     }
 
     /**
@@ -81,21 +84,64 @@ public class NamePartView {
         if (pendingRevision == null) {
             return null;
         } else {
-            if (pendingRevision.isDeleted()) {
+            if (isPendingDeletion()) {
                 return new DeleteChange(pendingRevision.getStatus());
-            } else if (currentRevision == null) {
+            } else if (isProposed()) {
                 return new AddChange(pendingRevision.getStatus());
             } else {
-                final @Nullable String newName = !pendingRevision.getName().equals(currentRevision.getName()) ? pendingRevision.getName() : null;
-                final @Nullable String newMnemonic = !pendingRevision.getMnemonic().equals(currentRevision.getMnemonic()) ? pendingRevision.getMnemonic() : null;
-                @Nullable String pend = !(pendingRevision.getDescription()==null || pendingRevision.getDescription().isEmpty()) ? pendingRevision.getDescription() : null;
-                @Nullable String curr = !(currentRevision.getDescription()==null || currentRevision.getDescription().isEmpty()) ? currentRevision.getDescription() : null;
-                final @Nullable String newDescription= !(curr==null && pend==null || pend.equals(curr)) ? pendingRevision.getDescription() : null;
-                return new ModifyChange(pendingRevision.getStatus(), newName, newMnemonic, newDescription);
+                return new ModifyChange(pendingRevision.getStatus(), getPendingName(), getPendingMnemonic(), getPendingDescription());
             }
         }
     }
+    
+    public boolean isPendingDeletion(){
+    	return pendingRevision!=null && pendingRevision.isDeleted();
+    }
+    
+    public boolean isProposed(){
+    	return pendingRevision!=null && !pendingRevision.isDeleted() && currentRevision==null;
+    }
+    
+    public boolean isPendingModification() {
+    	return pendingRevision!=null && !pendingRevision.isDeleted() && currentRevision!=null;
+    }
+    
+    public boolean isNameModified(){
+    	return isPendingModification() && !pendingRevision.getName().equals(currentRevision.getName());
+    }
+    
+    public boolean isMnemonicModified(){
+    	return isPendingModification() && !pendingRevision.getMnemonic().equals(currentRevision.getMnemonic());
+    }
 
+    public boolean isDescriptionModified(){
+    	return isPendingModification() && !Objects.toString(pendingRevision.getDescription(),"").equals(Objects.toString(currentRevision.getDescription(),""));
+    }
+
+    public @Nullable String getPendingName(){
+    	return isNameModified() ? pendingRevision.getName() : null;
+    }
+    
+    public @Nullable String getPendingMnemonic(){
+    	return isMnemonicModified() ? pendingRevision.getMnemonic() : null;
+    }
+    
+    public @Nullable String getPendingDescription(){
+    	return isDescriptionModified() ? pendingRevision.getDescription() : null;
+    }
+    
+    public String getNewName(){
+    	return getPendingOrElseCurrentRevision().getName();
+    }
+    
+    public String getNewMnemonic(){
+    	return getPendingOrElseCurrentRevision().getMnemonic();
+    }
+    
+    public String getNewDescription(){
+    	return getPendingOrElseCurrentRevision().getDescription();
+    }
+    
     /**
      * True if the name part is deleted.
      */

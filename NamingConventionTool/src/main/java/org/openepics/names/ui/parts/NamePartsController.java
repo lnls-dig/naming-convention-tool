@@ -67,7 +67,7 @@ public class NamePartsController implements Serializable {
 	private TreeNode rootWithoutModifications;
 	private TreeNode viewRoot;
 	private TreeNode[] selectedNodes;
-	
+
 	private TreeNode deleteView;
 	private TreeNode approveView;
 	private TreeNode cancelView;
@@ -78,10 +78,12 @@ public class NamePartsController implements Serializable {
 	private String formComment;
 
 	private List<Device> affectedDevices;
+	private Operation operation;
 	private String namePartTitle;
 
 	@PostConstruct
 	public void init() {
+		operation=Operation.VIEW;
 		formName = null;
 		formMnemonic = null;
 		formDescription=null;
@@ -91,7 +93,7 @@ public class NamePartsController implements Serializable {
 		modifyDisplayView();
 		treeNodeManager.expandCustomized(viewRoot); 
 	}
-	
+
 	public void onNodeExpand(NodeExpandEvent event){
 		if(event!=null && event.getTreeNode() !=null){
 			treeNodeManager.expand(event.getTreeNode());
@@ -122,7 +124,7 @@ public class NamePartsController implements Serializable {
 		} else {
 			throw new IllegalStateException();
 		}
-		
+
 		final List<NamePartRevision> approvedRevisions = namePartService.currentApprovedNamePartRevisions(namePartType, true);
 		final List<NamePartRevision> pendingRevisions = withModifications ? namePartService.currentPendingNamePartRevisions(namePartType, true) : Lists.<NamePartRevision>newArrayList();
 		return namePartTreeBuilder.newNamePartTree(approvedRevisions, pendingRevisions, true);
@@ -232,63 +234,34 @@ public class NamePartsController implements Serializable {
 		}
 	}
 
-	private NamePartView.ModifyChange modifyChange(Change change){
-		if (change!= null && change instanceof NamePartView.ModifyChange) {
-			return (NamePartView.ModifyChange)change;
-		} else {
-			return null;
-		}
-	}
-	
-	private String nameChange(NamePartView req){
-		final ModifyChange change = modifyChange(req.getPendingChange());
-		return change !=null && change.getNewName() != null ?  change.getNewName(): null;
-	}
-	
-	private String mnemonicChange(NamePartView req){
-		final ModifyChange change=modifyChange(req.getPendingChange());
-		return change !=null && change.getNewMnemonic() != null ? change.getNewMnemonic(): null;
-	}
 
-	private String descriptionChange(NamePartView req){
-		final ModifyChange change=modifyChange(req.getPendingChange());
-		return change!= null && change.getNewDescription()!=null ? change.getNewDescription(): null;
-	}
-	
 	public boolean isNameModified(NamePartView req){
-		return nameChange(req)!=null;
+		return req.isNameModified();
 	}
 
 	public boolean isMnemonicModified(NamePartView req){
-		return mnemonicChange(req)!=null;
+		return req.isMnemonicModified();
 	}
-	
+
 	public boolean isDescriptionModified(NamePartView req){
-		return descriptionChange(req)!=null;
+		return req.isDescriptionModified();
 	}	
-	
+
 	public String getNewName(NamePartView req) {
-		return isNameModified(req) ? nameChange(req): req.getName(); 
+		return req.getPendingOrElseCurrentRevision().getName();
 	}
 
 	public String getNewMnemonic(NamePartView req) {
-		return isMnemonicModified(req) ? mnemonicChange(req): req.getMnemonic();
+		return req.getPendingOrElseCurrentRevision().getMnemonic();
 	}
 
 	public String getNewDescription(NamePartView req){
-		return isDescriptionModified(req) ? descriptionChange(req):req.getDescription();
+		return req.getPendingOrElseCurrentRevision().getDescription();
 	}
-	
+
 	public String getOperationsNewName(OperationView<NamePartView> opReq) {
 		final NamePartView req = opReq.getData();
 		return  !getNewName(req).equals("")? getNewName(req): req.getName();
-//		final ModifyChange change = modifyChange(req.getPendingChange());
-//		final Change change = req.getPendingChange();
-//		if (change instanceof NamePartView.ModifyChange && ((NamePartView.ModifyChange)change).getNewName() != null && !((NamePartView.ModifyChange) change).getNewName().equals("")) {
-//			return ((NamePartView.ModifyChange)change).getNewName();
-//		} else {
-//			return req.getName();
-//		}
 	}
 
 	@Deprecated
@@ -321,62 +294,77 @@ public class NamePartsController implements Serializable {
 		updateOperationViews();		
 	}
 
-	public String nameStyleClass(NamePartView req) {
-		return req!=null ? nameStatus(req).replace(" ","-"): "";
-	}
 
-	public String nameCancelStyleClass(NamePartView req) {
-		return isPending(req.getPendingChange()) ? "Cancel-"+nameStyleClass(req).toLowerCase(): "";
-	}
-
-	public boolean isPending(Change change){
-		return change != null && change.getStatus() == NamePartRevisionStatus.PENDING ;
-	}
-	
-	public String statusStyleClass(NamePartView req) {
-		return req != null ? namePendingStatus(req).replace(" ", "-") : "";
-	}
-	
-	public String nameStatus(NamePartView req) {
-		final Change change = req.getPendingChange();
-		if (isPending(change)) {            
-			if (change instanceof NamePartView.DeleteChange) {
-				return "Pending deletion";
-			} else if (change instanceof NamePartView.ModifyChange) {
-				return "Pending modification";
-			} else if (change instanceof NamePartView.AddChange) {
-				return "Proposed";
-			} else {
-				throw new UnhandledCaseException();
-			}
-		} else {
-			return namePendingStatus(req);
+	public String operationNewStyleClass(OperationView<NamePartView> opReq, boolean modified){
+		NamePartView req=opReq.getData();
+		switch(operation){
+		case APPROVE: return newStyleClass(req,modified);
+		case CANCEL: return req.getPendingRevision() != null? "Cancel " + newStyleClass(req,modified) : newStyleClass(req,modified) ;
+		case REJECT: return req.getPendingRevision() != null? "Cancel " + newStyleClass(req,modified) : newStyleClass(req,modified) ;
+		case DELETE: return opReq.isAffected() ? "Delete "+ newStyleClass(req,modified) : "";
+		default: throw new UnhandledCaseException();
 		}
 	}
-	
-    public String namePendingStatus(NamePartView req){
-		switch (req.getPendingOrElseCurrentRevision().getStatus()) {
-		case PENDING: return "In-Process";
+
+	public String getOldStyleClass(){
+		return "Propose-deleted";
+	}
+
+	public String operationOldStyleClass(){
+		switch(operation){
+		case APPROVE: return getOldStyleClass();
+		case CANCEL : return "Cancel "+getOldStyleClass();
+		case REJECT: return "Cancel "+getOldStyleClass();
+		case DELETE: return getOldStyleClass();
+		default: throw new UnhandledCaseException();
+		}
+	}
+
+	public String newStyleClass(NamePartView req, boolean modified) {		
+		if (req.isPendingDeletion()) {
+			return getOldStyleClass();
+		} else if (req.isPendingModification()&& modified || req.isProposed()) {
+			return "Propose-added";
+		} else if (req.isPendingModification()&& !modified){
+			return "Propose-default";
+		} else {
+			return getStatus(req.getCurrentOrElsePendingRevision());
+		}
+	}
+
+	public String getStatus(NamePartRevision rev){
+		switch (rev.getStatus()) {
+		case PENDING: return "Proposed";
 		case CANCELLED: return "Cancelled";
 		case REJECTED: return "Rejected";
-		case APPROVED: return req.isDeleted() ? "Deleted" : "Approved";
+		case APPROVED: return rev.isDeleted() ? "Deleted" : "Approved";
 		default: throw new UnhandledCaseException();
 		}
-    }
+	}
 
-//	@Deprecated
-//	public String nameHistoryStatus(NamePartView req) {
-//		return namePendingStatus(req);
-//	}
-	
-	@Deprecated
-	public String nameViewClass(NamePartView entry) {
-		switch (entry.getNameEvent().getStatus()) {
-		case PENDING: return "Processing";
-		case CANCELLED: return "default";
-		case REJECTED: return "default";
-		case APPROVED: return "Approved";
-		default: throw new UnhandledCaseException();
+	public String getStatus(NamePartView req){
+		return getStatus(req.getPendingOrElseCurrentRevision());	
+	}
+
+	public String operationStatus(OperationView<NamePartView> opReq){
+			if(opReq.isAffected()){
+				String process=null;
+				if(opReq.getData().isPendingModification()){
+					process= "modification";
+				} else if (opReq.getData().isPendingDeletion()){
+					process= "deletion";
+				} else if (opReq.getData().isProposed()){
+					process= "addition";
+				} 
+			switch(operation){
+			case APPROVE: return "Approve "+process;
+			case CANCEL:  return "Cancel "+process;
+			case REJECT:  return "Reject "+process;
+			case DELETE:  return "Delete";
+			default: throw new UnhandledCaseException();
+			}
+		} else {
+			throw new UnhandledCaseException();
 		}
 	}
 
@@ -392,7 +380,7 @@ public class NamePartsController implements Serializable {
 
 	public String getFormComment() { return formComment != null ? formComment : ""; }
 	public void setFormComment(String formComment) { this.formComment = !formComment.isEmpty() ? formComment : null; }
-	
+
 	public String getFormDescription() { return formDescription !=null ? formDescription: "" ; }
 	public void setFormDescription(String formDescription){this.formDescription =!formDescription.isEmpty() ? formDescription : null;}
 
@@ -429,6 +417,7 @@ public class NamePartsController implements Serializable {
 			affectedDevices.addAll(namePartService.associatedDevices(namePartView.getNamePart(), false));
 		}
 		this.affectedDevices = affectedDevices;
+		operation=Operation.DELETE;
 	}
 
 	public void prepareApprovePopup() {
@@ -440,7 +429,19 @@ public class NamePartsController implements Serializable {
 			}
 		}
 		this.affectedDevices = affectedDevices;
+		operation=Operation.APPROVE;
 	}
+
+	public void prepareRejectPopup() {
+		this.affectedDevices=Lists.newArrayList();
+		operation=Operation.REJECT;
+	}
+
+	public void prepareCancelPopup() {
+		this.affectedDevices=Lists.newArrayList();
+		operation=Operation.CANCEL;
+	}
+
 
 	public int getAffectedDevicesCount() { return affectedDevices != null ? affectedDevices.size() : 0; }
 
@@ -558,5 +559,9 @@ public class NamePartsController implements Serializable {
 
 	private enum NamePartDisplayFilter {
 		APPROVED_AND_PROPOSED, APPROVED, PROPOSED, ARCHIVED
+	}
+	
+	private enum Operation{
+		VIEW, APPROVE, DELETE, REJECT, CANCEL
 	}
 }

@@ -9,12 +9,12 @@
 	<ui:define name="content">
 		<ui:fragment rendered="#{userManager.isLoggedIn()}">
 			<!-- =================== Req Sub Form ================================= -->
-			<h:form id="ReqSubForm">
+			<h:form id="ReqSubForm" style="padding:0; margin:0">
 				<p:growl globalOnly="true" id="partsMsgs" showDetail="true"
 					sticky="false" life="30000" escape="false" />
 				<!-- =================== Menus      ============================ -->
 				<div id="filterTable">
-					<p:panelGrid style="width:100%; padding:5px 0px 5px 0px; border-type:none;" >
+					<p:panelGrid style="width:100%; border-type:none;" >
 						<p:row>
 							<p:column >
 								<p:outputLabel for="filterMenu" value="Show: " />
@@ -56,12 +56,16 @@
 										update=":ApproveForm" oncomplete="approveRequest.show()"
 										disabled="#{!(namePartsController.canApprove())}"
 										rendered="#{userManager.superUser}" />
-									<p:menuitem value="Reject" title="Reject Request"
+									<p:menuitem value="Reject" 
+										actionListener="#{namePartsController.prepareRejectPopup()}"
+										title="Reject Request"
 										icon="ui-icon-close" update=":RejectForm"
 										oncomplete="rejectRequest.show()"
 										disabled="#{!(namePartsController.canCancel())}"
 										rendered="#{userManager.superUser}" />
-									<p:menuitem value="Cancel" title="Cancel changes"
+									<p:menuitem value="Cancel" 
+										actionListener="#{namePartsController.prepareCancelPopup()}"									
+										title="Cancel changes"
 										icon="ui-icon-close" update=":CancelReqForm:cancelReq"
 										oncomplete="cancelReq.show()"
 										disabled="#{!(namePartsController.canCancel())}"
@@ -79,14 +83,12 @@
 				</div>
 
 				<!-- =================== Tree Table ================================= -->
-	
 				<ui:include src="/WEB-INF/includes/parts-treetable.xhtml">
 					<ui:param name="treeId" value="namePartsTree" />
 					<ui:param name="view" value="#{namePartsController.viewRoot}" />
 					<ui:param name="selectionMode" value="multiple" />
 					<ui:param name="update" value=":ReqSubForm:reqMenu" />
 				</ui:include>
-
 				<!-- =================== History ================================= -->
 				<ui:include src="/WEB-INF/includes/parts-history.xhtml">
 					<ui:param name="historyHandler"
@@ -131,248 +133,49 @@
 			</ui:include>
 
 			<!-- ===================Delete Form================================= -->
-			<h:form id="DelNameForm">
-				<p:dialog header="Request to Delete" id="delName"
-					widgetVar="delName" modal="true" resizable="true">
-					<p:treeTable value="#{namePartsController.deleteView}"
-						var="candidate" resizableColumns="true" liveResize="true"
-						styleClass="previewTreeTable">
-						<p:column headerText="Full Name" style="width:25%">
-							<h:outputText
-								styleClass="#{candidate.affected ? 'Pending-deletion' : ''}"
-								value="#{candidate.data.name}" />
-						</p:column>
-						<p:column headerText="Mnemonic" style="width:10%">
-							<h:outputText
-								styleClass="#{candidate.affected ? 'Pending-deletion' : ''}"
-								value="#{candidate.data.mnemonic}" />
-						</p:column>
-						<p:column headerText="Description/Comment">
-							<h:outputText
-								styleClass="#{candidate.affected ? 'Pending-deletion' : ''}"
-								value="#{candidate.data.description}" />
-						</p:column>
-					</p:treeTable>
-					<p:separator />
-					<h:panelGrid id="pgrid" style="text-align: left">
-						<h:outputLabel for="dcomm" value="Commit Message (optional):" />
-						<h:panelGroup>
-							<p:inputTextarea id="dcomm" rows="5" cols="60" counter="dcounter"
-								maxlength="254" value="#{namePartsController.formComment}"
-								counterTemplate="{0} characters remaining." autoResize="false" />
-							<br />
-							<h:outputText id="dcounter" />
-						</h:panelGroup>
-						<h:panelGroup style="margin: 10px 0; padding: 10px"
-							styleClass="ui-message-warn ui-corner-all" layout="block"
-							rendered="#{namePartsController.affectedDevicesCount > 0}">
-							<span class="ui-message-warn-icon" />
-							<h:panelGroup class="ui-message-warn-detail">
-								<h:outputText
-									value="Warning: There are #{namePartsController.affectedDevicesCount} dependent devices that will be deleted once the change has been approved." />
-							</h:panelGroup>
-						</h:panelGroup>
-					</h:panelGrid>
-
-					<p:separator />
-
-					<p:commandButton value="Cancel" style="float: right"
-						onclick="delName.hide()" />
-					<p:commandButton value="Submit" style="float: right"
-						oncomplete="delName.hide();resizePanel()" update=":ReqSubForm"
-						actionListener="#{namePartsController.onDelete()}" />
-				</p:dialog>
-			</h:form>
+				<ui:include src="/WEB-INF/includes/parts-operationtreeform.xhtml">
+					<ui:param name="formId" value="DelNameForm" />
+					<ui:param name="widgetId" value="delName" />
+					<ui:param name="dialogHeader" value="Request to Delete"/>
+					<ui:param name="view" value="#{namePartsController.deleteView}" />
+					<ui:param name="operation" value="Delete"/>
+					<ui:param name="messageRequired" value="false" />
+					<ui:param name="submitHandler" value="onDelete"/>
+				</ui:include>
 
 			<!-- =================== Cancel Form ============================ -->
-			<h:form id="CancelReqForm">
-				<p:dialog header="Cancel proposals, modifications and/or deletions"
-					id="cancelReq" widgetVar="cancelReq" modal="true" resizable="true">
-					<p:treeTable value="#{namePartsController.cancelView}"
-						var="candidate" resizableColumns="true" liveResize="true"
-						styleClass="previewTreeTable">
-						<p:column headerText="Full Name" style="width:25%">
-							<h:outputText
-								styleClass="#{namePartsController.isNameModified(candidate.data) ? 'Cancel-proposed' : namePartsController.nameCancelStyleClass(candidate.data)}"
-								value="#{namePartsController.getOperationsNewName(candidate)}" />
-							<h:outputText value=" "
-								rendered="#{namePartsController.isNameModified(candidate.data)}" />
-							<h:outputText value="#{candidate.data.name}"
-								styleClass="Cancel-pending-deletion"
-								rendered="#{namePartsController.isNameModified(candidate.data)}" />
-						</p:column>
-						<p:column headerText="Mnemonic" style="width: 10%">
-							<h:outputText
-								value="#{namePartsController.getNewMnemonic(candidate.data)}"
-								styleClass="#{namePartsController.isMnemonicModified(candidate.data) ? 'Cancel-proposed' : namePartsController.nameCancelStyleClass(candidate.data)}" />
-							<h:outputText value=" "
-								rendered="#{namePartsController.isMnemonicModified(candidate.data)}" />
-							<h:outputText value="#{candidate.data.mnemonic}"
-								styleClass="Cancel-pending-deletion"
-								rendered="#{namePartsController.isMnemonicModified(candidate.data)}" />
-						</p:column>
-						<p:column headerText="Description/Comment">
-							<h:outputText
-								value="#{namePartsController.getNewDescription(candidate.data)}"
-								styleClass="#{namePartsController.isDescriptionModified(candidate.data) ? 'Cancel-proposed' : namePartsController.nameCancelStyleClass(candidate.data)}" />
-							<h:outputText value=" "
-								rendered="#{namePartsController.isDescriptionModified(candidate.data)}" />
-							<h:outputText value="#{candidate.data.description}"
-								styleClass="Cancel-pending-deletion"
-								rendered="#{namePartsController.isDescriptionModified(candidate.data)}" />
-						</p:column>
-					</p:treeTable>
-					<p:separator />
-
-					<h:panelGrid id="pgrid" style="text-align: left">
-						<h:outputLabel for="dcomm" value="Commit Message (optional):" />
-						<h:panelGroup>
-							<p:inputTextarea id="dcomm" rows="5" cols="60" counter="dcounter"
-								maxlength="254" value="#{namePartsController.formComment}"
-								counterTemplate="{0} characters remaining." autoResize="false" />
-							<br />
-							<h:outputText id="dcounter" />
-						</h:panelGroup>
-					</h:panelGrid>
-					<p:separator />
-					<p:commandButton value="Cancel" style="float: right"
-						onclick="cancelReq.hide()" />
-					<p:commandButton value="Submit" style="float: right"
-						update=":ReqSubForm" oncomplete="cancelReq.hide();resizePanel()"
-						actionListener="#{namePartsController.onCancel()}" />
-				</p:dialog>
-			</h:form>
+				<ui:include src="/WEB-INF/includes/parts-operationtreeform.xhtml">
+					<ui:param name="formId" value="CancelReqForm" />
+					<ui:param name="widgetId" value="cancelReq" />
+					<ui:param name="dialogHeader" value="Cancel proposals, modifications and/or deletions"/>
+					<ui:param name="view" value="#{namePartsController.cancelView}" />
+					<ui:param name="operation" value="Cancel"/>
+					<ui:param name="messageRequired" value="false" />
+					<ui:param name="submitHandler" value="onCancel"/>
+				</ui:include>
+					
 			<!-- ===================    Approve Form    ============================ -->
+				<ui:include src="/WEB-INF/includes/parts-operationtreeform.xhtml">
+					<ui:param name="formId" value="ApproveForm" />
+					<ui:param name="widgetId" value="approveRequest" />
+					<ui:param name="dialogHeader" value="Approve proposals, modifications and/or deletions"/>
+					<ui:param name="view" value="#{namePartsController.approveView}" />
+					<ui:param name="operation" value="Approve"/>
+					<ui:param name="messageRequired" value="false" />
+					<ui:param name="submitHandler" value="onApprove"/>
+				</ui:include>
 
-			<h:form id="ApproveForm">
-				<p:dialog header="Approve proposals, modifications and/or deletions"
-					id="approveRequest" widgetVar="approveRequest" modal="true"
-					resizable="true">
-					<p:treeTable value="#{namePartsController.approveView}"
-						var="candidate" liveResize="true" resizableColumns="true"
-						styleClass="previewTreeTable">
-						<p:column headerText="Full Name" style="width:25%">
-							<h:outputText
-								styleClass="#{namePartsController.isNameModified(candidate.data) ? 'Proposed' : namePartsController.nameStyleClass(candidate.data)}"
-								value="#{namePartsController.getOperationsNewName(candidate)}" />
-							<h:outputText value=" "
-								rendered="#{namePartsController.isNameModified(candidate.data)}" />
-							<h:outputText value="#{candidate.data.name}"
-								styleClass="Pending-deletion"
-								rendered="#{namePartsController.isNameModified(candidate.data)}" />
-						</p:column>
-						<p:column headerText="Mnemonic" style="width: 10%">
-							<h:outputText
-								value="#{namePartsController.getNewMnemonic(candidate.data)}"
-								styleClass="#{namePartsController.isMnemonicModified(candidate.data) ? 'Proposed' : namePartsController.nameStyleClass(candidate.data)}" />
-							<h:outputText value=" "
-								rendered="#{namePartsController.isMnemonicModified(candidate.data)}" />
-							<h:outputText value="#{candidate.data.mnemonic}"
-								styleClass="Pending-deletion"
-								rendered="#{namePartsController.isMnemonicModified(candidate.data)}" />
-						</p:column>
-						<p:column headerText="Description/Comment">
-							<h:outputText
-								value="#{namePartsController.getNewDescription(candidate.data)}"
-								styleClass="#{namePartsController.isDescriptionModified(candidate.data) ? 'Proposed' : namePartsController.nameStyleClass(candidate.data)}" />
-							<h:outputText value=" "
-								rendered="#{namePartsController.isDescriptionModified(candidate.data)}" />
-							<h:outputText value="#{candidate.data.description}"
-								styleClass="Pending-deletion"
-								rendered="#{namePartsController.isDescriptionModified(candidate.data)}" />
-						</p:column>
-					</p:treeTable>
-					<p:separator />
-					<h:panelGrid style="text-align: left">
-						<h:outputLabel for="acomm" value="Comment (optional):" />
-						<h:panelGroup>
-							<p:inputTextarea id="acomm" rows="5" cols="60" counter="counter"
-								maxlength="254" value="#{namePartsController.formComment}"
-								counterTemplate="{0} characters remaining." autoResize="false" />
-							<br />
-							<h:outputText id="counter" />
-						</h:panelGroup>
-						<h:panelGroup style="margin: 10px 0; padding: 10px"
-							styleClass="ui-message-warn ui-corner-all" layout="block"
-							rendered="#{namePartsController.affectedDevicesCount > 0}">
-							<span class="ui-message-warn-icon" />
-							<h:panelGroup class="ui-message-warn-detail">
-								<h:outputText
-									value="Warning: There are #{namePartsController.affectedDevicesCount} dependent devices that will be deleted by this action!" />
-							</h:panelGroup>
-						</h:panelGroup>
-					</h:panelGrid>
-					<p:separator />
-					<p:commandButton value="Cancel" style="float: right"
-						onclick="approveRequest.hide()" />
-					<p:commandButton value="Approve" style="float: right"
-						update=":ReqSubForm"
-						oncomplete="approveRequest.hide();resizePanel()"
-						actionListener="#{namePartsController.onApprove()}" />
-				</p:dialog>
-			</h:form>
+			<!-- ===================    Reject Form    ============================ -->
+				<ui:include src="/WEB-INF/includes/parts-operationtreeform.xhtml">
+					<ui:param name="formId" value="RejectForm" />
+					<ui:param name="widgetId" value="rejectRequest" />
+					<ui:param name="dialogHeader" value="Reject proposals, modifications and/or deletions"/>
+					<ui:param name="view" value="#{namePartsController.cancelView}" />
+					<ui:param name="operation" value="Reject"/>
+					<ui:param name="messageRequired" value="true" />
+					<ui:param name="submitHandler" value="onReject"/>
+				</ui:include>
 
-			<h:form id="RejectForm">
-				<p:dialog header="Reject proposals, modifications and/or deletions"
-					id="rejectRequest" widgetVar="rejectRequest" modal="true"
-					resizable="true">
-					<p:treeTable value="#{namePartsController.cancelView}"
-						var="candidate" liveResize="true" resizableColumns="true"
-						styleClass="previewTreeTable">
-						<p:column headerText="Full Name" style="width: 25%">
-							<h:outputText
-								styleClass="#{namePartsController.isNameModified(candidate.data) ? 'Cancel-proposed' : namePartsController.nameCancelStyleClass(candidate.data)}"
-								value="#{namePartsController.getOperationsNewName(candidate)}" />
-							<h:outputText value=" "
-								rendered="#{namePartsController.isNameModified(candidate.data)}" />
-							<h:outputText value="#{candidate.data.name}"
-								styleClass="Cancel-pending-deletion"
-								rendered="#{namePartsController.isNameModified(candidate.data)}" />
-						</p:column>
-						<p:column headerText="Mnemonic" style="width: 10%">
-							<h:outputText
-								value="#{namePartsController.getNewMnemonic(candidate.data)}"
-								styleClass="#{namePartsController.isMnemonicModified(candidate.data) ? 'Cancel-proposed' : namePartsController.nameCancelStyleClass(candidate.data)}" />
-							<h:outputText value=" "
-								rendered="#{namePartsController.isMnemonicModified(candidate.data)}" />
-							<h:outputText value="#{candidate.data.mnemonic}"
-								styleClass="Cancel-pending-deletion"
-								rendered="#{namePartsController.isMnemonicModified(candidate.data)}" />
-						</p:column>
-						<p:column headerText="Description/Comment">
-							<h:outputText
-								value="#{namePartsController.getNewDescription(candidate.data)}"
-								styleClass="#{namePartsController.isDescriptionModified(candidate.data) ? 'Cancel-proposed' : namePartsController.nameCancelStyleClass(candidate.data)}" />
-							<h:outputText value=" "
-								rendered="#{namePartsController.isDescriptionModified(candidate.data)}" />
-							<h:outputText value="#{candidate.data.description}"
-								styleClass="Cancel-pending-deletion"
-								rendered="#{namePartsController.isDescriptionModified(candidate.data)}" />
-						</p:column>
-					</p:treeTable>
-					<p:separator />
-
-					<h:panelGrid id="pgrid" style="text-align: left">
-						<h:outputLabel for="rcomm" value="Comment:" />
-						<h:panelGroup>
-							<p:inputTextarea id="rcomm" rows="5" cols="70" counter="counter"
-								maxlength="254" value="#{namePartsController.formComment}"
-								counterTemplate="{0} characters remaining." autoResize="false"
-								required="true" requiredMessage="Please enter a comment." />
-							<br />
-							<h:outputText id="counter" />
-							<p:message for="rcomm" />
-						</h:panelGroup>
-					</h:panelGrid>
-					<p:separator />
-					<p:commandButton value="Cancel" style="float: right"
-						onclick="rejectRequest.hide()" />
-					<p:commandButton value="Reject" style="float: right"
-						update="pgrid :ReqSubForm"
-						oncomplete="if (args &amp;&amp; !args.validationFailed) rejectRequest.hide(); resizePanel()"
-						action="#{namePartsController.onReject()}" />
-				</p:dialog>
-			</h:form>
 		</ui:fragment>
 	</ui:define>
 </ui:composition>
