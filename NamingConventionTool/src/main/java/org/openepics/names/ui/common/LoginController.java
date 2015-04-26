@@ -1,17 +1,20 @@
 package org.openepics.names.ui.common;
 
-import org.openepics.names.services.SessionService;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import javax.servlet.ServletException;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.openepics.names.services.SessionService;
+
+import se.esss.ics.rbac.loginmodules.service.Message;
 
 /**
  * A UI controller bean for the login / logout button and form.
@@ -23,7 +26,8 @@ import java.util.logging.Logger;
 @ViewScoped
 public class LoginController implements Serializable {
 
-	private static final Logger LOGGER = Logger.getLogger(LoginController.class.getName());
+    private static final long serialVersionUID = 7124872676453151325L;
+    private static final Logger LOGGER = Logger.getLogger(LoginController.class.getName());
 	@Inject private SessionService sessionService;
 
 	private String inputUsername;
@@ -37,34 +41,41 @@ public class LoginController implements Serializable {
 
 	public void prepareLoginPopup() {
 		inputUsername = null;
-		inputPassword = null;
+		clearPassword();
 		loginRequested= true;
+	}
+	
+	public void clearPassword() {
+	    inputPassword = null;
 	}
 
 	public void signIn() throws IOException {
 		try {
-			sessionService.getRequest().login(inputUsername, inputPassword);
+		    Message m = sessionService.login(inputUsername, inputPassword);
 			loginRequested=false;
-			LOGGER.log(Level.INFO, "Login successful for "+ inputUsername);
-		} catch (ServletException e){
-			showMessage(FacesMessage.SEVERITY_ERROR, "Failed to sign in", "Status: "); 
-			LOGGER.log(Level.INFO, "Login failed for "+ inputUsername);
+			if (m.isSuccessful()) {
+			    LOGGER.log(Level.INFO, "Login successful for "+ inputUsername);
+			} else {
+			    showMessage(FacesMessage.SEVERITY_ERROR, "Failed to sign in", m.getMessage()); 
+			    LOGGER.log(Level.INFO, "Login failed for "+ inputUsername);
+			}
 		} finally {
+		    clearPassword();
 			sessionService.update();
-			inputPassword = null;
 		}
 	}
 	
 	public void signOut() {
 		try {
-			sessionService.getRequest().logout();
-			LOGGER.log(Level.INFO, "Logout successful");	        	
-		} catch (ServletException e) {
-			throw new SecurityException("Failed to sign out", e);
+			Message m = sessionService.logout();
+			if (m.isSuccessful()) {
+			    LOGGER.log(Level.INFO, "Logout successful");
+			} else {
+			    throw new SecurityException(m.getMessage());
+			}
 		} finally {
+		    prepareLoginPopup();
 			sessionService.update();
-			sessionService.getRequest().getSession().invalidate();
-			prepareLoginPopup();
 		}
 	}
 

@@ -1,8 +1,13 @@
 package org.openepics.names.services;
 
-import org.openepics.names.model.Role;
-import org.openepics.names.model.UserAccount;
-import org.openepics.names.services.UserService;
+import java.security.Principal;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Alternative;
@@ -10,9 +15,11 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.openepics.names.model.Role;
+import org.openepics.names.model.UserAccount;
+
+import se.esss.ics.rbac.loginmodules.service.Message;
 
 /**
  * A session bean holding the UserAccount entity representing the signed in user.
@@ -22,6 +29,7 @@ import java.util.logging.Logger;
 @Alternative
 @SessionScoped
 public class SessionServiceTest implements SessionService {
+    private static final long serialVersionUID = -8467983622257857750L;
     @Inject private UserService userService;
 	@Inject protected HttpServletRequest servletRequest;
 	private static final Logger LOGGER = Logger.getLogger(SessionServiceTest.class.getName());
@@ -44,7 +52,7 @@ public class SessionServiceTest implements SessionService {
 	public UserAccount user() { 
     	return user != null ? userService.emAttached(user) : null; 
     }
-
+    
     /* (non-Javadoc)
 	 * @see org.openepics.names.services.SessionService#isLoggedIn()
 	 */
@@ -72,17 +80,14 @@ public class SessionServiceTest implements SessionService {
 	public String getUsername() {
 		return user != null ? user.getUsername(): null;
 	}	
-		
-	/* (non-Javadoc)
-	 * @see org.openepics.names.services.SessionService#getRequest()
-	 */
-	@Override
-	public HttpServletRequest getRequest() {
+
+	
+	private HttpServletRequest getRequest() {
 		return (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 	}
 
 	@PreDestroy
-	public void cleanup(){
+	private void cleanup(){
 		if(isLoggedIn()) {
 			try {
 				getRequest().logout();
@@ -94,4 +99,24 @@ public class SessionServiceTest implements SessionService {
 			}			
 		}
 	}
+
+    @Override
+    public Message login(String username, String password) {
+        try {
+            getRequest().login(username, password);
+            return new Message("Sign In successful.",true);
+        } catch (ServletException e) {
+            return new Message(e.getMessage(),false);
+        }
+    }
+
+    @Override
+    public Message logout() {
+        try {
+            getRequest().logout();
+            return new Message("Sign Out successful.",true);
+        } catch (ServletException e) {
+            return new Message(e.getMessage(),false);
+        }
+    }
 }

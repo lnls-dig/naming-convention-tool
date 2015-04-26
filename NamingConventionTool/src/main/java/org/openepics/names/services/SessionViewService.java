@@ -10,11 +10,13 @@ import javax.inject.Inject;
 
 @SessionScoped
 public class SessionViewService implements Serializable{
-	/**
+	
+    private static final long serialVersionUID = 827187290632697101L;
+    /**
 	 * Bean to preserve status of tree node (expanded or collapsed) during a session. 
 	 */
 //	private static final Logger LOGGER = Logger.getLogger(SessionViewService.class.getName());
-	private Map<Object,Boolean> nodeMap; 
+	private Map<Object,Boolean> nodeMap = new HashMap<Object,Boolean>(); 
 
 	@Inject
 	public SessionViewService(){

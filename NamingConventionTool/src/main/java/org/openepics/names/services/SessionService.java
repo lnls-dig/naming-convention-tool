@@ -1,8 +1,10 @@
 package org.openepics.names.services;
 
 import java.io.Serializable;
-import javax.servlet.http.HttpServletRequest;
+
 import org.openepics.names.model.UserAccount;
+
+import se.esss.ics.rbac.loginmodules.service.Message;
 
 public interface SessionService extends Serializable{
 
@@ -39,9 +41,19 @@ public interface SessionService extends Serializable{
 	 */
 	String getUsername();
 	
-	/** 
-	 * ServletRequest
-	 * @return
+	/**
+	 * Performs authentication of the user identified by the given username and authenticated by the given password.
+	 * 
+	 * @param username the username
+	 * @param password the password
+	 * @return a message describing the result
 	 */
-	HttpServletRequest getRequest();
+	Message login(String username, String password);
+	
+	/**
+	 * Log out the currently logged in user.
+	 * 
+	 * @return a message describing the result
+	 */
+	Message logout();
 }
