@@ -14,27 +14,31 @@
 			<p:menuitem value="Home" icon="ui-icon-home" outcome="index.xhtml">
 				<f:param name="i" value="0" />
 			</p:menuitem>
+			<p:menuitem value="About" icon="ui-icon-home" outcome="about.xhtml">
+				<f:param name="i" value="1" />
+			</p:menuitem>			
+			
 			<p:menuitem value="Device Registry" icon="ui-icon-wrench"
 				disabled="#{!(userManager.isLoggedIn())}" outcome="devices.xhtml">
-				<f:param name="i" value="1" />
+				<f:param name="i" value="2" />
 			</p:menuitem>
 			<p:menuitem value="Area Structure" icon="ui-icon-folder-open"
 				disabled="#{!(userManager.isLoggedIn())}"
 				outcome="parts.xhtml?type=section">
-				<f:param name="i" value="2" />
+				<f:param name="i" value="3" />
 			</p:menuitem>
 			<p:menuitem value="Device Structure" icon="ui-icon-folder-open"
 				disabled="#{!(userManager.isLoggedIn())}"
 				outcome="parts.xhtml?type=deviceType">
-				<f:param name="i" value="3" />
+				<f:param name="i" value="4" />
 			</p:menuitem>
 			<p:menuitem value="Help" icon="ui-icon-help"
 				disabled="#{!(userManager.isLoggedIn())}" outcome="help.xhtml">
-				<f:param name="i" value="4" />
+				<f:param name="i" value="5" />
 			</p:menuitem>
 			<p:menuitem value="API Manual" icon="ui-icon-help"
 				disabled="#{!(userManager.isLoggedIn())}" outcome="api-manual.xhtml">
-				<f:param name="i" value="5" />
+				<f:param name="i" value="6" />
 			</p:menuitem>
 		</p:tabMenu>
 	</h:form>
