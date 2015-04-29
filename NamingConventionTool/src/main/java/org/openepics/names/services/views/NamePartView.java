@@ -5,8 +5,7 @@ import com.google.common.collect.ImmutableList;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
-import org.openepics.names.util.As;
-import org.openepics.names.util.UnhandledCaseException;
+import org.openepics.names.model.NamePartType;
 
 import javax.annotation.Nullable;
 
@@ -40,9 +39,8 @@ public class NamePartView {
         this.currentRevision = currentRevision;
         this.pendingRevision = pendingRevision;
         this.parentView = parentView;
-        
     }
-
+   
     /**
      * The name part this is a view of.
      */    
@@ -197,6 +195,22 @@ public class NamePartView {
         return pathElements.build().reverse();
     }
 
+    /**
+     * The list of name part mnemonic names starting from the root of the hierarchy to the child that is be added to this name part.
+     * @param mnemonic
+     * @return
+     */
+    
+    public List<String> getMnemonicPathWithChild(String mnemonic) {
+        final ImmutableList.Builder<String> pathElements = ImmutableList.builder();
+        pathElements.add(mnemonic !=null? mnemonic:"");
+        for (NamePartView pathElement = this; pathElement != null; pathElement = pathElement.getParent()) {
+            pathElements.add(pathElement.getMnemonic()!=null? pathElement.getMnemonic():"");
+        }
+        return pathElements.build().reverse();
+    }
+
+    
     /**
      * The name part's pending revision, if any, current revision otherwise.
      */

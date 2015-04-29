@@ -13,7 +13,7 @@
 				<p:outputLabel for="idesc" value="Full Name:" />
 				<h:panelGroup>
 					<p:inputText id="idesc" value="#{fullName}"	required="true" requiredMessage="Please enter a name." style="width:100%" />
-					<p:watermark for="idesc" value="e.g. Flux Capacitor" />
+					<p:watermark for="idesc" value="#{watermarkName}" />
 					<p:message for="idesc" />
 				</h:panelGroup>
 				
@@ -22,14 +22,13 @@
 					<p:inputText id="icode" value="#{mnemonic}"	onkeyup="#{warning}" required="#{required}" requiredMessage="Please enter a mnemonic." style="width:100%">
 						<f:validator validatorId="#{validator}" />
 					</p:inputText>
-					<p:watermark for="icode" value="e.g. FluxC" />
+					<p:watermark for="icode" value="#{watermarkMnemonic}" />
 					<p:message for="icode" />
 					<div id="addNameForm:mnemonicLengthWarning"
 						class="ui-message ui-message-warn ui-widget ui-corner-all"
 						style="display: none">
 						<span class="ui-message-warn-icon"></span> <span
-							class="ui-message-warn-detail">Mnemonic should be between
-							2 and 4 characters long although 6 characters are allowed.</span>
+							class="ui-message-warn-detail">Mnemonic should be between 2 and 4 characters long although 6 characters are allowed.</span>
 					</div>
 				</h:panelGroup>
 

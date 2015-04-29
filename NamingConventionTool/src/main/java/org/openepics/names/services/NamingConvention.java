@@ -19,25 +19,12 @@ import java.util.List;
 public interface NamingConvention {
 
     /**
-     * True if the section name is valid according to convention rules, in the context of other names in the hierarchy
-     * leading to the section.
+     * True if the mnemonic is valid according to convention rules.
      *
-     * @param parentPath the list of section names starting from the root of the hierarchy to the parent of the section
-     * for which we are testing the name
-     * @param name the name of the section to test for validity
+     * @param mnemonicPath the list of mnemonics starting from the root of the hierarchy to the mnemonic for which we are testing the name
+     * @param mnemonicType type of a name part specifying whether it belongs to the Logical Area Structure or the Device
      */
-    boolean isSectionNameValid(List<String> parentPath, String name);
-
-    /**
-     * True if the device type name is valid according to convention rules, in the context of other names in the
-     * hierarchy leading to the device type.
-     *
-     * @param parentPath the list of device type names starting from the root of the hierarchy to the parent of the
-     * device type for which we are testing the name
-     * @param name the name of the device type to test for validity
-     */
-    boolean isDeviceTypeNameValid(List<String> parentPath, String name);
-
+    boolean isMnemonicValid(List<String> mnemonicPath, NamePartType mnemonicType);
     /**
      * True if the device's instance index is valid according to convention rules, in the context of device's section
      * and device type.
@@ -106,5 +93,21 @@ public interface NamingConvention {
 	 * @param mnemonicType
 	 * @return
 	 */
-	boolean isMnemonicNullable(List<String> mnemonicPath, NamePartType mnemonicType);
+	boolean isMnemonicRequired(List<String> mnemonicPath, NamePartType mnemonicType);
+
+	/**
+	 * Returns the name element type name  used in e.g. dialog headers and menus. Example: 'Add new namePartTypeName' where namePartTypeName can be subsection, deviceType etc.
+	 * @param sectionPath
+	 * @param namePartType
+	 * @return
+	 */
+	String getNamePartTypeName(List<String> sectionPath, NamePartType namePartType);
+	
+	/**
+	 * Returns the name element type mnemonic  used in e.g. as watermarks in dialogs. Example: 'Add Mnemonic: namePartTypeMnemonic' where namePartTypeMnemonic can be sub, dev, etc.
+	 * @param sectionPath
+	 * @param namePartType
+	 * @return
+	 */
+	String getNamePartTypeMnemonic(List<String> sectionPath, NamePartType namePartType);
 }

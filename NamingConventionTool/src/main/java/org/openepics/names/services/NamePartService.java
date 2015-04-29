@@ -2,6 +2,7 @@ package org.openepics.names.services;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableCollection.Builder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -41,28 +42,84 @@ public class NamePartService {
      * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
      * @return
      */
-    public boolean isMnemonicRequired(NamePartType namePartType, @Nullable NamePart parent) {
-        final @Nullable NamePartView parentView = parent != null ? view(parent) : null;
-        final List<String> parentPath = parentView != null ? parentView.getMnemonicPath() : ImmutableList.<String>of();
-            return !namingConvention.isMnemonicNullable(parentPath, namePartType);
+    public boolean isMnemonicRequired(NamePartType namePartType, @Nullable NamePart namePart) {
+        final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
+        final List<String> mnemonicPath = namePartView != null ? namePartView.getMnemonicPath() : ImmutableList.<String>of();
+            return namingConvention.isMnemonicRequired(mnemonicPath, namePartType);
 	}
+    
+    /**
+     * True if the mnemonic can be null for child.
+     * @param namePartType the type of the name part
+     * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
+     * @return
+     */
+    public boolean isMnemonicRequiredForChild(NamePartType namePartType, NamePart namePart) {
+        final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
+        final List<String> addMnemonicPath = namePartView != null ? namePartView.getMnemonicPathWithChild("") : ImmutableList.<String>of("");
+        return namingConvention.isMnemonicRequired(addMnemonicPath, namePartType);
+	}
+
+    /**
+     * The name of the name part type to be used in dialog header and menus. Example: "Modify mnemonic for namePartTypeName" where namePartTypeName can be section, subsection, discipline etc... 
+     * @param namePartType
+     * @param namePart
+     * @return
+     */
+    public String getNamePartTypeName(NamePartType namePartType, NamePart namePart) {
+        final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
+        final List<String> mnemonicPath = namePartView != null ? namePartView.getMnemonicPath() : ImmutableList.<String>of();
+        return namingConvention.getNamePartTypeName(mnemonicPath, namePartType);
+    }
+
+    /**
+     * The name of the name part type to be used in dialog header and menus. Example: "Add mnemonic for namePartTypeName" where namePartTypeName can be section, subsection, discipline etc... 
+     * @param namePartType
+     * @param namePart
+     * @return
+     */
+	public String getNamePartTypeNameForChild(NamePartType namePartType, NamePart namePart) {
+        final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
+        final List<String> mnemonicPath = namePartView != null ? namePartView.getMnemonicPathWithChild("") : ImmutableList.<String>of("");
+        return namingConvention.getNamePartTypeName(mnemonicPath, namePartType);
+	}
+	
+    /**
+     * The mnemonic of the name part type to be used in dialogs. Example: "' Mnemonic: namePartTypeMnemonic" where namePartTypeMnemonic can be Sec, Dev  etc... 
+     * @param namePartType
+     * @param namePart
+     * @return
+     */
+    public String getNamePartTypeMnemonic(NamePartType namePartType, NamePart namePart) {
+        final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
+        final List<String> mnemonicPath = namePartView != null ? namePartView.getMnemonicPath() : ImmutableList.<String>of();
+        return namingConvention.getNamePartTypeMnemonic(mnemonicPath, namePartType);
+    }
+
+    /**
+     * The mnemonic of the name part type to be used in dialogs. Example: "' Mnemonic: namePartTypeMnemonic" where namePartTypeMnemonic can be Sec, Dev  etc... 
+     * @param namePartType
+     * @param namePart
+     * @return
+     */
+	public String getNamePartTypeMnemonicForChild(NamePartType namePartType, NamePart namePart) {
+        final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
+        final List<String> mnemonicPath = namePartView != null ? namePartView.getMnemonicPathWithChild("") : ImmutableList.<String>of("");
+        return namingConvention.getNamePartTypeMnemonic(mnemonicPath, namePartType);
+	}
+
+    
     /**
      * True if the mnemonic of a name part is valid in the context of the parent.
      *
      * @param namePartType the type of the name part
-     * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
+     * @param parent of the name part, null if the name part is at the root of the hierarchy
      * @param mnemonic the mnemonic name of the name part to test for validity
      */
     public boolean isMnemonicValid(NamePartType namePartType, @Nullable NamePart parent, @Nullable String mnemonic) {
-        final @Nullable NamePartView parentView = parent != null ? view(parent) : null;
-        final List<String> parentPath = parentView != null ? parentView.getMnemonicPath() : ImmutableList.<String>of();
-        if (namePartType == NamePartType.SECTION) {
-            return namingConvention.isSectionNameValid(parentPath, mnemonic);
-        } else if (namePartType == NamePartType.DEVICE_TYPE) {
-            return namingConvention.isDeviceTypeNameValid(parentPath, mnemonic);
-        } else {
-            throw new UnhandledCaseException();
-        }
+        final @Nullable NamePartView namePartView = parent != null ? view(parent) : null;
+        final List<String> mnemonicPath = namePartView != null ? namePartView.getMnemonicPathWithChild(mnemonic) : ImmutableList.<String>of(mnemonic!=null? mnemonic: "");
+        return namingConvention.isMnemonicValid(mnemonicPath, namePartType);
     }
 
     /**
@@ -681,6 +738,8 @@ public class NamePartService {
     private List<Device> devicesOfType(NamePart deviceType) {
         return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deviceType = :deviceType AND r.deleted = false", Device.class).setParameter("deviceType", deviceType).getResultList();
     }
+
+	
 
 
 }

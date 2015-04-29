@@ -311,7 +311,27 @@ public class RestrictedNamePartService {
         return namePartService.currentDeviceRevision(deviceUuid);
     }
 
+	public boolean isMnemonicRequiredForChild(NamePartType namePartType, NamePart namePart) {
+		return namePartService.isMnemonicRequiredForChild(namePartType, namePart);
+	}
+
 	public boolean isMnemonicRequired(NamePartType namePartType, NamePart parent) {
 		return namePartService.isMnemonicRequired(namePartType, parent);
 	}
+
+	public String getNamePartTypeName(NamePartType namePartType, NamePart namePart) {
+		return namePartService.getNamePartTypeName(namePartType,namePart);
+	}
+
+	public String getNamePartTypeNameForChild(NamePartType namePartType, NamePart namePart) {
+		return namePartService.getNamePartTypeNameForChild(namePartType,namePart);
+	}
+
+	public String getNamePartTypeMnemonic(NamePartType namePartType, NamePart namePart) {
+		return namePartService.getNamePartTypeMnemonic(namePartType, namePart);
+	}
+	public String getNamePartTypeMnemonicForChild(NamePartType namePartType, NamePart namePart) {
+		return namePartService.getNamePartTypeMnemonicForChild(namePartType, namePart);
+	}
+
 }

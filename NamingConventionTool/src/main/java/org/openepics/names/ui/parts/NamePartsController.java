@@ -134,28 +134,47 @@ public class NamePartsController implements Serializable {
 		final @Nullable NamePart parent = getSelectedName() != null ? getSelectedName().getNamePart() : null;
 		return namePartService.isMnemonicValid(namePartType, parent, mnemonic);
 	}
-
+	
 	public boolean isModifyMnemonicValid(String mnemonic) {
 		final NamePartView namePart = As.notNull(getSelectedName());
 		final @Nullable NamePart parent = namePart.getParent() != null ? namePart.getParent().getNamePart() : null;
 		return namePartService.isMnemonicValid(namePartType, parent, mnemonic);
 	}
 		
-	public boolean isAddMnemonicRequired(){
+	public boolean isMnemonicRequiredForChild(){
 		final NamePart parent= getSelectedName() != null ? getSelectedName().getNamePart():null;
-		return namePartService.isMnemonicRequired(namePartType,parent);
+		return namePartService.isMnemonicRequiredForChild(namePartType,parent);
+	}
+	
+	public boolean isMnemonicRequired(){
+		final @Nullable NamePart  namePart= getSelectedName() !=null? getSelectedName().getNamePart():null;
+		return namePart!=null ? namePartService.isMnemonicRequired(namePartType,namePart): true;
+	}
+	public String getNamePartTypeName() {
+		final @Nullable NamePart namePart=getSelectedName() !=null? getSelectedName().getNamePart():null;
+		return namePart !=null ? namePartService.getNamePartTypeName(namePartType,namePart): ""; 
 	}
 
-	public boolean isModifyMnemonicRequired(){
-//		final NamePartView namePart = As.notNull(getSelectedName());
-		final @Nullable NamePartView namePart = getSelectedName();
-		if(namePart==null){
-			return true;
-		} else {
-		final @Nullable NamePart parent=namePart.getParent() !=null ? namePart.getParent().getNamePart():null;
-		return namePartService.isMnemonicRequired(namePartType,parent);
-		}
+	public String getNamePartTypeNameForChild() {
+		final @Nullable NamePart namePart=getSelectedName() !=null? getSelectedName().getNamePart():null;
+		return namePartService.getNamePartTypeNameForChild(namePartType,namePart); 
 	}
+
+	public String getNamePartTypeMnemonic() {
+		final @Nullable NamePart namePart=getSelectedName() !=null? getSelectedName().getNamePart():null;
+		return namePart !=null ? namePartService.getNamePartTypeMnemonic(namePartType,namePart): ""; 
+	}
+
+	public String getNamePartTypeMnemonicForChild() {
+		final @Nullable NamePart namePart=getSelectedName() !=null? getSelectedName().getNamePart():null;
+		return namePartService.getNamePartTypeMnemonicForChild(namePartType,namePart); 
+	}
+
+	
+	public boolean isMnemonicRendered(NamePartView req) {
+        return req!=null? namePartService.isMnemonicRequired(namePartType, req.getNamePart()): false;
+    }
+
 
 	public boolean isAddMnemonicUnique(String mnemonic) {
 		final @Nullable NamePart parent = getSelectedName() != null ? getSelectedName().getNamePart() : null;
@@ -250,35 +269,6 @@ public class NamePartsController implements Serializable {
 		}
 	}
 
-
-	public boolean isNameModified(NamePartView req){
-		return req.isNameModified();
-	}
-
-	public boolean isMnemonicModified(NamePartView req){
-		return req.isMnemonicModified();
-	}
-
-	public boolean isDescriptionModified(NamePartView req){
-		return req.isDescriptionModified();
-	}	
-
-	public String getNewName(NamePartView req) {
-		return req.getPendingOrElseCurrentRevision().getName();
-	}
-
-	public String getNewMnemonic(NamePartView req) {
-		return req.getPendingOrElseCurrentRevision().getMnemonic();
-	}
-
-	public String getNewDescription(NamePartView req){
-		return req.getPendingOrElseCurrentRevision().getDescription();
-	}
-
-	public String getOperationsNewName(OperationView<NamePartView> opReq) {
-		final NamePartView req = opReq.getData();
-		return  !getNewName(req).equals("")? getNewName(req): req.getName();
-	}
 
 	@Deprecated
 	public boolean isModified(NamePartView req, boolean isFullName) {

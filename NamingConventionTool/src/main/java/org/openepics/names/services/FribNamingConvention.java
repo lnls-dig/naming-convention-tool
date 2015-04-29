@@ -18,13 +18,6 @@ import java.util.List;
 @Stateless
 public class FribNamingConvention implements NamingConvention {
 
-    @Override public boolean isSectionNameValid(List<String> parentPath, String name) {
-        throw new NotImplementedException();
-    }
-
-    @Override public boolean isDeviceTypeNameValid(List<String> parentPath, String name) {
-        throw new NotImplementedException();
-    }
 
     @Override public boolean isInstanceIndexValid(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
         throw new NotImplementedException();
@@ -53,7 +46,22 @@ public class FribNamingConvention implements NamingConvention {
 	}
 
 	@Override
-	public boolean isMnemonicNullable(List<String> mnemonicPath, NamePartType mnemonicType) {
+	public boolean isMnemonicRequired(List<String> mnemonicPath, NamePartType mnemonicType) {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public String getNamePartTypeName(List<String> sectionPath, NamePartType namePartType) {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public boolean isMnemonicValid(List<String> mnemonicPath, NamePartType mnemonicType) {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public String getNamePartTypeMnemonic(List<String> sectionPath, NamePartType namePartType) {
 		throw new NotImplementedException();
 	}
 }

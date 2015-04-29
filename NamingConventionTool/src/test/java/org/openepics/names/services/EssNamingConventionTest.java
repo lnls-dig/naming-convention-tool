@@ -18,74 +18,135 @@ public class EssNamingConventionTest {
         namingConvention = new EssNamingConvention();
     }
     
-    @Test
-    public void isSubSectionNameValidTest() {
-        List<String> parentPath = ImmutableList.of("Sup", "Sec");
-        assertTrue("Alphabetic subsection is allowed",namingConvention.isSectionNameValid(parentPath, "Sub"));
-        assertFalse("Empty sub is not allowed", namingConvention.isSectionNameValid(parentPath, "   "));
-        assertTrue(namingConvention.isSectionNameValid(parentPath, "1sub1"));
-        assertFalse(namingConvention.isSectionNameValid(parentPath, "00:1"));
-        assertFalse(namingConvention.isSectionNameValid(parentPath, "1234567"));
-        assertTrue(namingConvention.isSectionNameValid(parentPath, "1"));
-        assertTrue(namingConvention.isSectionNameValid(parentPath, "12"));
-        assertTrue(namingConvention.isSectionNameValid(parentPath, "00"));
-        assertTrue(namingConvention.isSectionNameValid(parentPath, "123"));
-        assertTrue(namingConvention.isSectionNameValid(parentPath, "1234"));
-        assertTrue(namingConvention.isSectionNameValid(parentPath, "12345"));
+    public boolean testSuperSection(String mnemonic){
+    	return namingConvention.isMnemonicValid(ImmutableList.of(mnemonic), NamePartType.SECTION);
+    }
+    public boolean testSection(String mnemonic){
+    	return namingConvention.isMnemonicValid(ImmutableList.of("",mnemonic), NamePartType.SECTION);
+    }
+    public boolean testSubsection(String mnemonic){
+    	return namingConvention.isMnemonicValid(ImmutableList.of("","Sec",mnemonic), NamePartType.SECTION);
+    }
+    public boolean testDiscipline(String mnemonic){
+    	return namingConvention.isMnemonicValid(ImmutableList.of(mnemonic), NamePartType.DEVICE_TYPE);
+    }
+    public boolean testDeviceGroup(String mnemonic){
+    	return namingConvention.isMnemonicValid(ImmutableList.of("Dis",mnemonic), NamePartType.DEVICE_TYPE);
+    }
+    public boolean testDeviceType(String mnemonic){
+    	return namingConvention.isMnemonicValid(ImmutableList.of("Dis","",mnemonic), NamePartType.DEVICE_TYPE);
+    }
+    
+    @Test 
+    public void isSuperSectionNameValidTest(){
+    	assertTrue("Empty super section is allowed", testSuperSection(""));
+        assertTrue("Only Zeros are allowed",testSuperSection("000"));   
+    	assertTrue("Alphabetic super section is allowed",testSuperSection("Sup"));
+        assertFalse("Blanks are not allowed", testSuperSection("Sup "));
+        assertTrue("Numeric super section is allowed",testSuperSection("123"));
+        assertTrue("AlphaNumeric super section is allowed",testSuperSection("Sup0"));
+        assertFalse("Non-Alphanumerical subsection is not allowed",testSuperSection("Sup:"));
+        assertTrue("Short super section is allowed", testSuperSection("1"));
+        assertTrue("Long super section is allowed", testSuperSection("123456"));
+        assertTrue("Very long super section is allowed",testSuperSection("123456789012345"));
     }
     
     @Test
     public void isSectionNameValidTest() {
-        List<String> parentPath = ImmutableList.of("Sup");
-        assertTrue("Alphabetic section is allowed",namingConvention.isSectionNameValid(parentPath, "Sec"));
-        assertTrue("Alphanumeric section is allowed",namingConvention.isSectionNameValid(parentPath, "Sec01"));
-        assertTrue("Numeric section is allowed",namingConvention.isSectionNameValid(parentPath, "01"));
-        assertFalse("Empty section is not allowed",namingConvention.isSectionNameValid(parentPath, "  "));
-        assertFalse("Non-alphanumerical char are not allowed", namingConvention.isSectionNameValid(parentPath, "Sec!"));
-        assertTrue(namingConvention.isSectionNameValid(ImmutableList.of("Lin", "Sec"), "cryo"));
-        assertTrue(namingConvention.isSectionNameValid(ImmutableList.<String>of(), "Acc1"));
-        assertTrue(namingConvention.isSectionNameValid(ImmutableList.<String>of(), "Acc"));
-        assertTrue(namingConvention.isSectionNameValid(ImmutableList.of("Acc"), "Sec"));
-        assertTrue(namingConvention.isSectionNameValid(ImmutableList.of("Lin", "Sec"), "Cryo"));
-    }
+        assertTrue("Alphabetic section is allowed",testSection("Sec"));
+        assertTrue("Numeric section is allowed",testSection("123"));
+        assertTrue("AlphaNumeric section is allowed",testSection("Sec0"));
+        assertFalse("Empty section is not allowed",testSection(""));
+        assertTrue("Only Zeros are allowed",testSection("000"));   
+        assertFalse("Blanks are not allowed", testSection("Sec "));
+        assertFalse("Non-Alphanumerical section is not allowed",testSection("Sec:"));
+        assertTrue("Short section is allowed", testSection("1"));
+        assertTrue("Long section is allowed", testSection("123456"));
+        assertFalse("Very long section is not allowed",testSection("1234567"));
+         }
     
     @Test
-    public void sectionNameLengthTest() {
-        List<String> parentPath = ImmutableList.of("Sup");        
-        assertTrue(namingConvention.isSectionNameValid(parentPath, "S"));
-        assertFalse(namingConvention.isSectionNameValid(parentPath, "Section"));
-        assertTrue(namingConvention.isSectionNameValid(parentPath, "Se"));
-        assertTrue(namingConvention.isSectionNameValid(parentPath, "Sectio"));
-        assertTrue(namingConvention.isSectionNameValid(parentPath, "Sec")); 
-    }
-    
+    public void isSubSectionNameValidTest() {
+        assertTrue("Alphabetic subsection is allowed",testSubsection("Sub"));
+        assertTrue("Numeric subsection is allowed",testSubsection("123"));
+        assertTrue("AlphaNumeric subsection is allowed",testSubsection("Sub0"));
+        assertFalse("Empty subsection is not allowed",testSubsection(""));
+        assertTrue("Only Zeros are allowed",testSubsection("000"));   
+        assertFalse("Blanks are not allowed", testSubsection("Sub "));
+        assertFalse("Non-Alphanumerical subsection is not allowed",testSubsection("Sub:"));
+        assertTrue("Short subsection is allowed", testSubsection("1"));
+        assertTrue("Long subsection is allowed", testSubsection("123456"));
+        assertFalse("Very long subsection is not allowed",testSubsection("1234567"));
+         }
+
+    @Test
+    public void isDisciplineNameValidTest() {
+        assertTrue("Discipline: Alphabetic mnemonic is allowed",testDiscipline("Dis"));
+        assertTrue("Discipline: Numeric mnemonic is allowed",testDiscipline("123"));
+        assertTrue("Discipline: AlphaNumeric mnemonic is allowed",testDiscipline("Dis0"));
+        assertFalse("Discipline: Empty mnemonic is not allowed",testDiscipline(""));
+        assertTrue("Discipline: Only Zeros are allowed",testDiscipline("000"));   
+        assertFalse("Discipline: Blanks are not allowed", testDiscipline("Dis "));
+        assertFalse("Discipline: Non-Alphanumerical mnemonic is not allowed",testDiscipline("Dis:"));
+        assertTrue("Discipline: Short mnemonic is allowed", testDiscipline("1"));
+        assertTrue("Discipline: Long mnemonic is allowed", testDiscipline("123456"));
+        assertFalse("Discipline: Very long mnemonic is not allowed",testDiscipline("1234567"));
+         }
+
+    @Test
+    public void isDeviceGroupNameValidTest() {
+        assertTrue("DeviceGroup: Alphabetic mnemonic is allowed",testDeviceGroup("Grp"));
+        assertTrue("DeviceGroup: Numeric mnemonic is allowed",testDeviceGroup("123"));
+        assertTrue("DeviceGroup: AlphaNumeric mnemonic is allowed",testDeviceGroup("Grp0"));
+        assertTrue("DeviceGroup: Empty mnemonic is allowed",testDeviceGroup(""));
+        assertTrue("DeviceGroup: Only Zeros are allowed",testDeviceGroup("000"));   
+        assertFalse("DeviceGroup: Blanks are not allowed", testDeviceGroup("Grp "));
+        assertFalse("DeviceGroup: Non-Alphanumerical mnemonic is not allowed",testDeviceGroup("Grp:"));
+        assertTrue("DeviceGroup: Short mnemonic is allowed", testDeviceGroup("1"));
+        assertTrue("DeviceGroup: Long mnemonic is allowed", testDeviceGroup("123456"));
+        assertTrue("DeviceGroup: Very long mnemonic is allowed",testDeviceGroup("123456789012345"));
+         }
+
     @Test
     public void isDeviceTypeNameValidTest() {
-        List<String> parentPath = ImmutableList.of("Dis","Cat");        
-
-    	assertTrue("Alphanumeric Discipline is allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.<String>of(), "Dis"));
-        assertTrue("Numeric Discipline is allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.<String>of(), "01"));
-        assertFalse("Non-alphanumerical char is not allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.<String>of(), "Dis:"));        
-        assertTrue("Alphanumeric Device type is allowed", namingConvention.isDeviceTypeNameValid(parentPath,"Dev1"));
-//        assertFalse("Device cannot start with number", namingConvention.isDeviceTypeNameValid(parentPath,"1Dev"));
-        assertFalse("Empty names are not allowed",namingConvention.isDeviceTypeNameValid(parentPath,"  "));
+        assertTrue("DeviceType: Alphabetic mnemonic is allowed",testDeviceType("Dev"));
+        assertTrue("DeviceType: Numeric mnemonic is allowed",testDeviceType("123"));
+        assertTrue("DeviceType: AlphaNumeric mnemonic is allowed",testDeviceType("Dev0"));
+        assertFalse("DeviceType: Empty mnemonic is not allowed",testDeviceType(""));
+        assertTrue("DeviceType: Only Zeros are allowed",testDeviceType("000"));   
+        assertFalse("DeviceType: Blanks are not allowed", testDeviceType("Dev "));
+        assertFalse("DeviceType: Non-Alphanumerical mnemonic is not allowed",testDeviceType("Dev:"));
+        assertTrue("DeviceType: Short mnemonic is allowed", testDeviceType("1"));
+        assertTrue("DeviceType: Long mnemonic is allowed", testDeviceType("123456"));
+        assertFalse("DeviceType: Very long mnemonic is not allowed",testDeviceType("1234567"));
     }
     
     @Test
-    public void deviceTypeNameLengthTest() {
-        assertFalse("Discipline name with 0 chars is not allowed",namingConvention.isDeviceTypeNameValid(ImmutableList.<String>of(), ""));    	
-        assertTrue("Discipline name shorter than 6 chars is allowed",namingConvention.isDeviceTypeNameValid(ImmutableList.<String>of(), "BMD"));
-        assertTrue("Discipline name of 6 chars is allowed",namingConvention.isDeviceTypeNameValid(ImmutableList.<String>of(), "BMD123"));
-        assertFalse("Discipline name longer than 6 chars is not allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.<String>of(), "BMD1234"));
-        assertTrue("Device category with 0 chars is allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD"), ""));
-        assertTrue(namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD"), "Ch"));
-        assertTrue("Device category longer than 6 chars is allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD"), "Choppers"));
-        assertFalse("Device type with 0 chars is not allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD", "Choppers"), ""));
-        assertTrue("One charater device type is allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD","Choppers"), "C"));
-        assertTrue("Six char device type is allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD","Choppers"), "Choppe"));  
-        assertFalse("Device type longer than 6 chars is not allowed", namingConvention.isDeviceTypeNameValid(ImmutableList.of("BMD", "Choppers"), "Chopper"));    	
+    public void isMnemonicValidTest() {
+        assertTrue("Alphabetic section is allowed",namingConvention.isMnemonicValid(ImmutableList.of("Sup", "Sec"), NamePartType.SECTION));
+        assertTrue("Alphanumeric section is allowed",namingConvention.isMnemonicValid(ImmutableList.of("Sup", "Sec01"), NamePartType.SECTION));
+        assertTrue("Numeric section is allowed",namingConvention.isMnemonicValid(ImmutableList.of("Sup", "01"), NamePartType.SECTION));
+        assertFalse("Empty section is not allowed",namingConvention.isMnemonicValid(ImmutableList.of("Sup", "  "), NamePartType.SECTION));
+        assertFalse("Non-alphanumerical char are not allowed", namingConvention.isMnemonicValid(ImmutableList.of("Sup", "Sec!"), NamePartType.SECTION));
+        assertTrue(namingConvention.isMnemonicValid(ImmutableList.of("Lin", "Sec", "cryo"), NamePartType.SECTION));
+        assertTrue(namingConvention.isMnemonicValid(ImmutableList.of("Acc1"), NamePartType.SECTION));
+        assertTrue(namingConvention.isMnemonicValid(ImmutableList.of("Acc"), NamePartType.SECTION));
+        assertTrue(namingConvention.isMnemonicValid(ImmutableList.of("Acc", "Sec"), NamePartType.SECTION));
+        assertTrue(namingConvention.isMnemonicValid(ImmutableList.of("Lin", "Sec", "Cryo"), NamePartType.SECTION));
     }
-        
+    
+    @Test
+    public void sectionNameLengthTest() {      
+        assertTrue(namingConvention.isMnemonicValid(ImmutableList.of("Sup", "S"), NamePartType.SECTION));
+        assertFalse(namingConvention.isMnemonicValid(ImmutableList.of("Sup", "Section"), NamePartType.SECTION));
+        assertTrue(namingConvention.isMnemonicValid(ImmutableList.of("Sup", "Se"), NamePartType.SECTION));
+        assertTrue(namingConvention.isMnemonicValid(ImmutableList.of("Sup", "Sectio"), NamePartType.SECTION));
+        assertTrue(namingConvention.isMnemonicValid(ImmutableList.of("Sup", "Sec"), NamePartType.SECTION));
+    }
+    
+
+    
+       
     @Test
     public void isInstanceIndexValidTest() {
         final List<String> sectionPath = ImmutableList.of("Sup", "Sec", "Sub");
@@ -174,6 +235,26 @@ public class EssNamingConventionTest {
         assertTrue("Device groups can coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "Chop"), NamePartType.DEVICE_TYPE));
         assertFalse("Two device types cannot coexist under the same discipline",namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "ChopN", "ChopG"), NamePartType.DEVICE_TYPE));
         assertFalse("Two device types cannot coexist under the same discipline", namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "ChopN", "ChopG"), NamePartType.DEVICE_TYPE));
+    }
+    
+    @Test
+    public void namePartTypeNameTest(){
+    	assertEquals("Discipline", namingConvention.getNamePartTypeName(ImmutableList.of("Dis"), NamePartType.DEVICE_TYPE));
+    	assertEquals("Device Group", namingConvention.getNamePartTypeName(ImmutableList.of("Dis",""), NamePartType.DEVICE_TYPE));
+    	assertEquals("Device Type", namingConvention.getNamePartTypeName(ImmutableList.of("Dis","","Dev"), NamePartType.DEVICE_TYPE));
+    	assertEquals("Super Section", namingConvention.getNamePartTypeName(ImmutableList.of(""), NamePartType.SECTION));
+    	assertEquals("Section", namingConvention.getNamePartTypeName(ImmutableList.of("","Sec"), NamePartType.SECTION));
+    	assertEquals("Subsection", namingConvention.getNamePartTypeName(ImmutableList.of("","Sec","Sub"), NamePartType.SECTION));
+    }
+    
+    @Test
+    public void namePartTypeMnemonicTest(){
+    	assertEquals("Dis", namingConvention.getNamePartTypeMnemonic(ImmutableList.of(""), NamePartType.DEVICE_TYPE));
+    	assertEquals("", namingConvention.getNamePartTypeMnemonic(ImmutableList.of("",""), NamePartType.DEVICE_TYPE));
+    	assertEquals("Dev", namingConvention.getNamePartTypeMnemonic(ImmutableList.of("","",""), NamePartType.DEVICE_TYPE));
+    	assertEquals("", namingConvention.getNamePartTypeMnemonic(ImmutableList.of(""), NamePartType.SECTION));
+    	assertEquals("Sec", namingConvention.getNamePartTypeMnemonic(ImmutableList.of("",""), NamePartType.SECTION));
+    	assertEquals("Sub", namingConvention.getNamePartTypeMnemonic(ImmutableList.of("","",""), NamePartType.SECTION));
     }
 }
 

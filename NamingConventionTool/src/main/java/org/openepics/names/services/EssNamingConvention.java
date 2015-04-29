@@ -18,35 +18,20 @@ import java.util.List;
 @Stateless
 public class EssNamingConvention implements NamingConvention {
 
-	@Override public boolean isSectionNameValid(List<String> parentPath, String name) {
-		NameElement parent= new NameElement(parentPath,NamePartType.SECTION);
-		if(parent.isAreaRoot()){
-			return isNameValid(name,0,16);
-		} else if(parent.isSuperSection()|| parent.isSection()){
-			return isNameValid(name,1,6);
-		} else {
-		return false;
-		}
-	}
-
-	@Override public boolean isDeviceTypeNameValid(List<String> parentPath, String name) {
-		NameElement parent= new NameElement(parentPath,NamePartType.DEVICE_TYPE);
-		if(parent.isDiscipline()){
-			return isNameValid(name,0,16);
-		} else if(parent.isDeviceRoot()|| parent.isDeviceGroup()){
-			return isNameValid(name,1,6);
-		} else {
-		return false;
-		}		
-	}
 	
-	@Override public boolean isMnemonicNullable(List<String> parentPath, NamePartType mnemonicType){
-		NameElement parent= new NameElement(parentPath, mnemonicType);
-		if(parent.isAreaRoot()||parent.isDiscipline()){
-			return true;
-		} else {
-			return false;
+	@Override public boolean isMnemonicValid(List<String> mnemonicPath, NamePartType mnemonicType){
+		NameElement nameElement =new NameElement(mnemonicPath,mnemonicType);
+		String mnemonic = nameElement.getMnemonic();
+		if(nameElement.isRequired()){
+			return (mnemonic.length() >= 1 && mnemonic.length() <= 6) && mnemonic.matches("^[a-zA-Z0-9]+$");
+		} else { 			
+			return mnemonic.length() == 0 || ( mnemonic.length() <=16 && mnemonic.matches("^[a-zA-Z0-9]+$") );
 		}
+
+		}
+
+	@Override public boolean isMnemonicRequired(List<String> mnemonicPath, NamePartType mnemonicType){
+		return (new NameElement(mnemonicPath, mnemonicType)).isRequired();
 	}
 
 	@Override public boolean isInstanceIndexValid(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
@@ -65,7 +50,7 @@ public class EssNamingConvention implements NamingConvention {
 
 	@Override public String conventionName(List<String> sectionPath, List<String> deviceTypePath, @Nullable String instanceIndex) {
 		String areaDefinition = (new NameElement(sectionPath, NamePartType.SECTION)).getDefinition();
-	    String deviceDefinition= (new NameElement(deviceTypePath, NamePartType.DEVICE_TYPE)).getDefinition();
+		String deviceDefinition= (new NameElement(deviceTypePath, NamePartType.DEVICE_TYPE)).getDefinition();
 		if(areaDefinition!=null && deviceDefinition!=null){
 			return areaDefinition + ":" + deviceDefinition + (instanceIndex != null && !instanceIndex.isEmpty() ? "-" + instanceIndex : "");
 		}
@@ -90,7 +75,17 @@ public class EssNamingConvention implements NamingConvention {
 	public String areaName(List<String> sectionPath) {
 		return(new NameElement(sectionPath, NamePartType.SECTION)).getDefinition();
 	}
-	
+
+	@Override
+	public String getNamePartTypeName(List<String> sectionPath, NamePartType namePartType){
+		return (new NameElement(sectionPath,namePartType)).getTypeName();
+	}
+
+	@Override
+	public String getNamePartTypeMnemonic(List<String> sectionPath, NamePartType namePartType){
+		return (new NameElement(sectionPath,namePartType)).getTypeMnemonic();
+	}
+
 	private class NameElement {
 		List<String> path;
 		boolean areaStructure;
@@ -114,41 +109,60 @@ public class EssNamingConvention implements NamingConvention {
 			}			
 		}
 
-		boolean isDeviceRoot() {
-			return deviceStructure && level==0;
+		String getTypeName(){
+			if (isDiscipline()) {
+				return "Discipline";
+			} else if (isSuperSection()) {
+				return "Super Section";
+			} else if (isDeviceType()) {
+				return "Device Type";
+			} else	if (isDeviceGroup()) {
+				return "Device Group";
+			} else if (isSection()) {
+				return "Section";
+			} else	if (isSubsection()) {
+				return "Subsection";
+			} else {
+				return "";
+			}
 		}
 		
+		String getTypeMnemonic(){
+			if (isDiscipline()) {
+				return "Dis";
+			} else if (isDeviceType()) {
+				return "Dev";
+			} else if (isSection()) {
+				return "Sec";
+			} else	if (isSubsection()) {
+				return "Sub";
+			} else {
+				return "";
+			}
+		}
+
 		boolean isDiscipline() {
 			return deviceStructure&& level==1;
 		}
-		
 		boolean isDeviceGroup() {
 			return deviceStructure && level==2;
 		}
-
 		boolean isDeviceType() {
 			return deviceStructure && level==3;
 		}
-		boolean isAreaRoot() {
-			return areaStructure&& level==0;
-		}
-
 		boolean isSuperSection() {
 			return areaStructure&& level==1;
 		}
-
 		boolean isSection() {
 			return areaStructure && level==2;
 		}
-		
 		boolean isSubsection() {
 			return areaStructure && level==3;
 		}
-
-		boolean isNullable(){
-			return isSuperSection()|| isDeviceGroup();
+		boolean isRequired(){
+			return !(isSuperSection()|| isDeviceGroup());
 		}
-		
+
 		String getSection(){
 			return isSection() || isSubsection() ? path.get(1): null;
 		}
@@ -156,7 +170,7 @@ public class EssNamingConvention implements NamingConvention {
 		String getDiscipline(){
 			return isDiscipline() || isDeviceGroup() || isDeviceType() ? path.get(0): null;
 		}
-		
+
 		String getSubsection() {
 			return isSubsection() ? path.get(2): null;
 		}
@@ -165,8 +179,12 @@ public class EssNamingConvention implements NamingConvention {
 			return isDeviceType() ? path.get(2): null;
 		}
 
+		String getMnemonic() {
+			return level>0 ? path.get(level-1): null;
+		}
+		
 		boolean canCoexistWith(NameElement other) {
-			if((isDiscipline() || isSection())&& !other.isNullable() || (other.isDiscipline()||other.isSection())&&!isNullable()){
+			if((isDiscipline() || isSection())&& other.isRequired() || (other.isDiscipline()||other.isSection()) && isRequired()){
 				return false;
 			} else if ((isDeviceType() && other.isDeviceType()) && getDiscipline().equals(other.getDiscipline())){
 				return false;
