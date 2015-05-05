@@ -12,7 +12,11 @@
  *   East Lansing, MI 48824-1321
  *   http://frib.msu.edu
  *
+ *
+ * Copyright (c) 2014 European Spallation Source
+ * Copyright (c) 2014 Cosylab d.d.
  */
+
 package org.openepics.names.model;
 
 import com.google.common.base.Preconditions;
@@ -22,7 +26,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
-
 import java.util.Date;
 
 /**
@@ -30,6 +33,7 @@ import java.util.Date;
  *
  * @author Vasu V <vuppala@frib.msu.org>
  * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Karin Rathsman <karin.rahtsman@esss.se>
  */
 @Entity
 public class NamePartRevision extends Persistable {
@@ -85,8 +89,6 @@ public class NamePartRevision extends Persistable {
         Preconditions.checkNotNull(requestDate);
         Preconditions.checkArgument(requesterComment == null || !requesterComment.isEmpty());
         Preconditions.checkArgument(name != null && !name.isEmpty());
-//        Preconditions.checkArgument(mnemonic != null && !mnemonic.isEmpty());
-//        Preconditions.checkArgument(mnemonicEqClass != null);
         this.namePart = namePart;
         this.requestDate = requestDate;
         this.requestedBy = requestedBy;

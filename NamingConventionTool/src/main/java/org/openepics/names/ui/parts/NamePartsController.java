@@ -12,7 +12,10 @@
  *   East Lansing, MI 48824-1321
  *   http://frib.msu.edu
  *
- */
+ *
+ * Copyright (c) 2014 European Spallation Source
+ * Copyright (c) 2014 Cosylab d.d.
+*/
 package org.openepics.names.ui.parts;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -47,6 +50,7 @@ import java.util.List;
  * A UI controller bean for the Logical Area Structure and Device Category Structure screens.
  *
  * @author Vasu V <vuppala@frib.msu.org>
+ * @author Karin Rathsman <karin.rathsman@esss.se>
  */
 @ManagedBean
 @ViewScoped
