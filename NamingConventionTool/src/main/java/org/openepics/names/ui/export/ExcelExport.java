@@ -120,7 +120,7 @@ public class ExcelExport {
             final @Nullable NamePartView childView = (NamePartView) child.getData();
             if (childView != null) {
                 if (currentLevel < maxLevel) {
-                    final List<String> ancestorData = ImmutableList.<String>builder().addAll(rowData).add(childView.getName(), childView.getMnemonic()).build();
+                    final List<String> ancestorData = ImmutableList.<String>builder().addAll(rowData).add(childView.getName(), childView.getMnemonic()!=null? childView.getMnemonic():"").build();
                     fillNamePartSheet(sheet, maxLevel, currentLevel + 1, child, ancestorData);
                 } else {
                     final Row row = appendRow(sheet);
@@ -129,7 +129,7 @@ public class ExcelExport {
                     }
                     appendCell(row, childView.getNamePart().getUuid().toString());
                     appendCell(row, childView.getName());
-                    appendCell(row, childView.getMnemonic());
+                    appendCell(row, childView.getMnemonic()!=null? childView.getMnemonic():"");
                     appendCell(row, new SimpleDateFormat("yyyy-MM-dd").format(As.notNull(childView.getCurrentRevision()).getProcessDate()));
                 }
             } else {
