@@ -12,7 +12,10 @@
  *   East Lansing, MI 48824-1321
  *   http://frib.msu.edu
  *
- */
+ *
+ * Copyright (c) 2014 European Spallation Source
+ * Copyright (c) 2014 Cosylab d.d.
+*/
 package org.openepics.names.ui.parts;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -47,6 +50,7 @@ import java.util.List;
  * A UI controller bean for the Logical Area Structure and Device Category Structure screens.
  *
  * @author Vasu V <vuppala@frib.msu.org>
+ * @author Karin Rathsman <karin.rathsman@esss.se>
  */
 @ManagedBean
 @ViewScoped
@@ -134,12 +138,47 @@ public class NamePartsController implements Serializable {
 		final @Nullable NamePart parent = getSelectedName() != null ? getSelectedName().getNamePart() : null;
 		return namePartService.isMnemonicValid(namePartType, parent, mnemonic);
 	}
-
+	
 	public boolean isModifyMnemonicValid(String mnemonic) {
 		final NamePartView namePart = As.notNull(getSelectedName());
 		final @Nullable NamePart parent = namePart.getParent() != null ? namePart.getParent().getNamePart() : null;
 		return namePartService.isMnemonicValid(namePartType, parent, mnemonic);
 	}
+		
+	public boolean isMnemonicRequiredForChild(){
+		final NamePart parent= getSelectedName() != null ? getSelectedName().getNamePart():null;
+		return namePartService.isMnemonicRequiredForChild(namePartType,parent);
+	}
+	
+	public boolean isMnemonicRequired(){
+		final @Nullable NamePart  namePart= getSelectedName() !=null? getSelectedName().getNamePart():null;
+		return namePart!=null ? namePartService.isMnemonicRequired(namePartType,namePart): true;
+	}
+	public String getNamePartTypeName() {
+		final @Nullable NamePart namePart=getSelectedName() !=null? getSelectedName().getNamePart():null;
+		return namePart !=null ? namePartService.getNamePartTypeName(namePartType,namePart): ""; 
+	}
+
+	public String getNamePartTypeNameForChild() {
+		final @Nullable NamePart namePart=getSelectedName() !=null? getSelectedName().getNamePart():null;
+		return namePartService.getNamePartTypeNameForChild(namePartType,namePart); 
+	}
+
+	public String getNamePartTypeMnemonic() {
+		final @Nullable NamePart namePart=getSelectedName() !=null? getSelectedName().getNamePart():null;
+		return namePart !=null ? namePartService.getNamePartTypeMnemonic(namePartType,namePart): ""; 
+	}
+
+	public String getNamePartTypeMnemonicForChild() {
+		final @Nullable NamePart namePart=getSelectedName() !=null? getSelectedName().getNamePart():null;
+		return namePartService.getNamePartTypeMnemonicForChild(namePartType,namePart); 
+	}
+
+	
+	public boolean isMnemonicRendered(NamePartView req) {
+        return req!=null? namePartService.isMnemonicRequired(namePartType, req.getNamePart()): false;
+    }
+
 
 	public boolean isAddMnemonicUnique(String mnemonic) {
 		final @Nullable NamePart parent = getSelectedName() != null ? getSelectedName().getNamePart() : null;
@@ -234,35 +273,6 @@ public class NamePartsController implements Serializable {
 		}
 	}
 
-
-	public boolean isNameModified(NamePartView req){
-		return req.isNameModified();
-	}
-
-	public boolean isMnemonicModified(NamePartView req){
-		return req.isMnemonicModified();
-	}
-
-	public boolean isDescriptionModified(NamePartView req){
-		return req.isDescriptionModified();
-	}	
-
-	public String getNewName(NamePartView req) {
-		return req.getPendingOrElseCurrentRevision().getName();
-	}
-
-	public String getNewMnemonic(NamePartView req) {
-		return req.getPendingOrElseCurrentRevision().getMnemonic();
-	}
-
-	public String getNewDescription(NamePartView req){
-		return req.getPendingOrElseCurrentRevision().getDescription();
-	}
-
-	public String getOperationsNewName(OperationView<NamePartView> opReq) {
-		final NamePartView req = opReq.getData();
-		return  !getNewName(req).equals("")? getNewName(req): req.getName();
-	}
 
 	@Deprecated
 	public boolean isModified(NamePartView req, boolean isFullName) {
@@ -375,8 +385,8 @@ public class NamePartsController implements Serializable {
 	public String getFormName() { return formName; }
 	public void setFormName(String formName) { this.formName = formName; }
 
-	public String getFormMnemonic() { return formMnemonic; }
-	public void setFormMnemonic(String formMnemonic) { this.formMnemonic = formMnemonic; }
+	public String getFormMnemonic() { return formMnemonic !=null ? formMnemonic : ""; }
+	public void setFormMnemonic(String formMnemonic) { this.formMnemonic = !formMnemonic.isEmpty()? formMnemonic:null;}
 
 	public String getFormComment() { return formComment != null ? formComment : ""; }
 	public void setFormComment(String formComment) { this.formComment = !formComment.isEmpty() ? formComment : null; }

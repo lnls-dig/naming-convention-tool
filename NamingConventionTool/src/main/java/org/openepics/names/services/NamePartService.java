@@ -1,7 +1,25 @@
+/*-
+* Copyright (c) 2014 European Spallation Source
+* Copyright (c) 2014 Cosylab d.d.
+*
+* This file is part of Naming Service.
+* Naming Service is free software: you can redistribute it and/or modify it under
+* the terms of the GNU General Public License as published by the Free
+* Software Foundation, either version 2 of the License, or any newer version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along with
+* this program. If not, see https://www.gnu.org/licenses/gpl-2.0.txt
+*/
 package org.openepics.names.services;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableCollection.Builder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -28,6 +46,7 @@ import java.util.UUID;
  * A service bean managing NamePart and Device entities.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Karin Rahtsman <karin.rathsman@esss.se>
  */
 @Stateless
 public class NamePartService {
@@ -36,34 +55,105 @@ public class NamePartService {
     @PersistenceContext private EntityManager em;
 
     /**
-     * True if the mnemonic of a name part is valid in the context of the parent.
-     *
+     * True if the mnemonic can be null.
      * @param namePartType the type of the name part
      * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
-     * @param mnemonic the mnemonic name of the name part to test for validity
+     * @return
      */
-    public boolean isMnemonicValid(NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {
-        final @Nullable NamePartView parentView = parent != null ? view(parent) : null;
-        final List<String> parentPath = parentView != null ? parentView.getMnemonicPath() : ImmutableList.<String>of();
-        if (namePartType == NamePartType.SECTION) {
-            return namingConvention.isSectionNameValid(parentPath, mnemonic);
-        } else if (namePartType == NamePartType.DEVICE_TYPE) {
-            return namingConvention.isDeviceTypeNameValid(parentPath, mnemonic);
-        } else {
-            throw new UnhandledCaseException();
-        }
+    public boolean isMnemonicRequired(NamePartType namePartType, @Nullable NamePart namePart) {
+        final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
+        final List<String> mnemonicPath = namePartView != null ? namePartView.getMnemonicPath() : ImmutableList.<String>of();
+            return namingConvention.isMnemonicRequired(mnemonicPath, namePartType);
+	}
+    
+    /**
+     * True if the mnemonic can be null for child.
+     * @param namePartType the type of the name part
+     * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
+     * @return
+     */
+    public boolean isMnemonicRequiredForChild(NamePartType namePartType, NamePart namePart) {
+        final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
+        final List<String> addMnemonicPath = namePartView != null ? namePartView.getMnemonicPathWithChild("") : ImmutableList.<String>of("");
+        return namingConvention.isMnemonicRequired(addMnemonicPath, namePartType);
+	}
+
+    /**
+     * The name of the name part type to be used in dialog header and menus. Example: "Modify mnemonic for namePartTypeName" where namePartTypeName can be section, subsection, discipline etc... 
+     * @param namePartType
+     * @param namePart
+     * @return
+     */
+    public String getNamePartTypeName(NamePartType namePartType, NamePart namePart) {
+        final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
+        final List<String> mnemonicPath = namePartView != null ? namePartView.getMnemonicPath() : ImmutableList.<String>of();
+        return namingConvention.getNamePartTypeName(mnemonicPath, namePartType);
     }
 
     /**
-     * True if the mnemonic of a name part is unique. Device type discipline and logical area section and super section have to be globally unique.
-     * Generic device type has to be unique within the context of the grandparent. Logical area sub section and device type category have to be unique in the context of parent.
+     * The name of the name part type to be used in dialog header and menus. Example: "Add mnemonic for namePartTypeName" where namePartTypeName can be section, subsection, discipline etc... 
+     * @param namePartType
+     * @param namePart
+     * @return
+     */
+	public String getNamePartTypeNameForChild(NamePartType namePartType, NamePart namePart) {
+        final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
+        final List<String> mnemonicPath = namePartView != null ? namePartView.getMnemonicPathWithChild("") : ImmutableList.<String>of("");
+        return namingConvention.getNamePartTypeName(mnemonicPath, namePartType);
+	}
+	
+    /**
+     * The mnemonic of the name part type to be used in dialogs. Example: "' Mnemonic: namePartTypeMnemonic" where namePartTypeMnemonic can be Sec, Dev  etc... 
+     * @param namePartType
+     * @param namePart
+     * @return
+     */
+    public String getNamePartTypeMnemonic(NamePartType namePartType, NamePart namePart) {
+        final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
+        final List<String> mnemonicPath = namePartView != null ? namePartView.getMnemonicPath() : ImmutableList.<String>of();
+        return namingConvention.getNamePartTypeMnemonic(mnemonicPath, namePartType);
+    }
+
+    /**
+     * The mnemonic of the name part type to be used in dialogs. Example: "' Mnemonic: namePartTypeMnemonic" where namePartTypeMnemonic can be Sec, Dev  etc... 
+     * @param namePartType
+     * @param namePart
+     * @return
+     */
+	public String getNamePartTypeMnemonicForChild(NamePartType namePartType, NamePart namePart) {
+        final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
+        final List<String> mnemonicPath = namePartView != null ? namePartView.getMnemonicPathWithChild("") : ImmutableList.<String>of("");
+        return namingConvention.getNamePartTypeMnemonic(mnemonicPath, namePartType);
+	}
+
+    
+    /**
+     * True if the mnemonic of a name part is valid in the context of the parent.
      *
+     * @param namePartType the type of the name part
+     * @param parent of the name part, null if the name part is at the root of the hierarchy
+     * @param mnemonic the mnemonic name of the name part to test for validity
+     */
+    public boolean isMnemonicValid(NamePartType namePartType, @Nullable NamePart parent, @Nullable String mnemonic) {
+        final @Nullable NamePartView namePartView = parent != null ? view(parent) : null;
+        final List<String> mnemonicPath = namePartView != null ? namePartView.getMnemonicPathWithChild(mnemonic) : ImmutableList.<String>of(mnemonic!=null? mnemonic: "");
+        return namingConvention.isMnemonicValid(mnemonicPath, namePartType);
+    }
+
+    /**
+     * True if the mnemonic of a name part is unique. Discipline of the device structure and functional area section have to be globally unique.
+     * Device type has to be unique within the context of the discipline. Functional area subsection has to be unique in the context of section. 
+     * Super section and device groups can have null mnemonics and do not need to be unique. 
+     * 
      * @param namePartType the type of the name part
      * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
      * @param mnemonic the mnemonic name of the name part to test for uniqueness
      */
-    public boolean isMnemonicUnique(NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {        
-        final String mnemonicEquivalenceClass = namingConvention.equivalenceClassRepresentative(mnemonic);
+    public boolean isMnemonicUnique(NamePartType namePartType, @Nullable NamePart parent, @Nullable String mnemonic) {        
+        if(mnemonic==null) {
+        	return false;
+        } else {
+    	final String mnemonicEquivalenceClass = namingConvention.equivalenceClassRepresentative(mnemonic);
         final List<NamePartRevision> sameEqClassRevisions = em.createQuery("SELECT r FROM NamePartRevision r WHERE (r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) OR r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :pending)) AND r.deleted = FALSE AND r.mnemonicEqClass = :mnemonicEquivalenceClass", NamePartRevision.class).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("mnemonicEquivalenceClass", mnemonicEquivalenceClass).getResultList();
         for (NamePartRevision sameEqClassRevision : sameEqClassRevisions) {
             if (Objects.equal(sameEqClassRevision.getParent(), parent)) {
@@ -76,14 +166,21 @@ public class NamePartService {
                 return false;
             }
         }
-        return true;     
+        return true; 
+        }
     }
     
-    public boolean isMnemonicUniqueExceptForItself(String currentMnemonic, NamePartType namePartType, @Nullable NamePart parent, String mnemonic){
-        final String mnemonicEquivalenceClass = namingConvention.equivalenceClassRepresentative(mnemonic);
-        final String currentMnemonicEqClasss = namingConvention.equivalenceClassRepresentative(currentMnemonic);
-        boolean nameIsEquivalentToCurrent= mnemonicEquivalenceClass.equals(currentMnemonicEqClasss);
-        return isMnemonicUnique(namePartType, parent, mnemonic)|| nameIsEquivalentToCurrent;
+    public boolean isMnemonicUniqueExceptForItself(@Nullable String currentMnemonic, NamePartType namePartType, @Nullable NamePart parent, @Nullable String mnemonic){
+    	if(mnemonic==null) { 
+    		return false;
+    	} else if (currentMnemonic==null){
+    		return isMnemonicUnique(namePartType, parent, mnemonic);
+    	} else {    		
+        	final String mnemonicEquivalenceClass = namingConvention.equivalenceClassRepresentative(mnemonic);
+            final String currentMnemonicEqClasss = namingConvention.equivalenceClassRepresentative(currentMnemonic);
+            boolean nameIsEquivalentToCurrent= mnemonicEquivalenceClass.equals(currentMnemonicEqClasss);
+            return isMnemonicUnique(namePartType, parent, mnemonic)|| nameIsEquivalentToCurrent;
+    	}
     }
     
     /**
@@ -151,7 +248,7 @@ public class NamePartService {
      * @param comment the comment the user gave when submitting the proposal. Null if no comment was given.
      * @return the resulting proposed NamePart revision
      */
-    public NamePartRevision addNamePart(String name, String mnemonic, @Nullable String description, NamePartType namePartType, @Nullable NamePart parent, @Nullable UserAccount user, @Nullable String comment) {
+    public NamePartRevision addNamePart(String name, @Nullable String mnemonic, @Nullable String description, NamePartType namePartType, @Nullable NamePart parent, @Nullable UserAccount user, @Nullable String comment) {
         Preconditions.checkArgument(parent == null || parent.getNamePartType() == namePartType);
 
         final @Nullable NamePartView parentView = parent != null ? view(parent) : null;
@@ -163,11 +260,8 @@ public class NamePartService {
         }
 
         Preconditions.checkState(isMnemonicValid(namePartType, parent, mnemonic));
-        Preconditions.checkState(isMnemonicUnique(namePartType, parent, mnemonic));
-
-        
-        final String mnemonicEqClass = namingConvention.equivalenceClassRepresentative(mnemonic);
-
+        if(mnemonic!=null) Preconditions.checkState(isMnemonicUnique(namePartType, parent, mnemonic));
+        final String  mnemonicEqClass = mnemonic !=null ? namingConvention.equivalenceClassRepresentative(mnemonic):null;
         final NamePart namePart = new NamePart(UUID.randomUUID(), namePartType);
         final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, false, parent, name, mnemonic, description, mnemonicEqClass);
 
@@ -187,14 +281,16 @@ public class NamePartService {
      * @param comment the comment the user gave when submitting the proposal. Null if no comment was given.
      * @return the resulting proposed NamePart revision
      */
-    public NamePartRevision modifyNamePart(NamePart namePart, String name, String mnemonic, @Nullable String description, @Nullable UserAccount user, @Nullable String comment) {
+    public NamePartRevision modifyNamePart(NamePart namePart, String name, @Nullable String mnemonic, @Nullable String description, @Nullable UserAccount user, @Nullable String comment) {
         final NamePartView namePartView = view(namePart);
 
         final NamePartRevision baseRevision = namePartView.getCurrentOrElsePendingRevision();
         final @Nullable NamePartRevision pendingRevision = namePartView.getPendingRevision();
 
         Preconditions.checkState(!baseRevision.isDeleted() && (pendingRevision == null || !pendingRevision.isDeleted()));
-        if (!mnemonic.equals(baseRevision.getMnemonic())) {
+        if (mnemonic==null) {
+            Preconditions.checkState(isMnemonicValid(namePart.getNamePartType(), namePartView.getParent() != null ? namePartView.getParent().getNamePart() : null, mnemonic));
+        } else if (baseRevision.getMnemonic()==null || !mnemonic.equals(baseRevision.getMnemonic())) {
             Preconditions.checkState(isMnemonicValid(namePart.getNamePartType(), namePartView.getParent() != null ? namePartView.getParent().getNamePart() : null, mnemonic));
             Preconditions.checkState(isMnemonicUniqueExceptForItself(baseRevision.getMnemonic(), namePart.getNamePartType(), namePartView.getParent() != null ? namePartView.getParent().getNamePart() : null, mnemonic));
         }
@@ -202,12 +298,14 @@ public class NamePartService {
         if (pendingRevision != null) {
             updateRevisionStatus(pendingRevision, NamePartRevisionStatus.CANCELLED, user, null);
         }
-        
-        final String mnemonicEqClass = namingConvention.equivalenceClassRepresentative(mnemonic);
+        final String mnemonicEqClass = mnemonic!=null ? namingConvention.equivalenceClassRepresentative(mnemonic): null ;
 
         final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, false, baseRevision.getParent(), name, mnemonic, description, mnemonicEqClass);
 
         em.persist(newRevision);
+        
+        final NamePartRevision currentRevision=namePartView.getCurrentRevision();
+//        	if(newRevision.isEquivalentWith(namePartView.getCurrentRevision())) cancelChangesForNamePart(namePart, null, "Automatically cancelled: Equivalent with current approved revision", false);	
 
         return newRevision;
     }
@@ -495,21 +593,17 @@ public class NamePartService {
         		section.equals(currentRevision.getSection()) && 
         		deviceType.equals(currentRevision.getDeviceType()) && 
         		Objects.equal(instanceIndex, currentRevision.getInstanceIndex()) && 
-        		conventionName.equals(currentRevision.getConventionName());
+        		conventionName.equals(currentRevision.getConventionName()) &&
+        		Objects.equal(additionalInfo,currentRevision.getAdditionalInfo());
         if (!sameName) {
             Preconditions.checkState(isInstanceIndexValid(section, deviceType, instanceIndex));
             Preconditions.checkState(isDeviceConventionNameUniqueExceptForItself(device,section,deviceType,instanceIndex));
         	final DeviceRevision newRevision = new DeviceRevision(device, new Date(), user, false, section, deviceType, instanceIndex, conventionName, conventionNameEqClass, additionalInfo);
             em.persist(newRevision);
             return newRevision;
-
-        } else if(sameName && ! additionalInfo.equals(currentRevision.getAdditionalInfo()) ) {
-        	final DeviceRevision newRevision = new DeviceRevision(device, new Date(), user, false, section, deviceType, instanceIndex, conventionName, conventionNameEqClass, additionalInfo);
-            em.persist(newRevision);
-            return newRevision;
         } else {   	
         	return currentRevision;
-            //TODO: Throw exception if no changes was made. 
+            //TODO: Throw exception if no changes was made.
         }
     }
 
@@ -658,4 +752,8 @@ public class NamePartService {
     private List<Device> devicesOfType(NamePart deviceType) {
         return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deviceType = :deviceType AND r.deleted = false", Device.class).setParameter("deviceType", deviceType).getResultList();
     }
+
+	
+
+
 }

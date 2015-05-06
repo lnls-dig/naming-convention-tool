@@ -1,3 +1,20 @@
+/*-
+* Copyright (c) 2014 European Spallation Source
+* Copyright (c) 2014 Cosylab d.d.
+*
+* This file is part of Naming Service.
+* Naming Service is free software: you can redistribute it and/or modify it under
+* the terms of the GNU General Public License as published by the Free
+* Software Foundation, either version 2 of the License, or any newer version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along with
+* this program. If not, see https://www.gnu.org/licenses/gpl-2.0.txt
+*/
 package org.openepics.names.services.views;
 
 import com.google.common.collect.ImmutableList;
@@ -5,8 +22,7 @@ import com.google.common.collect.ImmutableList;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
-import org.openepics.names.util.As;
-import org.openepics.names.util.UnhandledCaseException;
+import org.openepics.names.model.NamePartType;
 
 import javax.annotation.Nullable;
 
@@ -17,6 +33,7 @@ import java.util.Objects;
  * A view of a NamePart that makes it easy to query some of its properties and relations in an object-related fashion.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Karin Rathsman <karin.rathsman@esss.se>
  */
 public class NamePartView {
 
@@ -40,9 +57,8 @@ public class NamePartView {
         this.currentRevision = currentRevision;
         this.pendingRevision = pendingRevision;
         this.parentView = parentView;
-        
     }
-
+   
     /**
      * The name part this is a view of.
      */    
@@ -111,7 +127,7 @@ public class NamePartView {
     }
     
     public boolean isMnemonicModified(){
-    	return isPendingModification() && !pendingRevision.getMnemonic().equals(currentRevision.getMnemonic());
+    	return isPendingModification() && !Objects.toString(pendingRevision.getMnemonic(),"").equals(Objects.toString(currentRevision.getMnemonic(),""));
     }
 
     public boolean isDescriptionModified(){
@@ -192,11 +208,27 @@ public class NamePartView {
     public List<String> getMnemonicPath() {
         final ImmutableList.Builder<String> pathElements = ImmutableList.builder();
         for (NamePartView pathElement = this; pathElement != null; pathElement = pathElement.getParent()) {
-            pathElements.add(pathElement.getMnemonic());
+            pathElements.add(pathElement.getMnemonic()!=null? pathElement.getMnemonic():"");
         }
         return pathElements.build().reverse();
     }
 
+    /**
+     * The list of name part mnemonic names starting from the root of the hierarchy to the child that is be added to this name part.
+     * @param mnemonic
+     * @return
+     */
+    
+    public List<String> getMnemonicPathWithChild(String mnemonic) {
+        final ImmutableList.Builder<String> pathElements = ImmutableList.builder();
+        pathElements.add(mnemonic !=null? mnemonic:"");
+        for (NamePartView pathElement = this; pathElement != null; pathElement = pathElement.getParent()) {
+            pathElements.add(pathElement.getMnemonic()!=null? pathElement.getMnemonic():"");
+        }
+        return pathElements.build().reverse();
+    }
+
+    
     /**
      * The name part's pending revision, if any, current revision otherwise.
      */

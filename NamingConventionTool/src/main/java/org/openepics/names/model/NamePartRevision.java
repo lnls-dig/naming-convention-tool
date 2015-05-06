@@ -12,7 +12,11 @@
  *   East Lansing, MI 48824-1321
  *   http://frib.msu.edu
  *
+ *
+ * Copyright (c) 2014 European Spallation Source
+ * Copyright (c) 2014 Cosylab d.d.
  */
+
 package org.openepics.names.model;
 
 import com.google.common.base.Preconditions;
@@ -22,7 +26,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
-
 import java.util.Date;
 
 /**
@@ -30,6 +33,7 @@ import java.util.Date;
  *
  * @author Vasu V <vuppala@frib.msu.org>
  * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Karin Rathsman <karin.rahtsman@esss.se>
  */
 @Entity
 public class NamePartRevision extends Persistable {
@@ -48,11 +52,11 @@ public class NamePartRevision extends Persistable {
 
     private String name;
 
-    private String mnemonic;
+    private @Nullable String mnemonic;
     
     private @Nullable String description=null;
 
-    private String mnemonicEqClass;
+    private @Nullable String mnemonicEqClass;
     
     @Enumerated(EnumType.STRING)
     private NamePartRevisionStatus status;
@@ -85,8 +89,6 @@ public class NamePartRevision extends Persistable {
         Preconditions.checkNotNull(requestDate);
         Preconditions.checkArgument(requesterComment == null || !requesterComment.isEmpty());
         Preconditions.checkArgument(name != null && !name.isEmpty());
-        Preconditions.checkArgument(mnemonic != null && !mnemonic.isEmpty());
-        Preconditions.checkArgument(mnemonicEqClass != null);
         this.namePart = namePart;
         this.requestDate = requestDate;
         this.requestedBy = requestedBy;
@@ -138,7 +140,7 @@ public class NamePartRevision extends Persistable {
     /**
      * The short, mnemonic name of the part in accordance with the naming convention.
      */
-    public String getMnemonic() { return mnemonic; }
+    public @Nullable String getMnemonic() { return mnemonic; }
     
     /** 
      * The description or other relevant information of the namepart. Optional. 
@@ -149,7 +151,7 @@ public class NamePartRevision extends Persistable {
      * The representative of the equivalence class the mnemonic belongs to. This is used to ensure uniqueness of
      * mnemonics on certain level when treating similar looking names (for example, containing 0 vs. O, 1 vs. l) as equal.
      */
-    public String getMnemonicEqClass() { return mnemonicEqClass; }
+    public @Nullable String getMnemonicEqClass() { return mnemonicEqClass; }
     
     //TODO Remove after first deploy!!!
     public void setMnemonicEqClass(String mnemonicEqClass) { this.mnemonicEqClass = mnemonicEqClass; }
@@ -195,4 +197,9 @@ public class NamePartRevision extends Persistable {
         this.processedBy = by;
         this.processorComment = comment;
     }
+
+	public boolean isEquivalentWith(NamePartRevision currentRevision) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

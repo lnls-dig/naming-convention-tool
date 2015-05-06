@@ -1,3 +1,21 @@
+/*-
+* Copyright (c) 2014 European Spallation Source
+* Copyright (c) 2014 Cosylab d.d.
+*
+* This file is part of Naming Service.
+* Naming Service is free software: you can redistribute it and/or modify it under
+* the terms of the GNU General Public License as published by the Free
+* Software Foundation, either version 2 of the License, or any newer version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along with
+* this program. If not, see https://www.gnu.org/licenses/gpl-2.0.txt
+*/
+
 package org.openepics.names.ui.export;
 
 import com.google.common.collect.ImmutableList;
@@ -102,7 +120,7 @@ public class ExcelExport {
             final @Nullable NamePartView childView = (NamePartView) child.getData();
             if (childView != null) {
                 if (currentLevel < maxLevel) {
-                    final List<String> ancestorData = ImmutableList.<String>builder().addAll(rowData).add(childView.getName(), childView.getMnemonic()).build();
+                    final List<String> ancestorData = ImmutableList.<String>builder().addAll(rowData).add(childView.getName(), childView.getMnemonic()!=null? childView.getMnemonic():"").build();
                     fillNamePartSheet(sheet, maxLevel, currentLevel + 1, child, ancestorData);
                 } else {
                     final Row row = appendRow(sheet);
@@ -111,7 +129,7 @@ public class ExcelExport {
                     }
                     appendCell(row, childView.getNamePart().getUuid().toString());
                     appendCell(row, childView.getName());
-                    appendCell(row, childView.getMnemonic());
+                    appendCell(row, childView.getMnemonic()!=null? childView.getMnemonic():"");
                     appendCell(row, new SimpleDateFormat("yyyy-MM-dd").format(As.notNull(childView.getCurrentRevision()).getProcessDate()));
                 }
             } else {

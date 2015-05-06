@@ -32,7 +32,7 @@
 							</p:column>
 							<p:column>
 								<p:menuButton value="Actions" id="reqMenu" style="z-index: 100; float:right">
-									<p:menuitem value="Add"
+									<p:menuitem value="#{'Add '.concat(namePartsController.getNamePartTypeNameForChild())}"
 										actionListener="#{namePartsController.prepareAddPopup()}"
 										title="Add Name" icon="ui-icon-plus"
 										oncomplete="addName.show()" update=":addNameForm:addName"
@@ -44,9 +44,9 @@
 										update=":DelNameForm:delName" oncomplete="delName.show()"
 										disabled="#{!(namePartsController.canDelete())}"
 										rendered="#{userManager.editor}" />
-									<p:menuitem value="Modify"
+									<p:menuitem value="#{'Edit '.concat(namePartsController.getNamePartTypeName())}"
 										actionListener="#{namePartsController.prepareModifyPopup()}"
-										title="Modify Name" icon="ui-icon-pencil"
+										title="Edit Name" icon="ui-icon-pencil"
 										update=":ModNameForm:modName" oncomplete="modName.show()"
 										disabled="#{!(namePartsController.canModify())}"
 										rendered="#{userManager.editor}" />
@@ -70,7 +70,7 @@
 										oncomplete="cancelReq.show()"
 										disabled="#{!(namePartsController.canCancel())}"
 										rendered="#{userManager.editor and !userManager.superUser}" />
-									<p:menuitem value="History" title="View History"
+									<p:menuitem value="View History" title="View History"
 										icon="ui-icon-search"
 										actionListener="#{namePartsController.prepareHistoryPopup()}"
 										update=":ReqSubForm:historyTable"
@@ -100,18 +100,18 @@
 			<ui:include src="/WEB-INF/includes/parts-wizard.xhtml">
 				<ui:param name="formId" value="addNameForm" />
 				<ui:param name="widgetId" value="addName" />
-				<ui:param name="widgetTitle" value="Request to Add name element" />
+				<ui:param name="widgetTitle" value="#{'Propose to add new '.concat(namePartsController.getNamePartTypeNameForChild())}" />
 				<ui:param name="gridId" value="grid" />
 				<ui:param name="fullName" value="#{namePartsController.formName}" />
+				<ui:param name="watermarkName" value="#{namePartsController.getNamePartTypeNameForChild()}"/>
 				<ui:param name="validator" value="custom.addMnemonicValidator" />
 				<ui:param name="warning" value="displayMnemonicLengthWarningOnAdd()" />
-				<ui:param name="mnemonic"
-					value="#{namePartsController.formMnemonic}" />
+				<ui:param name="mnemonic" value="#{namePartsController.formMnemonic}" />
+				<ui:param name="watermarkMnemonic" value="#{namePartsController.getNamePartTypeMnemonicForChild()}"/>
+				<ui:param name="required" value="#{namePartsController.isMnemonicRequiredForChild()}"/>
 				<ui:param name="description"
 					value="#{namePartsController.formDescription}" />
 				<ui:param name="comment" value="#{namePartsController.formComment}" />
-				<ui:param name="description"
-					value="#{namePartsController.formDescription}" />
 				<ui:param name="submitHandler" value="onAdd" />
 			</ui:include>
 
@@ -120,14 +120,15 @@
 				<ui:param name="formId" value="ModNameForm" />
 				<ui:param name="widgetId" value="modName" />
 				<ui:param name="gridId" value="pgrid" />
-				<ui:param name="widgetTitle" value="Request to Change Name" />
+				<ui:param name="widgetTitle" value="#{'Propose to modify '.concat(namePartsController.getNamePartTypeNameForChild())}" />
 				<ui:param name="fullName" value="#{namePartsController.formName}" />
-				<ui:param name="mnemonic"
-					value="#{namePartsController.formMnemonic}" />
+				<ui:param name="watermarkName" value="#{namePartsController.getNamePartTypeName()}"/>
+				<ui:param name="mnemonic" value="#{namePartsController.formMnemonic}" />
+				<ui:param name="watermarkMnemonic" value="#{namePartsController.getNamePartTypeMnemonic()}"/>
+				<ui:param name="required" value="#{namePartsController.isMnemonicRequired()}"/>
 				<ui:param name="validator" value="custom.modifyMnemonicValidator" />
 				<ui:param name="warning" value="displayMnemonicLengthWarningOnMod()" />
-				<ui:param name="description"
-					value="#{namePartsController.formDescription}" />
+				<ui:param name="description" value="#{namePartsController.formDescription}" />
 				<ui:param name="comment" value="#{namePartsController.formComment}" />
 				<ui:param name="submitHandler" value="onModify" />
 			</ui:include>

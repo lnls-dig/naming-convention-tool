@@ -23,10 +23,8 @@
 			var menusHeight = $('#logoPanel').outerHeight(true) + $('#menu').outerHeight(true);
 			var filterHeight= $('#filterTable').outerHeight(true);
 			var panelHeight=window.innerHeight - menusHeight - filterHeight-30;			
-			
 			this.setTreeTableScrollHeight('#ReqSubForm\\:namePartsTree',panelHeight);
 			this.setTreeTableScrollHeight('#ManageNameForm\\:devicesTree',panelHeight);
-			
 		}
 	
 		function setTreeTableScrollHeight(treeTableId,panelHeight){
@@ -34,7 +32,7 @@
 			var footerHeight=$(treeTableId + ' .ui-treetable-scrollable-footer').outerHeight(true);
 			var scrollHeight=panelHeight-headerHeight-footerHeight;
 			var scrollBody = $(treeTableId + ' .ui-treetable-scrollable-body');
- 			scrollBody.height(scrollHeight);
+ 			scrollBody.height(scrollHeight);	 			
 		}
 				
 		$(window).resize(function() {
@@ -101,6 +99,7 @@
 			}
 		}
 	</script>
+	
 	<link rel="shortcut icon" href="resources/images/favicon.ico" />
 	<title>Naming Service</title>
 </h:head>
@@ -130,12 +129,13 @@
 		<div style="padding: 0px 15px 0px 15px">
 			<ui:insert name="content">Content</ui:insert>
 		</div>
+		
 	</p:outputPanel>
-
 	<p:dialog modal="true" widgetVar="statusDialog" showHeader="false"
 		draggable="false" closable="false" resizable="false">
 		<p:graphicImage value="/resources/images/ajax-loader.gif" />
 	</p:dialog>
+
 </h:body>
 
 </html>
