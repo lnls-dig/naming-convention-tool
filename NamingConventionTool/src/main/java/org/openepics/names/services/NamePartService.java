@@ -593,21 +593,17 @@ public class NamePartService {
         		section.equals(currentRevision.getSection()) && 
         		deviceType.equals(currentRevision.getDeviceType()) && 
         		Objects.equal(instanceIndex, currentRevision.getInstanceIndex()) && 
-        		conventionName.equals(currentRevision.getConventionName());
+        		conventionName.equals(currentRevision.getConventionName()) &&
+        		Objects.equal(additionalInfo,currentRevision.getAdditionalInfo());
         if (!sameName) {
             Preconditions.checkState(isInstanceIndexValid(section, deviceType, instanceIndex));
             Preconditions.checkState(isDeviceConventionNameUniqueExceptForItself(device,section,deviceType,instanceIndex));
         	final DeviceRevision newRevision = new DeviceRevision(device, new Date(), user, false, section, deviceType, instanceIndex, conventionName, conventionNameEqClass, additionalInfo);
             em.persist(newRevision);
             return newRevision;
-
-        } else if(sameName && ! additionalInfo.equals(currentRevision.getAdditionalInfo()) ) {
-        	final DeviceRevision newRevision = new DeviceRevision(device, new Date(), user, false, section, deviceType, instanceIndex, conventionName, conventionNameEqClass, additionalInfo);
-            em.persist(newRevision);
-            return newRevision;
         } else {   	
         	return currentRevision;
-            //TODO: Throw exception if no changes was made. 
+            //TODO: Throw exception if no changes was made.
         }
     }
 
