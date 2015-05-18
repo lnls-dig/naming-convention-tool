@@ -20,9 +20,9 @@
 // 				"height" : window.innerHeight - menusHeight
 // 			});
 
-			var menusHeight = $('#logoPanel').outerHeight(true) + $('#menu').outerHeight(true);
+			var menusHeight = $('#logoPanel').outerHeight(true) + $('#menu').outerHeight(true) + $('#loginPanel').outerHeight(true);
 			var filterHeight= $('#filterTable').outerHeight(true);
-			var panelHeight=window.innerHeight - menusHeight - filterHeight-30;			
+			var panelHeight=window.innerHeight - menusHeight - filterHeight-20;			
 			this.setTreeTableScrollHeight('#ReqSubForm\\:namePartsTree',panelHeight);
 			this.setTreeTableScrollHeight('#ManageNameForm\\:devicesTree',panelHeight);
 		}
@@ -50,6 +50,10 @@
 		function stop() {
 			statusDialog.hide();
 		}
+		
+		function reload(){
+			location.reload();
+		} 
 
 		function displayMnemonicLengthWarningOnAdd() {
 			if ($('#addNameForm\\:icode').val().length > 4) {
@@ -108,29 +112,25 @@
 	<p:outputPanel id="full" layout="block" style="overflow:hidden">
 		<p:panel id="logoPanel" styleClass="ui-widget-header">
 			<div id="user" style="float: right">
-				<p:commandButton process="@this" value="Sign In"
-					icon="ui-icon-person" update=":full"
-					action="#{loginController.prepareLoginPopup()}"
-					rendered="#{!(userManager.isLoggedIn())}" />
-				<p:outputLabel for="signout" value="#{userManager.getUsername()}"
+					<p:outputLabel for="signout" value="#{loginController.username}"
 					styleClass="ui-widget-header" />
 				<p:commandButton id="signout" process="@this" value="Sign Out"
 					icon="ui-icon-person" update=":full"
 					action="#{loginController.signOut()}"
-					rendered="#{userManager.isLoggedIn()}" />
+					rendered="#{loginController.loggedIn}"/>
 			</div>
 			<div id="title">
 				<h:outputText value="#{msgs.title}" />
 			</div>
 		</p:panel>
-		<div id="menu">
 			<ui:include src="/WEB-INF/includes/menubar.xhtml" />
-		</div>
-		<div style="padding: 0px 15px 0px 15px">
+			<ui:include src="/WEB-INF/includes/login.xhtml"/>
+		<p:outputPanel style="padding: 0px 15px 0px 15px" rendered="#{loginController.loggedIn}" >
 			<ui:insert name="content">Content</ui:insert>
-		</div>
+		</p:outputPanel>
 		
 	</p:outputPanel>
+	
 	<p:dialog modal="true" widgetVar="statusDialog" showHeader="false"
 		draggable="false" closable="false" resizable="false">
 		<p:graphicImage value="/resources/images/ajax-loader.gif" />

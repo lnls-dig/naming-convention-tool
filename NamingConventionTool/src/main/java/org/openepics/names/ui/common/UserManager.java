@@ -19,6 +19,8 @@
 package org.openepics.names.ui.common;
 
 import org.openepics.names.services.SessionService;
+
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
@@ -27,15 +29,28 @@ import javax.inject.Inject;
  * A bean exposing the information about the logged in user to the UI.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Karin Rathsman <karin.rathsman@esss.se>
  */
 @ManagedBean
 @ViewScoped
 public class UserManager {
 
     @Inject private SessionService sessionService;
+    private String username;
+	private boolean loggedIn;
+	private boolean editor;
+	private boolean superUser;    
+   
+	@PostConstruct
+	public void init(){
+    	loggedIn=sessionService.isLoggedIn();
+        username=loggedIn? sessionService.getUsername():"";
+    	editor=loggedIn ? sessionService.isEditor(): false;
+    	superUser=loggedIn? sessionService.isSuperUser():false;
+	}   
 
-    public boolean isLoggedIn() { return sessionService.isLoggedIn(); }
-    public boolean isEditor() { return sessionService.isEditor(); }
-    public boolean isSuperUser() { return sessionService.isSuperUser();} 
-    public String getUsername() {return sessionService.getUsername();}
+	public boolean isLoggedIn() {return loggedIn;}
+    public boolean isEditor() { return editor;}
+    public boolean isSuperUser() {return superUser;} 
+    public String getUsername() {return username;}
 }

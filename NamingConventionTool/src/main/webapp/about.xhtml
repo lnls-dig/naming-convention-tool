@@ -11,38 +11,36 @@
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html">
-
 	<ui:define name="content">
-		<ui:fragment rendered="#{userManager.isLoggedIn()}">
-			<h:form id="About">
+		<h:form id="About">
 
-				<h:panelGrid columns="2">
+			<h:panelGrid columns="2">
 
-					<h:panelGroup> Application:</h:panelGroup>
-					<h:panelGroup>#{msgs.title}</h:panelGroup>
-					<h:panelGroup>Version:</h:panelGroup>
-					<h:panelGroup>#{msgs.version}</h:panelGroup>
-					<!--                 <h:panelGroup>Schema Version</h:panelGroup>   -->
-					<!--                 <h:panelGroup>#{msgs.dbversion}</h:panelGroup>     -->
-						<h:panelGroup>API Version:</h:panelGroup>
-						<h:panelGroup>#{msgs.apiversion}</h:panelGroup>
-						<h:panelGroup>Team:</h:panelGroup>
-						<h:panelGroup>${msgs.devTeam}</h:panelGroup>
-						<h:panelGroup>Support: </h:panelGroup>
-						<h:panelGroup>Send Email to <a
-								href="mailto:#{msgs.supportEmail}?Subject=Naming-Service">Support Team</a>
-						</h:panelGroup>
+				<h:panelGroup> Application:</h:panelGroup>
+				<h:panelGroup>#{msgs.title}</h:panelGroup>
+				<h:panelGroup>Version:</h:panelGroup>
+				<h:panelGroup>#{msgs.version}</h:panelGroup>
+				<!--                 <h:panelGroup>Schema Version</h:panelGroup>   -->
+				<!--                 <h:panelGroup>#{msgs.dbversion}</h:panelGroup>     -->
+				<h:panelGroup>API Version:</h:panelGroup>
+				<h:panelGroup>#{msgs.apiversion}</h:panelGroup>
+				<h:panelGroup>Team:</h:panelGroup>
+				<h:panelGroup>${msgs.devTeam}</h:panelGroup>
+				<h:panelGroup>Support: </h:panelGroup>
+				<h:panelGroup>Send Email to <a
+						href="mailto:#{msgs.supportEmail}?Subject=Naming-Service">Support
+						Team</a>
+				</h:panelGroup>
 
-						
+
 				<f:facet name="footer">
-					<p:separator/>
-<!-- 					Copyright (c) 2015 European Spallation Source. -->
+					<p:separator />
+					<!-- 					Copyright (c) 2015 European Spallation Source. -->
 					#{msgs.tagline}
 				</f:facet>
 
-				</h:panelGrid>
-			</h:form>
-		</ui:fragment>
+			</h:panelGrid>
+		</h:form>
 	</ui:define>
 </ui:composition>
 

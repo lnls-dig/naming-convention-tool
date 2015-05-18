@@ -9,26 +9,26 @@
 	xmlns:rich="http://richfaces.org/rich">
 
 	<ui:define name="content" >
-	<ui:fragment rendered="#{userManager.loggedIn}">
+	<h:form id="index">
 		<div class="ui-treetable-scrollable-body" id="indexDiv">
 			<div class="textScreen">
-
-				<h1 class="heading">Format</h1>
-
+				<h1>Format</h1>
 				<p:panel header="Functional Area Name">
-					<kbd style="color: #006699">Sec-Sub</kbd>
+					<sec>Sec-Sub</sec>
 				</p:panel>
-				
+				<p:panel header="Device Definition">
+					<dev>Dis-Dev</dev>
+				</p:panel>
 				<p:panel header="Device Name">
-					<kbd style="color: #006699">Sec-Sub</kbd>
+					<sec>Sec-Sub</sec>
 					<kbd>:</kbd>
-					<kbd style="color: #99CC00">Dis-Dev-Idx</kbd>
+					<dev>Dis-Dev-Idx</dev>
 				</p:panel>
 				
 				<p:panel header="Process Variable Name" footer="Not implemeted in the Naming Service">
 					<kbd style="color: #006699">Sec-Sub</kbd>
 					<kbd>:</kbd>
-					<kbd style="color: #99CC00">Dis-Dev-Idx</kbd>
+					<dev>Dis-Dev-Idx</dev>
 					<kbd>:</kbd>
 					<kbd style="color: #CC6600">Property</kbd>
 					<kbd>.</kbd>
@@ -40,7 +40,7 @@
 				<p:panelGrid>
 					<f:facet name="header">
 						<p:row>
-							<p:column> Element</p:column>
+							<p:column> Mnemonic</p:column>
 							<p:column> Full Name</p:column>
 							<p:column> Description</p:column>
 						</p:row>
@@ -54,7 +54,6 @@
 
 					<p:row>
 						<p:column>
-							<kbd>Sup</kbd>
 						</p:column>
 						<p:column>Super Section</p:column>
 						<p:column>High level area of the facility restricted to a particular use. Used for filtering and sorting purposes only. Not part of the convention names</p:column>
@@ -81,21 +80,21 @@
 					</p:row>
 					<p:row>
 						<p:column>
-							<kbd style="color: #99CC00"> Dis </kbd>
+							<dev> Dis </dev>
 						</p:column>
 						<p:column>Discipline </p:column>
 						<p:column>Branch of knowledge indicating the context in which a device is used</p:column>
 					</p:row>
 					<p:row>
 						<p:column>
-							<kbd>Cat</kbd>
+							<kbd></kbd>
 						</p:column>
-						<p:column>Category</p:column>
-						<p:column>Introdued to allow certain devices to be grouped together in list. Not part of the convention names. Default is Miscellaneous (Misc)</p:column>
+						<p:column>Device Group</p:column>
+						<p:column>Introdued to allow certain device types to be grouped together in lists. Not part of the convention names. Default is Miscellaneous</p:column>
 					</p:row>
 					<p:row>
 						<p:column>
-							<kbd style="color: #99CC00"> Dev </kbd>
+							<dev> Dev </dev>
 						</p:column>
 						<p:column>Generic Device type</p:column>
 						<p:column>Two devices of the same generic device type provide the same function</p:column>
@@ -108,7 +107,7 @@
 					</p:row>
 					<p:row>
 						<p:column>
-							<kbd style="color: #99CC00"> Idx </kbd>
+							<dev> Idx </dev>
 						</p:column>
 						<p:column>Instance index</p:column>
 						<p:column>To distinguish devices of the same type in the same area</p:column>
@@ -149,13 +148,13 @@
 				Device names are validated against the following set of rules
 					in the device registry:
 				<ol>
-					<li>Instance index (<kbd style="color: #99CC00">Idx</kbd>)
+					<li>Instance index (<dev>Idx</dev>)
 						shall be alphanumeric. I.e., only upper and lower case
 						alphanumeric characters (a-z, A-Z, 0-9) are allowed.
 					</li>
 					<li>The device names <kbd style="color: #006699">Sec-Sub</kbd>
 						<kbd>:</kbd>
-						<kbd style="color: #99CC00">Dis-Dev-Idx</kbd> shall be
+						<dev>Dis-Dev-Idx</dev> shall be
 						distinguishable, which means that names shall be unique
 						irrespective of
 						<ul>
@@ -167,7 +166,7 @@
 								non-numerical character</li>
 						</ul>
 					</li>
-					<li>The maximum length of instance index (<kbd style="color: #99CC00">Idx</kbd>) is 6 characters.
+					<li>The maximum length of instance index (<dev>Idx</dev>) is 6 characters.
 					</li>
 				</ol>
 				</p:panel>
@@ -206,7 +205,7 @@
 						distinguishable.
 					</li>
 					<li>Name elements for device category (<kbd>Cat</kbd>) and
-						type (<kbd style="color: #99CC00">Dev</kbd>) shall be
+						type (<dev>Dev</dev>) shall be
 						distinguishable under the same discipline.
 					</li>
 					<li>Names elements for any of the items in the device structure shall 
@@ -216,7 +215,7 @@
 
 			</div>
 		</div>
-		</ui:fragment>
+		</h:form>
 	</ui:define>
 
 </ui:composition>

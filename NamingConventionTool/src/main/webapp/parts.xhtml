@@ -7,7 +7,7 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html">
 	<ui:define name="content">
-		<ui:fragment rendered="#{userManager.isLoggedIn()}">
+	
 			<!-- =================== Req Sub Form ================================= -->
 			<h:form id="ReqSubForm" style="padding:0; margin:0">
 				<p:growl globalOnly="true" id="partsMsgs" showDetail="true"
@@ -176,7 +176,5 @@
 					<ui:param name="messageRequired" value="true" />
 					<ui:param name="submitHandler" value="onReject"/>
 				</ui:include>
-
-		</ui:fragment>
 	</ui:define>
 </ui:composition>

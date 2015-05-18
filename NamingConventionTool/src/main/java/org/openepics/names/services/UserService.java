@@ -46,17 +46,15 @@ public class UserService {
 	}
 
 	/**
-	 * The UserAccount, existing or created, with the given user name.  
+	 * Creates new user with the given user name if not already exists.  
 	 * @param userName
 	 * @param role
-	 * @return
 	 */
-	public UserAccount getExisitngOrCreatedUser(String userName, Role role){
+	public void createUser(String userName, Role role){
 		try {
-			return userWithName(userName);
+			userWithName(userName);
 		} catch (NoResultException e) {
 			em.persist(new UserAccount(userName, role));
-			return userWithName(userName);
 		}
 	} 
 

@@ -71,7 +71,7 @@
 
 				<p:tab id="instanceTab" title="Instance">
 					<h3>3. Enter instance index:</h3>
-					<p:inputText id="instanceIndex" onkeyup="#{warning}"
+					<p:inputText id="instanceIndex" onkeyup="displayIndexLengthWarningOnAdd()"
 						value="#{devicesController.formInstanceIndex}" style="width:480px"
 						maxlenght="6">
 						<f:validator validatorId="#{instanceIndexValidator}" />

@@ -6,9 +6,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.RequestScoped;
 import javax.faces.application.FacesMessage;
+import javax.faces.application.ViewHandler;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
@@ -29,62 +32,72 @@ public class LoginController implements Serializable {
     private static final long serialVersionUID = 7124872676453151325L;
     private static final Logger LOGGER = Logger.getLogger(LoginController.class.getName());
 	@Inject private SessionService sessionService;
-
 	private String inputUsername;
 	private String inputPassword;
-	private boolean loginRequested;
 
 	@PostConstruct
-	public void init() {
-		loginRequested = !sessionService.isLoggedIn();
+	public synchronized void init() {
+
 	}
 
 	public void prepareLoginPopup() {
 		inputUsername = null;
 		clearPassword();
-		loginRequested= true;
 	}
 	
 	public void clearPassword() {
 	    inputPassword = null;
 	}
 
-	public void signIn() throws IOException {
+	public synchronized void signIn() throws IOException {
 		try {
 		    Message m = sessionService.login(inputUsername, inputPassword);
-			loginRequested=false;
 			if (m.isSuccessful()) {
-			    LOGGER.log(Level.INFO, "Login successful for "+ inputUsername);
+				LOGGER.log(Level.INFO, "Login successful for "+ inputUsername);
 			} else {
 			    showMessage(FacesMessage.SEVERITY_ERROR, "Failed to sign in", m.getMessage()); 
 			    LOGGER.log(Level.INFO, "Login failed for "+ inputUsername);
 			}
 		} finally {
-		    clearPassword();
+			clearPassword();
 			sessionService.update();
+//			refreshView();
 		}
 	}
 	
-	public void signOut() {
+	public synchronized void signOut() {
 		try {
 			Message m = sessionService.logout();
 			if (m.isSuccessful()) {
-			    LOGGER.log(Level.INFO, "Logout successful");
+				refreshView();
+				LOGGER.log(Level.INFO, "Logout successful");
 			} else {
 			    throw new SecurityException(m.getMessage());
 			}
 		} finally {
-		    prepareLoginPopup();
+			prepareLoginPopup();
 			sessionService.update();
+//			refreshView();
 		}
 	}
+	
+    private static void refreshView() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        String viewId = context.getViewRoot().getViewId();
+        ViewHandler handler = context.getApplication().getViewHandler();
+        UIViewRoot root = handler.createView(context, viewId);
+        root.setViewId(viewId);
+        context.setViewRoot(root);
+    }
 
-	public void cancel(){
-		prepareLoginPopup();
-		loginRequested=false;
-	}
+    public boolean isLoggedIn(){
+    	return sessionService.isLoggedIn(); 
+    }
 
-	public String getInputUsername() { return inputUsername; }
+    public String getUsername(){
+    	return sessionService.getUsername();
+    }
+    public String getInputUsername() { return inputUsername; }
 	public void setInputUsername(String inputUsername) { this.inputUsername = inputUsername; }
 
 	public String getInputPassword() { return inputPassword; }
@@ -95,10 +108,5 @@ public class LoginController implements Serializable {
 		context.addMessage(null, new FacesMessage(severity, summary, message));
 	}
 
-	/**
-	 * @return true if login is currently requested, else false.
-	 */
-	public boolean isLoginRequested(){
-		return loginRequested;
-	}
+
 }

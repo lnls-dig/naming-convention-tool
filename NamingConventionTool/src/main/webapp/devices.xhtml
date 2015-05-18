@@ -8,7 +8,6 @@
 	xmlns:h="http://java.sun.com/jsf/html">
 
 	<ui:define name="content">
-		<ui:fragment rendered="#{userManager.isLoggedIn()}">
 			<h:form id="ManageNameForm">
 				<p:growl globalOnly="true" id="devicesMsgs" showDetail="true"
 					sticky="false" life="30000" />
@@ -242,8 +241,6 @@
 					</h:panelGroup>
 				</p:dialog>
 			</h:form>
-		</ui:fragment>
-
 	</ui:define>
 
 </ui:composition>

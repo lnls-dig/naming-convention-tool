@@ -23,7 +23,6 @@ import com.google.common.collect.Lists;
 import org.openepics.names.model.*;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.NamePartView;
-import org.openepics.names.services.views.NamePartView.Change;
 import org.openepics.names.services.views.NamePartView.ModifyChange;
 import org.openepics.names.ui.common.*;
 import org.openepics.names.util.As;
@@ -39,6 +38,7 @@ import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -83,10 +83,25 @@ public class NamePartsController implements Serializable {
 
 	private List<Device> affectedDevices;
 	private Operation operation;
-	private String namePartTitle;
-
+	
+	
 	@PostConstruct
-	public void init() {
+	public void init(){
+		@Nullable String typeParam = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
+		if (typeParam == null) {
+			Marker.doNothing();
+		} else if (typeParam.equals("section")) {
+			namePartType = NamePartType.SECTION;	
+		} else if (typeParam.equals("deviceType")) {
+			namePartType = NamePartType.DEVICE_TYPE;	
+		} else {
+			throw new IllegalStateException();
+		}
+		update();
+	}
+	
+
+	public void update() {
 		operation=Operation.VIEW;
 		formName = null;
 		formMnemonic = null;
@@ -98,6 +113,7 @@ public class NamePartsController implements Serializable {
 		treeNodeManager.expandCustomized(viewRoot); 
 	}
 
+	
 	public void onNodeExpand(NodeExpandEvent event){
 		if(event!=null && event.getTreeNode() !=null){
 			treeNodeManager.expand(event.getTreeNode());
@@ -110,24 +126,8 @@ public class NamePartsController implements Serializable {
 		}
 	}
 
-	public String getNamePartTitle(){
-		return namePartTitle;
-	}
 
 	private TreeNode getRootTreeNode(boolean withModifications) {
-		final @Nullable String typeParam = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
-
-		if (typeParam == null) {
-			Marker.doNothing();
-		} else if (typeParam.equals("section")) {
-			namePartType = NamePartType.SECTION;
-			namePartTitle = "Area Structure";		
-		} else if (typeParam.equals("deviceType")) {
-			namePartType = NamePartType.DEVICE_TYPE;
-			namePartTitle = "Device Structure";		
-		} else {
-			throw new IllegalStateException();
-		}
 
 		final List<NamePartRevision> approvedRevisions = namePartService.currentApprovedNamePartRevisions(namePartType, true);
 		final List<NamePartRevision> pendingRevisions = withModifications ? namePartService.currentPendingNamePartRevisions(namePartType, true) : Lists.<NamePartRevision>newArrayList();
@@ -202,7 +202,7 @@ public class NamePartsController implements Serializable {
 			namePartService.addNamePart(formName, formMnemonic, formDescription, namePartType, parent != null ? parent.getNamePart() : null, formComment);
 			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Your addition proposal has been submitted.");
 		} finally {
-			init();
+			update();
 		}
 	}
 
@@ -211,7 +211,7 @@ public class NamePartsController implements Serializable {
 			namePartService.modifyNamePart(As.notNull(getSelectedName()).getNamePart(), formName, formMnemonic, formDescription, formComment);
 			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Your modification proposal has been submitted.");
 		} finally {
-			init();
+			update();
 		}
 	}
 
@@ -223,7 +223,7 @@ public class NamePartsController implements Serializable {
 			}
 			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", printedAffectedQuantity(targets.size()) + "proposed for deletion.");
 		} finally {
-			init();
+			update();
 		}
 	}
 
@@ -235,7 +235,7 @@ public class NamePartsController implements Serializable {
 			}
 			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Proposed changes for " + printedAffectedQuantity(targets.size()) + "cancelled.");
 		} finally {
-			init();
+			update();
 		}
 	}
 
@@ -247,7 +247,7 @@ public class NamePartsController implements Serializable {
 			}
 			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Proposed changes for " + printedAffectedQuantity(targets.size()) + "approved.");
 		} finally {
-			init();
+			update();
 		}
 	}
 
@@ -259,7 +259,7 @@ public class NamePartsController implements Serializable {
 			}
 			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Proposed changes for " + printedAffectedQuantity(targets.size()) + "rejected.");
 		} finally {
-			init();
+			update();
 		}
 	}
 
