@@ -81,7 +81,6 @@ public class InitialDataImportService {
                 final String name = As.notNull(ExcelCell.asString(row.getCell(2)));
                 final String mnemonic = As.notNull(ExcelCell.asString(row.getCell(3)));
                 @Nullable final String description = ExcelCell.asString(row.getCell(4));
-                @Nullable final String type = ExcelCell.asString(row.getCell(5));
                 namePartsMap.put(id, isSection ? addSection(namePartsMap.get(parent), name, mnemonic, description) : addDeviceType(namePartsMap.get(parent), name, mnemonic, description));
             }
         }
