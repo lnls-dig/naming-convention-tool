@@ -199,8 +199,11 @@ public class EssNamingConventionTest {
     public void symbolsSimilarToVTest() {
         assertEquals(namingConvention.equivalenceClassRepresentative("V"), namingConvention.equivalenceClassRepresentative("v"));
         assertEquals(namingConvention.equivalenceClassRepresentative("V"), namingConvention.equivalenceClassRepresentative("V"));
-        assertEquals(namingConvention.equivalenceClassRepresentative("V"), namingConvention.equivalenceClassRepresentative("w"));
-        assertEquals(namingConvention.equivalenceClassRepresentative("V"), namingConvention.equivalenceClassRepresentative("W"));
+
+        assertEquals(namingConvention.equivalenceClassRepresentative("V1"), namingConvention.equivalenceClassRepresentative("w1"));
+        assertEquals(namingConvention.equivalenceClassRepresentative("V1"), namingConvention.equivalenceClassRepresentative("W1"));
+        assertFalse(namingConvention.equivalenceClassRepresentative("V").equals(namingConvention.equivalenceClassRepresentative("w")));
+        assertFalse(namingConvention.equivalenceClassRepresentative("V").equals(namingConvention.equivalenceClassRepresentative("W")));
         assertFalse(namingConvention.equivalenceClassRepresentative("V").equals(namingConvention.equivalenceClassRepresentative("b")));
     }
     
@@ -230,28 +233,47 @@ public class EssNamingConventionTest {
         assertEquals(namingConvention.conventionName(sectionPath, ImmutableList.of("Dis","Cat"), "Idx"),null);
     }
     
+    @Test 
+    public void canDisciplineCoexistIfEqualTest(){
+    	assertFalse("Discipline and Discipline cannot coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("Dis"), NamePartType.DEVICE_TYPE, ImmutableList.of("Dis"), NamePartType.DEVICE_TYPE));
+    	assertTrue("Discipline and Device group can coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("Dis"), NamePartType.DEVICE_TYPE, ImmutableList.of("Dis", "Dis"), NamePartType.DEVICE_TYPE));
+    	assertFalse("Discipline and Device type cannot coexist in a parent child relation", namingConvention.canMnemonicsCoexist(ImmutableList.of("Dis"), NamePartType.DEVICE_TYPE, ImmutableList.of("Dis","","Dis"),NamePartType.DEVICE_TYPE));
+    	assertFalse("Discipline and Device type cannot coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("Dis"), NamePartType.DEVICE_TYPE, ImmutableList.of("Other","","Dis"),NamePartType.DEVICE_TYPE));
+        assertTrue("Discipline and Super section can coexist",namingConvention.canMnemonicsCoexist(ImmutableList.of("Dis"), NamePartType.DEVICE_TYPE, ImmutableList.of("Dis"), NamePartType.SECTION));
+        assertFalse("Discipline and Section cannot coexist",namingConvention.canMnemonicsCoexist( ImmutableList.of("Dis"), NamePartType.DEVICE_TYPE, ImmutableList.of("", "Dis"), NamePartType.SECTION));
+        assertFalse("Discipline and Subsection cannot coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("Dis"), NamePartType.DEVICE_TYPE, ImmutableList.of("","Sec","Dis"),NamePartType.SECTION)); 
+    }
+
+    @Test 
+    public void canDisciplineCoexistIfSimilarTest(){
+    	assertFalse("Discipline and Discipline cannot coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("D1s"), NamePartType.DEVICE_TYPE, ImmutableList.of("Dis"), NamePartType.DEVICE_TYPE));
+    	assertTrue("Discipline and Device group can coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("D1s"), NamePartType.DEVICE_TYPE, ImmutableList.of("Dis", "Dis"), NamePartType.DEVICE_TYPE));
+    	assertFalse("Discipline and Device type cannot coexist in a parent child relation", namingConvention.canMnemonicsCoexist(ImmutableList.of("D1s"), NamePartType.DEVICE_TYPE, ImmutableList.of("D1s","","Dis"),NamePartType.DEVICE_TYPE));
+    	assertTrue("Discipline and Device type can coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("D1s"), NamePartType.DEVICE_TYPE, ImmutableList.of("Other","","Dis"),NamePartType.DEVICE_TYPE));
+        assertTrue("Discipline and Super section can coexist",namingConvention.canMnemonicsCoexist(ImmutableList.of("D1s"), NamePartType.DEVICE_TYPE, ImmutableList.of("Dis"), NamePartType.SECTION));
+        assertFalse("Discipline and Section cannot coexist",namingConvention.canMnemonicsCoexist( ImmutableList.of("D1s"), NamePartType.DEVICE_TYPE, ImmutableList.of("", "Dis"), NamePartType.SECTION));
+        assertTrue("Discipline and Subsection can coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("D1s"), NamePartType.DEVICE_TYPE, ImmutableList.of("","Sec","Dis"),NamePartType.SECTION)); 
+    }
+
     @Test
-    public void canFirstLevelMnemonicsCoexistTest() {
-        assertTrue("Supersection and device group can coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("Sec"), NamePartType.SECTION, ImmutableList.of("Sup", "Sec"), NamePartType.SECTION));
-        assertTrue("Supersection and Discipline can coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("Dis"), NamePartType.SECTION, ImmutableList.of("Dis"), NamePartType.DEVICE_TYPE));
-        assertFalse("Discipline and subsection cannot coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("Sub"), NamePartType.DEVICE_TYPE, ImmutableList.of("Sup", "Sec", "Sub"), NamePartType.SECTION));
+    public void canFirstLevelCoexistIfEqualTest() {
+        assertTrue("Supersection and section can coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("Sec"), NamePartType.SECTION, ImmutableList.of("Sup", "Sec"), NamePartType.SECTION));
     }
     
     @Test
-    public void canSectionMnemonicsCoexistTest() {
-        assertFalse("Section and subsection cannot coexist",namingConvention.canMnemonicsCoexist(ImmutableList.of("Sec", "Sub"), NamePartType.SECTION, ImmutableList.of("Sup", "Sec", "Sub"), NamePartType.SECTION));
-        assertFalse("Discipline and section cannot coexist",namingConvention.canMnemonicsCoexist(ImmutableList.of("Sup", "Dis"), NamePartType.SECTION, ImmutableList.of("Dis"), NamePartType.DEVICE_TYPE));
+    public void canSectionsCoexistTest() {
+        assertFalse("Section and subsection cannot coexist in a parent child relation",namingConvention.canMnemonicsCoexist(ImmutableList.of("","Sec"), NamePartType.SECTION, ImmutableList.of("", "Sec", "Sec"), NamePartType.SECTION));
+        assertFalse("Section and subsection cannot coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("","Sec"), NamePartType.SECTION, ImmutableList.of("", "Other", "Sec"), NamePartType.SECTION));
         assertTrue("Devicegroup and section can coexist",namingConvention.canMnemonicsCoexist(ImmutableList.of("Dis", "Sec"), NamePartType.DEVICE_TYPE, ImmutableList.of("Sup", "Sec"), NamePartType.SECTION));
     }
     
     @Test
-    public void canDeviceTypeMnemonicsCoexistTest() {
+    public void canDeviceTypesCoexistTest() {
         assertTrue("Device type and subsection can coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("Acc", "HBL", "ChopG"), NamePartType.SECTION));
-        assertTrue("Two device types can coexist under different disicplines", namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BML", "Chop", "ChopG"), NamePartType.DEVICE_TYPE));
+        assertTrue("Two device types can coexist under different disicplines", namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BML", "", "ChopG"), NamePartType.DEVICE_TYPE));
         assertTrue("Device type and device group can coexist",namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "ChopG"), NamePartType.DEVICE_TYPE));
         assertTrue("Device groups can coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "Chop"), NamePartType.DEVICE_TYPE));
-        assertFalse("Two device types cannot coexist under the same discipline",namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "ChopN", "ChopG"), NamePartType.DEVICE_TYPE));
-        assertFalse("Two device types cannot coexist under the same discipline", namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "ChopN", "ChopG"), NamePartType.DEVICE_TYPE));
+        assertFalse("Two device types cannot coexist under the same discipline", namingConvention.canMnemonicsCoexist(ImmutableList.of("BMD", "Chop", "ChopG"), NamePartType.DEVICE_TYPE, ImmutableList.of("BMD", "", "ChopG"), NamePartType.DEVICE_TYPE));
     }
     
     @Test

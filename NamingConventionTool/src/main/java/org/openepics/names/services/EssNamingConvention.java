@@ -1,28 +1,27 @@
 /*-
-* Copyright (c) 2014 European Spallation Source
-* Copyright (c) 2014 Cosylab d.d.
-*
-* This file is part of Naming Service.
-* Naming Service is free software: you can redistribute it and/or modify it under
-* the terms of the GNU General Public License as published by the Free
-* Software Foundation, either version 2 of the License, or any newer version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along with
-* this program. If not, see https://www.gnu.org/licenses/gpl-2.0.txt
-*/
+ * Copyright (c) 2014 European Spallation Source
+ * Copyright (c) 2014 Cosylab d.d.
+ *
+ * This file is part of Naming Service.
+ * Naming Service is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 2 of the License, or any newer version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see https://www.gnu.org/licenses/gpl-2.0.txt
+ */
+
 package org.openepics.names.services;
 
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Alternative;
-
 import org.openepics.names.model.NamePartType;
-
 import java.util.List;
 
 /**
@@ -35,7 +34,6 @@ import java.util.List;
 @Stateless
 public class EssNamingConvention implements NamingConvention {
 
-	
 	@Override public boolean isMnemonicValid(List<String> mnemonicPath, NamePartType mnemonicType){
 		NameElement nameElement =new NameElement(mnemonicPath,mnemonicType);
 		String mnemonic = nameElement.getMnemonic();
@@ -44,8 +42,7 @@ public class EssNamingConvention implements NamingConvention {
 		} else { 			
 			return mnemonic.length() == 0 || ( mnemonic.length() <=16 && mnemonic.matches("^[a-zA-Z0-9]+$") );
 		}
-
-		}
+	}
 
 	@Override public boolean isMnemonicRequired(List<String> mnemonicPath, NamePartType mnemonicType){
 		return (new NameElement(mnemonicPath, mnemonicType)).isRequired();
@@ -56,7 +53,11 @@ public class EssNamingConvention implements NamingConvention {
 	}
 
 	@Override public String equivalenceClassRepresentative(@Nullable String name) {
+		if(name!=null && name.equalsIgnoreCase("W")){
+			return "W";
+		}else {
 		return name!=null ? name.toUpperCase().replaceAll("(?<=[A-Za-z])0+", "").replace('I', '1').replace('L', '1').replace('O', '0').replace('W', 'V').replaceAll("(?<!\\d)0+(?=\\d)", ""):null;
+		}
 	}
 
 	@Override public boolean canMnemonicsCoexist(List<String> mnemonicPath1, NamePartType mnemonicType1, List<String> mnemonicPath2, NamePartType mnemonicType2) {
@@ -74,6 +75,10 @@ public class EssNamingConvention implements NamingConvention {
 		else {
 			return null;
 		}
+	}
+
+	private static String removeLeadingZeros(String string){
+		return string!=null? string.replaceAll("(?<=[A-Za-z])0+", "") : null;
 	}
 
 	private boolean isNameValid(String name,int nMin, int nMax) { 
@@ -143,7 +148,7 @@ public class EssNamingConvention implements NamingConvention {
 				return "";
 			}
 		}
-		
+
 		String getTypeMnemonic(){
 			if (isDiscipline()) {
 				return "Dis";
@@ -161,23 +166,33 @@ public class EssNamingConvention implements NamingConvention {
 		boolean isDiscipline() {
 			return deviceStructure&& level==1;
 		}
+		
 		boolean isDeviceGroup() {
 			return deviceStructure && level==2;
 		}
+		
 		boolean isDeviceType() {
 			return deviceStructure && level==3;
 		}
+		
 		boolean isSuperSection() {
 			return areaStructure&& level==1;
 		}
+		
 		boolean isSection() {
 			return areaStructure && level==2;
 		}
+		
 		boolean isSubsection() {
 			return areaStructure && level==3;
 		}
+		
 		boolean isRequired(){
 			return !(isSuperSection()|| isDeviceGroup());
+		}
+		
+		boolean isReserved(){
+			return isDiscipline() || isSection();
 		}
 
 		String getSection(){
@@ -199,13 +214,21 @@ public class EssNamingConvention implements NamingConvention {
 		String getMnemonic() {
 			return level>0 ? path.get(level-1): null;
 		}
-		
+		String getMnemonicCompare(){
+			return getMnemonic()!=null || getMnemonic().isEmpty() ? getMnemonic().toUpperCase():null;
+		}
+		boolean mnemonicEquals(NameElement other){
+			return getMnemonicCompare()!=null && other.getMnemonicCompare()!=null ? getMnemonicCompare().equals(other.getMnemonicCompare()):false;
+		}
+
 		boolean canCoexistWith(NameElement other) {
-			if((isDiscipline() || isSection())&& other.isRequired() || (other.isDiscipline()||other.isSection()) && isRequired()){
+			if (isReserved()&& other.isReserved()){
 				return false;
-			} else if ((isDeviceType() && other.isDeviceType()) && getDiscipline().equals(other.getDiscipline())){
+			} else if ((isDeviceType()||isDiscipline()) && (other.isDeviceType()||other.isDiscipline()) && getDiscipline().equals(other.getDiscipline())){
 				return false;
-			} else if ((isSubsection() && other.isSubsection()) && getSection().equals(other.getSection()) ){
+			} else if ((isSubsection()||isSection()) && (other.isSubsection()||other.isSection()) && getSection().equals(other.getSection())){
+				return false;
+			} else if (( isReserved() && other.isRequired() || other.isReserved() && isRequired() ) && mnemonicEquals(other) ){
 				return false;
 			} else {
 				return true;
