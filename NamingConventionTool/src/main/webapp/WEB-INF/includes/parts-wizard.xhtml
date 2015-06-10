@@ -17,9 +17,9 @@
 					<p:message for="idesc" />
 				</h:panelGroup>
 				
-				<p:outputLabel for="icode" value="Mnemonic:" />
-				<h:panelGroup >
-					<p:inputText id="icode" value="#{mnemonic}"	onkeyup="#{warning}" required="#{required}" requiredMessage="Please enter a mnemonic." style="width:100%">
+				<p:outputLabel for="icode" rendered="#{required}" value="Mnemonic:" />
+				<h:panelGroup rendered="#{required}">
+					<p:inputText id="icode" value="#{mnemonic}"	onkeyup="#{warning}" rendered="#{required}" required="#{required}" requiredMessage="Please enter a mnemonic." style="width:100%">
 						<f:validator validatorId="#{validator}" />
 					</p:inputText>
 					<p:watermark for="icode" value="#{watermarkMnemonic}" />
