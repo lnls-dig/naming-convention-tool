@@ -37,9 +37,11 @@ import org.primefaces.model.TreeNode;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
+import javax.faces.application.ViewHandler;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
@@ -125,7 +127,14 @@ public class NamePartsController implements Serializable {
 			treeNodeManager.collapse(event.getTreeNode());    	
 		}
 	}
+	
+	public synchronized void onExpandAll(){
+		treeNodeManager.expandAll(viewRoot);
+	}
 
+	public synchronized void onCollapseAll(){
+		treeNodeManager.collapseAll(viewRoot);
+	}
 
 	private TreeNode getRootTreeNode(boolean withModifications) {
 

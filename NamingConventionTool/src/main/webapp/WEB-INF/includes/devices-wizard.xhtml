@@ -132,7 +132,7 @@
 								update="growl :ManageNameForm" style="float:right"
 								action="#{devicesController[submitHandler]}"
 								disabled="#{devicesController.formSelectedSection == null || devicesController.formSelectedDeviceType == null}"
-								oncomplete="wiz.loadStep(wiz.cfg.steps[0],true); #{widgetName}.hide();" />
+								oncomplete="wiz.loadStep(wiz.cfg.steps[0],true); #{widgetName}.hide(); resizePanel()" />
 							<p:commandButton value="Cancel"
 								onclick=" wiz.loadStep(wiz.cfg.steps[0],true);  #{widgetName}.hide(); "
 								style="float:right" />

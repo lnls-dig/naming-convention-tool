@@ -75,6 +75,10 @@ import java.util.Objects;
 @ViewScoped
 public class DevicesController implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	@Inject private RestrictedNamePartService namePartService;
 	@Inject private NamePartTreeBuilder namePartTreeBuilder;
 	@Inject private DevicesTreeBuilder devicesTreeBuilder;
@@ -122,6 +126,13 @@ public class DevicesController implements Serializable {
 		}
 	}
 
+	public synchronized void onExpandAll(){
+		treeNodeManager.expandAll(viewDevice);
+	}
+	public synchronized void onCollapseAll(){
+		treeNodeManager.collapseAll(viewDevice);
+	}
+	
 	public boolean isAddInstanceIndexValid(String instanceIndex) {
 		final NamePart section = As.notNull(getSelectedSection()).getNamePart();
 		final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
@@ -192,7 +203,7 @@ public class DevicesController implements Serializable {
 			final NamePart subsection = ((NamePartView) formSelectedSection.getData()).getNamePart();
 			final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
 			final DeviceRevision rev = namePartService.addDevice(subsection, deviceType, getFormInstanceIndex(), getFormAdditionalInfo());
-			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been added.");
+			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name "+rev.getConventionName()+ " has been added.");
 		} finally {
 			init();
 		}

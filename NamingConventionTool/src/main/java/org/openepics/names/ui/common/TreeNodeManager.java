@@ -101,7 +101,6 @@ public class TreeNodeManager{
 		init(treeNode);
 		for (TreeNode node : nodeMap.keySet()) {
 			expand(node);
-			node.setExpanded(isExpanded(node));
 		}
 		expandCustomized(treeNode);
 	}
