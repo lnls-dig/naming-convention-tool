@@ -12,6 +12,7 @@
 	<link href="resources/css/cssLayout.css" rel="stylesheet" type="text/css" />
 	<link href="resources/css/themeEss.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript">
+	
 		function resizePanel() {
 // 			$('#indexDiv').css({
 // 				"height" : window.innerHeight - menusHeight
@@ -112,12 +113,13 @@
 	<p:outputPanel id="full" layout="block" style="overflow:hidden">
 		<p:panel id="logoPanel" styleClass="ui-widget-header">
 			<div id="user" style="float: right">
-					<p:outputLabel for="signout" value="#{loginController.username}"
+					<p:outputLabel for="signout" value="#{userManager.username}"
 					styleClass="ui-widget-header" />
 				<p:commandButton id="signout" process="@this" value="Sign Out"
 					icon="ui-icon-person" update=":full"
+					oncomplete="location.reload(true)"
 					action="#{loginController.signOut()}"
-					rendered="#{loginController.loggedIn}"/>
+					rendered="#{userManager.loggedIn}"/>
 			</div>
 			<div id="title">
 				<h:outputText value="#{msgs.title}" />

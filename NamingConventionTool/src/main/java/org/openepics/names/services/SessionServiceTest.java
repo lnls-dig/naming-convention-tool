@@ -58,6 +58,7 @@ public class SessionServiceTest implements SessionService {
     public void update() {
         final Principal principal = FacesContext.getCurrentInstance().getExternalContext().getUserPrincipal();
         user = principal != null ? userService.userWithName(principal.getName()) : null;
+        if (!isLoggedIn()) getRequest().getSession().invalidate();
     }
 
 	/* (non-Javadoc)
@@ -65,7 +66,7 @@ public class SessionServiceTest implements SessionService {
 	 */
     @Override
 	public UserAccount user() { 
-    	return user != null ? userService.emAttached(user) : null; 
+    	return isLoggedIn() ? userService.emAttached(user) : null; 
     }
     
     /* (non-Javadoc)
@@ -73,46 +74,36 @@ public class SessionServiceTest implements SessionService {
 	 */
     @Override
 	public boolean isLoggedIn() { 
-    	return user != null; 
+    	return  user != null; 
     }
 
     /* (non-Javadoc)
 	 * @see org.openepics.names.services.SessionService#isEditor()
 	 */
     @Override
-	public boolean isEditor() { return user != null && (user.getRole() == Role.EDITOR || user.getRole() == Role.SUPERUSER); }
+	public boolean isEditor() { return isLoggedIn() && (user.getRole() == Role.EDITOR || user.getRole() == Role.SUPERUSER); }
 
     /* (non-Javadoc)
 	 * @see org.openepics.names.services.SessionService#isSuperUser()
 	 */
     @Override
-	public boolean isSuperUser() { return user != null && user.getRole() == Role.SUPERUSER; }
+	public boolean isSuperUser() { return isLoggedIn() && user.getRole() == Role.SUPERUSER; }
 
     /* (non-Javadoc)
      * @see org.openepics.names.services.SessionService#getUsername()
      */
 	@Override
 	public String getUsername() {
-		return user != null ? user.getUsername(): null;
+		return isLoggedIn() ? user.getUsername(): null;
 	}	
 
-	
 	private HttpServletRequest getRequest() {
 		return (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 	}
 
 	@PreDestroy
 	private void cleanup(){
-		if(isLoggedIn()) {
-			try {
-				getRequest().logout();
-				LOGGER.log(Level.INFO, "Logout successful");	        	
-			} catch (ServletException e) {
-				throw new SecurityException("Logout Failed", e);
-			} finally {
-				update();
-			}			
-		}
+		user=null;
 	}
 
     @Override

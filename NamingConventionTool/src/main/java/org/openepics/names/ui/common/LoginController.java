@@ -14,6 +14,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.openepics.names.services.SessionService;
 
@@ -61,7 +62,6 @@ public class LoginController implements Serializable {
 		} finally {
 			clearPassword();
 			sessionService.update();
-//			refreshView();
 		}
 	}
 	
@@ -69,7 +69,6 @@ public class LoginController implements Serializable {
 		try {
 			Message m = sessionService.logout();
 			if (m.isSuccessful()) {
-				refreshView();
 				LOGGER.log(Level.INFO, "Logout successful");
 			} else {
 			    throw new SecurityException(m.getMessage());
@@ -77,26 +76,9 @@ public class LoginController implements Serializable {
 		} finally {
 			prepareLoginPopup();
 			sessionService.update();
-//			refreshView();
 		}
 	}
 	
-    private static void refreshView() {
-        FacesContext context = FacesContext.getCurrentInstance();
-        String viewId = context.getViewRoot().getViewId();
-        ViewHandler handler = context.getApplication().getViewHandler();
-        UIViewRoot root = handler.createView(context, viewId);
-        root.setViewId(viewId);
-        context.setViewRoot(root);
-    }
-
-    public boolean isLoggedIn(){
-    	return sessionService.isLoggedIn(); 
-    }
-
-    public String getUsername(){
-    	return sessionService.getUsername();
-    }
     public String getInputUsername() { return inputUsername; }
 	public void setInputUsername(String inputUsername) { this.inputUsername = inputUsername; }
 

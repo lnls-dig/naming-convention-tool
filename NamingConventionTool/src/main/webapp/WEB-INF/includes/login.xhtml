@@ -30,7 +30,7 @@
 				</h:panelGroup>
 				<f:facet name="footer">
 				<p:separator />					
-						<p:commandButton id="submit" value="Sign In" update="msgs :full"
+						<p:commandButton id="submit" value="Sign In" update="msgs :full" oncomplete="location.reload(true)"
 							action="#{loginController.signIn()}" style="float: right" />
 	   					<p:defaultCommand target="submit" />
 				</f:facet>

@@ -22,7 +22,6 @@ import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import org.openepics.names.model.Role;
 import org.openepics.names.model.UserAccount;
-
 import se.esss.ics.rbac.loginmodules.service.RBACSSOSessionService;
 
 /**
@@ -49,15 +48,6 @@ public class SessionServiceRBAC extends RBACSSOSessionService implements Session
 		 if(isLoggedIn() && isEditor()) userService.createUser(getUsername(), Role.EDITOR);		
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see se.esss.ics.rbac.loginmodules.service.RBACSSOSessionService#isLoggedIn()
-	 */
-	@Override
-	public boolean isLoggedIn() {
-	    return super.isLoggedIn();
-	}
-
 	/* (non-Javadoc)
 	 * @see org.openepics.names.services.SessionService#user()
 	 */
