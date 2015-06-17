@@ -6,18 +6,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.RequestScoped;
 import javax.faces.application.FacesMessage;
-import javax.faces.application.ViewHandler;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
-import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 
 import org.openepics.names.services.SessionService;
-
 import se.esss.ics.rbac.loginmodules.service.Message;
 
 /**
@@ -63,6 +58,14 @@ public class LoginController implements Serializable {
 			clearPassword();
 			sessionService.update();
 		}
+	}
+	
+	public boolean isLoggedIn(){
+		return sessionService.isSuperUser();
+	}
+	
+	public String getUsername(){
+		return sessionService.getUsername();
 	}
 	
 	public synchronized void signOut() {

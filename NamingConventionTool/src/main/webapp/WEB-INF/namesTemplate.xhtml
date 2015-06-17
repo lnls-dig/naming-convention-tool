@@ -113,13 +113,13 @@
 	<p:outputPanel id="full" layout="block" style="overflow:hidden">
 		<p:panel id="logoPanel" styleClass="ui-widget-header">
 			<div id="user" style="float: right">
-					<p:outputLabel for="signout" value="#{userManager.username}"
+					<p:outputLabel for="signout" value="#{loginController.username}"
 					styleClass="ui-widget-header" />
 				<p:commandButton id="signout" process="@this" value="Sign Out"
 					icon="ui-icon-person" update=":full"
 					oncomplete="location.reload(true)"
 					action="#{loginController.signOut()}"
-					rendered="#{userManager.loggedIn}"/>
+					rendered="#{loginController.loggedIn}"/>
 			</div>
 			<div id="title">
 				<h:outputText value="#{msgs.title}" />
