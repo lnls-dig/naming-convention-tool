@@ -61,7 +61,7 @@ public class LoginController implements Serializable {
 	}
 	
 	public boolean isLoggedIn(){
-		return sessionService.isSuperUser();
+		return sessionService.isLoggedIn();
 	}
 	
 	public String getUsername(){
