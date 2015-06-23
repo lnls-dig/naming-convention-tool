@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fc="http://java.sun.com/jsf/composite/comps"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+
+<p:dataTable id="devicesTree" var="device" value="#{deviceTableController.devices}"> 
+	<p:column headerText="#{namingConvention.sectionAlias}">
+	<h:outputText value="#{device.section.name}"/>
+	</p:column>
+	<p:column headerText="#{namingConvention.secAlias}">
+	<h:outputText value="#{device.section.mnemonic}"/>
+	</p:column>
+<!-- 	<p:column headerText="#{namingConvention.subsectionAlias}"> -->
+<!-- 	<h:outputText value="#{device.getSubsection()}"/> -->
+<!-- 	</p:column> -->
+<!-- 	<p:column headerText="#{namingConvention.subAlias}"> -->
+<!-- 	<h:outputText value="#{device.getSub()}"/> -->
+<!-- 	</p:column> -->
+<!-- 	<p:column headerText="Device Name"> -->
+<!-- 	<h:outputText value="#{device.deviceName}"></h:outputText> -->
+<!-- 	</p:column> -->
+</p:dataTable>
+
+<!-- 	<p:treeTable id="devicesTree" value="#{devicesController.viewDevice}" -->
+<!-- 		resizableColumns="true" liveResize="true" var="namePart" -->
+<!-- 		selection="#{devicesController.selectedNodes}" -->
+<!-- 		selectionMode="multiple" scrollable="true" scrollWidth="auto" -->
+<!-- 		stickyHeader="true" rowStyleClass="Approved"> -->
+<!-- 		<p:ajax event="select" -->
+<!-- 			update=":ManageNameForm:ncReqMenu :modDeviceNameForm" /> -->
+<!-- 		<p:ajax event="unselect" -->
+<!-- 			update=":ManageNameForm:ncReqMenu :modDeviceNameForm" /> -->
+<!-- 		<p:ajax event="expand" listener="#{devicesController.onNodeExpand}" /> -->
+<!-- 		<p:ajax event="collapse" -->
+<!-- 			listener="#{devicesController.onNodeCollapse}" /> -->
+
+<!-- 		<p:column id="devName" headerText="Area Structure / Device Name"> -->
+<!-- 			<h:outputText value="" -->
+<!-- 				style="display:inline-block; vertical-align:bottom !important" -->
+<!-- 				rendered="#{namePart['class'].simpleName eq 'DeviceView'}" /> -->
+<!-- 			<h:outputText value="#{namePart.conventionName}" -->
+<!-- 				styleClass="#{namePart.device.deleted ? 'Deleted' : 'Approved'}" -->
+<!-- 				rendered="#{namePart['class'].simpleName eq 'DeviceView'}" /> -->
+<!-- 			<h:outputText value="#{namePart.name}" -->
+<!-- 				styleClass="#{namePart.deleted ? 'Deleted' : 'Approved'}" -->
+<!-- 				rendered="#{namePart['class'].simpleName eq 'NamePartView'}" /> -->
+<!-- 		</p:column> -->
+<!-- 		<p:column id="addInfo" headerText="Description/Comment " -->
+<!-- 			style="width: 30%"> -->
+<!-- 			<h:outputText value="#{namePart.additionalInfo}" -->
+<!-- 				styleClass="#{namePart.device.deleted ? 'Deleted' : 'Approved'}" -->
+<!-- 				rendered="#{namePart['class'].simpleName eq 'DeviceView'}" /> -->
+<!-- 			<h:outputText value="" styleClass="Approved" -->
+<!-- 				rendered="#{namePart['class'].simpleName eq 'NamePartView'}" /> -->
+<!-- 		</p:column> -->
+<!-- 		<p:column id="devType" headerText="Device Structure" -->
+<!-- 			style="width: 30%"> -->
+<!-- 			<h:outputText value="#{devicesController.deviceTypePath(namePart)}" -->
+<!-- 				styleClass="#{namePart.device.deleted ? 'Deleted' : 'Approved'}" -->
+<!-- 				rendered="#{namePart['class'].simpleName eq 'DeviceView'}" /> -->
+<!-- 			<h:outputText value="" styleClass="Approved" -->
+<!-- 				rendered="#{namePart['class'].simpleName eq 'NamePartView'}" /> -->
+<!-- 		</p:column> -->
+<!-- 	</p:treeTable> -->
+</ui:composition>
