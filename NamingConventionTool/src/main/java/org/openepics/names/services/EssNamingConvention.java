@@ -21,7 +21,11 @@ package org.openepics.names.services;
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Alternative;
+import javax.inject.Inject;
+
 import org.openepics.names.model.NamePartType;
+import org.openepics.names.services.NamingConventionDefinition.NameDefinition;
+
 import java.util.List;
 
 /**
@@ -33,7 +37,7 @@ import java.util.List;
 @Alternative
 @Stateless
 public class EssNamingConvention implements NamingConvention {
-
+	@Inject NamingConventionDefinition aliasManager;
 	@Override public boolean isMnemonicValid(List<String> mnemonicPath, NamePartType mnemonicType){
 		NameElement nameElement =new NameElement(mnemonicPath,mnemonicType);
 		String mnemonic = nameElement.getMnemonic();
@@ -107,7 +111,7 @@ public class EssNamingConvention implements NamingConvention {
 	public String getNamePartTypeMnemonic(List<String> sectionPath, NamePartType namePartType){
 		return (new NameElement(sectionPath,namePartType)).getTypeMnemonic();
 	}
-
+	
 	private class NameElement {
 		List<String> path;
 		boolean areaStructure;
@@ -131,36 +135,21 @@ public class EssNamingConvention implements NamingConvention {
 			}			
 		}
 
-		String getTypeName(){
-			if (isDiscipline()) {
-				return "Discipline";
-			} else if (isSuperSection()) {
-				return "Super Section";
-			} else if (isDeviceType()) {
-				return "Device Type";
-			} else	if (isDeviceGroup()) {
-				return "Device Group";
-			} else if (isSection()) {
-				return "Section";
-			} else	if (isSubsection()) {
-				return "Subsection";
-			} else {
-				return "";
+		NameDefinition getNameDefinition(){
+			if(deviceStructure){
+				return aliasManager.deviceStructureLevel(level);
+			} else if(areaStructure){
+				return aliasManager.areaStructureLevel(level);
+			}else{
+				return null;
 			}
+		}
+		String getTypeName(){			
+			return getNameDefinition()!=null? getNameDefinition().getFullName(): "";
 		}
 
 		String getTypeMnemonic(){
-			if (isDiscipline()) {
-				return "Dis";
-			} else if (isDeviceType()) {
-				return "Dev";
-			} else if (isSection()) {
-				return "Sec";
-			} else	if (isSubsection()) {
-				return "Sub";
-			} else {
-				return "";
-			}
+			return getNameDefinition()!=null? getNameDefinition().getMnemonic(): "";
 		}
 
 		boolean isDiscipline() {

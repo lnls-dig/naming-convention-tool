@@ -68,13 +68,13 @@ public class FribNamingConvention implements NamingConvention {
 		throw new NotImplementedException();
 	}
 
-	@Override
-	public String getNamePartTypeName(List<String> sectionPath, NamePartType namePartType) {
-		throw new NotImplementedException();
-	}
 
 	@Override
 	public boolean isMnemonicValid(List<String> mnemonicPath, NamePartType mnemonicType) {
+		throw new NotImplementedException();
+	}
+	@Override
+	public String getNamePartTypeName(List<String> sectionPath, NamePartType namePartType) {
 		throw new NotImplementedException();
 	}
 
@@ -82,4 +82,5 @@ public class FribNamingConvention implements NamingConvention {
 	public String getNamePartTypeMnemonic(List<String> sectionPath, NamePartType namePartType) {
 		throw new NotImplementedException();
 	}
+
 }
