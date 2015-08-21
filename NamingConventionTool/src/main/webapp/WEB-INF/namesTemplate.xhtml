@@ -25,7 +25,7 @@
 			var filterHeight= $('#filterTable').outerHeight(true);
 			var panelHeight=window.innerHeight - menusHeight - filterHeight-20;			
 			this.setTreeTableScrollHeight('#ReqSubForm\\:namePartsTree',panelHeight);
-			this.setTreeTableScrollHeight('#ManageNameForm\\:devicesTree',panelHeight);
+			this.setDataTableScrollHeight('#ManageNameForm\\:devicesTree',panelHeight);
 		}
 	
 		function setTreeTableScrollHeight(treeTableId,panelHeight){
@@ -35,7 +35,15 @@
 			var scrollBody = $(treeTableId + ' .ui-treetable-scrollable-body');
  			scrollBody.height(scrollHeight);	 			
 		}
-				
+
+		function setDataTableScrollHeight(dataTableId,panelHeight){
+			var headerHeight=$(dataTableId + ' .ui-datatable-scrollable-header').outerHeight(true);
+			var footerHeight=$(dataTableId + ' .ui-datatable-scrollable-footer').outerHeight(true);
+			var scrollHeight=panelHeight-headerHeight-footerHeight;
+			var scrollBody = $(dataTableId + ' .ui-datatable-scrollable-body');
+ 			scrollBody.height(scrollHeight);	 			
+		}
+		
 		$(window).resize(function() {
 			resizePanel();
 		});

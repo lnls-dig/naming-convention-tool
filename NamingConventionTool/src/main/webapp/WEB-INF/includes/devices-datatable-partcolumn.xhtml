@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fc="http://java.sun.com/jsf/composite/comps"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+
+	<p:column 
+		filterBy="#{part}.name" 
+		sortBy="#{part}.name"
+		headerText="${namingConventionDefinition[part].fullName}" 
+		width="10%" 
+		filterOptions="${deviceTableController[parts]}"
+		filterMatchMode="exact">	
+	<h:outputText  id="#{part}" styleClass="#{device.deleted ? 'Deleted' : 'Approved'}" value="${device[part].name}"/>
+	<p:tooltip for="#{part}" value="#{device[part].description}" rendered="#{device[part].description != null}"/>
+	</p:column>
+	
+	<p:column filterBy="#{part}.mnemonic" 
+			  sortBy="#{part}.mnemonic"
+	headerText="${namingConventionDefinition[part].mnemonic}" width="5%" rendered="${namingConventionDefinition[part].mnemonic!=''}">
+	<h:outputText value="${device[part].mnemonic}" styleClass="#{device.deleted ? 'Deleted' : 'Approved'}"/>
+	</p:column>
+
+</ui:composition>

@@ -11,77 +11,46 @@
 		<h:form id="ManageNameForm">
 			<p:growl globalOnly="true" id="devicesMsgs" showDetail="true"
 				sticky="false" life="30000" />
-			<!-- =================== Menus ============================ -->
-			<div id="filterTable">
-				<p:panelGrid
-					style="width:100%; padding:5px 0px 5px 0pxs; border-type:none;">
-					<p:row>
-						<p:column>
-							<p:commandButton value="Expand" id="expand"
-								style="z-index:100; float: left"
-								action="#{devicesController.onExpandAll()}" update="devicesTree"
-								oncomplete="resizePanel()" />
-							<p:commandButton value="Collapse" id="collapse"
-								style="z-index:100; float: left"
-								action="#{devicesController.onCollapseAll()}"
-								update="devicesTree" oncomplete="resizePanel()" />
-						</p:column>
-
-						<p:column>
-							<p:outputLabel for="status" value="Show: " />
+			<!-- =================== Table ============================ -->
+			<p:dataTable id="devicesTree" var="device"
+				value="#{deviceTableController.records}"
+				selection="#{deviceTableController.selectedRecords}"
+				rowKey="#{device.id}" selectionMode="multiple" scrollable="true"
+				scrollWidth="auto" stickyHeader="false" widgetVar="deviceTable"
+				filteredValue="#{deviceTableController.filteredRecords}">
+				<f:facet id="filterTable" name="header">
+							<p:outputLabel for="status" value="Show: "
+								styleClass="ui-widget-header" style="float:left"/>
 							<p:selectOneMenu id="status"
-								value="#{devicesController.viewFilter}">
-								<p:ajax listener="#{devicesController.modifyDisplayView}"
-									event="change" update="devicesTree ncReqMenu"
+								value="#{deviceTableController.viewFilter}" style="float:left" >
+								<p:ajax event="change" update="devicesTree"
 									oncomplete="resizePanel()" />
-								<f:selectItem itemLabel="Active" itemValue="ACTIVE" />
+								<f:selectItem itemLabel="Active" itemValue="ACTIVE"
+									noSelectionOption="true" />
 								<f:selectItem itemLabel="Archived" itemValue="ARCHIVED" />
 							</p:selectOneMenu>
-						</p:column>
-						<p:column>
-							<p:outputLabel for="deviceNameFilter"
-								value="Filter by device name: " />
-							<p:inputText id="deviceNameFilter"
-								value="#{devicesController.deviceNameFilter}">
-								<p:ajax event="keyup"
-									listener="#{devicesController.checkForFilterChanges()}"
-									oncomplete="resizePanel()" />
-							</p:inputText>
-							<p:commandButton icon="ui-icon-close"
-								actionListener="#{devicesController.clearDeviceNameFilter()}"
-								update="deviceNameFilter" oncomplete="resizePanel()" />
-						</p:column>
-						<p:column>
-							<p:outputLabel for="deviceTypeFilter"
-								value="Filter by device type: " />
-							<p:inputText id="deviceTypeFilter"
-								value="#{devicesController.deviceTypeFilter}">
-								<p:ajax event="keyup"
-									listener="#{devicesController.checkForFilterChanges()}"
-									oncomplete="resizePanel()" />
-							</p:inputText>
-							<p:commandButton icon="ui-icon-close"
-								actionListener="#{devicesController.clearDeviceTypeFilter()}"
-								update="deviceTypeFilter" oncomplete="resizePanel()" />
-						</p:column>
-						<p:column>
+							<p:outputLabel for="globalFilter" value="Search all fields:"
+								styleClass="ui-widget-header" />
+							<p:inputText id="globalFilter"
+								onkeyup="PF('deviceTable').filter()" style="width:150px;"
+								placeholder="Enter keyword" />
 							<p:menuButton id="ncReqMenu" value="Actions"
-								style="z-index: 100; float:right;">
+								style="z-index: 100; float:right">
 								<p:menuitem value="Add" icon="ui-icon-plus"
 									update=":addDeviceNameForm" oncomplete="addDeviceName.show()"
 									title="Add Device Name"
-									actionListener="#{devicesController.prepareAddPopup()}"
-									disabled="#{!(devicesController.canAdd())}"
+									actionListener="#{deviceWizardController.preparePopup()}"
+									disabled="#{!(deviceTableController.canAdd())}"
 									rendered="#{userManager.editor}" />
 								<p:menuitem value="Delete" icon="ui-icon-trash"
 									update=":delDeviceNameForm" oncomplete="delDeviceName.show()"
 									title="Delete Device Name" rendered="#{userManager.editor}"
-									disabled="#{!(devicesController.canDelete())}" />
+									disabled="${!(deviceTableController.canDelete())}" />
 								<p:menuitem value="Modify" icon="ui-icon-pencil"
 									update=":modDeviceNameForm" oncomplete="modDeviceName.show()"
-									actionListener="#{devicesController.prepareModifyPopup()}"
+									action="#{deviceWizardController.preparePopup()}"
 									title="Modify Device Name" rendered="#{userManager.editor}"
-									disabled="#{!(devicesController.canModify())}" />
+									disabled="#{!(deviceTableController.canModify())}" />
 								<p:menuitem value="History" icon="ui-icon-search"
 									actionListener="#{devicesController.loadHistory()}"
 									update=":ManageNameForm:historyTable" title="View History"
@@ -98,15 +67,58 @@
 									<p:fileDownload value="#{devicesController.allDataExport}" />
 								</p:menuitem>
 							</p:menuButton>
-						</p:column>
-					</p:row>
-				</p:panelGrid>
-			</div>
-			
-<!-- 			<ui:include src="/WEB-INF/includes/devices-treetable.xhtml">			 -->
-<!-- 			</ui:include> -->
-			<ui:include src="/WEB-INF/includes/devices-datatable.xhtml">			
-			</ui:include>
+<!-- 						</h:panelGroup> -->
+<!-- 					</h:panelGrid> -->
+
+				</f:facet>
+				<p:ajax event="rowSelect"
+					update="ncReqMenu :modDeviceNameForm :addDeviceNameForm" />
+				<p:ajax event="rowUnselect"
+					update="ncReqMenu :modDeviceNameForm :addDeviceNameForm" />
+				<ui:include
+					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
+					<ui:param name="part" value="superSection" />
+					<ui:param name="parts" value="superSectionNames" />
+				</ui:include>
+				<ui:include
+					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
+					<ui:param name="part" value="section" />
+					<ui:param name="parts" value="sectionNames" />
+
+				</ui:include>
+				<ui:include
+					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
+					<ui:param name="part" value="subsection" />
+					<ui:param name="parts" value="subsectionNames" />
+
+				</ui:include>
+				<ui:include
+					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
+					<ui:param name="part" value="discipline" />
+					<ui:param name="parts" value="disciplineNames" />
+
+				</ui:include>
+				<ui:include
+					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
+					<ui:param name="part" value="deviceGroup" />
+					<ui:param name="parts" value="deviceGroupNames" />
+				</ui:include>
+				<ui:include
+					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
+					<ui:param name="part" value="deviceType" />
+					<ui:param name="parts" value="deviceTypeNames" />
+				</ui:include>
+
+				<p:column headerText="#{namingConventionDefinition.conventionName}">
+					<h:outputText id="idx" value="#{device.conventionName}"
+						styleClass="#{device.deleted ? 'Deleted' : 'Approved'}" />
+					<p:tooltip for="idx" value="#{device.description}"
+						rendered="#{device.description != null}" />
+				</p:column>
+			</p:dataTable>
+
+
+
 			<!-- 		======================== History ============================-->
 			<ui:include src="/WEB-INF/includes/devices-history.xhtml">
 				<ui:param name="historyHandler"
@@ -138,43 +150,9 @@
 
 		<!-- 		============================ Delete form =====================-->
 
-		<h:form id="delDeviceNameForm">
-			<p:dialog id="delDeviceName" widgetVar="delDeviceName"
-				header="Delete registered device names" dynamic="true"
-				maximizable="true" modal="true" width="800">
-				<p:treeTable id="pgrid" value="#{devicesController.deleteView}"
-					rendered="#{devicesController.canDelete()}" var="candidate"
-					width="100%" resizableColumns="true" scrollable="true"
-					scrollHeight="300">
-					<p:column headerText="Functional Area / Device Name">
-						<h:outputText
-							styleClass="#{candidate.affected ? 'Delete' : 'Approved'}"
-							value="#{candidate.data.conventionName}"
-							rendered="#{candidate.data['class'].simpleName eq 'DeviceView'}" />
-						<h:outputText
-							styleClass="#{candidate.affected ? 'Delete' : 'Approved'}"
-							value="#{candidate.data.name}"
-							rendered="#{candidate.data['class'].simpleName eq 'NamePartView'}" />
+		<ui:include src="/WEB-INF/includes/devices-delete.xhtml">
 
-					</p:column>
-					<p:column headerText="Device Definition" style="width: 50%">
-						<h:outputText
-							value="#{devicesController.deviceTypePath(candidate.data)}"
-							rendered="#{candidate.data['class'].simpleName eq 'DeviceView'}" />
-						<h:outputText value=""
-							rendered="#{candidate.data['class'].simpleName eq 'NamePartView'}" />
-					</p:column>
-				</p:treeTable>
-				<f:facet name="footer">
-					<p:commandButton value="Submit" style="float: right"
-						update=":ManageNameForm :ManageNameForm:ncReqMenu"
-						oncomplete="delDeviceName.hide(); resizePanel()"
-						action="#{devicesController.onDelete()}" />
-					<p:commandButton value="Cancel" style="float: right"
-						onclick="delDeviceName.hide()" />
-				</f:facet>
-			</p:dialog>
-		</h:form>
+		</ui:include>
 
 		<!-- 		============================ import form =====================-->
 		<h:form id="batchImportForm" enctype="multipart/form-data">
@@ -204,7 +182,7 @@
 					<p:commandButton value="Cancel" style="float: right"
 						onclick="batchImport.hide();" />
 					<p:commandButton value="Import" style="float: right"
-						update=":ManageNameForm :ManageNameForm:ncReqMenu"
+						update=":ManageNameForm :ManageNameForm:devicesTree:ncReqMenu"
 						oncomplete="batchImport.hide(); resizePanel()"
 						action="#{devicesController.onImport()}"
 						disabled="#{devicesController.importFileName == null}" />

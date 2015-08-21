@@ -10,7 +10,7 @@
 		<p:dialog widgetVar="#{widgetName}" header="#{dialogTitle}" modal="true" width="800">
 			<p:growl id="growl" sticky="true" showDetail="true" />
 			<p:wizard widgetVar="wiz"
-				flowListener="#{devicesController.onFlowProcess}"
+				flowListener="#{deviceWizardController.onFlowProcess}"
 				showStepStatus="false">
 
 				<p:tab id="areaTab" title="Area">
@@ -19,60 +19,67 @@
 						to?</p>
 					<h3>1. Select functional area:</h3>
 					<p:separator />
-					<p:tree value="#{devicesController.sections}"
+					<p:tree value="#{deviceWizardController.sections}"
 						selectionMode="single" var="section"
-						selection="#{devicesController.formSelectedSection}"
+						selection="#{deviceWizardController.formSelectedSection}"
 						dynamic="true">
 						<p:ajax event="select" update=":#{formId}:bsub" />
 						<p:ajax event="unselect" update=":#{formId}:bsub" />
 						<p:ajax event="expand"
-							listener="#{devicesController.onNodeExpand}" />
+							listener="#{treeNodeManager.onNodeExpand}" />
 						<p:ajax event="collapse"
-							listener="#{devicesController.onNodeCollapse}" />
+							listener="#{treeNodeManager.onNodeCollapse}" />
 						<p:treeNode>
-							<h:outputText value="#{devicesController.mnemonic(section)} "
+							<h:outputText 
+								value="${deviceWizardController.mnemonic(section)} "
 								styleClass="sec"
-								rendered="#{devicesController.mnemonic(section) != null}" />
-							<h:outputText value="#{section.name} (#{section.mnemonic})" />
+								rendered="#{deviceWizardController.mnemonic(section) != null}" />
+							<h:outputText id="sectionName" value="#{section.name}"  />
+							<p:tooltip for="sectionName" value="#{section.description}"/>
+							<h:outputText value=" (#{section.mnemonic})" rendered="#{section.mnemonic !=null}"  />
 						</p:treeNode>
 					</p:tree>
 					<p:separator />
 					<p:messages />
-					<p>Name elements (Super section, Section and Subsection) are
-						described and managed in the area structure.</p>
+					<p>Name elements are described and managed in the area structure.</p>
 				</p:tab>
 
 				<p:tab id="deviceTab" title="Device">
 					<p>What kind of device is it?</p>
-					<h3>2. Select device type:</h3>
+					<h3>2. Select device definition:</h3>
 					<p:separator />
-					<p:tree value="#{devicesController.deviceTypes}"
+					<p:tree value="#{deviceWizardController.deviceTypes}"
 						selectionMode="single" var="devType"
-						selection="#{devicesController.formSelectedDeviceType}"
+						selection="#{deviceWizardController.formSelectedDeviceType}"
 						dynamic="true">
 						<p:ajax event="select" update=":#{formId}:bsub" />
 						<p:ajax event="unselect" update=":#{formId}:bsub" />
 						<p:ajax event="expand"
-							listener="#{devicesController.onNodeExpand}" />
+							listener="#{treeNodeManager.onNodeExpand}" />
 						<p:ajax event="collapse"
-							listener="#{devicesController.onNodeCollapse}" />
+							listener="#{treeNodeManager.onNodeCollapse}" />
 						<p:treeNode>
-							<h:outputText value=" #{devicesController.mnemonic(devType)} "
+							<h:outputText 
+								value=" #{deviceWizardController.mnemonic(devType)} "
 								styleClass="dev"
-								rendered="#{devicesController.mnemonic(devType) != null}" />
-							<h:outputText value="#{devType.name} (#{devType.mnemonic})" />
+								rendered="#{deviceWizardController.mnemonic(devType) != null}" />
+							<h:outputText 								
+								id="deviceName"
+								value="#{devType.name}" />
+							<p:tooltip for="deviceName" value="devType.description"/>
+							<h:outputText value=" (#{devType.mnemonic})" rendered="#{devType.mnemonic != null}"  />
+							
 						</p:treeNode>
 					</p:tree>
 					<p:separator />
 					<p:messages />
-					<p>Name elements (discipline, device group and device type) are
-						described and managed in the device structure.</p>
+					<p>Name elements are described and managed in the device structure.</p>
 				</p:tab>
 
 				<p:tab id="instanceTab" title="Instance">
 					<h3>3. Enter instance index:</h3>
 					<p:inputText id="instanceIndex" onkeyup="displayIndexLengthWarningOnAdd()"
-						value="#{devicesController.formInstanceIndex}" style="width:480px"
+						value="#{deviceWizardController.formInstanceIndex}" style="width:480px"
 						maxlenght="6">
 						<f:validator validatorId="#{instanceIndexValidator}" />
 					</p:inputText>
@@ -109,7 +116,7 @@
 					<ol>
 						<li>Names should be short, meaningful and easy to read.
 							Abbreviate and use CamelCase.</li>
-						<li>Names should be easy to pronounce and memorize.</li>
+						<li>Names should be easy to pronounce and memorise.</li>
 					</ol>
 
 				</p:tab>
@@ -119,22 +126,23 @@
 						<h3>4. Finish:</h3>
 						<h4>Review the Device Name:</h4>
 						<kbd>
-							<h:outputText value="#{devicesController.formDeviceName}" />
+							<h:outputText value="#{deviceWizardController.formDeviceName}" />
 						</kbd>
 						<h4>Enter a Comment (optional):</h4>
 						<p:inputTextarea id="additionalInfo"
-							value="#{devicesController.formAdditionalInfo}"
+							value="#{deviceWizardController.formAdditionalInfo}"
 							style="width:460px; height:200px" />
 
 						<h4>Confirm:</h4>
 						<div align="right">
 							<p:commandButton id="bsub" value="Submit"
-								update="growl :ManageNameForm" style="float:right"
-								action="#{devicesController[submitHandler]}"
-								disabled="#{devicesController.formSelectedSection == null || devicesController.formSelectedDeviceType == null}"
-								oncomplete="wiz.loadStep(wiz.cfg.steps[0],true); #{widgetName}.hide(); resizePanel()" />
+								update=":ManageNameForm"
+								style="float:right"
+								actionListener="#{deviceWizardController[submitHandler]}"
+								disabled="#{deviceWizardController.formSelectedSection == null || deviceWizardController.formSelectedDeviceType == null}"
+								oncomplete="wiz.loadStep(wiz.cfg.steps[0],true); #{widgetName}.hide(); resizePanel()"/>
 							<p:commandButton value="Cancel"
-								onclick=" wiz.loadStep(wiz.cfg.steps[0],true);  #{widgetName}.hide(); "
+								onclick="wiz.loadStep(wiz.cfg.steps[0],true);  #{widgetName}.hide();"
 								style="float:right" />
 						</div>
 					</div>

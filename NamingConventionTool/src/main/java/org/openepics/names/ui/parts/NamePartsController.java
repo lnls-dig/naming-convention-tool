@@ -115,19 +115,6 @@ public class NamePartsController implements Serializable {
 		treeNodeManager.expandCustomized(viewRoot); 
 	}
 
-	
-	public void onNodeExpand(NodeExpandEvent event){
-		if(event!=null && event.getTreeNode() !=null){
-			treeNodeManager.expand(event.getTreeNode());
-		}
-	}
-
-	public void onNodeCollapse(NodeCollapseEvent event){
-		if(event!=null && event.getTreeNode() !=null){
-			treeNodeManager.collapse(event.getTreeNode());    	
-		}
-	}
-	
 	public synchronized void onExpandAll(){
 		treeNodeManager.expandAll(viewRoot);
 	}

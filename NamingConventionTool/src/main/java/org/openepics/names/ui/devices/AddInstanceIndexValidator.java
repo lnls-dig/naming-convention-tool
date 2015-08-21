@@ -39,7 +39,9 @@ import javax.faces.validator.ValidatorException;
 public class AddInstanceIndexValidator implements Validator {
 
     @Override public void validate(FacesContext facesContext, UIComponent uiComponent, Object o) throws ValidatorException {
-        final DevicesController controller = (DevicesController) facesContext.getApplication().getExpressionFactory().createValueExpression(facesContext.getELContext(), "#{devicesController}", Object.class).getValue(facesContext.getELContext());
+//        final DevicesController controller = (DevicesController) facesContext.getApplication().getExpressionFactory().createValueExpression(facesContext.getELContext(), "#{devicesController}", Object.class).getValue(facesContext.getELContext());
+        final DeviceWizardController controller = (DeviceWizardController) facesContext.getApplication().getExpressionFactory().createValueExpression(facesContext.getELContext(), "#{deviceWizardController}", Object.class).getValue(facesContext.getELContext());
+
         final @Nullable String instanceIndex = normalize((String) o);
 
         if (!controller.isAddInstanceIndexValid(instanceIndex)) {

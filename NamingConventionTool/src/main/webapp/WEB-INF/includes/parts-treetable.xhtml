@@ -13,9 +13,8 @@
 		resizableColumns="true" style="padding:0; margin:0">
 		<p:ajax event="select" update="#{update}" />
 		<p:ajax event="unselect" update="#{update}" />
-		<p:ajax event="expand" listener="#{namePartsController.onNodeExpand}" />
-		<p:ajax event="collapse"
-			listener="#{namePartsController.onNodeCollapse}" />
+		<p:ajax event="expand" listener="#{treeNodeManager.onNodeExpand}" />
+		<p:ajax event="collapse" listener="#{treeNodeManager.onNodeCollapse}" />
 		<p:column id="nameDesc" headerText="Full Name" style="width:25%">
 			<h:outputText value="#{namePart.newName}" styleClass="#{namePartsController.newStyleClass(namePart, namePart.isNameModified())}" />
 			<h:outputText value=" " rendered="#{namePart.isNameModified()}" />

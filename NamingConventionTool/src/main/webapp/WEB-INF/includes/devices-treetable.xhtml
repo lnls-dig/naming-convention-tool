@@ -13,9 +13,9 @@
 		selectionMode="multiple" scrollable="true" scrollWidth="auto"
 		stickyHeader="true" rowStyleClass="Approved">
 		<p:ajax event="select"
-			update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />
+			update=":ManageNameForm:ncReqMenu :modDeviceNameForm :addDeviceNameForm" />
 		<p:ajax event="unselect"
-			update=":ManageNameForm:ncReqMenu :modDeviceNameForm" />
+			update=":ManageNameForm:ncReqMenu :modDeviceNameForm :addDeviceNameForm" />
 		<p:ajax event="expand" listener="#{devicesController.onNodeExpand}" />
 		<p:ajax event="collapse"
 			listener="#{devicesController.onNodeCollapse}" />

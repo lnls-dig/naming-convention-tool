@@ -1,44 +1,86 @@
 package org.openepics.names.services.views;
 
+
+
+
 public class DeviceRecordView {
-	private DeviceView device;
+	private DeviceView deviceView;
 	private NamePartView section;
 	private NamePartView subsection;
 	private NamePartView superSection;
 	private NamePartView discipline;
 	private NamePartView deviceGroup;
 	private NamePartView deviceType;
-	private String deviceName;
-	public DeviceRecordView(DeviceView device) {
-		subsection=device.getSection();
+
+	public DeviceRecordView(DeviceView deviceView) {
+		this.deviceView=deviceView;
+		update();
+	}
+	public void update(){
+		subsection=deviceView.getSection();
 		section=subsection.getParent();
 		superSection=section.getParent();
-		deviceType=device.getDeviceType();
+		deviceType=deviceView.getDeviceType();
 		deviceGroup=deviceType.getParent();
 		discipline=deviceGroup.getParent();
 	}
-	public String getDeviceName() {
-		return deviceName;
+	
+	public Long getId(){
+		return getDeviceView().getDevice().getDevice().getId();
 	}
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
+	
+	public String getConventionName() {
+		return deviceView.getConventionName();
 	}
+	
 	public NamePartView getSubsection() {
 		return subsection;
 	}
+	
 	public void setSubsection(NamePartView subsection) {
 		this.subsection = subsection;
 	}
-	public DeviceView getDevice() {
-		return device;
+	
+	public DeviceView getDeviceView() {
+		return deviceView;
 	}
-	public void setDevice(DeviceView device) {
-		this.device = device;
-	}
+	
 	public NamePartView getSection() {
 		return section;
 	}
-	public void setSection(NamePartView section) {
-		this.section = section;
+
+	/**
+	 * @return the superSection
+	 */
+	public NamePartView getSuperSection() {
+		return superSection;
+	}
+	/**
+	 * @return the discipline
+	 */
+	public NamePartView getDiscipline() {
+		return discipline;
+	}
+
+	/**
+	 * @return the deviceGroup
+	 */
+	public NamePartView getDeviceGroup() {
+		return deviceGroup;
+	}
+
+	/**
+	 * @return the deviceType
+	 */
+	public NamePartView getDeviceType() {
+		return deviceType;
+	}
+	
+	public String getDescription(){
+		return deviceView.getAdditionalInfo();
+	}
+	
+	public boolean isDeleted(){
+		return deviceView.getDevice().isDeleted();
 	}
 }
