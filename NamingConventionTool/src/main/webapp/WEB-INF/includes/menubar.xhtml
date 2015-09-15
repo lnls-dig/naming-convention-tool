@@ -9,7 +9,7 @@
 
 		<h:form id="menu" rendered="#{loginController.loggedIn}">
 		<p:growl globalOnly="true" id="messages" showDetail="true"
-			sticky="false" life="5000" />
+			sticky="false" life="10000" />
 		<p:tabMenu id="mainMenu" activeIndex="${param.i}">
 			<p:menuitem value="Home" icon="ui-icon-home" outcome="index.xhtml">
 				<f:param name="i" value="0" />
@@ -35,6 +35,5 @@
 <!-- 			</p:menuitem> -->
 		</p:tabMenu>
 	</h:form>
-
 
 </ui:composition>

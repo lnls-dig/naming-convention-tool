@@ -27,8 +27,6 @@ import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.util.As;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.FlowEvent;
-import org.primefaces.event.NodeCollapseEvent;
-import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.model.TreeNode;
 
 import com.google.common.collect.Lists;
@@ -57,19 +55,12 @@ public class DeviceWizardController implements Serializable{
 	private @Nullable DeviceView deviceView;
 	private @Nullable NamePart subsection;
 	private @Nullable NamePart deviceType;
-
+	private @Nullable DeviceRecordView selectedRecord;
+	private String action;
 
 	@PostConstruct
 	public void init(){
-//		preparePopup();
-	}
-	
-	public void modifyDisplayView() {
-		sections = deviceTypes =  formSelectedDeviceType = null;
-	}
-
-	public synchronized void preparePopup() {
-		@Nullable DeviceRecordView selectedRecord=selectRecordManager.getSelectedRecord();
+		setSelectedRecord(selectRecordManager.getSelectedRecord());
 		setDeviceView(selectedRecord!=null ? selectedRecord.getDeviceView():null);
 		setSubsection(selectedRecord!=null ? selectedRecord.getSubsection().getNamePart():null);
 		setDeviceType(selectedRecord!=null ? selectedRecord.getDeviceType().getNamePart():null);		
@@ -80,48 +71,96 @@ public class DeviceWizardController implements Serializable{
 		formInstanceIndex = getDeviceView()!=null? getDeviceView().getInstanceIndex():null;
 		formAdditionalInfo = getDeviceView()!=null? getDeviceView().getAdditionalInfo():null;
 		formDeviceName=getDeviceView()!=null? getDeviceView().getConventionName():null;
-		RequestContext.getCurrentInstance().reset("modDeviceNameForm:growl");
 	}
 	
-	public boolean isAddInstanceIndexValid(String instanceIndex) {
-		final NamePart section=((NamePartView) formSelectedSection.getData()).getNamePart();
-		final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
-		return namePartService.isInstanceIndexValid(section, deviceType, instanceIndex);
+	/**
+	 * @return the selectedRecord
+	 */
+	public DeviceRecordView getSelectedRecord() {
+		return selectedRecord;
+	}
+
+	/**
+	 * @param selectedRecord the selectedRecord to set
+	 */
+	public void setSelectedRecord(DeviceRecordView selectedRecord) {
+		this.selectedRecord = selectedRecord;
+	}
+
+	public void modifyDisplayView() {
+		sections = deviceTypes =  formSelectedDeviceType = null;
+	}
+
+	public synchronized void preparePopup(String action) {
+		init();
+		setAction(action);
+		RequestContext.getCurrentInstance().reset(getAction()+"DeviceNameForm");
 	}
 	
-	public boolean isModifyInstanceIndexValid(String instanceIndex) {
-		final NamePart section = ((NamePartView) formSelectedSection.getData()).getNamePart();
-		final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
-		return namePartService.isInstanceIndexValid(section, deviceType, instanceIndex);
+	private static NamePartView namePartView(TreeNode treeNode){
+		return treeNode!=null? (NamePartView) treeNode.getData(): null;
+	}
+	
+	private NamePart selectedSection(){
+		return formSelectedSection!=null? namePartView(formSelectedSection).getNamePart():null;
+	}
+	private NamePart selectedDeviceType(){
+		return formSelectedDeviceType!=null? namePartView(formSelectedDeviceType).getNamePart():null;
 	}
 
-	public boolean isAddInstanceIndexUnique(String instanceIndex) {
-		final NamePart section=((NamePartView) formSelectedSection.getData()).getNamePart();
-		final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
-		return namePartService.isDeviceConventionNameUnique(section, deviceType, instanceIndex);
+	private List<String> selectedAreaPath(){
+		return formSelectedSection!=null? namePartView(formSelectedSection).getMnemonicPath():null;
+	}
+	
+	private List<String> selectedDeviceTypePath(){
+		return formSelectedDeviceType!=null? namePartView(formSelectedDeviceType).getMnemonicPath():null;
 	}
 
-	public boolean isModifyInstanceIndexUnique(String instanceIndex) {
-		final DeviceView deviceView = As.notNull(getDeviceView());
-		final NamePart section = ((NamePartView) formSelectedSection.getData()).getNamePart();
-		final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
-		boolean isSame = section.equals(deviceView.getSection().getNamePart()) && 
-				deviceType.equals(deviceView.getDeviceType().getNamePart()) && 
-				Objects.equals(instanceIndex, deviceView.getInstanceIndex());
-		if (!(isSame)) {
-			return namePartService.isDeviceConventionNameUniqueExceptForItself(As.notNull(getDeviceView()).getDevice().getDevice(),section, deviceType, instanceIndex);
+	public boolean isAreaSelected(){
+		return formSelectedSection!=null;
+	}
+	public boolean isDeviceTypeSelected(){
+		return formSelectedDeviceType!=null;
+	}
+	
+	public boolean isInstanceIndexValid(String instanceIndex) {
+		return namePartService.isInstanceIndexValid(selectedSection(), selectedDeviceType(), instanceIndex);
+	}
+	
+//	public boolean isModifyInstanceIndexValid(String instanceIndex) {
+//		return namePartService.isInstanceIndexValid(selectedSection(), selectedDeviceType(), instanceIndex);
+//	}
+
+	public boolean isInstanceIndexUnique(String instanceIndex) {
+		if(action.equals("mod")) {
+			final DeviceView deviceView = As.notNull(getDeviceView());
+			final NamePart section = selectedSection();
+			final NamePart deviceType = selectedDeviceType();
+			boolean isSame = section.equals(deviceView.getSection().getNamePart()) && 
+					deviceType.equals(deviceView.getDeviceType().getNamePart()) && 
+					Objects.equals(instanceIndex, deviceView.getInstanceIndex());
+			if (!(isSame)) {
+				return namePartService.isDeviceConventionNameUniqueExceptForItself(As.notNull(getDeviceView()).getDevice().getDevice(),section, deviceType, instanceIndex);
+			} else {
+				return true;
+			}			
 		} else {
-			return true;
+			return namePartService.isDeviceConventionNameUnique(selectedSection(), selectedDeviceType(), instanceIndex);
 		}
 	}
 
-	public String onFlowProcess(FlowEvent event){    	
-		return event.getNewStep();
+	public String onFlowProcess(FlowEvent event){  
+		if(formSelectedSection==null){
+			return "areaTab";
+		} else if(formSelectedDeviceType==null){
+			return "deviceTab";
+		} else {
+			return event.getNewStep();
+		}
 	}
-
 	public void setFormDeviceName(){
-		final List<String> sectionPath = ((NamePartView) formSelectedSection.getData()).getMnemonicPath();
-		final List<String> devicePath = ((NamePartView) formSelectedDeviceType.getData()).getMnemonicPath();
+		final List<String> sectionPath = selectedAreaPath();
+		final List<String> devicePath = selectedDeviceTypePath();
 		String formDeviceName=namingConvention.conventionName(sectionPath, devicePath, getFormInstanceIndex());
 		this.formDeviceName= formDeviceName != null ? formDeviceName: "";
 	}
@@ -152,6 +191,7 @@ public class DeviceWizardController implements Serializable{
 			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name "+rev.getConventionName()+ " has been added.");
 		} finally {
 //			init();
+//			RequestContext.getCurrentInstance().reset("addDeviceNameForm");
 		}
 	}
 
@@ -159,15 +199,14 @@ public class DeviceWizardController implements Serializable{
 		try {
 			final NamePart subsection = ((NamePartView) formSelectedSection.getData()).getNamePart();
 			final NamePart deviceType = ((NamePartView) formSelectedDeviceType.getData()).getNamePart();
-			namePartService.modifyDevice(As.notNull(getDeviceView()).getDevice().getDevice(), subsection, deviceType, getFormInstanceIndex(), getFormAdditionalInfo());
-			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been modified.");
+			final DeviceRevision rev = namePartService.modifyDevice(As.notNull(getSelectedRecord()).getDevice(), subsection, deviceType, getFormInstanceIndex(), getFormAdditionalInfo());
+			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been modified as " +rev.getConventionName());
 		} finally {
 //			init();
+//			RequestContext.getCurrentInstance().reset("modifyDeviceNameForm");
 		}
 	}
 
-	
-	
 	/**
 	 * @return the sections
 	 */
@@ -343,6 +382,14 @@ public class DeviceWizardController implements Serializable{
 	private void showMessage(@Nullable String notificationChannel, FacesMessage.Severity severity, String summary, String message) {
 		FacesContext context = FacesContext.getCurrentInstance();
 		context.addMessage(notificationChannel, new FacesMessage(severity, summary, message));
+	}
+
+	public String getAction() {
+		return action;
+	}
+
+	public void setAction(String action) {
+		this.action = action;
 	}
 
 	

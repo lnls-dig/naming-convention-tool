@@ -289,13 +289,13 @@ public class DevicesController implements Serializable {
 		return targets;
 	}
 
-	public void loadHistory() {
-		historyDeviceNames = Lists.transform(namePartService.revisions(As.notNull(getSelectedDevice()).getDevice().getDevice()), new Function<DeviceRevision, DeviceView>() {
-			@Override public DeviceView apply(DeviceRevision f) { return viewFactory.getView(f);}
-		});
-	}
-
-	public List<DeviceView> getHistoryEvents() { return historyDeviceNames; }
+//	public void loadHistory() {
+//		historyDeviceNames = Lists.transform(namePartService.revisions(As.notNull(getSelectedDevice()).getDevice().getDevice()), new Function<DeviceRevision, DeviceView>() {
+//			@Override public DeviceView apply(DeviceRevision f) { return viewFactory.getView(f);}
+//		});
+//	}
+//
+//	public List<DeviceView> getHistoryEvents() { return historyDeviceNames; }
 
 	//	public TreeNode getSections() { return sections; }
 
@@ -391,7 +391,7 @@ public class DevicesController implements Serializable {
 	public boolean canAdd() { return true;
 	//	return getSelectedSection() != null && getSelectedSection().getLevel() == 2 && !getSelectedSection().isDeleted(); 
 	}
-	public boolean canShowHistory() { return getSelectedDevice() != null; }
+//	public boolean canShowHistory() { return getSelectedDevice() != null; }
 	public boolean canModify() { return getSelectedDevice() != null && !getSelectedDevice().getDevice().isDeleted(); }
 
 	//	public void prepareAddPopup() {

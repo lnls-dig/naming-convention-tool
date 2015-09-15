@@ -53,11 +53,11 @@
 		});
 
 		function start() {
-			statusDialog.show();
+			PF('statusDialog').show();
 		}
 
 		function stop() {
-			statusDialog.hide();
+			PF('statusDialog').hide();
 		}
 		
 		function reload(){
@@ -88,28 +88,28 @@
 			}
 		}
 
-		function displayIndexLengthWarningOnAdd() {
-			if ($('#addDeviceNameForm\\:instanceIndex').val().length > 3) {
-				$('#addDeviceName\\:indexLengthWarning').css({
-					"display" : "block"
-				});
-			} else {
-				$('#addDeviceName\\:indexLengthWarning').css({
-					"display" : "none"
-				});
-			}
-		}
+// 		function displayIndexLengthWarningOnAdd() {
+// 			if ($('#addDeviceNameForm\\:instanceIndex').val().length > 3) {
+// 				$('#addDeviceName\\:indexLengthWarning').css({
+// 					"display" : "block"
+// 				});
+// 			} else {
+// 				$('#addDeviceName\\:indexLengthWarning').css({
+// 					"display" : "none"
+// 				});
+// 			}
+// 		}
 
-		function displayIndexLengthWarningOnMod() {
-			if ($('#modDeviceNameForm\\:instanceIndex').val().length > 3) {
-				$('#modDeviceName\\:indexLengthWarning').css({
-					"display" : "block"
-				});
-			} else {
-				$('#modDeviceName\\:indexLengthWarning').css({
-					"display" : "none"
-				});
-			}
+// 		function displayIndexLengthWarningOnMod() {
+// 			if ($('#modDeviceNameForm\\:instanceIndex').val().length > 3) {
+// 				$('#modDeviceName\\:indexLengthWarning').css({
+// 					"display" : "block"
+// 				});
+// 			} else {
+// 				$('#modDeviceName\\:indexLengthWarning').css({
+// 					"display" : "none"
+// 				});
+// 			}
 		}
 	</script>
 	
@@ -138,14 +138,10 @@
 		<p:outputPanel style="padding: 0px 15px 0px 15px" rendered="#{loginController.loggedIn}" >
 			<ui:insert name="content">Content</ui:insert>
 		</p:outputPanel>
-		
 	</p:outputPanel>
-	
 	<p:dialog modal="true" widgetVar="statusDialog" showHeader="false"
 		draggable="false" closable="false" resizable="false">
 		<p:graphicImage value="/resources/images/ajax-loader.gif" />
 	</p:dialog>
-
 </h:body>
-
 </html>

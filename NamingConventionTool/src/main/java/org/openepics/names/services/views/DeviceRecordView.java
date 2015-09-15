@@ -1,5 +1,7 @@
 package org.openepics.names.services.views;
 
+import org.openepics.names.model.Device;
+
 
 
 
@@ -27,6 +29,10 @@ public class DeviceRecordView {
 	
 	public Long getId(){
 		return getDeviceView().getDevice().getDevice().getId();
+	}
+	
+	public  Device getDevice(){
+		return getDeviceView().getDevice().getDevice(); 
 	}
 	
 	public String getConventionName() {

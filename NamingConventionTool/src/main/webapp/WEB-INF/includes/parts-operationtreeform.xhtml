@@ -76,10 +76,10 @@
 				<f:facet name="footer">
 					<p:commandButton value="Submit" style="float: right"
 						update="pgrid :ReqSubForm"
-						oncomplete="if (args &amp;&amp; !args.validationFailed) #{widgetId}.hide();resizePanel()"
+						oncomplete="if (args &amp;&amp; !args.validationFailed) PF(#{widgetId}).hide();resizePanel()"
 						action="#{namePartsController[submitHandler]}" />
 					<p:commandButton value="Cancel" style="float: right"
-						onclick="#{widgetId}.hide()" />
+						onclick="PF(#{widgetId}).hide()" />
 				</f:facet>
 			</h:panelGrid>
 		</p:dialog>

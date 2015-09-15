@@ -19,38 +19,15 @@
 						<h:outputText
 							value="#{candidate.conventionName}"
 							rendered="#{!candidate.deleted}" />
-					</p:column>
-									
+					</p:column>									
 				</p:dataTable>
-<!-- 				<p:treeTable id="pgrid" value="#{devicesController.deleteView}" -->
-<!-- 					rendered="#{devicesController.canDelete()}" var="candidate" -->
-<!-- 					width="100%" resizableColumns="true" scrollable="true" -->
-<!-- 					scrollHeight="300"> -->
-<!-- 					<p:column headerText="Functional Area / Device Name"> -->
-<!-- 						<h:outputText -->
-<!-- 							styleClass="#{candidate.affected ? 'Delete' : 'Approved'}" -->
-<!-- 							value="#{candidate.data.conventionName}" -->
-<!-- 							rendered="#{candidate.data['class'].simpleName eq 'DeviceView'}" /> -->
-<!-- 						<h:outputText -->
-<!-- 							styleClass="#{candidate.affected ? 'Delete' : 'Approved'}" -->
-<!-- 							value="#{candidate.data.name}" -->
-<!-- 							rendered="#{candidate.data['class'].simpleName eq 'NamePartView'}" /> -->
-<!-- 					</p:column> -->
-<!-- 					<p:column headerText="Device Definition" style="width: 50%"> -->
-<!-- 						<h:outputText -->
-<!-- 							value="#{devicesController.deviceTypePath(candidate.data)}" -->
-<!-- 							rendered="#{candidate.data['class'].simpleName eq 'DeviceView'}" /> -->
-<!-- 						<h:outputText value="" -->
-<!-- 							rendered="#{candidate.data['class'].simpleName eq 'NamePartView'}" /> -->
-<!-- 					</p:column> -->
-<!-- 				</p:treeTable> -->
 				<f:facet name="footer">
 					<p:commandButton value="Submit" style="float: right"
 						update=":ManageNameForm :ManageNameForm:devicesTree:ncReqMenu"
-						oncomplete="delDeviceName.hide(); resizePanel()"
+						oncomplete="PF('delDeviceName').hide(); resizePanel()"
 						action="#{devicesController.onDelete()}" />
 					<p:commandButton value="Cancel" style="float: right"
-						onclick="delDeviceName.hide()" />
+						onclick="PF('delDeviceName').hide()" />
 				</f:facet>
 			</p:dialog>
 		</h:form>
