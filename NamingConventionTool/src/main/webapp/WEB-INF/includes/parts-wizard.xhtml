@@ -16,7 +16,6 @@
 					<p:watermark for="idesc" value="#{watermarkName}" />
 					<p:message for="idesc" />
 				</h:panelGroup>
-				
 				<p:outputLabel for="icode" rendered="#{required}" value="Mnemonic:" />
 				<h:panelGroup rendered="#{required}">
 					<p:inputText id="icode" value="#{mnemonic}"	onkeyup="#{warning}" rendered="#{required}" required="#{required}" requiredMessage="Please enter a mnemonic." style="width:100%">
@@ -31,7 +30,6 @@
 							class="ui-message-warn-detail">Mnemonic should be between 2 and 4 characters long although 6 characters are allowed.</span>
 					</div>
 				</h:panelGroup>
-
 				<p:outputLabel for="desc" value="Description:" />	
 				<h:panelGroup>
 					<p:inputTextarea id="desc" rows="5" cols="60" counter="dcounter"
@@ -51,12 +49,11 @@
 					<br />
 					<h:outputText id="icounter" />
 				</h:panelGroup>
-
 			<f:facet name="footer">
 			<p:commandButton value="Submit" style="float: right"
 				update="#{gridId} :ReqSubForm"
 				actionListener="#{namePartsController[submitHandler]}" 
-				oncomplete="if (args &amp;&amp; !args.validationFailed) PF(#{widgetId}).hide() ; resizePanel()" />
+				oncomplete="hideDialogOnSuccess(${widgetId})" />
 			<p:commandButton value="Cancel" style="float: right"
 				onclick="PF(#{widgetId}).hide()" />
 			</f:facet>

@@ -7,12 +7,11 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html">
 	<ui:define name="content">
-
-		<!-- =================== Req Sub Form ================================= -->
+		<!-- =========================== Req Sub Form ================================= -->
 		<h:form id="ReqSubForm" style="padding:0; margin:0">
 			<p:growl globalOnly="true" id="partsMsgs" showDetail="true"
 				sticky="false" life="30000" escape="false" />
-			<!-- =================== Menus      ============================ -->
+			<!-- ======================= Menus ==================================== -->
 			<div id="filterTable">
 				<p:panelGrid style="width:100%; border-type:none;">
 					<p:row>
@@ -48,8 +47,8 @@
 									actionListener="#{namePartsController.prepareAddPopup()}"
 									title="Add Name" icon="ui-icon-plus"
 									oncomplete="PF('addName').show()" update=":addNameForm:addName"
-									disabled="#{!(namePartsController.canAdd())}"
-									rendered="#{userManager.editor}" />
+									disabled="${!(namePartsController.canAdd())}"
+									rendered="${userManager.editor}" />
 								<p:menuitem value="Delete"
 									actionListener="#{namePartsController.prepareDeletePopup()}"
 									title="Delete Name" icon="ui-icon-trash"
@@ -92,7 +91,6 @@
 					</p:row>
 				</p:panelGrid>
 			</div>
-
 			<!-- =================== Tree Table ================================= -->
 			<ui:include src="/WEB-INF/includes/parts-treetable.xhtml">
 				<ui:param name="treeId" value="namePartsTree" />
@@ -106,7 +104,6 @@
 					value="#{namePartsController.historyRevisions}" />
 			</ui:include>
 		</h:form>
-
 		<!-- ===================Add Form================================= -->
 		<ui:include src="/WEB-INF/includes/parts-wizard.xhtml">
 			<ui:param name="formId" value="addNameForm" />
@@ -129,7 +126,6 @@
 			<ui:param name="comment" value="#{namePartsController.formComment}" />
 			<ui:param name="submitHandler" value="onAdd" />
 		</ui:include>
-
 		<!-- ===================Modify Form================================= -->
 		<ui:include src="WEB-INF/includes/parts-wizard.xhtml">
 			<ui:param name="formId" value="ModNameForm" />
@@ -152,7 +148,6 @@
 			<ui:param name="comment" value="#{namePartsController.formComment}" />
 			<ui:param name="submitHandler" value="onModify" />
 		</ui:include>
-
 		<!-- ===================Delete Form================================= -->
 		<ui:include src="/WEB-INF/includes/parts-operationtreeform.xhtml">
 			<ui:param name="formId" value="DelNameForm" />

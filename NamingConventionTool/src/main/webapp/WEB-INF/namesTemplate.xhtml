@@ -20,7 +20,6 @@
 // 			$('#apiManualDiv').css({
 // 				"height" : window.innerHeight - menusHeight
 // 			});
-
 			var menusHeight = $('#logoPanel').outerHeight(true) + $('#menu').outerHeight(true) + $('#loginPanel').outerHeight(true);
 			var filterHeight= $('#filterTable').outerHeight(true);
 			var panelHeight=window.innerHeight - menusHeight - filterHeight-20;			
@@ -64,6 +63,12 @@
 			location.reload();
 		} 
 
+		function hideDialogOnSuccess(xhr, status, args) {
+		        if(!args.validationFailed) {
+		            PF(args.firstParam).hide();
+		        }
+		}
+		
 		function displayMnemonicLengthWarningOnAdd() {
 			if ($('#addNameForm\\:icode').val().length > 4) {
 				$('#addNameForm\\:mnemonicLengthWarning').css({
@@ -88,31 +93,31 @@
 			}
 		}
 
-// 		function displayIndexLengthWarningOnAdd() {
-// 			if ($('#addDeviceNameForm\\:instanceIndex').val().length > 3) {
-// 				$('#addDeviceName\\:indexLengthWarning').css({
-// 					"display" : "block"
-// 				});
-// 			} else {
-// 				$('#addDeviceName\\:indexLengthWarning').css({
-// 					"display" : "none"
-// 				});
-// 			}
-// 		}
-
-// 		function displayIndexLengthWarningOnMod() {
-// 			if ($('#modDeviceNameForm\\:instanceIndex').val().length > 3) {
-// 				$('#modDeviceName\\:indexLengthWarning').css({
-// 					"display" : "block"
-// 				});
-// 			} else {
-// 				$('#modDeviceName\\:indexLengthWarning').css({
-// 					"display" : "none"
-// 				});
-// 			}
+		function displayIndexLengthWarningOnAdd() {
+			if ($('#addDeviceNameForm\\:instanceIndex').val().length > 3) {
+				$('#addDeviceName\\:indexLengthWarning').css({
+					"display" : "block"
+				});
+			} else {
+				$('#addDeviceName\\:indexLengthWarning').css({
+					"display" : "none"
+				});
+			}
 		}
-	</script>
-	
+
+		function displayIndexLengthWarningOnMod() {
+			if ($('#modDeviceNameForm\\:instanceIndex').val().length > 3) {
+				$('#modDeviceName\\:indexLengthWarning').css({
+					"display" : "block"
+				});
+			} else {
+				$('#modDeviceName\\:indexLengthWarning').css({
+					"display" : "none"
+				});
+			}
+		}
+		
+	</script>	
 	<link rel="shortcut icon" href="resources/images/favicon.ico" />
 	<title>Naming Service</title>
 </h:head>
