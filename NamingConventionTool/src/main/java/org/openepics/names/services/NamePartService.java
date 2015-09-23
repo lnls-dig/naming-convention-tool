@@ -665,6 +665,11 @@ public class NamePartService {
     public @Nullable DeviceRevision currentDeviceRevision(UUID deviceUuid) {
         return JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device.uuid = :uuid ORDER BY r.id DESC", DeviceRevision.class).setParameter("uuid", deviceUuid.toString()).setMaxResults(1));
     }
+    
+	public DeviceRevision currentDeviceRevision(String deviceName) {
+		return em.createQuery("SELECT r FROM DeviceRevision r WHERE  r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.conventionName = :conventionName", DeviceRevision.class).setParameter("conventionName", deviceName).getResultList().get(0);
+	}
+
 
     private boolean canCancelChild(@Nullable NamePart parent) {
         if (parent != null) {
@@ -752,8 +757,5 @@ public class NamePartService {
     private List<Device> devicesOfType(NamePart deviceType) {
         return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deviceType = :deviceType AND r.deleted = false", Device.class).setParameter("deviceType", deviceType).getResultList();
     }
-
-	
-
 
 }

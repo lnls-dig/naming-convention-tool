@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.util.SystemOutLogger;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
@@ -94,7 +95,6 @@ public class DevicesController implements Serializable {
 	private TreeNode deviceTypes;
 	private TreeNode viewRoot;
 	private TreeNode viewDevice;
-	private TreeNode[] selectedNodes = new TreeNode[0];
 	private TreeNode deleteView;
 
 	private TreeNode formSelectedSection;
@@ -102,16 +102,34 @@ public class DevicesController implements Serializable {
 	private String formInstanceIndex = "";
 	private String formAdditionalInfo = "";
 	private String formDeviceName="";
+	private TreeNode[] selectedNodes=new TreeNode[0];
 
 	private byte[] importData;
 	private String importFileName;
 	private String deviceNameFilter, appliedDeviceNameFilter = "";
 	private String deviceTypeFilter, appliedDeviceTypeFilter = "";
 	private DevicesViewFilter displayView = DevicesViewFilter.ACTIVE;
-
+	
 	@PostConstruct
-	public void init() {
+	public synchronized void init() {
 		modifyDisplayView();
+		@Nullable String deviceName = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("deviceName");
+			try {
+				DeviceRevision deviceRevision = deviceName!=null ? namePartService.currentDeviceRevision(deviceName):null;
+				TreeNode node = deviceRevision!=null ? getNode(deviceRevision): null;
+				expandParents(node);
+				if(node!=null) node.setSelected(true);				
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+				
+		}
+	
+	private void expandParents(@Nullable TreeNode node) {
+		if(node!=null){
+		node.setExpanded(true);
+		expandParents(node.getParent());
+		}
 	}
 
 	public void onNodeExpand(NodeExpandEvent event){
@@ -297,8 +315,6 @@ public class DevicesController implements Serializable {
 
 	public String getImportFileName() { return importFileName; }
 
-	public TreeNode[] getSelectedNodes() { return selectedNodes; }
-
 	public @Nullable String getDeviceNameFilter() { return deviceNameFilter; }
 	public void setDeviceNameFilter(@Nullable String deviceNameFilter) { this.deviceNameFilter = deviceNameFilter; }
 
@@ -341,17 +357,55 @@ public class DevicesController implements Serializable {
 		}
 		viewDevice = filteredView(viewRoot);
 		sections = deviceTypes =  formSelectedDeviceType = null;
-		this.selectedNodes = new TreeNode[0];
-		deleteView = deleteView(viewDevice);
+		setSelectedNodes(new TreeNode[0]);
 	}
 
+	public TreeNode getNode(DeviceRevision deviceRevision){
+		for(TreeNode node: getNodeList(viewDevice)){
+				if(node.getData() instanceof DeviceView){
+					DeviceRevision device=((DeviceView) node.getData()).getDevice();
+					if(device.getConventionName().equals(deviceRevision.getConventionName())){
+						return node;
+					};
+				}
+		}
+		return null;
+	}
+
+	
+	
+	public String cssStyle(DeviceView deviceView){
+			
+			if(deviceView.getDevice().isDeleted()){
+				return "Deleted";
+			} else {
+				return "Approved";
+			}
+		
+	}
+	
+	
+	private List<TreeNode> getNodeList(TreeNode node) {
+		final List<TreeNode> nodeList= Lists.newArrayList();
+		nodeList.add(node);
+		for(TreeNode child:node.getChildren()){
+			nodeList.addAll(getNodeList(child));
+		}
+		return nodeList;
+	}
+	public TreeNode[] getSelectedNodes(){
+		return selectedNodes;
+	}
+	
 	public void setSelectedNodes(@Nullable TreeNode[] selectedNodes) {
-		this.selectedNodes = selectedNodes != null ? selectedNodes : new TreeNode[0];
+		this.selectedNodes=(selectedNodes != null ? selectedNodes : new TreeNode[0]);
 		deleteView = deleteView(viewDevice);
 	}
 
-	public @Nullable NamePartView getSelectedSection() { return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof NamePartView ? (NamePartView) selectedNodes[0].getData() : null; }
-	public @Nullable DeviceView getSelectedDevice() { return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView ? (DeviceView) selectedNodes[0].getData() : null; }
+	public @Nullable NamePartView getSelectedSection() { 
+		return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof NamePartView ? (NamePartView) selectedNodes[0].getData() : null; }
+	public @Nullable DeviceView getSelectedDevice() { 
+		return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView ? (DeviceView) selectedNodes[0].getData() : null; }
 
 	public TreeNode getDeleteView() { return deleteView; }
 
