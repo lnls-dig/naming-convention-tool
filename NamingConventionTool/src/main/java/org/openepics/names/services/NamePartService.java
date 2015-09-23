@@ -666,8 +666,9 @@ public class NamePartService {
         return JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device.uuid = :uuid ORDER BY r.id DESC", DeviceRevision.class).setParameter("uuid", deviceUuid.toString()).setMaxResults(1));
     }
     
-	public DeviceRevision currentDeviceRevision(String deviceName) {
-		return em.createQuery("SELECT r FROM DeviceRevision r WHERE  r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.conventionName = :conventionName", DeviceRevision.class).setParameter("conventionName", deviceName).getResultList().get(0);
+	public @Nullable DeviceRevision currentDeviceRevision(String deviceName) {
+		List<DeviceRevision> deviceRevisions= em.createQuery("SELECT r FROM DeviceRevision r WHERE  r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.conventionName = :conventionName", DeviceRevision.class).setParameter("conventionName", deviceName).getResultList();
+		return !deviceRevisions.isEmpty()? deviceRevisions.get(0):null;
 	}
 
 

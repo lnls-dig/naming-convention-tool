@@ -115,10 +115,12 @@ public class DevicesController implements Serializable {
 		modifyDisplayView();
 		@Nullable String deviceName = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("deviceName");
 			try {
-				DeviceRevision deviceRevision = deviceName!=null ? namePartService.currentDeviceRevision(deviceName):null;
-				TreeNode node = deviceRevision!=null ? getNode(deviceRevision): null;
-				expandParents(node);
-				if(node!=null) node.setSelected(true);				
+				@Nullable DeviceRevision deviceRevision = deviceName!=null ? namePartService.currentDeviceRevision(deviceName):null;
+				@Nullable TreeNode node = deviceRevision!=null ? getNode(deviceRevision): null;
+				if(node!=null) {
+					expandParents(node);					
+					node.setSelected(true);				
+				}
 			} catch (Exception e) {
 				// TODO: handle exception
 			}
