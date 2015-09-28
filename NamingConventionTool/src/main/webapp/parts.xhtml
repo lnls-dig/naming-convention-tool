@@ -121,9 +121,6 @@
 				value="#{namePartsController.getNamePartTypeMnemonicForChild()}" />
 			<ui:param name="required"
 				value="#{namePartsController.isMnemonicRequiredForChild()}" />
-			<ui:param name="description"
-				value="#{namePartsController.formDescription}" />
-			<ui:param name="comment" value="#{namePartsController.formComment}" />
 			<ui:param name="submitHandler" value="onAdd" />
 		</ui:include>
 		<!-- ===================Modify Form================================= -->
@@ -143,9 +140,6 @@
 				value="#{namePartsController.isMnemonicRequired()}" />
 			<ui:param name="validator" value="custom.modifyMnemonicValidator" />
 			<ui:param name="warning" value="displayMnemonicLengthWarningOnMod()" />
-			<ui:param name="description"
-				value="#{namePartsController.formDescription}" />
-			<ui:param name="comment" value="#{namePartsController.formComment}" />
 			<ui:param name="submitHandler" value="onModify" />
 		</ui:include>
 		<!-- ===================Delete Form================================= -->

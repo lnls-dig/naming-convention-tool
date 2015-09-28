@@ -8,56 +8,136 @@
 	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
 	<h:form id="#{formId}">
-		<p:dialog id="#{widgetId}" widgetVar="#{widgetId}" header="#{widgetTitle}" modal="true" width="800" >
-			<h:panelGrid id="#{gridId}" columns="2" width="100%">
-				<p:outputLabel for="idesc" value="Full Name:" />
-				<h:panelGroup>
-					<p:inputText id="idesc" value="#{fullName}"	required="true" requiredMessage="Please enter a name." style="width:100%" />
-					<p:watermark for="idesc" value="#{watermarkName}" />
-					<p:message for="idesc" />
-				</h:panelGroup>
-				<p:outputLabel for="icode" rendered="#{required}" value="Mnemonic:" />
-				<h:panelGroup rendered="#{required}">
-					<p:inputText id="icode" value="#{mnemonic}"	onkeyup="#{warning}" rendered="#{required}" required="#{required}" requiredMessage="Please enter a mnemonic." style="width:100%">
-						<f:validator validatorId="#{validator}" />
-					</p:inputText>
-					<p:watermark for="icode" value="#{watermarkMnemonic}" />
-					<p:message for="icode" />
-					<div id="addNameForm:mnemonicLengthWarning"
-						class="ui-message ui-message-warn ui-widget ui-corner-all"
-						style="display: none">
-						<span class="ui-message-warn-icon"></span> <span
-							class="ui-message-warn-detail">Mnemonic should be between 2 and 4 characters long although 6 characters are allowed.</span>
+		<p:dialog id="#{widgetId}" widgetVar="#{widgetId}"
+			header="#{widgetTitle}" modal="true" width="800">
+			<p:wizard id="wizard" widgetVar="wiz"
+				flowListener="#{namePartsController.onFlowProcess}"
+				showStepStatus="false">
+				<p:tab id="areaTab" title="Area">
+					<h3>1. Expand (by clicking the triangle) and select parent:</h3>
+					<p:separator />
+					<p:tree value="#{namePartsController.viewRoot.data}"						
+					selectionMode="single" var="parent"
+						selection="#{namePartsController.formSelectedParentNode}"
+						dynamic="true">
+						<p:ajax event="expand" listener="#{treeNodeManager.onNodeExpand}" />
+						<p:ajax event="collapse"
+							listener="#{treeNodeManager.onNodeCollapse}" />
+					
+						<p:treeNode>
+							<h:outputText id="ParentName" value=" #{parent.name}" />
+							<p:tooltip for="ParentName" value="#{parent.description}" />
+							<h:outputText value=" (#{parent.mnemonic})"
+								rendered="#{parent.mnemonic !=null}" />
+						</p:treeNode>
+					</p:tree>
+					<p:separator />
+					<p:messages />
+				</p:tab>
+				<p:tab>
+					<h:panelGrid id="#{gridId}" columns="2" width="100%">
+						<p:outputLabel for="idesc" value="Full Name:" />
+						<h:panelGroup>
+							<p:inputText id="idesc" value="#{fullName}" required="true"
+								requiredMessage="Please enter a name." style="width:100%" />
+							<p:watermark for="idesc" value="#{watermarkName}" />
+							<p:message for="idesc" />
+						</h:panelGroup>
+						<p:outputLabel for="icode" rendered="#{required}"
+							value="Mnemonic:" />
+						<h:panelGroup rendered="#{required}">
+							<p:inputText id="icode" value="#{mnemonic}" onkeyup="#{warning}"
+								rendered="#{required}" required="#{required}"
+								requiredMessage="Please enter a mnemonic." style="width:100%">
+								<f:validator validatorId="#{validator}" />
+							</p:inputText>
+							<p:watermark for="icode" value="#{watermarkMnemonic}" />
+							<p:message for="icode" />
+							<div id="addNameForm:mnemonicLengthWarning"
+								class="ui-message ui-message-warn ui-widget ui-corner-all"
+								style="display: none">
+								<span class="ui-message-warn-icon"></span> <span
+									class="ui-message-warn-detail">Mnemonic should be
+									between 2 and 4 characters long although 6 characters are
+									allowed.</span>
+							</div>
+						</h:panelGroup>
+					</h:panelGrid>
+				</p:tab>
+				<p:tab>
+					<h:panelGrid  columns="2" width="100%">
+						<p:outputLabel for="desc" value="Description:" />
+						<h:panelGroup>
+							<p:inputTextarea id="desc" rows="5" cols="60" counter="dcounter"
+								maxlength="254" value="#{namePartsController.formDescription}"
+								counterTemplate="{0} characters remaining." autoResize="false" />
+							<br />
+							<h:outputText id="dcounter" />
+						</h:panelGroup>
+					</h:panelGrid>
+					<p:separator />
+					<h:panelGrid width="100%">
+						<h:panelGroup>
+							<p:outputLabel for="icomm" value="Commit Message:" />
+							<p:inputTextarea id="icomm" rows="5" cols="60" counter="icounter"
+								maxlength="254" value="#{namePartsController.formComment}"
+								counterTemplate="{0} characters remaining." autoResize="false" />
+							<br />
+							<h:outputText id="icounter" />
+						</h:panelGroup>
+						<f:facet name="footer">
+							<p:commandButton value="Submit" style="float: right"
+								update="#{gridId} :ReqSubForm"
+								actionListener="#{namePartsController[submitHandler]}"
+								oncomplete="hideDialogOnSuccess(${widgetId})" />
+							<p:commandButton value="Cancel" style="float: right"
+								onclick="PF(#{widgetId}).hide()" />
+						</f:facet>
+					</h:panelGrid>
+
+
+
+				</p:tab>
+				<p:tab id="finishTab" title="Finish">
+					<div class="wizardStyle">
+						<h3>4. Finish:</h3>
+						<h4>Review the Device Name:</h4>
+						<kbd>
+							<h:outputText value="#{deviceWizardController.formDeviceName}" />
+						</kbd>
+						<h4>Enter description or comment (optional):</h4>
+						<p:inputTextarea id="AdditionalInfo"
+							value="#{deviceWizardController.formAdditionalInfo}"
+							style="width:460px; height:200px" />
+						<h4>Confirm:</h4>
+						<div align="right">
+							<p:commandButton id="Submit" value="Submit"
+								update=":ManageNameForm" style="float:right"
+								actionListener="#{deviceWizardController[submitHandler]}"
+								disabled="#{deviceWizardController.formSelectedSection == null || deviceWizardController.formSelectedDeviceType == null}"
+								onclick="PF(#{widgetName}).hide()" />
+							<p:commandButton value="Cancel"
+								onclick="PF(#{widgetName}).hide()" style="float:right" />
+						</div>
 					</div>
-				</h:panelGroup>
-				<p:outputLabel for="desc" value="Description:" />	
-				<h:panelGroup>
-					<p:inputTextarea id="desc" rows="5" cols="60" counter="dcounter"
-						maxlength="254" value="#{description}"
-						counterTemplate="{0} characters remaining." autoResize="false" />
-					<br />
-					<h:outputText id="dcounter" />
-				</h:panelGroup>
-			</h:panelGrid>
-			<p:separator />
-			<h:panelGrid width="100%">
-				<h:panelGroup>
-				<p:outputLabel for="icomm" value="Commit Message:" />
-					<p:inputTextarea id="icomm" rows="5" cols="60" counter="icounter"
-						maxlength="254" value="#{comment}"
-						counterTemplate="{0} characters remaining." autoResize="false" />
-					<br />
-					<h:outputText id="icounter" />
-				</h:panelGroup>
-			<f:facet name="footer">
-			<p:commandButton value="Submit" style="float: right"
-				update="#{gridId} :ReqSubForm"
-				actionListener="#{namePartsController[submitHandler]}" 
-				oncomplete="hideDialogOnSuccess(${widgetId})" />
-			<p:commandButton value="Cancel" style="float: right"
-				onclick="PF(#{widgetId}).hide()" />
-			</f:facet>
-			</h:panelGrid>
+				</p:tab>
+			</p:wizard>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		</p:dialog>
 	</h:form>

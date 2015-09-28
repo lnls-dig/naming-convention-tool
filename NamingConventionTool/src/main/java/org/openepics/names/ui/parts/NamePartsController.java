@@ -29,6 +29,7 @@ import org.openepics.names.util.As;
 import org.openepics.names.util.Marker;
 import org.openepics.names.util.UnhandledCaseException;
 import org.primefaces.context.RequestContext;
+import org.primefaces.event.FlowEvent;
 import org.primefaces.event.NodeCollapseEvent;
 import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.model.DefaultTreeNode;
@@ -85,6 +86,7 @@ public class NamePartsController implements Serializable {
 
 	private List<Device> affectedDevices;
 	private Operation operation;
+	private TreeNode formSelectedParentNode;
 	
 	
 	@PostConstruct
@@ -102,9 +104,14 @@ public class NamePartsController implements Serializable {
 		update();
 	}
 	
+	public String onFlowProcess(FlowEvent event){  
+			return event.getNewStep();
+	}
+
 
 	public void update() {
 		operation=Operation.VIEW;
+		formSelectedParentNode=null;
 		formName = null;
 		formMnemonic = null;
 		formDescription=null;
@@ -194,7 +201,8 @@ public class NamePartsController implements Serializable {
 
 	public void onAdd() {
 		try {
-			final @Nullable NamePartView parent = getSelectedName();
+//			final @Nullable NamePartView parent = getSelectedName();
+			final @Nullable NamePartView parent = (NamePartView) getFormSelectedParentNode().getData();
 			namePartService.addNamePart(formName, formMnemonic, formDescription, namePartType, parent != null ? parent.getNamePart() : null, formComment);
 			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Your addition proposal has been submitted.");
 		} finally {
@@ -377,7 +385,11 @@ public class NamePartsController implements Serializable {
 	public @Nullable NamePartView getSelectedName() {
 		return (selectedNodes != null && selectedNodes.length > 0) ? (NamePartView)(selectedNodes[0].getData()) : null;
 	}
-
+	
+	public @Nullable TreeNode getSelectedNode(){
+		return (selectedNodes != null && selectedNodes.length > 0) ? selectedNodes[0] : null;
+	}
+	
 	public String getFormName() { return formName; }
 	public void setFormName(String formName) { this.formName = formName; }
 
@@ -400,15 +412,24 @@ public class NamePartsController implements Serializable {
 	}
 
 	public void prepareAddPopup() {
+		formSelectedParentNode=getSelectedNode();
 		formName = null;
 		formMnemonic = null;
 		formDescription = null;
 		formComment = null;
 		RequestContext.getCurrentInstance().reset("addNameForm:grid");
 	}
-
+	public TreeNode getFormSelectedParentNode(){
+		return formSelectedParentNode;
+	};
+	
+	public void setFormSelectedParentNode(TreeNode node){
+		formSelectedParentNode=node;
+	}
+	
 	public void prepareModifyPopup() {
 		final NamePartRevision namePartRevision = As.notNull(getSelectedName()).getPendingOrElseCurrentRevision();
+		formSelectedParentNode=getSelectedNode()!=null?getSelectedNode().getParent():null;
 		formName = namePartRevision.getName();
 		formMnemonic = namePartRevision.getMnemonic();
 		formDescription = namePartRevision.getDescription();
