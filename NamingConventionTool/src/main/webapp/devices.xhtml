@@ -87,6 +87,12 @@
 									update=":ManageNameForm:historyTable" title="View History"
 									oncomplete="nameDetail.show()"
 									disabled="#{!(devicesController.canShowHistory())}" />
+								<p:menuitem value="Configure device" icon ="ui-icon-extlink" 
+								url="#{'https://ics-services.esss.lu.se/ccdb/?name='.concat(devicesController.getSelectedDeviceName())}"
+								disabled="#{devicesController.getSelectedDevice()==null}"
+								>  
+									
+								</p:menuitem>	
 								<p:menuitem value="Batch Import" icon="ui-icon-folder-open"
 									title="Import"
 									actionListener="#{devicesController.prepareImportPopup()}"

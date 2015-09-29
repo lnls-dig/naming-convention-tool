@@ -408,7 +408,10 @@ public class DevicesController implements Serializable {
 		return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof NamePartView ? (NamePartView) selectedNodes[0].getData() : null; }
 	public @Nullable DeviceView getSelectedDevice() { 
 		return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView ? (DeviceView) selectedNodes[0].getData() : null; }
-
+ 
+	public  String getSelectedDeviceName(){
+		return getSelectedDevice()!=null? getSelectedDevice().getDevice().getConventionName():"";
+	}
 	public TreeNode getDeleteView() { return deleteView; }
 
 	public boolean canDelete() { return deleteView != null; }
