@@ -87,7 +87,7 @@
 									update=":ManageNameForm:historyTable" title="View History"
 									oncomplete="nameDetail.show()"
 									disabled="#{!(devicesController.canShowHistory())}" />
-								<p:menuitem value="Configure device" icon ="ui-icon-extlink" 
+								<p:menuitem value="Configure" title="Configure device in CCDB" icon ="ui-icon-extlink" 
 								url="#{'https://ics-services.esss.lu.se/ccdb/?name='.concat(devicesController.getSelectedDeviceName())}"
 								disabled="#{devicesController.getSelectedDevice()==null}"
 								>  
