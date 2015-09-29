@@ -333,6 +333,9 @@ public class RestrictedNamePartService {
     public @Nullable DeviceRevision currentDeviceRevision(String deviceName){
     	return namePartService.currentDeviceRevision(deviceName);
     }
+    public List<DeviceRevision> devcieRevisionsPreviouslyNamed(String deviceName){
+    	return namePartService.devcieRevisionsPreviouslyNamed(deviceName);
+    }
     
 	public boolean isMnemonicRequiredForChild(NamePartType namePartType, NamePart namePart) {
 		return namePartService.isMnemonicRequiredForChild(namePartType, namePart);

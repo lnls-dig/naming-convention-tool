@@ -1,6 +1,7 @@
 package org.openepics.names.jaxb;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.UUID;
 
 
@@ -19,7 +20,7 @@ public class DeviceNameElement {
     private String deviceType;
     private String instanceIndex;
     private String name;
-    
+    private String status;
     public DeviceNameElement() {}
     
     public UUID getUuid() { return uuid; }
@@ -41,5 +42,14 @@ public class DeviceNameElement {
     public void setInstanceIndex(String instanceIndex) { this.instanceIndex = instanceIndex; }
 
     public String getName() { return name; }
-    public void setName(String name) { this.name = name; }    
+    public void setName(String name) { this.name = name; }
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+    
 }

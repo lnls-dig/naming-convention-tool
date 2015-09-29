@@ -671,6 +671,11 @@ public class NamePartService {
 		return !deviceRevisions.isEmpty()? deviceRevisions.get(0):null;
 	}
 
+	
+	public List<DeviceRevision> devcieRevisionsPreviouslyNamed(String deviceName){
+		return em.createQuery("SELECT r FROM DeviceRevision r WHERE  r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device AND r2.conventionName = :conventionName)", DeviceRevision.class).setParameter("conventionName", deviceName).getResultList();
+	}
+	
 
     private boolean canCancelChild(@Nullable NamePart parent) {
         if (parent != null) {
