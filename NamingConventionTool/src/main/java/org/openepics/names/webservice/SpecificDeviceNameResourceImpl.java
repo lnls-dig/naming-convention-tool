@@ -51,7 +51,7 @@ public class SpecificDeviceNameResourceImpl implements SpecificDeviceNameResourc
 		if (deviceRevision != null) {
 			
 			if(!deviceRevision.isDeleted()){
-				deviceData.setStatus("active");
+				deviceData.setStatus("ACTIVE");
 				deviceData.setUuid(deviceRevision.getDevice().getUuid());
 				deviceData.setName(deviceView.getConventionName());
 				deviceData.setSection(As.notNull(deviceView.getSection().getParent()).getMnemonic());
@@ -61,14 +61,14 @@ public class SpecificDeviceNameResourceImpl implements SpecificDeviceNameResourc
 				deviceData.setInstanceIndex(deviceView.getInstanceIndex());
 				deviceData.setName(deviceView.getConventionName());
 			} else {
-				deviceData.setStatus("deleted");
+				deviceData.setStatus("DELETED");
 			}
 			return deviceData;
 		} else {
 			
 			List<DeviceRevision> deviceRevisions=namePartService.devcieRevisionsPreviouslyNamed(reqUuid);
 			if(deviceRevisions!=null && !deviceRevisions.isEmpty()){
-				deviceData.setStatus("changed");
+				deviceData.setStatus("OBSOLETE");
 				return deviceData;
 			} else {
 				return null;
