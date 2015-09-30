@@ -46,21 +46,21 @@
 									value="#{'Add '.concat(namePartsController.getNamePartTypeNameForChild())}"
 									actionListener="#{namePartsController.prepareAddPopup()}"
 									title="Add Name" icon="ui-icon-plus"
-									oncomplete="PF('addName').show()" update=":addNameForm:addName"
+									oncomplete="PF('addName').show()" update=":AddNameForm:addName"
 									disabled="${!(namePartsController.canAdd())}"
 									rendered="${userManager.editor}" />
-								<p:menuitem value="Delete"
-									actionListener="#{namePartsController.prepareDeletePopup()}"
-									title="Delete Name" icon="ui-icon-trash"
-									update=":DelNameForm:delName" oncomplete="PF('delName').show()"
-									disabled="#{!(namePartsController.canDelete())}"
-									rendered="#{userManager.editor}" />
 								<p:menuitem
 									value="#{'Edit '.concat(namePartsController.getNamePartTypeName())}"
 									actionListener="#{namePartsController.prepareModifyPopup()}"
 									title="Edit Name" icon="ui-icon-pencil"
 									update=":ModNameForm:modName" oncomplete="PF('modName').show()"
 									disabled="#{!(namePartsController.canModify())}"
+									rendered="#{userManager.editor}" />
+								<p:menuitem value="Delete"
+									actionListener="#{namePartsController.prepareDeletePopup()}"
+									title="Delete Name" icon="ui-icon-trash"
+									update=":DelNameForm:delName" oncomplete="PF('delName').show()"
+									disabled="#{!(namePartsController.canDelete())}"
 									rendered="#{userManager.editor}" />
 								<p:menuitem value="Approve"
 									actionListener="#{namePartsController.prepareApprovePopup()}"
@@ -106,11 +106,10 @@
 		</h:form>
 		<!-- ===================Add Form================================= -->
 		<ui:include src="/WEB-INF/includes/parts-wizard.xhtml">
-			<ui:param name="formId" value="addNameForm" />
+			<ui:param name="formId" value="AddNameForm" />
 			<ui:param name="widgetId" value="addName" />
 			<ui:param name="widgetTitle"
 				value="#{'Propose to add new '.concat(namePartsController.getNamePartTypeNameForChild())}" />
-			<ui:param name="gridId" value="grid" />
 			<ui:param name="fullName" value="#{namePartsController.formName}" />
 			<ui:param name="watermarkName"
 				value="#{namePartsController.getNamePartTypeNameForChild()}" />
@@ -127,9 +126,8 @@
 		<ui:include src="WEB-INF/includes/parts-wizard.xhtml">
 			<ui:param name="formId" value="ModNameForm" />
 			<ui:param name="widgetId" value="modName" />
-			<ui:param name="gridId" value="pgrid" />
 			<ui:param name="widgetTitle"
-				value="#{'Propose to modify '.concat(namePartsController.getNamePartTypeNameForChild())}" />
+				value="#{'Propose to modify '.concat(namePartsController.getNamePartTypeName())}" />
 			<ui:param name="fullName" value="#{namePartsController.formName}" />
 			<ui:param name="watermarkName"
 				value="#{namePartsController.getNamePartTypeName()}" />

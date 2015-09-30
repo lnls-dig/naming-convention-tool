@@ -16,7 +16,7 @@
 				<p:tab id="areaTab" title="Area">
 					<h3>1. Expand (by clicking the triangle) and select parent:</h3>
 					<p:separator />
-					<p:tree value="#{namePartsController.viewRoot.data}"						
+					<p:tree value="#{namePartsController.viewRoot}"						
 					selectionMode="single" var="parent"
 						selection="#{namePartsController.formSelectedParentNode}"
 						dynamic="true">
@@ -35,7 +35,7 @@
 					<p:messages />
 				</p:tab>
 				<p:tab>
-					<h:panelGrid id="#{gridId}" columns="2" width="100%">
+					<h:panelGrid id="gridId" columns="2" width="100%">
 						<p:outputLabel for="idesc" value="Full Name:" />
 						<h:panelGroup>
 							<p:inputText id="idesc" value="#{fullName}" required="true"
@@ -87,7 +87,7 @@
 						</h:panelGroup>
 						<f:facet name="footer">
 							<p:commandButton value="Submit" style="float: right"
-								update="#{gridId} :ReqSubForm"
+								update="gridId :ReqSubForm"
 								actionListener="#{namePartsController[submitHandler]}"
 								oncomplete="hideDialogOnSuccess(${widgetId})" />
 							<p:commandButton value="Cancel" style="float: right"

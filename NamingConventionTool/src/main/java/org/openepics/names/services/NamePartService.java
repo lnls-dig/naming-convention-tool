@@ -54,6 +54,12 @@ public class NamePartService {
     @Inject private NamingConvention namingConvention;
     @PersistenceContext private EntityManager em;
 
+    private List<String> getMnemonicPath(@Nullable NamePart namePart){
+        final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
+        return namePartView != null ? namePartView.getMnemonicPath() : ImmutableList.<String>of();
+    }
+    
+    
     /**
      * True if the mnemonic can be null.
      * @param namePartType the type of the name part
@@ -135,8 +141,8 @@ public class NamePartService {
      * @param mnemonic the mnemonic name of the name part to test for validity
      */
     public boolean isMnemonicValid(NamePartType namePartType, @Nullable NamePart parent, @Nullable String mnemonic) {
-        final @Nullable NamePartView namePartView = parent != null ? view(parent) : null;
-        final List<String> mnemonicPath = namePartView != null ? namePartView.getMnemonicPathWithChild(mnemonic) : ImmutableList.<String>of(mnemonic!=null? mnemonic: "");
+        final @Nullable NamePartView namePartParentView = parent != null ? view(parent) : null;
+        final List<String> mnemonicPath = namePartParentView != null ? namePartParentView.getMnemonicPathWithChild(mnemonic) : ImmutableList.<String>of(mnemonic!=null? mnemonic: "");
         return namingConvention.isMnemonicValid(mnemonicPath, namePartType);
     }
 
@@ -281,15 +287,29 @@ public class NamePartService {
      * @param comment the comment the user gave when submitting the proposal. Null if no comment was given.
      * @return the resulting proposed NamePart revision
      */
-    public NamePartRevision modifyNamePart(NamePart namePart, String name, @Nullable String mnemonic, @Nullable String description, @Nullable UserAccount user, @Nullable String comment) {
+    public NamePartRevision modifyNamePart(NamePart namePart, @Nullable NamePart namePartParent, String name, @Nullable String mnemonic, @Nullable String description, @Nullable UserAccount user, @Nullable String comment) {
         final NamePartView namePartView = view(namePart);
+        final NamePartView namePartParentView = namePartParent!=null? view(namePartParent):null;
 
         final NamePartRevision baseRevision = namePartView.getCurrentOrElsePendingRevision();
+        final NamePartRevision baseParentRevision = namePartParentView!=null? namePartParentView.getCurrentOrElsePendingRevision():null;
+        
         final @Nullable NamePartRevision pendingRevision = namePartView.getPendingRevision();
+        final @Nullable NamePartRevision pendingParentRevision= namePartParentView!=null?  namePartParentView.getPendingRevision():null;
 
+        int nameLevel=getMnemonicPath(namePart).size();
+        int parentLevel=getMnemonicPath(namePartParent).size(); 
+
+        final NamePartType namePartType=namePart.getNamePartType();
+        
+        Preconditions.checkState(nameLevel==parentLevel+1);
+        Preconditions.checkState(namePartParent==null || namePartParent.getNamePartType().equals(namePartType));
         Preconditions.checkState(!baseRevision.isDeleted() && (pendingRevision == null || !pendingRevision.isDeleted()));
+        Preconditions.checkState(namePartParent==null ||( !baseParentRevision.isDeleted() && (pendingParentRevision == null || !pendingParentRevision.isDeleted()));
+        Preconditions.checkState(isMnemonicValid(namePart.getNamePartType(), ));
+        
         if (mnemonic==null) {
-            Preconditions.checkState(isMnemonicValid(namePart.getNamePartType(), namePartView.getParent() != null ? namePartView.getParent().getNamePart() : null, mnemonic));
+            Preconditions.checkState(isMnemonicValid(namePart.getNamePartType(), namePartParentView != null ? namePartParentView.getNamePart() : null, mnemonic));
         } else if (baseRevision.getMnemonic()==null || !mnemonic.equals(baseRevision.getMnemonic())) {
             Preconditions.checkState(isMnemonicValid(namePart.getNamePartType(), namePartView.getParent() != null ? namePartView.getParent().getNamePart() : null, mnemonic));
             Preconditions.checkState(isMnemonicUniqueExceptForItself(baseRevision.getMnemonic(), namePart.getNamePartType(), namePartView.getParent() != null ? namePartView.getParent().getNamePart() : null, mnemonic));
@@ -298,9 +318,9 @@ public class NamePartService {
         if (pendingRevision != null) {
             updateRevisionStatus(pendingRevision, NamePartRevisionStatus.CANCELLED, user, null);
         }
+        
         final String mnemonicEqClass = mnemonic!=null ? namingConvention.equivalenceClassRepresentative(mnemonic): null ;
-
-        final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, false, baseRevision.getParent(), name, mnemonic, description, mnemonicEqClass);
+        final NamePartRevision newRevision = new NamePartRevision(namePart, new Date(), user, comment, false, namePartParent, name, mnemonic, description, mnemonicEqClass);
 
         em.persist(newRevision);
         

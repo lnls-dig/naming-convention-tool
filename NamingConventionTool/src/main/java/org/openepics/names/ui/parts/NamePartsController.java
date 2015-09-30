@@ -212,6 +212,7 @@ public class NamePartsController implements Serializable {
 
 	public void onModify() {
 		try {
+			final @Nullable NamePartView parent = (NamePartView) getFormSelectedParentNode().getData();
 			namePartService.modifyNamePart(As.notNull(getSelectedName()).getNamePart(), formName, formMnemonic, formDescription, formComment);
 			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Your modification proposal has been submitted.");
 		} finally {
@@ -417,7 +418,7 @@ public class NamePartsController implements Serializable {
 		formMnemonic = null;
 		formDescription = null;
 		formComment = null;
-		RequestContext.getCurrentInstance().reset("addNameForm:grid");
+		RequestContext.getCurrentInstance().reset("AddNameForm:gridId");
 	}
 	public TreeNode getFormSelectedParentNode(){
 		return formSelectedParentNode;
@@ -434,7 +435,9 @@ public class NamePartsController implements Serializable {
 		formMnemonic = namePartRevision.getMnemonic();
 		formDescription = namePartRevision.getDescription();
 		formComment = null;
-		RequestContext.getCurrentInstance().reset("ModNameForm:pgrid");
+		getSelectedNode().setSelected(false);
+		formSelectedParentNode.setSelected(true);
+		RequestContext.getCurrentInstance().reset("ModNameForm:gridId");
 	}
 
 	public void prepareDeletePopup() {
