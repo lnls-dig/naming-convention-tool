@@ -56,6 +56,13 @@
 									update=":ModNameForm:modName" oncomplete="PF('modName').show()"
 									disabled="#{!(namePartsController.canModify())}"
 									rendered="#{userManager.editor}" />
+								<p:menuitem
+									value="#{'Move '.concat(namePartsController.getNamePartTypeName())}"
+									actionListener="#{namePartsController.prepareMovePopup()}"
+									title="Move Name" icon="ui-icon-pencil"
+									update=":MovNameForm:movName" oncomplete="PF('movName').show()"
+									disabled="#{!(namePartsController.canMove())}"
+									rendered="false" />
 								<p:menuitem value="Delete"
 									actionListener="#{namePartsController.prepareDeletePopup()}"
 									title="Delete Name" icon="ui-icon-trash"
@@ -108,37 +115,19 @@
 		<ui:include src="/WEB-INF/includes/parts-wizard.xhtml">
 			<ui:param name="formId" value="AddNameForm" />
 			<ui:param name="widgetId" value="addName" />
-			<ui:param name="widgetTitle"
-				value="#{'Propose to add new '.concat(namePartsController.getNamePartTypeNameForChild())}" />
-			<ui:param name="fullName" value="#{namePartsController.formName}" />
-			<ui:param name="watermarkName"
-				value="#{namePartsController.getNamePartTypeNameForChild()}" />
-			<ui:param name="validator" value="custom.addMnemonicValidator" />
-			<ui:param name="warning" value="displayMnemonicLengthWarningOnAdd()" />
-			<ui:param name="mnemonic" value="#{namePartsController.formMnemonic}" />
-			<ui:param name="watermarkMnemonic"
-				value="#{namePartsController.getNamePartTypeMnemonicForChild()}" />
-			<ui:param name="required"
-				value="#{namePartsController.isMnemonicRequiredForChild()}" />
-			<ui:param name="submitHandler" value="onAdd" />
+			<ui:param name="widgetTitle" value="Propose to add " />
 		</ui:include>
 		<!-- ===================Modify Form================================= -->
 		<ui:include src="WEB-INF/includes/parts-wizard.xhtml">
 			<ui:param name="formId" value="ModNameForm" />
 			<ui:param name="widgetId" value="modName" />
-			<ui:param name="widgetTitle"
-				value="#{'Propose to modify '.concat(namePartsController.getNamePartTypeName())}" />
-			<ui:param name="fullName" value="#{namePartsController.formName}" />
-			<ui:param name="watermarkName"
-				value="#{namePartsController.getNamePartTypeName()}" />
-			<ui:param name="mnemonic" value="#{namePartsController.formMnemonic}" />
-			<ui:param name="watermarkMnemonic"
-				value="#{namePartsController.getNamePartTypeMnemonic()}" />
-			<ui:param name="required"
-				value="#{namePartsController.isMnemonicRequired()}" />
-			<ui:param name="validator" value="custom.modifyMnemonicValidator" />
-			<ui:param name="warning" value="displayMnemonicLengthWarningOnMod()" />
-			<ui:param name="submitHandler" value="onModify" />
+			<ui:param name="widgetTitle" value="Propose to modify " />
+		</ui:include>
+<!-- 				===================Move Form================================= -->
+		<ui:include src="WEB-INF/includes/parts-wizard.xhtml">
+			<ui:param name="formId" value="MovNameForm" />
+			<ui:param name="widgetId" value="movName" />
+			<ui:param name="widgetTitle" value="Propose to move "/>
 		</ui:include>
 		<!-- ===================Delete Form================================= -->
 		<ui:include src="/WEB-INF/includes/parts-operationtreeform.xhtml">
@@ -150,7 +139,6 @@
 			<ui:param name="messageRequired" value="false" />
 			<ui:param name="submitHandler" value="onDelete" />
 		</ui:include>
-
 		<!-- =================== Cancel Form ============================ -->
 		<ui:include src="/WEB-INF/includes/parts-operationtreeform.xhtml">
 			<ui:param name="formId" value="CancelReqForm" />
@@ -162,7 +150,6 @@
 			<ui:param name="messageRequired" value="false" />
 			<ui:param name="submitHandler" value="onCancel" />
 		</ui:include>
-
 		<!-- ===================    Approve Form    ============================ -->
 		<ui:include src="/WEB-INF/includes/parts-operationtreeform.xhtml">
 			<ui:param name="formId" value="ApproveForm" />
@@ -183,7 +170,7 @@
 				value="Reject proposals, modifications and/or deletions" />
 			<ui:param name="view" value="#{namePartsController.cancelView}" />
 			<ui:param name="operation" value="Reject" />
-			<ui:param name="messageRequired" value="true" />
+			<ui:param name="messageRequired" value="false" />
 			<ui:param name="submitHandler" value="onReject" />
 		</ui:include>
 	</ui:define>

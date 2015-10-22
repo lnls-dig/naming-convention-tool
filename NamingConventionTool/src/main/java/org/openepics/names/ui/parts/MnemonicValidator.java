@@ -33,16 +33,19 @@ import javax.faces.validator.ValidatorException;
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 @RequestScoped
-@FacesValidator("custom.addMnemonicValidator")
-public class AddMnemonicValidator implements Validator {
+@FacesValidator("custom.mnemonicValidator")
+public class MnemonicValidator implements Validator {
 
     @Override public void validate(FacesContext facesContext, UIComponent uiComponent, Object o) throws ValidatorException {
         final NamePartsController controller = (NamePartsController) facesContext.getApplication().getExpressionFactory().createValueExpression(facesContext.getELContext(), "#{namePartsController}", Object.class).getValue(facesContext.getELContext());
         
-        if (!controller.isAddMnemonicValid((String) o)) {
-            throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Error", "The mnemonic does not conform to the Naming Convention rules."));
-        } else if ( controller.isMnemonicRequiredForChild() && !controller.isAddMnemonicUnique((String) o))  {
-            throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Error", "The mnemonic is not unique or is too similar to an existing one."));
+        if (!controller.isMnemonicValid((String) o)) {
+            throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Mnemonic: Validation Error:","Value is not valid accoding to the naming convention rules"));
+        } else if ( !controller.isMnemonicUnique((String) o) && controller.isMnemonicRequired())  {
+            throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Mnemonic: Validation Error:"," Value is not unique according to the naming conveniton rules"));
+//        } else if((controller.getFormMnemonic().length()>4 || controller.getFormMnemonic().length()<2)&& controller.isMnemonicRequired()){
+//        	throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_WARN,"Mnemonic: Warning:"," Value should range between 2 and 4 characters although 1-6 characters are allowed."));
+        	
         } else {
             Marker.doNothing();
         }

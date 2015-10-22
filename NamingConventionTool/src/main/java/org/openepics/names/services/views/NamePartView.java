@@ -122,6 +122,16 @@ public class NamePartView {
     	return pendingRevision!=null && !pendingRevision.isDeleted() && currentRevision!=null;
     }
     
+    public boolean isPendingInThisLevelAndAbove() {
+    	NamePartView object=this;
+    	while(object!=null){
+    		if(object.isPendingModification() || object.isPendingDeletion() || object.isDeleted()){
+    			return true;
+    		}
+    		object=object.getParent();
+    	}
+    	return false;
+    }
     public boolean isNameModified(){
     	return isPendingModification() && !pendingRevision.getName().equals(currentRevision.getName());
     }
@@ -132,6 +142,10 @@ public class NamePartView {
 
     public boolean isDescriptionModified(){
     	return isPendingModification() && !Objects.toString(pendingRevision.getDescription(),"").equals(Objects.toString(currentRevision.getDescription(),""));
+    }
+    
+    public boolean isParentModified(){
+    	return isPendingModification() && !Objects.equals(pendingRevision.getParent(),currentRevision.getParent());
     }
 
     public @Nullable String getPendingName(){
@@ -146,6 +160,10 @@ public class NamePartView {
     	return isDescriptionModified() ? pendingRevision.getDescription() : null;
     }
     
+    public @Nullable NamePart getPendingParent(){
+    	return isParentModified()? pendingRevision.getParent() : null;
+    }
+    
     public String getNewName(){
     	return getPendingOrElseCurrentRevision().getName();
     }
@@ -158,11 +176,17 @@ public class NamePartView {
     	return getPendingOrElseCurrentRevision().getDescription();
     }
     
+    public NamePart getNewParent(){
+    	return getPendingOrElseCurrentRevision().getParent();
+    }
+    
     /**
      * True if the name part is deleted.
      */
-    public boolean isDeleted() { return getCurrentOrElsePendingRevision().isDeleted(); }
-
+    public boolean isDeleted() { return getCurrentOrElsePendingRevision().isDeleted();
+        
+    }
+    
     /**
      * The current revision of the name part. Null if there is no current revision, only a pending one.
      */
@@ -191,9 +215,7 @@ public class NamePartView {
     /**
      * The list of name part descriptive names starting from the root of the hierarchy to this name part.
      * @return 
-     */
-    
-    
+     */    
     public List<String> getNamePath() {
         final ImmutableList.Builder<String> pathElements = ImmutableList.builder();
         for (NamePartView pathElement = this; pathElement != null; pathElement = pathElement.getParent()) {
@@ -202,6 +224,15 @@ public class NamePartView {
         return pathElements.build().reverse();
     }
 
+//    public boolean canMoveTo(NamePartView destinationParent){
+//    	NamePartView sourceParent=getParent();
+//    	NamePartType sourceType=sourceParent!=null? sourceParent.getNamePart().getNamePartType(): getNamePart().getNamePartType();
+//    	NamePartType destinationType= destinationParent!=null? destinationParent.getNamePart().getNamePartType(): sourceType;
+//		List<String> destinationPath=destinationParent!=null? destinationParent.getMnemonicPath():ImmutableList.<String>of();
+//		List<String> sourcePath=sourceParent!=null? sourceParent.getMnemonicPath():ImmutableList.<String>of();
+//		return namingConvention.canNamePartMove(sourcePath, sourceType, destinationPath, destinationType);
+//    }
+    
     /**
      * The list of name part mnemonic names starting from the root of the hierarchy to this name part.
      */
@@ -218,7 +249,6 @@ public class NamePartView {
      * @param mnemonic
      * @return
      */
-    
     public List<String> getMnemonicPathWithChild(String mnemonic) {
         final ImmutableList.Builder<String> pathElements = ImmutableList.builder();
         pathElements.add(mnemonic !=null? mnemonic:"");

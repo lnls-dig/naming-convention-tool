@@ -21,7 +21,7 @@
 			<h:outputText value="#{namePart.name}" styleClass="#{namePartsController.oldStyleClass}" rendered="#{namePart.isNameModified()}" />
 		</p:column>
 		<p:column id="nameCode" headerText="Mnemonic" style="width: 10%">
-			<h:outputText value="#{namePart.newMnemonic}"	styleClass="#{namePartsController.newStyleClass(namePart, namePart.isMnemonicModified())}" />
+			<h:outputText value="#{namePart.newMnemonic}" styleClass="#{namePartsController.newStyleClass(namePart, namePart.isMnemonicModified())}" />
 			<h:outputText value=" " rendered="#{namePart.isMnemonicModified()}" />
 			<h:outputText value="#{namePart.mnemonic}" styleClass="#{namePartsController.oldStyleClass}" rendered="#{namePart.isMnemonicModified() }" />
 		</p:column>

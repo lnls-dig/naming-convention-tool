@@ -83,4 +83,11 @@ public class FribNamingConvention implements NamingConvention {
 		throw new NotImplementedException();
 	}
 
+	@Override
+	public boolean canNamePartMove(List<String> sourcePath,
+			NamePartType sourceNamePartType, List<String> destinationPath,
+			NamePartType destinationNamePartType) {
+		throw new NotImplementedException();
+	}
+
 }

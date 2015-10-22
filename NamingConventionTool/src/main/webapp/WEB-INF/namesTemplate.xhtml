@@ -61,15 +61,9 @@
 		
 		function reload(){
 			location.reload();
-		} 
-
-		function hideDialogOnSuccess(xhr, status, args) {
-		        if(!args.validationFailed) {
-		            PF(args.firstParam).hide();
-		        }
 		}
 		
-		function displayMnemonicLengthWarningOnAdd() {
+		function displayMnemonicLengthWarning() {
 			if ($('#addNameForm\\:icode').val().length > 4) {
 				$('#addNameForm\\:mnemonicLengthWarning').css({
 					"display" : "block"
@@ -79,18 +73,16 @@
 					"display" : "none"
 				});
 			}
-		}
-
-		function displayMnemonicLengthWarningOnMod() {
-			if ($('#ModNameForm\\:icode').val().length > 4) {
-				$('#ModNameForm\\:mnemonicLengthWarning').css({
+			if ($('#modNameForm\\:icode').val().length > 4) {
+				$('#modNameForm\\:mnemonicLengthWarning').css({
 					"display" : "block"
 				});
 			} else {
-				$('#ModNameForm\\:mnemonicLengthWarning').css({
+				$('#modNameForm\\:mnemonicLengthWarning').css({
 					"display" : "none"
 				});
 			}
+
 		}
 
 		function displayIndexLengthWarningOnAdd() {

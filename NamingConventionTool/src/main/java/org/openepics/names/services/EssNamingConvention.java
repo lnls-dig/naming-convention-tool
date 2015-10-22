@@ -26,6 +26,8 @@ import javax.inject.Inject;
 import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.NamingConventionDefinition.NameDefinition;
 
+import com.google.common.base.Preconditions;
+
 import java.util.List;
 
 /**
@@ -103,19 +105,30 @@ public class EssNamingConvention implements NamingConvention {
 	}
 
 	@Override
-	public String getNamePartTypeName(List<String> sectionPath, NamePartType namePartType){
-		return (new NameElement(sectionPath,namePartType)).getTypeName();
+	public String getNamePartTypeName(List<String> sectionPath, @Nullable NamePartType namePartType){
+		return namePartType!=null?(new NameElement(sectionPath,namePartType)).getTypeName():null;
 	}
 
 	@Override
-	public String getNamePartTypeMnemonic(List<String> sectionPath, NamePartType namePartType){
-		return (new NameElement(sectionPath,namePartType)).getTypeMnemonic();
+	public String getNamePartTypeMnemonic(List<String> sectionPath, @Nullable NamePartType namePartType){
+		return namePartType!=null? (new NameElement(sectionPath,namePartType)).getTypeMnemonic():null;
 	}
+
+	@Override
+	public boolean canNamePartMove(List<String> sourcePath, NamePartType sourceNamePartType, List<String> destinationPath, NamePartType destinationNamePartType) {
+		
+		return (new NameElement(sourcePath,sourceNamePartType).canMoveTo(new NameElement(destinationPath, destinationNamePartType)));
+	}
+
 	
 	private class NameElement {
 		List<String> path;
 		boolean areaStructure;
 		boolean deviceStructure;
+		/**
+		 * @return the level
+		 */
+
 		Integer level;				
 
 		NameElement(List<String> path, NamePartType type){
@@ -123,6 +136,10 @@ public class EssNamingConvention implements NamingConvention {
 			this.areaStructure=type.equals(NamePartType.SECTION);
 			this.deviceStructure=type.equals(NamePartType.DEVICE_TYPE);
 			this.level= !( path==null || path.isEmpty())  ? path.size(): 0;
+		}
+
+		public boolean canMoveTo(NameElement nameElement) {
+			return(this.getTypeMnemonic().equals(nameElement.getTypeMnemonic()));
 		}
 
 		String getDefinition() {
@@ -224,4 +241,5 @@ public class EssNamingConvention implements NamingConvention {
 			}
 		}	
 	}
+
 }

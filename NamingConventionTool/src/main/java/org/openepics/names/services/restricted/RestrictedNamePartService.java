@@ -63,19 +63,18 @@ public class RestrictedNamePartService {
      * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
      * @param mnemonic the mnemonic name of the name part to test for uniqueness
      */
-    public boolean isMnemonicUnique(NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {
-        return namePartService.isMnemonicUnique(namePartType, parent, mnemonic);
+    public boolean isMnemonicUniqueOnAdd(NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {
+        return namePartService.isMnemonicUniqueOnAdd(namePartType, parent, mnemonic);
     }
 
     /**
-     * True if the mnemonic of a name part is unique when placed under the parent.
-     * @param currentMnemonic the current (approved) mnemonic
-     * @param namePartType the type of the name part
+     * True if the mnemonic of a name part is unique when modified.
+     * @param namePart the current name part
      * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
      * @param mnemonic the mnemonic name of the name part to test for uniqueness
      */
-    public boolean isMnemonicUniqueExceptForItself(String currentMnemonic,NamePartType namePartType, @Nullable NamePart parent, String mnemonic) {
-        return namePartService.isMnemonicUniqueExceptForItself(currentMnemonic,namePartType, parent, mnemonic);
+    public boolean isMnemonicUniqueOnModify(NamePart namePart, @Nullable NamePart parent, String mnemonic) {
+        return namePartService.isMnemonicUniqueOnModify(namePart, parent, mnemonic);
     }
     
     
@@ -134,6 +133,7 @@ public class RestrictedNamePartService {
      * Submits a proposal for modification of an existing name part.
      *
      * @param namePart the name part proposed for modification
+     * @param parent the new proposed parent. 
      * @param name the new long, descriptive name of the part. Does not need to follow a convention.
      * @param mnemonic the new short, mnemonic name of the part in accordance with the naming convention
      * @param comment the comment the user gave when submitting the proposal. Null if no comment was given.
@@ -143,6 +143,12 @@ public class RestrictedNamePartService {
         Preconditions.checkState(sessionService.isEditor());
         return namePartService.modifyNamePart(namePart, name, mnemonic, description, sessionService.user(), comment);
     }
+    
+    public NamePartRevision moveNamePart(NamePart namePart, NamePart parent, @Nullable String comment) {
+        Preconditions.checkState(sessionService.isSuperUser());
+        return namePartService.moveNamePart(namePart, parent, sessionService.user(), comment);
+    }
+
 
     /**
      * Submits a proposal for deletion of a name part, its children, and all associated devices.
@@ -283,6 +289,7 @@ public class RestrictedNamePartService {
         Preconditions.checkState(sessionService.isEditor());
         return namePartService.modifyDevice(device, section, deviceType, instanceIndex, additionalInfo, sessionService.user());
     }
+    
 
     /**
      * Deletes the given device
@@ -334,8 +341,8 @@ public class RestrictedNamePartService {
 		return namePartService.isMnemonicRequiredForChild(namePartType, namePart);
 	}
 
-	public boolean isMnemonicRequired(NamePartType namePartType, NamePart parent) {
-		return namePartService.isMnemonicRequired(namePartType, parent);
+	public boolean isMnemonicRequired(NamePartType namePartType, NamePart namePart) {
+		return namePartService.isMnemonicRequired(namePartType, namePart);
 	}
 
 	public String getNamePartTypeName(NamePartType namePartType, NamePart namePart) {

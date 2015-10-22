@@ -131,5 +131,7 @@ public interface NamingConvention {
 	 * @return
 	 */
 	String getNamePartTypeMnemonic(List<String> sectionPath, NamePartType namePartType);
+	
+	boolean canNamePartMove(List<String> sourcePath, NamePartType sourceNamePartType, List<String>destinationPath, NamePartType destinationNamePartType );
 
 }

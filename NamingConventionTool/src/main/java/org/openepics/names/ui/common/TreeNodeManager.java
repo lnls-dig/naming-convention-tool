@@ -57,9 +57,11 @@ public class TreeNodeManager{
 	
 	public static List<TreeNode> nodeList(TreeNode node) {
 		final List<TreeNode> nodeList = Lists.newArrayList();
+		if(node!=null){
 		nodeList.add(node);
 		for(TreeNode child:node.getChildren()){
 			nodeList.addAll(nodeList(child));
+		}
 		}
 		return nodeList;
 	}
