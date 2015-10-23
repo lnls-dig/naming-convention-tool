@@ -56,16 +56,31 @@ public class DeviceNamesResourceImpl implements DeviceNamesResource {
 
 		final List<DeviceNameElement> deviceNames = Lists.newArrayList();
 
-		for (DeviceRevision deviceRevision : namePartService.currentDeviceRevisions(false)) {
+		for (DeviceRevision deviceRevision : namePartService.currentDeviceRevisions(true)) {
+			if(!deviceRevision.isDeleted()){
+				final DeviceNameElement deviceData = new DeviceNameElement();
+				deviceData.setStatus("ACTIVE");
+				deviceData.setUuid(deviceRevision.getDevice().getUuid());
+				deviceData.setSection(As.notNull(viewProvider.view(deviceRevision.getSection()).getParent()).getMnemonic());
+				deviceData.setSubSection(viewProvider.view(deviceRevision.getSection()).getMnemonic());
+				deviceData.setDiscipline(As.notNull(As.notNull(viewProvider.view(deviceRevision.getDeviceType()).getParent()).getParent()).getMnemonic());
+				deviceData.setDeviceType(viewProvider.view(deviceRevision.getDeviceType()).getMnemonic());
+				deviceData.setInstanceIndex(viewProvider.view(deviceRevision).getInstanceIndex());
+				deviceData.setName(viewProvider.view(deviceRevision).getConventionName());
+				deviceNames.add(deviceData);
+			} else {
+				final DeviceNameElement deviceData = new DeviceNameElement();
+				deviceData.setStatus("DELETED");
+				deviceData.setName(deviceRevision.getConventionName());
+				deviceData.setUuid(deviceRevision.getDevice().getUuid());
+				deviceNames.add(deviceData);
+			}
+		}
+		for(DeviceRevision deviceRevision : namePartService.obsoleteDeviceRevisions()) {
 			final DeviceNameElement deviceData = new DeviceNameElement();
-			deviceData.setStatus("ACTIVE");
+			deviceData.setStatus("OBSOLETE");
+			deviceData.setName(deviceRevision.getConventionName());
 			deviceData.setUuid(deviceRevision.getDevice().getUuid());
-			deviceData.setSection(As.notNull(viewProvider.view(deviceRevision.getSection()).getParent()).getMnemonic());
-			deviceData.setSubSection(viewProvider.view(deviceRevision.getSection()).getMnemonic());
-			deviceData.setDiscipline(As.notNull(As.notNull(viewProvider.view(deviceRevision.getDeviceType()).getParent()).getParent()).getMnemonic());
-			deviceData.setDeviceType(viewProvider.view(deviceRevision.getDeviceType()).getMnemonic());
-			deviceData.setInstanceIndex(viewProvider.view(deviceRevision).getInstanceIndex());
-			deviceData.setName(viewProvider.view(deviceRevision).getConventionName());
 			deviceNames.add(deviceData);
 		}
 
@@ -83,10 +98,9 @@ public class DeviceNamesResourceImpl implements DeviceNamesResource {
 		if (uuid!=null){
 			return namePartService.currentDeviceRevision(uuid);			
 		} else {
-			DeviceRevision deviceRevision=  namePartService.currentDeviceRevision(string);
+			DeviceRevision deviceRevision=namePartService.currentDeviceRevision(string);
 			return deviceRevision;
 		}
-
 	}
 
 	@Override

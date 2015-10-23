@@ -626,7 +626,16 @@ public class NamePartService {
             return currentRevision;
         }
     }
+    /**
+     * The list of all revisions of all devcies in the database. 
+     * @return
+     */
+    public List<DeviceRevision> obsoleteDeviceRevisions(){
+    	 return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.id <> (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device)", DeviceRevision.class).getResultList();
+    }
 
+    
+    
     /**
      * The list of current, most recent revisions of all devices in the database.
      *
@@ -640,6 +649,7 @@ public class NamePartService {
         }
     }
 
+    
     /**
      * The list of all revisions of the given device, starting from the oldest to the latest.
      * @param device the device

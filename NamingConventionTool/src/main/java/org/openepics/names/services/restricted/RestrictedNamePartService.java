@@ -296,6 +296,15 @@ public class RestrictedNamePartService {
     }
 
     /**
+     * The list of all devices in the database.
+     *
+     * @param includeDeleted true if the list should also include revisions for deleted devices
+     */
+    public List<DeviceRevision> obsoleteDeviceRevisions() {
+        return namePartService.obsoleteDeviceRevisions();
+    }
+    
+    /**
      * The list of current, most recent revisions of all devices in the database.
      *
      * @param includeDeleted true if the list should also include revisions for deleted devices
