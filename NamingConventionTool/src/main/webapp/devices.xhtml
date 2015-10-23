@@ -88,7 +88,7 @@
 									oncomplete="nameDetail.show()"
 									disabled="#{!(devicesController.canShowHistory())}" />
 								<p:menuitem value="Configure" title="Configure device in CCDB" icon ="ui-icon-extlink" 
-								url="#{devicesController.getCcdbUrl()}"
+								url="${devicesController.ccdbUrl}"
 								disabled="#{devicesController.getSelectedDevice()==null}"
 								>  
 									

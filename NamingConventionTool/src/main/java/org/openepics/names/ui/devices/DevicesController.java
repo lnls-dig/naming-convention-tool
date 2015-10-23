@@ -128,7 +128,7 @@ public class DevicesController implements Serializable {
 		}
 	
 	public String getCcdbUrl(){
-		return getSelectedDeviceName()!=null? System.getProperty("names.ccdbURL").concat("?name='").concat(getSelectedDeviceName()):"";		
+		return getSelectedDeviceName()!=null? System.getProperty("names.ccdbURL").concat("?name=").concat(getSelectedDeviceName()):"";		
 	}
 	
 	private void expandParents(@Nullable TreeNode node) {
