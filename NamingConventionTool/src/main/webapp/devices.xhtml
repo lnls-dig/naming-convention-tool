@@ -16,8 +16,10 @@
 				selection="#{deviceTableController.selectedRecords}"
 				rowKey="#{device.id}" 
 				selectionMode="multiple" 
+				sortMode="multiple"
 				scrollable="true"
 				scrollWidth="auto"
+				resizableColumns="true"
 				stickyHeader="false"
 				widgetVar="deviceTable"
 				filteredValue="#{deviceTableController.filteredRecords}">
@@ -36,8 +38,8 @@
 						styleClass="ui-widget-header" />
 					<p:inputText id="globalFilter" onkeyup="PF('deviceTable').filter()"
 						style="width:150px;" placeholder="Enter keyword" />
-					<p:menuButton id="ncReqMenu" value="Actions"
-						style="z-index: 100; float:right">
+						
+						<p:menuButton id="ncReqMenu" value="Actions">
 						<p:menuitem value="Add" icon="ui-icon-plus"
 							update=":addDeviceNameForm"
 							oncomplete="PF('addDeviceName').show()" 
@@ -71,8 +73,11 @@
 							disabled="#{!(userManager.isLoggedIn())}" immediate="true"
 							onclick="PrimeFaces.monitorDownload(start, stop)">
 							<p:fileDownload value="#{devicesController.allDataExport}" />
-						</p:menuitem>
+						</p:menuitem>						
 					</p:menuButton>
+					<p:commandButton id="toggler" type="button" value="Columns" icon="ui-icon-calculator" />
+        			<p:columnToggler datasource="devicesTree" trigger="toggler" />	
+					
 				</f:facet>
 				<p:ajax event="rowSelect"
 					update="ncReqMenu :modDeviceNameForm :addDeviceNameForm" />
@@ -108,7 +113,10 @@
 					<ui:param name="part" value="deviceType" />
 					<ui:param name="parts" value="deviceTypeNames" />
 				</ui:include>
-				<p:column headerText="#{namingConventionDefinition.conventionName}">
+				<p:column 
+				headerText="#{namingConventionDefinition.conventionName}"
+				width="9%" 				
+				>
 					<h:outputText id="idx" value="#{device.conventionName}"
 						styleClass="#{device.deleted ? 'Deleted' : 'Approved'}" />
 					<p:tooltip for="idx" value="#{device.description}"

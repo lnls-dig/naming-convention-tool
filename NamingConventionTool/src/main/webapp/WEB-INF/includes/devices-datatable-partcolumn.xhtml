@@ -8,20 +8,24 @@
 	xmlns:h="http://java.sun.com/jsf/html">
 
 
+
 	<p:column 
-		filterBy="#{part}.name" 
-		sortBy="#{part}.name"
-		headerText="${namingConventionDefinition[part].fullName}" 
-		width="10%" 
-		filterOptions="${deviceTableController[parts]}"
-		filterMatchMode="exact">	
-	<h:outputText  id="#{part}" styleClass="#{device.deleted ? 'Deleted' : 'Approved'}" value="${device[part].name}"/>
+		filterBy="#{device[part].name}" 
+		sortBy="#{device[part].name}"
+		headerText="${namingConventionDefinition[part].fullName}"
+		width="9%" 
+		filterMatchMode="contains">	
+ 
+	<h:outputText  id="#{part}" styleClass="#{device.deleted ? 'Deleted' : 'Approved'}" value="#{device[part].name}"/>
 	<p:tooltip for="#{part}" value="#{device[part].description}" rendered="#{device[part].description != null}"/>
 	</p:column>
 	
-	<p:column filterBy="#{part}.mnemonic" 
-			  sortBy="#{part}.mnemonic"
-	headerText="${namingConventionDefinition[part].mnemonic}" width="5%" rendered="${namingConventionDefinition[part].mnemonic!=''}">
+	<p:column 
+		filterBy="${device[part].mnemonic}" 
+		sortBy="${device[part].mnemonic}"
+		headerText="${namingConventionDefinition[part].mnemonic}"
+		width="4%" 
+		rendered="${namingConventionDefinition[part].mnemonic!=''}">
 	<h:outputText value="${device[part].mnemonic}" styleClass="#{device.deleted ? 'Deleted' : 'Approved'}"/>
 	</p:column>
 
