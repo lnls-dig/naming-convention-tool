@@ -8,59 +8,148 @@
 	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
 	<h:form id="#{formId}">
-		<p:dialog id="#{widgetId}" widgetVar="#{widgetId}" header="#{widgetTitle}" modal="true" width="800" >
-			<h:panelGrid id="#{gridId}" columns="2" width="100%">
-				<p:outputLabel for="idesc" value="Full Name:" />
-				<h:panelGroup>
-					<p:inputText id="idesc" value="#{fullName}"	required="true" requiredMessage="Please enter a name." style="width:100%" />
-					<p:watermark for="idesc" value="#{watermarkName}" />
-					<p:message for="idesc" />
-				</h:panelGroup>
+		<p:dialog id="#{widgetId}" widgetVar="#{widgetId}"
+			 modal="true" width="800" onShow="PF('partWiz').loadStep('namePartTab',true)">
+			<f:facet name="header"> 
+				<h:outputText  id="headerId" value="#{widgetTitle.concat(' ').concat(namePartsController.getNamePartTypeName())}"/>
+			 </f:facet>
+			
+			<p:wizard id="wizard" widgetVar="partWiz"
+				flowListener="#{namePartsController.onFlowProcess}"
+				showStepStatus="false">
 				
-				<p:outputLabel for="icode" rendered="#{required}" value="Mnemonic:" />
-				<h:panelGroup rendered="#{required}">
-					<p:inputText id="icode" value="#{mnemonic}"	onkeyup="#{warning}" rendered="#{required}" required="#{required}" requiredMessage="Please enter a mnemonic." style="width:100%">
-						<f:validator validatorId="#{validator}" />
-					</p:inputText>
-					<p:watermark for="icode" value="#{watermarkMnemonic}" />
-					<p:message for="icode" />
-					<div id="addNameForm:mnemonicLengthWarning"
-						class="ui-message ui-message-warn ui-widget ui-corner-all"
-						style="display: none">
-						<span class="ui-message-warn-icon"></span> <span
-							class="ui-message-warn-detail">Mnemonic should be between 2 and 4 characters long although 6 characters are allowed.</span>
+				<p:tab id="namePartTab" title="namePart" rendered="#{namePartsController.namePartTabRendered}">
+					<h3>1. Expand (by clicking the triangle) and select namePart:</h3>
+					<p:separator />
+					<p:tree value="#{namePartsController.viewRoot}"						
+					selectionMode="single" var="namePart"
+						dynamic="true">
+						<p:ajax event="expand" listener="#{treeNodeManager.onNodeExpand}" />
+						<p:ajax event="collapse" listener="#{treeNodeManager.onNodeCollapse}" />
+						<p:ajax event="select" update=":#{formId}:headerId" listener="#{namePartsController.onSelectNamePart}" />
+						<p:ajax event="unselect" update=":#{formId}:headerId" listener="#{namePartsController.onUnselectNamePart}" />						
+						<p:treeNode>
+							<h:outputText id="namePartName" value=" #{namePart.name}" />
+							<p:tooltip for="namePartName" value="#{namePart.description}" />
+							<h:outputText value=" (#{namePart.mnemonic})"
+								rendered="#{namePart.mnemonic !=null}" />
+						</p:treeNode>
+					</p:tree>
+					<p:separator />
+    				<p:messages  showDetail="true" autoUpdate="true" />
+				</p:tab>
+				
+				<p:tab id="parentTab" title="Parent" rendered= "#{namePartsController.parentTabRendered}">
+					<h3>1. Expand (by clicking the triangle) and select parent:</h3>
+					<p:separator />
+					<p:tree value="#{namePartsController.viewRoot}"	selectionMode="single" var="parent" dynamic="true">
+						<p:ajax event="expand" listener="#{treeNodeManager.onNodeExpand}" />
+						<p:ajax event="collapse"
+							listener="#{treeNodeManager.onNodeCollapse}" />
+						<p:ajax event="select" update=":#{formId}:headerId" listener="#{namePartsController.onSelectParent}" />
+						<p:ajax event="unselect" update=":#{formId}:headerId" listener="#{namePartsController.onUnselectParent}" />						
+								
+						<p:treeNode>
+							<h:outputText id="ParentName" value=" #{parent.name}" />
+							<p:tooltip for="ParentName" value="#{parent.description}" />
+							<h:outputText value=" (#{parent.mnemonic})"
+								rendered="#{parent.mnemonic !=null}" />
+						</p:treeNode>
+					</p:tree>
+					<p:separator />
+    				<p:messages  showDetail="true" autoUpdate="true" />
+ 				</p:tab>
+				
+				<p:tab id="descriptionTab" rendered="#{namePartsController.descriptionTabRendered}">
+				<div class="wizardStyle">
+				
+					<h:panelGrid id="gridId" columns="2" width="100%">
+					
+						<p:outputLabel for="idesc" value="Full Name:" />
+						<h:panelGroup>
+							<p:inputText id="idesc" value="#{namePartsController.formName}" required="true" style="width:100%" />
+							<p:watermark for="idesc" value="#{namePartsController.getNamePartTypeName()}" />
+						</h:panelGroup>
+
+						<p:outputLabel for="icode" rendered="#{namePartsController.isMnemonicRequired()}" value="Mnemonic:" />
+						<h:panelGroup rendered="#{namePartsController.isMnemonicRequired()}">
+							<p:inputText id="icode" value="#{namePartsController.formMnemonic}" onkeyup="displayMnemonicLengthWarning()"
+								rendered="#{namePartsController.isMnemonicRequired()}" required="#{namePartsController.isMnemonicRequired()}" style="width:100%">
+								<f:validator validatorId="custom.mnemonicValidator" />
+							</p:inputText>
+							<p:watermark for="icode" value="#{namePartsController.getNamePartTypeMnemonic()}" />
+						</h:panelGroup>
+	
+						<p:outputLabel for="desc" value="Description:" />
+						<h:panelGroup>
+							<p:inputTextarea id="desc" rows="5" cols="60" counter="dcounter"
+								maxlength="254" value="#{namePartsController.formDescription}"
+								counterTemplate="{0} characters remaining." autoResize="false" />
+							<br />
+							<h:outputText id="dcounter" />
+						</h:panelGroup>
+					</h:panelGrid>
+					
+					<p:separator/>
+    				<p:messages  showDetail="true" autoUpdate="true" />
+							<div id="#{formId}:mnemonicLengthWarning"
+								class="ui-message ui-message-warn ui-widget ui-corner-all"
+								style="display: none">
+								<span class="ui-message-warn-icon"></span> <span
+									class="ui-message-warn-detail"><b>Mnemonic: Warning:</b> Value should range
+									between 2 and 4 characters, although 6 characters are
+									allowed.</span>
+							</div>
+
+
 					</div>
-				</h:panelGroup>
+				</p:tab>
+				
+				<p:tab id="finishTab" title="Finish">
+				<div class="wizardStyle">
+					<h3>Review and Submit Request</h3>
+					<h:panelGrid>
+						<h:panelGroup>
+							<h:outputText value="Full Name: #{namePartsController.formName}"/>
+						</h:panelGroup>
 
-				<p:outputLabel for="desc" value="Description:" />	
-				<h:panelGroup>
-					<p:inputTextarea id="desc" rows="5" cols="60" counter="dcounter"
-						maxlength="254" value="#{description}"
-						counterTemplate="{0} characters remaining." autoResize="false" />
-					<br />
-					<h:outputText id="dcounter" />
-				</h:panelGroup>
-			</h:panelGrid>
-			<p:separator />
-			<h:panelGrid width="100%">
-				<h:panelGroup>
-				<p:outputLabel for="icomm" value="Commit Message:" />
-					<p:inputTextarea id="icomm" rows="5" cols="60" counter="icounter"
-						maxlength="254" value="#{comment}"
-						counterTemplate="{0} characters remaining." autoResize="false" />
-					<br />
-					<h:outputText id="icounter" />
-				</h:panelGroup>
+						<h:panelGroup rendered="#{namePartsController.isMnemonicRequired()}">
+							<h:outputText value= "#{namePartsController.formMnemonic}" />
+						</h:panelGroup>
+						<h:panelGroup>
+							<h:outputText value="Description: #{namePartsController.formDescription}" />
+						</h:panelGroup>
+					</h:panelGrid>
 
-			<f:facet name="footer">
-			<p:commandButton value="Submit" style="float: right"
-				update="#{gridId} :ReqSubForm"
-				oncomplete="if (args &amp;&amp; !args.validationFailed) #{widgetId}.hide(); resizePanel()"
-				action="#{namePartsController[submitHandler]}" />
-			<p:commandButton value="Cancel" style="float: right"
-				onclick="#{widgetId}.hide()" />
-			</f:facet>
-			</h:panelGrid>
+					
+					<h:panelGrid width="100%">					
+						<h:panelGroup>
+							<p:outputLabel for="icomm" value="Commit Message:" />
+
+							<p:inputTextarea id="icomm" rows="5" cols="60" counter="icounter"
+								maxlength="254" value="#{namePartsController.formComment}"
+								counterTemplate="{0} characters remaining." autoResize="false" />
+							<br />
+							<h:outputText id="icounter" />
+						</h:panelGroup>
+					
+						
+					</h:panelGrid>					
+				</div>
+				<div align="right">
+							<p:commandButton value="Submit" style="float: right"
+								actionListener="#{namePartsController.onSubmit()}"
+								update=":ReqSubForm:reqMenu :ReqSubForm:namePartsTree" 
+								onclick="resizePanel(); PF(#{widgetId}).hide()"
+							/>
+							<p:commandButton value="Cancel" style="float: right" 
+								onclick="PF(#{widgetId}).hide()" />
+				</div>	
+								
+
+				</p:tab>
+			</p:wizard>
+
 
 		</p:dialog>
 	</h:form>

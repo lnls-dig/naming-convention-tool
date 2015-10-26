@@ -50,13 +50,17 @@
 				<p:outputLabel for="comm"
 					value="#{'Commit Message:'}" />
 				<h:panelGroup>
+				   <p:focus context="comm"/>
+				
 					<p:inputTextarea id="comm" counter="counter"  
 						maxlength="254" value="#{namePartsController.formComment}"
 						counterTemplate="{0} characters remaining." autoResize="false"
 						required="#{messageRequired}"
-						requiredMessage="Please enter a message." />
+						requiredMessage="Please enter a message." >
+					<p:ajax event="keyup" update="btn mess" />
+					</p:inputTextarea>
 					<br />
-					<p:message for="comm" />
+					<p:message id="mess" for="comm" autoUpdate="true"/>
 					<h:outputText id="counter" />
 				</h:panelGroup>
 				<h:panelGroup 
@@ -74,12 +78,13 @@
 				</h:panelGroup>
 				<p:separator />
 				<f:facet name="footer">
-					<p:commandButton value="Submit" style="float: right"
-						update="pgrid :ReqSubForm"
-						oncomplete="if (args &amp;&amp; !args.validationFailed) #{widgetId}.hide();resizePanel()"
-						action="#{namePartsController[submitHandler]}" />
+					<p:commandButton id="btn" value="Submit" style="float: right"
+						update=":ReqSubForm:reqMenu :ReqSubForm :ReqSubForm:partsMsgs" 
+						actionListener="#{namePartsController[submitHandler]}" 
+						onclick="if (!args.validationFailed) PF(#{widgetId}).hide()"
+						disabled="#{facesContext.validationFailed}"/>
 					<p:commandButton value="Cancel" style="float: right"
-						onclick="#{widgetId}.hide()" />
+						onclick="PF(#{widgetId}).hide()" />
 				</f:facet>
 			</h:panelGrid>
 		</p:dialog>

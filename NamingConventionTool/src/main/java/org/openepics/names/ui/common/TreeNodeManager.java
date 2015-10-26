@@ -18,41 +18,36 @@
 
 package org.openepics.names.ui.common;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 import javax.annotation.Nullable;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
 
+import org.openepics.names.model.NamePart;
 import org.openepics.names.services.SessionViewService;
 import org.openepics.names.services.views.NamePartView;
+import org.primefaces.event.NodeCollapseEvent;
+import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.model.TreeNode;
+
+import com.google.common.collect.Lists;
 
 /**
  * @author Karin Rathsman <Karin.Rathsman@esss.se>
  *
  */
-
 @ManagedBean
 @ViewScoped
 public class TreeNodeManager{
-	private Map<TreeNode,Object> nodeMap;
-	private TreeNode root;
 
 	@Inject private SessionViewService sessionViewService;
 	/**
 	 * 
 	 */
-	
-	public void init(TreeNode node){
-		nodeMap=new HashMap<TreeNode,Object>();
-		root=root(node);
-		addChildren(root);
-	}
-		
-	private TreeNode root(TreeNode node){
+			
+	public static TreeNode root(TreeNode node){
 		if(node==null || node.getParent() == null){
 			return node;
 		} else {
@@ -60,68 +55,85 @@ public class TreeNodeManager{
 		}
 	}
 	
-	private void addChildren(@Nullable TreeNode node){
-		if(node == null){
-			return;	
-		} else {
-			if(getData(node) != null){
-				nodeMap.put(node, getData(node));
-			}
-			List<TreeNode> children = node.getChildren();
-			if(children!=null && !children.isEmpty()) {
-				for (TreeNode child : children) {
-				addChildren(child);
-				}
-			}
+	public static List<TreeNode> nodeList(TreeNode node) {
+		final List<TreeNode> nodeList = Lists.newArrayList();
+		if(node!=null){
+		nodeList.add(node);
+		for(TreeNode child:node.getChildren()){
+			nodeList.addAll(nodeList(child));
 		}
+		}
+		return nodeList;
 	}
-
-	private Object getData(@Nullable TreeNode node){
+	
+	public static List<TreeNode> parentList(TreeNode node){
+		final List<TreeNode> nodeList = Lists.newArrayList();
+		if(node.getParent()!=null) nodeList.addAll(parentList(node.getParent()));
+		nodeList.add(node);
+		return nodeList;
+	}
+	
+	private static NamePart getNamePart(@Nullable TreeNode node){
 		return  node!=null && node.getData() != null && node.getData() instanceof NamePartView? ((NamePartView) node.getData()).getNamePart():null;
 	}	
 		
 	private boolean isExpanded(TreeNode node){
 		if(node.getParent()==null){
 			return true;
-		} else if (nodeMap.containsKey(node)){
-			return sessionViewService.isExpanded(nodeMap.get(node));
+		} else if(getNamePart(node)!=null){
+			return sessionViewService.isExpanded(getNamePart(node));
 		} else {
 			return false;
 		}
 	}
 
 	public void expandCustomized(TreeNode treeNode){
-		init(treeNode);
-		for (TreeNode node : nodeMap.keySet()) {
+		for(TreeNode node: nodeList(treeNode)){
 			node.setExpanded(isExpanded(node));
 		}
 	}
 	
 	public void expandAll(TreeNode treeNode){
-		init(treeNode);
-		for (TreeNode node : nodeMap.keySet()) {
+		for (TreeNode node : nodeList(treeNode)) {
 			expand(node);
 		}
-		expandCustomized(treeNode);
 	}
 	
 	public void collapseAll(TreeNode treeNode){
-		init(treeNode);
-		for (TreeNode node : nodeMap.keySet()) {
+		for (TreeNode node : nodeList(treeNode)) {
 			collapse(node);
 		}
-		expandCustomized(treeNode);
 	}
 
 	public void expand(TreeNode treeNode) {
-		if(treeNode!=null && !isExpanded(treeNode)&& nodeMap.containsKey(treeNode)) {		
-			sessionViewService.expand(nodeMap.get(treeNode));			
+		if(treeNode!=null && !isExpanded(treeNode)&& getNamePart(treeNode)!=null) {		
+			treeNode.setExpanded(true);
+			sessionViewService.expand(getNamePart(treeNode));
 		}
 	}
 
 	public void collapse(TreeNode treeNode) {
-		if(treeNode!=null && isExpanded(treeNode)&& nodeMap.containsKey(treeNode)) {
-			sessionViewService.collapse(nodeMap.get(treeNode));
+		if(treeNode!=null && isExpanded(treeNode)&& getNamePart(treeNode)!=null) {
+			treeNode.setExpanded(false);
+			sessionViewService.collapse(getNamePart(treeNode));
 		}		
 	}
+	
+	public void expandParents(TreeNode treeNode) {
+		for (TreeNode node : parentList(treeNode)) {
+			expand(node);
+		}
+	}
+
+	public void onNodeExpand(NodeExpandEvent event){
+		if(event!=null && event.getTreeNode() !=null){
+			expand(event.getTreeNode());
+		}
+	}
+
+	public void onNodeCollapse(NodeCollapseEvent event){
+		if(event!=null && event.getTreeNode() !=null){
+			collapse(event.getTreeNode());
+		}
+	}	
 }

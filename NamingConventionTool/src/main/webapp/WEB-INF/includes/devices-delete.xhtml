@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html">
+    <!-- ===================Delete form============================ -->
+		<h:form id="delDeviceNameForm">
+			<p:dialog id="delDeviceName" widgetVar="delDeviceName"
+				header="Delete registered device names" dynamic="true"
+				maximizable="true" modal="true" width="800">
+				<p:dataTable id="pgrid" 
+					value="#{deviceTableController.selectedRecords}" 
+					rendered ="#{deviceTableController.canDelete()}"
+					var="candidate"
+					>
+					<p:column headerText="${namingConventionDefinition.conventionName}" >
+						<h:outputText
+							value="#{candidate.conventionName}"
+							rendered="#{!candidate.deleted}" />
+					</p:column>									
+				</p:dataTable>
+				<f:facet name="footer">
+					<p:commandButton value="Submit" style="float: right"
+						update=":ManageNameForm :ManageNameForm:devicesTree:ncReqMenu"
+						oncomplete="PF('delDeviceName').hide(); resizePanel()"
+						action="#{devicesController.onDelete()}" />
+					<p:commandButton value="Cancel" style="float: right"
+						onclick="PF('delDeviceName').hide()" />
+				</f:facet>
+			</p:dialog>
+		</h:form>
+
+
+</ui:composition>

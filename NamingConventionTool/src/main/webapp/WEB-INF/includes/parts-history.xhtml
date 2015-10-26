@@ -37,7 +37,7 @@
             </p:column>
            
             <p:column id="status" headerText="Status" >
-                <h:outputText value="#{namePartsController.getStatus(nevent)}" title="status" styleClass="#{namePartsController.getStatus(nevent)}" />
+                <h:outputText value="${namePartsController.getStatus(nevent)}" title="status" styleClass="#{namePartsController.getStatus(nevent)}" />
             </p:column>
             <p:column id="By" headerText="Reviewed By" >
                 <h:outputText value="#{nevent.nameEvent.processedBy.username}" />

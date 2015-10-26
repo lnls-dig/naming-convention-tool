@@ -21,7 +21,13 @@ package org.openepics.names.services;
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Alternative;
+import javax.inject.Inject;
+
 import org.openepics.names.model.NamePartType;
+import org.openepics.names.services.NamingConventionDefinition.NameDefinition;
+
+import com.google.common.base.Preconditions;
+
 import java.util.List;
 
 /**
@@ -33,7 +39,7 @@ import java.util.List;
 @Alternative
 @Stateless
 public class EssNamingConvention implements NamingConvention {
-
+	@Inject NamingConventionDefinition aliasManager;
 	@Override public boolean isMnemonicValid(List<String> mnemonicPath, NamePartType mnemonicType){
 		NameElement nameElement =new NameElement(mnemonicPath,mnemonicType);
 		String mnemonic = nameElement.getMnemonic();
@@ -99,19 +105,30 @@ public class EssNamingConvention implements NamingConvention {
 	}
 
 	@Override
-	public String getNamePartTypeName(List<String> sectionPath, NamePartType namePartType){
-		return (new NameElement(sectionPath,namePartType)).getTypeName();
+	public String getNamePartTypeName(List<String> sectionPath, @Nullable NamePartType namePartType){
+		return namePartType!=null?(new NameElement(sectionPath,namePartType)).getTypeName():null;
 	}
 
 	@Override
-	public String getNamePartTypeMnemonic(List<String> sectionPath, NamePartType namePartType){
-		return (new NameElement(sectionPath,namePartType)).getTypeMnemonic();
+	public String getNamePartTypeMnemonic(List<String> sectionPath, @Nullable NamePartType namePartType){
+		return namePartType!=null? (new NameElement(sectionPath,namePartType)).getTypeMnemonic():null;
 	}
 
+	@Override
+	public boolean canNamePartMove(List<String> sourcePath, NamePartType sourceNamePartType, List<String> destinationPath, NamePartType destinationNamePartType) {
+		
+		return (new NameElement(sourcePath,sourceNamePartType).canMoveTo(new NameElement(destinationPath, destinationNamePartType)));
+	}
+
+	
 	private class NameElement {
 		List<String> path;
 		boolean areaStructure;
 		boolean deviceStructure;
+		/**
+		 * @return the level
+		 */
+
 		Integer level;				
 
 		NameElement(List<String> path, NamePartType type){
@@ -119,6 +136,10 @@ public class EssNamingConvention implements NamingConvention {
 			this.areaStructure=type.equals(NamePartType.SECTION);
 			this.deviceStructure=type.equals(NamePartType.DEVICE_TYPE);
 			this.level= !( path==null || path.isEmpty())  ? path.size(): 0;
+		}
+
+		public boolean canMoveTo(NameElement nameElement) {
+			return(this.getTypeMnemonic().equals(nameElement.getTypeMnemonic()));
 		}
 
 		String getDefinition() {
@@ -131,36 +152,21 @@ public class EssNamingConvention implements NamingConvention {
 			}			
 		}
 
-		String getTypeName(){
-			if (isDiscipline()) {
-				return "Discipline";
-			} else if (isSuperSection()) {
-				return "Super Section";
-			} else if (isDeviceType()) {
-				return "Device Type";
-			} else	if (isDeviceGroup()) {
-				return "Device Group";
-			} else if (isSection()) {
-				return "Section";
-			} else	if (isSubsection()) {
-				return "Subsection";
-			} else {
-				return "";
+		NameDefinition getNameDefinition(){
+			if(deviceStructure){
+				return aliasManager.deviceStructureLevel(level);
+			} else if(areaStructure){
+				return aliasManager.areaStructureLevel(level);
+			}else{
+				return null;
 			}
+		}
+		String getTypeName(){			
+			return getNameDefinition()!=null? getNameDefinition().getFullName(): "";
 		}
 
 		String getTypeMnemonic(){
-			if (isDiscipline()) {
-				return "Dis";
-			} else if (isDeviceType()) {
-				return "Dev";
-			} else if (isSection()) {
-				return "Sec";
-			} else	if (isSubsection()) {
-				return "Sub";
-			} else {
-				return "";
-			}
+			return getNameDefinition()!=null? getNameDefinition().getMnemonic(): "";
 		}
 
 		boolean isDiscipline() {
@@ -235,4 +241,5 @@ public class EssNamingConvention implements NamingConvention {
 			}
 		}	
 	}
+
 }

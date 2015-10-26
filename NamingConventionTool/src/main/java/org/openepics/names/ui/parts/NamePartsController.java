@@ -29,19 +29,17 @@ import org.openepics.names.util.As;
 import org.openepics.names.util.Marker;
 import org.openepics.names.util.UnhandledCaseException;
 import org.primefaces.context.RequestContext;
-import org.primefaces.event.NodeCollapseEvent;
-import org.primefaces.event.NodeExpandEvent;
+import org.primefaces.event.FlowEvent;
+import org.primefaces.event.NodeSelectEvent;
+import org.primefaces.event.NodeUnselectEvent;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
-import javax.faces.application.ViewHandler;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
-import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
@@ -57,6 +55,7 @@ import java.util.List;
 @ManagedBean
 @ViewScoped
 public class NamePartsController implements Serializable {
+
 
 	@Inject private RestrictedNamePartService namePartService;
 	@Inject private ViewFactory viewFactory;
@@ -85,8 +84,13 @@ public class NamePartsController implements Serializable {
 
 	private List<Device> affectedDevices;
 	private Operation operation;
-	
-	
+	private @Nullable TreeNode formNamePartNode;
+	private NamePart formNamePart;
+	private @Nullable TreeNode formParentNode;
+	private NamePart formParent;
+	private int formNamePartLevel;
+	private final List<String> tabs=Lists.newArrayList("namePartTab","parentTab","descriptionTab", "finishTab");
+		
 	@PostConstruct
 	public void init(){
 		@Nullable String typeParam = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
@@ -102,32 +106,263 @@ public class NamePartsController implements Serializable {
 		update();
 	}
 	
+	/**
+	 * @return the formNamePartNode
+	 */
+	public TreeNode getFormNamePartNode() {
+		return formNamePartNode;
+	}
+
+	/**
+	 * @param formNamePartNode the formNamePartNode to set
+	 */
+	public void setFormNamePartNode(TreeNode formNamePartNode) {
+		this.formNamePartNode = formNamePartNode;
+	}
+
+	/**
+	 * @return the formParentNode
+	 */
+	public TreeNode getFormParentNode() {
+		return formParentNode;
+	}
+
+	/**
+	 * @param formParentNode the formParentNode to set
+	 */
+	public void setFormParentNode(TreeNode formParentNode) {
+		this.formParentNode = formParentNode;
+	}
+
+	public void updateNamePartForm(){
+		if(formNamePartNode!=null){
+			final NamePartRevision namePartRevision = ((NamePartView) formNamePartNode.getData()).getCurrentOrElsePendingRevision();
+			formName = namePartRevision.getName();
+			formMnemonic = namePartRevision.getMnemonic();
+			formDescription =  namePartRevision.getDescription();
+			formNamePart=namePartRevision.getNamePart();
+			formNamePartLevel=((NamePartView) formNamePartNode.getData()).getLevel();
+			if(formParentNode!=null){
+				formParentNode.setSelected(false);
+				formParentNode=null;
+			}
+			formParentNode=formNamePartNode.getParent();
+			updateParentForm();
+		} else {
+			formName =null;
+			formMnemonic = null;
+			formDescription = null;
+			formNamePart=null;
+		}
+	}
+	public void updateParentForm(){
+		if(formParentNode!=null && formParentNode.getData()!=null && formParentNode.getData() instanceof NamePartView){
+			final NamePartRevision namePartRevision = ((NamePartView) formParentNode.getData()).getCurrentOrElsePendingRevision();
+			formParent=namePartRevision.getNamePart();
+		} else {
+			formParent=null;
+		}
+	}
+	
+
+	public @Nullable NamePart getFormParent(){
+		return formParent;
+	}
+
+	public @Nullable NamePart getFormNamePart(){
+		return formNamePart;
+	}
+	
+	public void onSelectNamePart(NodeSelectEvent event){
+		if(formNamePartNode!=null){
+			formNamePartNode.setSelected(false);
+		}
+		formNamePartNode=event.getTreeNode();
+		formNamePartNode.setSelected(true);
+		updateNamePartForm();
+	}
+	
+	public void onUnselectNamePart(NodeUnselectEvent event){
+		formNamePartNode.setSelected(false);
+		formNamePartNode=null;
+		updateNamePartForm();
+	}
+	
+	public void onSelectParent(NodeSelectEvent event){
+		if(formParentNode!=null){
+			formParentNode.setSelected(false);
+		}
+		formParentNode=event.getTreeNode();
+		formParentNode.setSelected(true);
+		
+		updateParentForm();
+	}
+	
+	public void onUnselectParent(NodeUnselectEvent event){
+		formParentNode.setSelected(false);
+		formParentNode=null;
+		updateParentForm();
+	}
+	
+	public void prepareAddPopup(){
+		RequestContext.getCurrentInstance().reset("AddNameForm:addName");			
+		operation=Operation.ADD;
+		formComment=null;
+		if(formNamePartNode!=null) {
+			formNamePartNode.setSelected(false);
+			formNamePartNode=null;
+		}
+		formParentNode=getSelectedNode();
+		formNamePartLevel=formParentNode!=null? ((NamePartView) formParentNode.getData()).getLevel()+1 : 0;
+		updateNamePartForm();
+		if(formParentNode!=null){
+			formParentNode.setSelected(true);
+		}
+		updateParentForm();
+	}
+	
+	boolean isNamePartSelectableInForm(NamePartView namePart){
+		return namePart.getLevel()==formNamePartLevel;
+	}
+	
+	boolean isParentSelectableInForm(NamePartView parent){
+		return parent.getLevel()==formNamePartLevel-1;
+	}
+	
+	public void prepareModifyPopup() {
+		RequestContext.getCurrentInstance().reset("ModNameForm:modName");
+
+		this.operation=Operation.MODIFY;
+		formComment=null;
+		if(formParentNode!=null){
+		formParentNode.setSelected(false);
+		}
+		formParentNode=null;
+		updateParentForm();
+		formNamePartNode=getSelectedNode();
+		formNamePartNode.setSelected(true);
+		formNamePartLevel=formNamePartNode!=null? ((NamePartView) formNamePartNode.getData()).getLevel():-1;
+		updateNamePartForm();
+	}
+
+	public void prepareMovePopup() {
+		RequestContext.getCurrentInstance().reset("MovNameForm:movName");
+		this.operation=Operation.MOVE;
+		formComment=null;
+		if(formParentNode!=null){
+		formParentNode.setSelected(false);
+		}
+		formParentNode=null;
+		updateParentForm();
+		formNamePartNode=getSelectedNode();
+		formNamePartNode.setSelected(true);
+		formNamePartLevel=formNamePartNode!=null? ((NamePartView) formNamePartNode.getData()).getLevel():-1;
+		updateNamePartForm();
+
+	}
+
+	public boolean isTabRendered(int tab){
+		if(tab<0 || tab>tabs.size()-1){
+			return false;
+		}
+		switch(operation){
+		case ADD: return tab!=0 ;
+		case MODIFY: return tab!=1;
+		case MOVE: return tab!=2;
+		default: return true;
+		}
+	}
+
+	public boolean isNamePartTabRendered(){
+		return isTabRendered(0); 
+	}
+	public boolean isParentTabRendered(){
+		return isTabRendered(1); 
+	}
+	public boolean isDescriptionTabRendered(){
+		return isTabRendered(2); 
+	}
+
+
+	public String onFlowProcess(FlowEvent event){ 
+		final String newStep=event.getNewStep();
+		final int next=newStep!=null ? tabs.indexOf(newStep):0;
+		final String oldStep= next!=0? event.getOldStep(): newStep;
+		final int prev=oldStep!=null? tabs.indexOf(oldStep):0;
+
+		final int nextRendered=nextRendered(prev,next);
+		boolean forward=next>=prev;
+
+		
+		if(oldStep!=null && isTabRendered(prev)){
+			if(prev==0){
+				if(formNamePartNode==null){
+					showMessage(null, FacesMessage.SEVERITY_ERROR, "Validation Error:"," Please select from list");
+					return oldStep;
+				} 
+			} else if(prev==1 && operation.equals(Operation.MOVE)){
+
+				int level= formParentNode!=null ?level=((NamePartView) formParentNode.getData()).getLevel()+1:0;
+				if(level!=formNamePartLevel){
+					showMessage(null, FacesMessage.SEVERITY_ERROR, "Validation Error: Not Selectable level: Please select a ".concat(getNamePartTypeName()),null);
+					return oldStep;
+				}
+
+			} else if (prev==2 && forward) {
+				// TODO validation by separate validator.
+
+			}			
+		}
+
+		
+		if(isTabRendered(nextRendered)){
+			if (nextRendered==0){
+				if( formNamePartNode!=null){
+					formNamePartNode.setSelected(true);
+				}
+				if( formParentNode!=null){
+					formParentNode.setSelected(false);
+				}
+
+			} else if(nextRendered==1) {
+				if( formParentNode!=null){
+					formParentNode.setSelected(true);
+				}	
+				if( formNamePartNode!=null){
+					formNamePartNode.setSelected(false);
+				}
+
+			} else if(nextRendered==2) {
+				//TODO
+			}
+		}
+		return tabs.get(nextRendered);
+	}	
+
+	private int nextRendered(int prev, int next){
+		boolean forward=next>=prev;
+		if(isTabRendered(next)){ 
+			return next;
+		}else if(forward && next+1 < tabs.size()){
+			return nextRendered(prev, next+1);
+		}else if(!forward && next > 0) {
+			return nextRendered(prev,next-1);
+		}else {
+			return nextRendered(0,0);
+		}
+	}
+		
+
+
 
 	public void update() {
 		operation=Operation.VIEW;
-		formName = null;
-		formMnemonic = null;
-		formDescription=null;
-		formComment = null;
 		rootWithModifications = getRootTreeNode(true);
 		rootWithoutModifications = getRootTreeNode(false);
 		modifyDisplayView();
 		treeNodeManager.expandCustomized(viewRoot); 
 	}
 
-	
-	public void onNodeExpand(NodeExpandEvent event){
-		if(event!=null && event.getTreeNode() !=null){
-			treeNodeManager.expand(event.getTreeNode());
-		}
-	}
-
-	public void onNodeCollapse(NodeCollapseEvent event){
-		if(event!=null && event.getTreeNode() !=null){
-			treeNodeManager.collapse(event.getTreeNode());    	
-		}
-	}
-	
 	public synchronized void onExpandAll(){
 		treeNodeManager.expandAll(viewRoot);
 	}
@@ -137,7 +372,6 @@ public class NamePartsController implements Serializable {
 	}
 
 	private TreeNode getRootTreeNode(boolean withModifications) {
-
 		final List<NamePartRevision> approvedRevisions = namePartService.currentApprovedNamePartRevisions(namePartType, true);
 		final List<NamePartRevision> pendingRevisions = withModifications ? namePartService.currentPendingNamePartRevisions(namePartType, true) : Lists.<NamePartRevision>newArrayList();
 		return namePartTreeBuilder.newNamePartTree(approvedRevisions, pendingRevisions, true);
@@ -160,12 +394,23 @@ public class NamePartsController implements Serializable {
 	}
 	
 	public boolean isMnemonicRequired(){
-		final @Nullable NamePart  namePart= getSelectedName() !=null? getSelectedName().getNamePart():null;
-		return namePart!=null ? namePartService.isMnemonicRequired(namePartType,namePart): true;
+		if(operation.equals(Operation.ADD)){
+			return namePartService.isMnemonicRequiredForChild(namePartType,formParent);
+		} else {
+			return namePartService.isMnemonicRequired(namePartType, formNamePart);
+		}
+//		final @Nullable NamePart  namePart= getSelectedName() !=null? getSelectedName().getNamePart():null;
+//		return namePart!=null ? namePartService.isMnemonicRequired(namePartType,namePart): true;
 	}
+		
 	public String getNamePartTypeName() {
-		final @Nullable NamePart namePart=getSelectedName() !=null? getSelectedName().getNamePart():null;
-		return namePart !=null ? namePartService.getNamePartTypeName(namePartType,namePart): ""; 
+//		final @Nullable NamePart namePart=getSelectedName() !=null? getSelectedName().getNamePart():null;
+//		return namePart !=null ? namePartService.getNamePartTypeName(namePartType,namePart): ""; 
+		if(operation.equals(Operation.ADD)){
+			return namePartService.getNamePartTypeNameForChild(namePartType, formParent);
+		} else {
+			return namePartService.getNamePartTypeName(namePartType, formNamePart);
+		}
 	}
 
 	public String getNamePartTypeNameForChild() {
@@ -174,8 +419,14 @@ public class NamePartsController implements Serializable {
 	}
 
 	public String getNamePartTypeMnemonic() {
-		final @Nullable NamePart namePart=getSelectedName() !=null? getSelectedName().getNamePart():null;
-		return namePart !=null ? namePartService.getNamePartTypeMnemonic(namePartType,namePart): ""; 
+		if(operation.equals(Operation.ADD)){
+			return namePartService.getNamePartTypeMnemonicForChild(namePartType, formParent);
+		} else {
+			return namePartService.getNamePartTypeMnemonic(namePartType, formNamePart);
+		}
+		
+//		final @Nullable NamePart namePart=getSelectedName() !=null? getSelectedName().getNamePart():null;
+//		return namePart !=null ? namePartService.getNamePartTypeMnemonic(namePartType,namePart): ""; 
 	}
 
 	public String getNamePartTypeMnemonicForChild() {
@@ -188,42 +439,109 @@ public class NamePartsController implements Serializable {
         return req!=null? namePartService.isMnemonicRequired(namePartType, req.getNamePart()): false;
     }
 
-
-	public boolean isAddMnemonicUnique(String mnemonic) {
-		final @Nullable NamePart parent = getSelectedName() != null ? getSelectedName().getNamePart() : null;
-		return namePartService.isMnemonicUnique(namePartType, parent, mnemonic);
+	
+	public boolean isMnemonicUnique(String mnemonic) {
+		if(operation.equals(Operation.ADD)){
+			return namePartService.isMnemonicUniqueOnAdd(namePartType, formParent, mnemonic);
+		} else {
+			return namePartService.isMnemonicUniqueOnModify(formNamePart, formParent, mnemonic);
+		}
 	}
+	
+	public boolean isMnemonicValid(String mnemonic){
+		return namePartService.isMnemonicValid(namePartType, formParent, mnemonic);
+	}
+//		final @Nullable NamePart parent = getSelectedName() != null ? getSelectedName().getNamePart() : null;
+//		return namePartService.isMnemonicUnique(namePartType, parent, mnemonic);
+//	}
 
+	
 	public boolean isModifyMnemonicUnique(String mnemonic) {
 		final NamePartView namePart = As.notNull(getSelectedName());
-		String currentMnemonic = namePart.getPendingOrElseCurrentRevision().getMnemonic();
+//		String currentMnemonic = namePart.getPendingOrElseCurrentRevision().getMnemonic();
 		if (!mnemonic.equals(namePart.getPendingOrElseCurrentRevision().getMnemonic())) {
 			final @Nullable NamePart parent = namePart.getParent() != null ? namePart.getParent().getNamePart() : null;
-			return namePartService.isMnemonicUniqueExceptForItself(currentMnemonic,namePartType, parent, mnemonic);
+			return namePartService.isMnemonicUniqueOnModify(namePart.getNamePart(), parent, mnemonic);
 		} else {
 			return true;
 		}
 	}
 
+	public String getOperation(){
+		switch(operation){
+		case ADD: return "add";
+		case MODIFY: return "modify";
+		case MOVE: return "move";
+		default: return null;
+		}
+	}
+	
+	public void onSubmit(){
+		switch(operation){
+		case ADD:  
+			onAdd();
+			break;
+		case MODIFY: 
+			onModify();
+			break;
+		case MOVE: 
+			onMove();
+			break;
+		default: Marker.doNothing();
+		}
+	 	
+	}
 	public void onAdd() {
 		try {
-			final @Nullable NamePartView parent = getSelectedName();
-			namePartService.addNamePart(formName, formMnemonic, formDescription, namePartType, parent != null ? parent.getNamePart() : null, formComment);
+			namePartService.addNamePart(formName, formMnemonic, formDescription, namePartType, formParent , formComment);
 			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Your addition proposal has been submitted.");
 		} finally {
 			update();
+			if(formParentNode!=null) {
+				formParentNode.setSelected(true);
+				formParentNode=null;
+			}
+			if(formNamePartNode!=null){
+				formNamePartNode.setSelected(false);
+				formNamePartNode=null;
+			}
 		}
 	}
 
 	public void onModify() {
 		try {
-			namePartService.modifyNamePart(As.notNull(getSelectedName()).getNamePart(), formName, formMnemonic, formDescription, formComment);
+			namePartService.modifyNamePart(As.notNull(formNamePart), formName, formMnemonic, formDescription, formComment);
 			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Your modification proposal has been submitted.");
 		} finally {
 			update();
+			if(formParentNode!=null) {
+				formParentNode.setSelected(false);
+				formParentNode=null;
+			}			
+			formNamePartNode.setSelected(true);
+			formNamePartNode=null;
 		}
 	}
 
+	public void onMove() {
+		try {
+			final @Nullable NamePartView parentView = formParentNode !=null?(NamePartView) formParentNode.getData():null;
+			final @Nullable NamePart parent=parentView!=null? parentView.getNamePart():null;
+			final @Nullable NamePartView namePartView = formNamePartNode !=null?(NamePartView) formNamePartNode.getData():null;
+			namePartService.moveNamePart(As.notNull(namePartView).getNamePart(), parent, formComment);
+			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Your move proposal has been submitted.");
+		} finally {
+			update();
+			if(formParentNode!=null) {
+				formParentNode.setSelected(false);
+				formParentNode=null;
+			}			
+			formNamePartNode.setSelected(true);
+			formNamePartNode=null;
+		}
+	}
+
+	
 	public void onDelete() {
 		try {
 			final List<NamePartView> targets = linearizedTargetsForDelete(deleteView);
@@ -390,7 +708,11 @@ public class NamePartsController implements Serializable {
 	public @Nullable NamePartView getSelectedName() {
 		return (selectedNodes != null && selectedNodes.length > 0) ? (NamePartView)(selectedNodes[0].getData()) : null;
 	}
-
+	
+	public @Nullable TreeNode getSelectedNode(){
+		return (selectedNodes != null && selectedNodes.length > 0) ? selectedNodes[0] : null;
+	}
+	
 	public String getFormName() { return formName; }
 	public void setFormName(String formName) { this.formName = formName; }
 
@@ -412,23 +734,9 @@ public class NamePartsController implements Serializable {
 		}));
 	}
 
-	public void prepareAddPopup() {
-		formName = null;
-		formMnemonic = null;
-		formDescription = null;
-		formComment = null;
-		RequestContext.getCurrentInstance().reset("addNameForm:grid");
-	}
 
-	public void prepareModifyPopup() {
-		final NamePartRevision namePartRevision = As.notNull(getSelectedName()).getPendingOrElseCurrentRevision();
-		formName = namePartRevision.getName();
-		formMnemonic = namePartRevision.getMnemonic();
-		formDescription = namePartRevision.getDescription();
-		formComment = null;
-		RequestContext.getCurrentInstance().reset("ModNameForm:pgrid");
-	}
-
+	
+	
 	public void prepareDeletePopup() {
 		final List<NamePartView> targets = linearizedTargets(deleteView);
 		final List<Device> affectedDevices = Lists.newArrayList();
@@ -437,6 +745,8 @@ public class NamePartsController implements Serializable {
 		}
 		this.affectedDevices = affectedDevices;
 		operation=Operation.DELETE;
+		formComment=null;
+		RequestContext.getCurrentInstance().reset("DelNameForm:delName");			
 	}
 
 	public void prepareApprovePopup() {
@@ -447,18 +757,25 @@ public class NamePartsController implements Serializable {
 				affectedDevices.addAll(namePartService.associatedDevices(namePartView.getNamePart(), false));
 			}
 		}
+		formComment=null;
 		this.affectedDevices = affectedDevices;
 		operation=Operation.APPROVE;
+		RequestContext.getCurrentInstance().reset("ApproveForm:approveRequset");					
 	}
 
 	public void prepareRejectPopup() {
 		this.affectedDevices=Lists.newArrayList();
+		formComment=null;
 		operation=Operation.REJECT;
+		RequestContext.getCurrentInstance().reset("RejectForm:rejectRequest");			
 	}
 
 	public void prepareCancelPopup() {
 		this.affectedDevices=Lists.newArrayList();
 		operation=Operation.CANCEL;
+		formComment=null;
+		RequestContext.getCurrentInstance().reset("CancelReqForm:cancelReq");			
+
 	}
 
 
@@ -488,6 +805,7 @@ public class NamePartsController implements Serializable {
 	}
 	public boolean canDelete() { return deleteView != null; }
 	public boolean canModify() { return getSelectedName() != null && !getSelectedName().getPendingOrElseCurrentRevision().isDeleted(); }
+	public boolean canMove(){ return getSelectedName() != null && !getSelectedName().getPendingOrElseCurrentRevision().isDeleted() && getSelectedName().getLevel()>0;}
 	public boolean canApprove() { return approveView != null; }
 	public boolean canCancel() { return cancelView != null; }
 	public boolean canShowHistory() { return selectedNodes.length == 1; }
@@ -576,11 +894,12 @@ public class NamePartsController implements Serializable {
 		context.addMessage(notificationChannel, new FacesMessage(severity, summary, message));
 	}
 
+
 	private enum NamePartDisplayFilter {
 		APPROVED_AND_PROPOSED, APPROVED, PROPOSED, ARCHIVED
 	}
 	
 	private enum Operation{
-		VIEW, APPROVE, DELETE, REJECT, CANCEL
+		VIEW, APPROVE, DELETE, REJECT, CANCEL, MODIFY, ADD, MOVE
 	}
 }

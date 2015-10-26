@@ -16,11 +16,9 @@
 * this program. If not, see https://www.gnu.org/licenses/gpl-2.0.txt
 */
 
-package org.openepics.names.ui.devices;
+package org.openepics.names.ui.parts;
 
 import org.openepics.names.util.Marker;
-
-import javax.annotation.Nullable;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
@@ -30,28 +28,26 @@ import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
 
 /**
- * The validator for the Instance index field in the Add form.
+ * The validator for the Mnemonic field in the Add form.
  *
  * @author Marko Kolar <marko.kolar@cosylab.com>
  */
 @RequestScoped
-@FacesValidator("custom.addInstanceIndexValidator")
-public class AddInstanceIndexValidator implements Validator {
+@FacesValidator("custom.mnemonicValidator")
+public class MnemonicValidator implements Validator {
 
     @Override public void validate(FacesContext facesContext, UIComponent uiComponent, Object o) throws ValidatorException {
-        final DevicesController controller = (DevicesController) facesContext.getApplication().getExpressionFactory().createValueExpression(facesContext.getELContext(), "#{devicesController}", Object.class).getValue(facesContext.getELContext());
-        final @Nullable String instanceIndex = normalize((String) o);
-
-        if (!controller.isAddInstanceIndexValid(instanceIndex)) {
-            throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Error", "The instance index does not conform to the Naming Convention rules."));
-        } else if (!controller.isAddInstanceIndexUnique(instanceIndex)) {
-            throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Error", "The instance index results in a non-unique device name."));
+        final NamePartsController controller = (NamePartsController) facesContext.getApplication().getExpressionFactory().createValueExpression(facesContext.getELContext(), "#{namePartsController}", Object.class).getValue(facesContext.getELContext());
+        
+        if (!controller.isMnemonicValid((String) o)) {
+            throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Mnemonic: Validation Error:","Value is not valid accoding to the naming convention rules"));
+        } else if ( !controller.isMnemonicUnique((String) o) && controller.isMnemonicRequired())  {
+            throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Mnemonic: Validation Error:"," Value is not unique according to the naming conveniton rules"));
+//        } else if((controller.getFormMnemonic().length()>4 || controller.getFormMnemonic().length()<2)&& controller.isMnemonicRequired()){
+//        	throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_WARN,"Mnemonic: Warning:"," Value should range between 2 and 4 characters although 1-6 characters are allowed."));
+        	
         } else {
             Marker.doNothing();
         }
-    }
-
-    private String normalize(String input) {
-        return !input.isEmpty() ? input : null;
     }
 }

@@ -13,16 +13,15 @@
 		resizableColumns="true" style="padding:0; margin:0">
 		<p:ajax event="select" update="#{update}" />
 		<p:ajax event="unselect" update="#{update}" />
-		<p:ajax event="expand" listener="#{namePartsController.onNodeExpand}" />
-		<p:ajax event="collapse"
-			listener="#{namePartsController.onNodeCollapse}" />
+		<p:ajax event="expand" listener="#{treeNodeManager.onNodeExpand}" />
+		<p:ajax event="collapse" listener="#{treeNodeManager.onNodeCollapse}" />
 		<p:column id="nameDesc" headerText="Full Name" style="width:25%">
 			<h:outputText value="#{namePart.newName}" styleClass="#{namePartsController.newStyleClass(namePart, namePart.isNameModified())}" />
 			<h:outputText value=" " rendered="#{namePart.isNameModified()}" />
 			<h:outputText value="#{namePart.name}" styleClass="#{namePartsController.oldStyleClass}" rendered="#{namePart.isNameModified()}" />
 		</p:column>
 		<p:column id="nameCode" headerText="Mnemonic" style="width: 10%">
-			<h:outputText value="#{namePart.newMnemonic}"	styleClass="#{namePartsController.newStyleClass(namePart, namePart.isMnemonicModified())}" />
+			<h:outputText value="#{namePart.newMnemonic}" styleClass="#{namePartsController.newStyleClass(namePart, namePart.isMnemonicModified())}" />
 			<h:outputText value=" " rendered="#{namePart.isMnemonicModified()}" />
 			<h:outputText value="#{namePart.mnemonic}" styleClass="#{namePartsController.oldStyleClass}" rendered="#{namePart.isMnemonicModified() }" />
 		</p:column>

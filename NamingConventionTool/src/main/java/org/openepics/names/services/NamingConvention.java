@@ -19,6 +19,7 @@
 package org.openepics.names.services;
 
 import javax.annotation.Nullable;
+import javax.ejb.Stateless;
 
 import org.openepics.names.model.NamePartType;
 
@@ -35,6 +36,7 @@ import java.util.List;
  * @author Marko Kolar <marko.kolar@cosylab.com>
  * @author Karin Rathsman <karin.rathsman@esss.se>
  */
+
 public interface NamingConvention {
 
     /**
@@ -129,4 +131,7 @@ public interface NamingConvention {
 	 * @return
 	 */
 	String getNamePartTypeMnemonic(List<String> sectionPath, NamePartType namePartType);
+	
+	boolean canNamePartMove(List<String> sourcePath, NamePartType sourceNamePartType, List<String>destinationPath, NamePartType destinationNamePartType );
+
 }
