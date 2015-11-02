@@ -303,7 +303,7 @@ public class RestrictedNamePartService {
     }
 
     /**
-     * The list of all devices in the database.
+     * The list of obsolete devices revisions in the database.
      *
      * @param includeDeleted true if the list should also include revisions for deleted devices
      */
@@ -349,6 +349,7 @@ public class RestrictedNamePartService {
     public @Nullable DeviceRevision currentDeviceRevision(String deviceName){
     	return namePartService.currentDeviceRevision(deviceName);
     }
+    
     public List<DeviceRevision> devcieRevisionsPreviouslyNamed(String deviceName){
     	return namePartService.devcieRevisionsPreviouslyNamed(deviceName);
     }
@@ -374,6 +375,14 @@ public class RestrictedNamePartService {
 	}
 	public String getNamePartTypeMnemonicForChild(NamePartType namePartType, NamePart namePart) {
 		return namePartService.getNamePartTypeMnemonicForChild(namePartType, namePart);
+	}
+
+	public List<NamePartRevision> currentApprovedNamePartParentRevisions(NamePartType type, boolean includeDeleted) {
+		return namePartService.currentApprovedNamePartParentRevisions(type, includeDeleted);
+	}
+
+	public List<NamePartRevision> currentApprovedChildrenOfNamePartRevision(NamePartRevision parent, boolean includeDeleted) {
+		return namePartService.currentApprovedChildrenOfNamePartRevision(parent, includeDeleted);
 	}
 
 }

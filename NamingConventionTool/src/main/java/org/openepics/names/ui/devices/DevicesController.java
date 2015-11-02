@@ -100,54 +100,54 @@ public class DevicesController implements Serializable {
 	private TreeNode viewDevice;
 	private TreeNode deleteView;
 
-<<<<<<< HEAD
-	private TreeNode formSelectedSection;
-	private TreeNode formSelectedDeviceType;
-	private String formInstanceIndex = "";
-	private String formAdditionalInfo = "";
-	private String formDeviceName="";
+//<<<<<<< HEAD
+//	private TreeNode formSelectedSection;
+//	private TreeNode formSelectedDeviceType;
+//	private String formInstanceIndex = "";
+//	private String formAdditionalInfo = "";
+//	private String formDeviceName="";
 	private TreeNode[] selectedNodes=new TreeNode[0];
-=======
+//=======
 	//	private TreeNode formSelectedSection;
 	//	private TreeNode formSelectedDeviceType;
 	//	private String formInstanceIndex = "";
 	//	private String formAdditionalInfo = "";
 	//	private String formDeviceName="";
->>>>>>> NS324
+//>>>>>>> NS324
 
 	private byte[] importData;
 	private String importFileName;
 	private String deviceNameFilter, appliedDeviceNameFilter = "";
 	private String deviceTypeFilter, appliedDeviceTypeFilter = "";
 	private DevicesViewFilter displayView = DevicesViewFilter.ACTIVE;
-<<<<<<< HEAD
+//<<<<<<< HEAD
 	
-=======
+//=======
 
-	private DeviceView[] selectedDevices;
+//	private DeviceView[] selectedDevices;
 	//	private DeviceView selectedDevice;
 
->>>>>>> NS324
+//>>>>>>> NS324
 	@PostConstruct
 	public synchronized void init() {
 		modifyDisplayView();
-		@Nullable String deviceName = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("deviceName");
-			try {
-				@Nullable DeviceRevision deviceRevision = deviceName!=null ? namePartService.currentDeviceRevision(deviceName):null;
-				@Nullable TreeNode node = deviceRevision!=null ? getNode(deviceRevision): null;
-				if(node!=null) {
-					expandParents(node);					
-					node.setSelected(true);				
-				}
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-				
+//		@Nullable String deviceName = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("deviceName");
+//			try {
+//				@Nullable DeviceRevision deviceRevision = deviceName!=null ? namePartService.currentDeviceRevision(deviceName):null;
+//				@Nullable TreeNode node = deviceRevision!=null ? getNode(deviceRevision): null;
+//				if(node!=null) {
+//					expandParents(node);					
+//					node.setSelected(true);				
+//				}
+//			} catch (Exception e) {
+//				// TODO: handle exception
+//			}
+//				
 		}
 	
-	public String getCcdbUrl(){
-		return getSelectedDeviceName()!=null? System.getProperty("names.ccdbURL").concat("?name=").concat(getSelectedDeviceName()):"";		
-	}
+//	public String getCcdbUrl(){
+//		return getSelectedDeviceName()!=null? System.getProperty("names.ccdbURL").concat("?name=").concat(getSelectedDeviceName()):"";		
+//	}
 	
 	private void expandParents(@Nullable TreeNode node) {
 		if(node!=null){
@@ -396,8 +396,10 @@ public class DevicesController implements Serializable {
 			throw new UnhandledCaseException();
 		}
 		viewDevice = filteredView(viewRoot);
-<<<<<<< HEAD
-		sections = deviceTypes =  formSelectedDeviceType = null;
+
+//		this.selectedNodes = new TreeNode[0];
+		deleteView = deleteView(viewDevice);
+
 		setSelectedNodes(new TreeNode[0]);
 	}
 
@@ -411,11 +413,6 @@ public class DevicesController implements Serializable {
 				}
 		}
 		return null;
-=======
-		//		sections = deviceTypes =  formSelectedDeviceType = null;
-		this.selectedNodes = new TreeNode[0];
-		deleteView = deleteView(viewDevice);
->>>>>>> NS324
 	}
 
 	
@@ -448,30 +445,31 @@ public class DevicesController implements Serializable {
 		deleteView = deleteView(viewDevice);
 	}
 
-<<<<<<< HEAD
+//<<<<<<< HEAD
 	public @Nullable NamePartView getSelectedSection() { 
 		return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof NamePartView ? (NamePartView) selectedNodes[0].getData() : null; }
-	public @Nullable DeviceView getSelectedDevice() { 
-		return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView ? (DeviceView) selectedNodes[0].getData() : null; }
+//	public @Nullable DeviceView getSelectedDevice() { 
+//		return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView ? (DeviceView) selectedNodes[0].getData() : null; }
  
-	public  String getSelectedDeviceName(){
-		return getSelectedDevice()!=null? getSelectedDevice().getDevice().getConventionName():"";
-	}
-=======
+//	public  String getSelectedDeviceName(){
+//		return getSelectedDevice()!=null? getSelectedDevice().getDevice().getConventionName():"";
+//	}
+//=======
 	//public @Nullable NamePartView getSelectedSection() { return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof NamePartView ? (NamePartView) selectedNodes[0].getData() : null; }
-	public @Nullable DeviceView getSelectedDevice() { 
-		return selectedDevices != null && selectedDevices.length==1? selectedDevices[0] : null;
+
+//	public @Nullable DeviceView getSelectedDevice() { 
+//		return selectedDevices != null && selectedDevices.length==1? selectedDevices[0] : null;
 		//		return selectedNodes.length == 1 && selectedNodes[0].getData() instanceof DeviceView ? (DeviceView) selectedNodes[0].getData() : null; 
 		//		return selectedDevice;
-	}
-	public void setSelectedDevices(@Nullable DeviceView[] selectedDevices){
-		this.selectedDevices=selectedDevices;
-	}
+//	}
+//	public void setSelectedDevices(@Nullable DeviceView[] selectedDevices){
+//		this.selectedDevices=selectedDevices;
+//	}
 	//	public void setSelectedDevice(@Nullable DeviceView selectedDevice){
 	//		this.selectedDevice=selectedDevice;
 	//	}
 
->>>>>>> NS324
+//>>>>>>> NS324
 	public TreeNode getDeleteView() { return deleteView; }
 
 	public boolean canDelete() { return deleteView != null; }
@@ -479,7 +477,7 @@ public class DevicesController implements Serializable {
 	//	return getSelectedSection() != null && getSelectedSection().getLevel() == 2 && !getSelectedSection().isDeleted(); 
 	}
 //	public boolean canShowHistory() { return getSelectedDevice() != null; }
-	public boolean canModify() { return getSelectedDevice() != null && !getSelectedDevice().getDevice().isDeleted(); }
+//	public boolean canModify() { return getSelectedDevice() != null && !getSelectedDevice().getDevice().isDeleted(); }
 
 	//	public void prepareAddPopup() {
 

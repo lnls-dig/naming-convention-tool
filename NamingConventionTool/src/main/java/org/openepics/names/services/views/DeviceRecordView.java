@@ -1,34 +1,53 @@
 package org.openepics.names.services.views;
 
 import org.openepics.names.model.Device;
-
-
+import org.openepics.names.model.NamePart;
 
 
 public class DeviceRecordView {
+	private Long id;
+	private Boolean deleted;
+	private String conventionName;
 	private DeviceView deviceView;
-	private NamePartView section;
-	private NamePartView subsection;
-	private NamePartView superSection;
-	private NamePartView discipline;
-	private NamePartView deviceGroup;
-	private NamePartView deviceType;
+	private DeviceElement section;
+	private DeviceElement subsection;
+	private DeviceElement superSection;
+	private DeviceElement discipline;
+	private DeviceElement deviceGroup;
+	private DeviceElement deviceType;
+	private String style;
 
 	public DeviceRecordView(DeviceView deviceView) {
 		this.deviceView=deviceView;
+		this.conventionName=deviceView.getConventionName();
 		update();
 	}
+	
 	public void update(){
-		subsection=deviceView.getSection();
-		section=subsection.getParent();
-		superSection=section.getParent();
-		deviceType=deviceView.getDeviceType();
-		deviceGroup=deviceType.getParent();
-		discipline=deviceGroup.getParent();
+		id=deviceView.getDevice().getDevice().getId();
+		deleted=deviceView.getDevice().isDeleted();
+		style=deleted? "deleted":"approved";
+		NamePartView view=deviceView.getSection();
+		subsection=new DeviceElement(view);
+		view=view.getParent();
+		section=new DeviceElement(view);
+		view=view.getParent();
+		superSection=new DeviceElement(view);
+		view=deviceView.getDeviceType();		
+		deviceType=new DeviceElement(view);
+		view=view.getParent();
+		deviceGroup=new DeviceElement(view);
+		view=view.getParent();
+		discipline=new DeviceElement(view);
+		
+		
 	}
 	
 	public Long getId(){
-		return getDeviceView().getDevice().getDevice().getId();
+		return id;
+	}
+	public String getStyle(){
+		return style;
 	}
 	
 	public  Device getDevice(){
@@ -36,49 +55,45 @@ public class DeviceRecordView {
 	}
 	
 	public String getConventionName() {
-		return deviceView.getConventionName();
+		return conventionName;
 	}
 	
-	public NamePartView getSubsection() {
+	public DeviceElement getSubsection() {
 		return subsection;
-	}
-	
-	public void setSubsection(NamePartView subsection) {
-		this.subsection = subsection;
-	}
+	}	
 	
 	public DeviceView getDeviceView() {
 		return deviceView;
 	}
 	
-	public NamePartView getSection() {
+	public DeviceElement getSection() {
 		return section;
 	}
 
 	/**
 	 * @return the superSection
 	 */
-	public NamePartView getSuperSection() {
+	public DeviceElement getSuperSection() {
 		return superSection;
 	}
 	/**
 	 * @return the discipline
 	 */
-	public NamePartView getDiscipline() {
+	public DeviceElement getDiscipline() {
 		return discipline;
 	}
 
 	/**
 	 * @return the deviceGroup
 	 */
-	public NamePartView getDeviceGroup() {
+	public DeviceElement getDeviceGroup() {
 		return deviceGroup;
 	}
 
 	/**
 	 * @return the deviceType
 	 */
-	public NamePartView getDeviceType() {
+	public DeviceElement getDeviceType() {
 		return deviceType;
 	}
 	
@@ -87,6 +102,45 @@ public class DeviceRecordView {
 	}
 	
 	public boolean isDeleted(){
-		return deviceView.getDevice().isDeleted();
+		return deleted;
 	}
+	
+	public class DeviceElement{
+		private String name;
+		private String mnemonic;
+		private String description;
+		private NamePart namePart;
+		
+		public DeviceElement(NamePartView view){
+			name = view.getName();
+			mnemonic = view.getMnemonic();
+			description=view.getDescription();
+			namePart=view.getNamePart();
+		}
+		
+		public DeviceElement(DeviceView view){
+			name=view.getInstanceIndex();
+			mnemonic=view.getConventionName();
+			description=view.getAdditionalInfo();
+			namePart=null;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getMnemonic() {
+			return mnemonic;
+		}
+
+		public String getDescription() {
+			return description;
+		}
+
+		public NamePart getNamePart(){
+			return namePart;
+		}
+		
+	}
+	
 }
