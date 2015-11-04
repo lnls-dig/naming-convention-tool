@@ -17,10 +17,10 @@
                 <h:outputText value="#{ncname.additionalInfo}" />
             </p:column>
             <p:column id="histNameSect" headerText="Area Structure">
-                <h:outputText value="#{devicesController.sectionPath(ncname)}" />
+                <h:outputText value="${devicesController.sectionPath(ncname)}" />
             </p:column>
             <p:column id="histNameDscp" headerText="Device Structure">
-                <h:outputText value="#{devicesController.deviceTypePath(ncname)}" />
+                <h:outputText value="${devicesController.deviceTypePath(ncname)}" />
             </p:column>
             <p:column id="histReqBy" headerText="Modified By" sortBy="#{ncname.requestedBy}">
                 <h:outputText value="#{ncname.requestedBy.username}" />

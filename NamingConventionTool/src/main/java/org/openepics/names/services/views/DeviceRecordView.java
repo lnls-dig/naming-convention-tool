@@ -26,7 +26,7 @@ public class DeviceRecordView {
 	public void update(){
 		id=deviceView.getDevice().getDevice().getId();
 		deleted=deviceView.getDevice().isDeleted();
-		style=deleted? "deleted":"approved";
+		style=deleted? "Deleted":"Approved";
 		NamePartView view=deviceView.getSection();
 		subsection=new DeviceElement(view);
 		view=view.getParent();
@@ -38,24 +38,31 @@ public class DeviceRecordView {
 		view=view.getParent();
 		deviceGroup=new DeviceElement(view);
 		view=view.getParent();
-		discipline=new DeviceElement(view);
+		discipline=new DeviceElement(view);		
+	}
 		
-		
+	public String getInstanceIndex(){
+		return deviceView.getInstanceIndex();
 	}
 	
+	public String getConventionName() {
+		return conventionName;
+	}
+	
+	public String getDescription(){
+		return deviceView.getAdditionalInfo();
+	}
+
 	public Long getId(){
 		return id;
 	}
+	
 	public String getStyle(){
 		return style;
 	}
 	
 	public  Device getDevice(){
 		return getDeviceView().getDevice().getDevice(); 
-	}
-	
-	public String getConventionName() {
-		return conventionName;
 	}
 	
 	public DeviceElement getSubsection() {
@@ -96,14 +103,11 @@ public class DeviceRecordView {
 	public DeviceElement getDeviceType() {
 		return deviceType;
 	}
-	
-	public String getDescription(){
-		return deviceView.getAdditionalInfo();
-	}
-	
+		
 	public boolean isDeleted(){
 		return deleted;
 	}
+	
 	
 	public class DeviceElement{
 		private String name;
@@ -118,13 +122,6 @@ public class DeviceRecordView {
 			namePart=view.getNamePart();
 		}
 		
-		public DeviceElement(DeviceView view){
-			name=view.getInstanceIndex();
-			mnemonic=view.getConventionName();
-			description=view.getAdditionalInfo();
-			namePart=null;
-		}
-
 		public String getName() {
 			return name;
 		}

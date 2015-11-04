@@ -1,32 +1,41 @@
 package org.openepics.names.ui.devices;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 
+import org.apache.commons.io.FilenameUtils;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
+import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.DeviceRecordView;
 import org.openepics.names.services.views.DeviceView;
 import org.openepics.names.ui.common.SelectRecordManager;
 import org.openepics.names.ui.common.TreeNodeManager;
 import org.openepics.names.ui.common.ViewFactory;
-import org.openepics.names.ui.devices.DevicesController.DevicesViewFilter;
 import org.openepics.names.util.As;
-import org.primefaces.model.LazyDataModel;
+import org.openepics.names.util.UnhandledCaseException;
+import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 import org.primefaces.model.TreeNode;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
 
 @ManagedBean
 @ViewScoped
@@ -39,35 +48,37 @@ public class DeviceTableController implements Serializable{
 	@Inject private ViewFactory viewFactory;
 	@Inject private SelectRecordManager selectRecordManager;
 	@Inject private DevicesTreeBuilder devicesTreeBuilder;
+	@Inject private ExcelImport excelImport;
+	private byte[] importData;
 	
+
 	
+	private String importFileName;
+
 	private List<DeviceRecordView> records;
 	private DevicesViewFilter displayView=DevicesViewFilter.ACTIVE;
 	private List<DeviceView> historyDeviceNames;
-	private LazyDataModel<DeviceRecordView> lazyModel;
 	
 	@PostConstruct
-	public void update(){
-		boolean includeDeleted= displayView==DevicesViewFilter.ARCHIVED;
-		@Nullable String deviceName = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("deviceName");
-		records=generateRecords(devicesTreeBuilder.devicesTree(includeDeleted));
+	public void init(){
+		displayView=DevicesViewFilter.ACTIVE;
+		final @Nullable String deviceName = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("deviceName");
+		update();
 		if(deviceName!=null){
-		for (DeviceRecordView record : records) {
-			if (record.getConventionName().equals(deviceName)){
-				selectRecordManager.setSelectedRecords(Lists.newArrayList(record));
+			for (DeviceRecordView record : records) {
+				if (record.getConventionName().equals(deviceName)){
+					selectRecordManager.setSelectedRecords(Lists.newArrayList(record));
+				}
 			}
 		}
-		}
-		lazyModel=new LazyDeviceDataModel(records);
-//		lazyModel.setRowCount(records.size());
 	}
 
+	public void update(){
+		boolean includeDeleted= displayView==DevicesViewFilter.ARCHIVED;
+		records=generateRecords(devicesTreeBuilder.devicesTree(includeDeleted));
+	}
 	
 	
-    public LazyDataModel<DeviceRecordView> getLazyModel() {
-        return lazyModel;
-    }
-
 
 	public String getCcdbUrl(){
 		return getSelectedRecord()!=null? System.getProperty("names.ccdbURL").concat("?name=").concat(getSelectedRecord().getConventionName()):"";		
@@ -86,7 +97,6 @@ public class DeviceTableController implements Serializable{
 	}
 
 	public List<DeviceRecordView> getRecords() {
-//		update();
 		return records;
 	}
 
@@ -157,16 +167,73 @@ public class DeviceTableController implements Serializable{
 		return historyDeviceNames; 
 	}
 
-	public DeviceRecordView getRowData(String rowKey){
-		return lazyModel.getRowData(rowKey);
+	
+	public void onDelete() {
+		int count=0;
+		try{			
+			for(DeviceRecordView record: selectRecordManager.getSelectedRecords()){
+
+				if(!record.isDeleted()) {
+					namePartService.deleteDevice(record.getDeviceView().getDevice().getDevice());
+					count++;
+				}
+			}
+			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", printedAffectedQuantity(count) + "deleted.");
+		} finally{
+			update();
+		}
 	}
 	
-	public Object getRowKey(DeviceRecordView record){
-		return lazyModel.getRowKey(record);
+	private void showMessage(@Nullable String notificationChannel, FacesMessage.Severity severity, String summary, String message) {
+		FacesContext context = FacesContext.getCurrentInstance();
+		context.addMessage(notificationChannel, new FacesMessage(severity, summary, message));
 	}
 
+	
+	private String printedAffectedQuantity(int n) {
+		return n + " device name" + (n > 1 ? "s have been " : " has been ");
+	}
+	
+	enum DevicesViewFilter {
+		ACTIVE, ARCHIVED
+	}
+	
+	public void onImport() {
+		try (InputStream inputStream = new ByteArrayInputStream(importData)) {
+			ExcelImport.ExcelImportResult importResult = excelImport.parseDeviceImportFile(inputStream);
+			if (importResult instanceof ExcelImport.SuccessExcelImportResult) {
+				update();
+				showMessage(null, FacesMessage.SEVERITY_INFO, "Import was successful!", "");
+			} else if (importResult instanceof ExcelImport.CellValueFailureExcelImportResult) {
+				ExcelImport.CellValueFailureExcelImportResult failureImportResult = (ExcelImport.CellValueFailureExcelImportResult) importResult;
+				showMessage(null, FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred in row " + failureImportResult.getRowNumber() + ". " + (failureImportResult.getNamePartType().equals(NamePartType.SECTION) ? "Logical area" : "Device category") + " part was not found in the database.");
+			} else if (importResult instanceof ExcelImport.ColumnCountFailureExcelImportResult) {
+				showMessage(null, FacesMessage.SEVERITY_ERROR, "Import failed!", "Error occurred when reading import file. Column count does not match expected value.");
+			} else {
+				throw new UnhandledCaseException();
+			}
+		} catch (IOException e) {
+			throw new RuntimeException();
+		}
+	}
+
+	public void prepareImportPopup() {
+		importData = null;
+		importFileName = null;
+	}
+
+	public void handleFileUpload(FileUploadEvent event) {
+		try (InputStream inputStream = event.getFile().getInputstream()) {
+			this.importData = ByteStreams.toByteArray(inputStream);
+			this.importFileName = FilenameUtils.getName(event.getFile().getFileName());
+		} catch (IOException e) {
+			throw new RuntimeException();           
+		}
+	}
+	public String getImportFileName() { return importFileName; }
+
+	public StreamedContent getDownloadableNamesTemplate() {  
+		return new DefaultStreamedContent(this.getClass().getResourceAsStream("NamingImportTemplate.xlsx"), "xlsx", "NamingImportTemplate.xlsx");  
+	} 
 
 }
-
-
-

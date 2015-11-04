@@ -768,7 +768,6 @@ public class NamePartService {
 		}
 	}
 
-
 	/**
 	 * Deletes the given device
 	 *

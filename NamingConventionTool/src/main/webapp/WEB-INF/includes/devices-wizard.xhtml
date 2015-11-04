@@ -127,10 +127,11 @@
 						<h4>Confirm:</h4>
 						<div align="right">
 							<p:commandButton id="Submit" value="Submit"
-								update=":ManageNameForm"
+								update=":ManageNameForm :ManageNameForm:devicesTree"
 								style="float:right"
 								actionListener="#{deviceWizardController[submitHandler]}"
 								disabled="#{deviceWizardController.formSelectedSection == null || deviceWizardController.formSelectedDeviceType == null}"
+								oncomplete="#{deviceTableController.update()}"
 								onclick="PF(#{widgetName}).hide()"/>
 							<p:commandButton value="Cancel"
 								onclick="PF(#{widgetName}).hide()"

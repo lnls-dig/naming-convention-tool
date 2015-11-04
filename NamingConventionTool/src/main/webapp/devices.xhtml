@@ -13,36 +13,33 @@
 			<p:dataTable 
 				id="devicesTree" 
 				var="device"
-				value="#{deviceTableController.lazyModel}"
+				value="#{deviceTableController.records}"
+				rowKey="#{device.id}"
 				selection="#{deviceTableController.selectedRecords}"
 				selectionMode="multiple" 
 				paginator="true"
 				rows="20"
-				lazy="true"
+				resizableColumns="true"
+				scrollRows="20" scrollable="true" liveScroll="true"
 				widgetVar="deviceTable">
 				<f:facet id="filterTable" name="header">
 					<p:outputLabel for="status" value="Show: "
 						styleClass="ui-widget-header" style="float:left" />
 					<p:selectOneMenu id="status"
 						value="#{deviceTableController.viewFilter}" style="float:left">
-						<p:ajax event="change" update="devicesTree"
+						<p:ajax event="change" update="devicesTree" listener="#{deviceTableController.update()}"
 							oncomplete="resizePanel()" />
 						<f:selectItem itemLabel="Active" itemValue="ACTIVE"
 							noSelectionOption="true" />
 						<f:selectItem itemLabel="Archived" itemValue="ARCHIVED" />
-					</p:selectOneMenu>
-<!-- 					<p:outputLabel for="globalFilter" value="Search all fields:" -->
-<!-- 						styleClass="ui-widget-header" /> -->
-<!-- 					<p:inputText id="globalFilter" onkeyup="PF('deviceTable').filter()" -->
-<!-- 						style="width:150px;" placeholder="Enter keyword" /> -->
-						
+					</p:selectOneMenu>						
 						<p:menuButton id="ncReqMenu" value="Actions" style="float:right">
 						<p:menuitem value="Add" icon="ui-icon-plus"
 							update=":addDeviceNameForm"
 							oncomplete="PF('addDeviceName').show()" 
 							title="Add Device Name"
 							actionListener="#{deviceWizardController.preparePopup('add')}"
-							disabled="#{!(deviceTableController.canAdd())}"
+							disabled="${!(deviceTableController.canAdd())}"
 							rendered="#{userManager.editor}"/>
 						<p:menuitem value="Modify" icon="ui-icon-pencil"
 							update=":modDeviceNameForm"
@@ -50,7 +47,7 @@
 							actionListener="#{deviceWizardController.preparePopup('mod')}"
 							title="Modify Device Name" 
 							rendered="#{userManager.editor}"
-							disabled="#{!(deviceTableController.canModify())}" />
+							disabled="${!(deviceTableController.canModify())}" />
 						<p:menuitem value="Delete" icon="ui-icon-trash"
 							update=":delDeviceNameForm"
 							oncomplete="PF('delDeviceName').show()"
@@ -63,14 +60,14 @@
 							actionListener="#{deviceTableController.loadHistory()}"
 							update=":ManageNameForm:historyTable" title="View History"
 							oncomplete="PF('nameDetail').show()"
-							disabled="#{!(deviceTableController.canShowHistory())}" />
+							disabled="${!(deviceTableController.canShowHistory())}" />
 						<p:menuitem value="Batch Import" icon="ui-icon-folder-open"
 							title="Import"
-							actionListener="#{devicesController.prepareImportPopup()}"
+							actionListener="#{deviceTableController.prepareImportPopup()}"
 							update=":batchImportForm" oncomplete="PF('batchImport').show()"
 							rendered="#{userManager.editor}" />
 						<p:menuitem value="Export" ajax="false" icon="ui-icon-disk"
-							disabled="#{!(userManager.isLoggedIn())}" immediate="true"
+							disabled="${!(userManager.isLoggedIn())}" immediate="true"
 							onclick="PrimeFaces.monitorDownload(start, stop)">
 							<p:fileDownload value="#{devicesController.allDataExport}" />
 						</p:menuitem>						
@@ -81,40 +78,39 @@
 				</f:facet>
 				<p:ajax event="rowSelect" update="ncReqMenu" />
 				<p:ajax event="rowUnselect" update="ncReqMenu" />
-<!-- 				<ui:include -->
-<!-- 					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml"> -->
-<!-- 					<ui:param name="part" value="superSection" /> -->
-<!-- 					<ui:param name="parts" value="superSectionNames" /> -->
-<!-- 				</ui:include> -->
-<!-- 				<ui:include -->
-<!-- 					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml"> -->
-<!-- 					<ui:param name="part" value="section" /> -->
-<!-- 					<ui:param name="parts" value="sectionNames" /> -->
-<!-- 				</ui:include> -->
-<!-- 				<ui:include -->
-<!-- 					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml"> -->
-<!-- 					<ui:param name="part" value="subsection" /> -->
-<!-- 					<ui:param name="parts" value="subsectionNames" /> -->
-<!-- 				</ui:include> -->
-<!-- 				<ui:include -->
-<!-- 					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml"> -->
-<!-- 					<ui:param name="part" value="discipline" /> -->
-<!-- 					<ui:param name="parts" value="disciplineNames" /> -->
-<!-- 				</ui:include> -->
-<!-- 				<ui:include 					 -->
-<!-- 				src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml"> -->
-<!-- 					<ui:param name="part" value="deviceGroup" /> -->
-<!-- 					<ui:param name="parts" value="deviceGroupNames" /> -->
-<!-- 				</ui:include> -->
-<!-- 				<ui:include -->
-<!-- 					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml"> -->
-<!-- 					<ui:param name="part" value="deviceType" /> -->
-<!-- 					<ui:param name="parts" value="deviceTypeNames" /> -->
-<!-- 				</ui:include> -->
+				<ui:include
+					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
+					<ui:param name="part" value="superSection" />
+				</ui:include>
+				<ui:include
+					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
+					<ui:param name="part" value="section" />
+					<ui:param name="parts" value="sectionNames" />
+				</ui:include>
+				<ui:include
+					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
+					<ui:param name="part" value="subsection" />
+					<ui:param name="parts" value="subsectionNames" />
+				</ui:include>
+				<ui:include
+					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
+					<ui:param name="part" value="discipline" />
+					<ui:param name="parts" value="disciplineNames" />
+				</ui:include>
+				<ui:include 					
+				src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
+					<ui:param name="part" value="deviceGroup" />
+					<ui:param name="parts" value="deviceGroupNames" />
+				</ui:include>
+				<ui:include
+					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
+					<ui:param name="part" value="deviceType" />
+					<ui:param name="parts" value="deviceTypeNames" />
+				</ui:include>
 				<p:column headerText="Device Name" sortBy="#{device.conventionName}" filterBy="#{device.conventionName}">
-					<h:outputText id="idx" value="#{device.conventionName}" styleClass="#{device.style}" />
-<!-- 					<p:tooltip for="idx" value="#{device.description}" -->
-<!-- 						rendered="#{device.description != null}" /> -->
+					<h:outputText id="DevName" value="#{device.conventionName}" styleClass="#{device.style}" />
+					<p:tooltip for="DevName" value="#{device.description}"
+						rendered="#{device.description != null}" />
 				</p:column>
 			</p:dataTable>
 			<!-- 		======================== History ============================-->
@@ -146,29 +142,29 @@
 				</f:facet>
 				<h:panelGroup id="grp" layout="block">
 					<h:panelGroup
-						rendered="#{devicesController.importFileName == null}"
+						rendered="#{deviceTableController.importFileName == null}"
 						layout="block" style="padding: 0 0 7px 0">Please choose an Excel file (*.xlsx) to import device names from.</h:panelGroup>
 					<p:fileUpload
-						fileUploadListener="#{devicesController.handleFileUpload}"
+						fileUploadListener="#{deviceTableController.handleFileUpload}"
 						update="grp" mode="advanced" auto="true" fileLimit="1"
 						dragDropSupport="true" allowTypes="/(\.|\/)(xlsx)$/"
-						rendered="#{devicesController.importFileName == null}" />
-					<h:outputText value="#{devicesController.importFileName}" />
+						rendered="#{devicesTableController.importFileName == null}" />
+					<h:outputText value="#{deviceTableController.importFileName}" />
 					<p:separator />
 					<p:commandButton id="downloadLink" style="float: left"
 						value="Download Template" ajax="false" icon="ui-icon-disk"
 						onclick="PrimeFaces.monitorDownload(start, stop)"
-						disabled="#{devicesController.importFileName != null}">
+						disabled="#{deviceTableController.importFileName != null}">
 						<p:fileDownload
-							value="#{devicesController.downloadableNamesTemplate}" />
+							value="#{deviceTableController.downloadableNamesTemplate}" />
 					</p:commandButton>
 					<p:commandButton value="Cancel" style="float: right"
-						onclick="batchImport.hide();" />
+						onclick="PF('batchImport').hide();" />
 					<p:commandButton value="Import" style="float: right"
 						update=":ManageNameForm :ManageNameForm:devicesTree:ncReqMenu"
-						oncomplete="batchImport.hide(); resizePanel()"
-						action="#{devicesController.onImport()}"
-						disabled="#{devicesController.importFileName == null}" />
+						oncomplete=" #{deviceTableController.update()}; PF('batchImport').hide()"
+						action="#{deviceTableController.onImport()}"
+						disabled="#{deviceTableController.importFileName == null}" />
 				</h:panelGroup>
 			</p:dialog>
 		</h:form>

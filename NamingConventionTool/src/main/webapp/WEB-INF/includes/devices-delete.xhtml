@@ -24,8 +24,8 @@
 				<f:facet name="footer">
 					<p:commandButton value="Submit" style="float: right"
 						update=":ManageNameForm :ManageNameForm:devicesTree:ncReqMenu"
-						oncomplete="PF('delDeviceName').hide(); resizePanel()"
-						action="#{devicesController.onDelete()}" />
+						oncomplete="PF('delDeviceName').hide() }"
+						action="#{deviceTableController.onDelete()}" />
 					<p:commandButton value="Cancel" style="float: right"
 						onclick="PF('delDeviceName').hide()" />
 				</f:facet>

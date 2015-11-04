@@ -42,7 +42,7 @@
 				</p:column>
 				<p:column headerText="Request" style="width:20%">
 					<h:outputText
-						value="#{namePartsController.operationStatus(candidate)}"
+						value="${namePartsController.operationStatus(candidate)}"
 						rendered="#{candidate.isAffected()}" />
 				</p:column>
 			</p:treeTable>

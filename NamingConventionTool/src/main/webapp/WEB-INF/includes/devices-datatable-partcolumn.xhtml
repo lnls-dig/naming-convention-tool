@@ -7,29 +7,34 @@
 	xmlns:fc="http://java.sun.com/jsf/composite/comps"
 	xmlns:h="http://java.sun.com/jsf/html">
 
+
 	<ui:param name="titleElement" value="${namingConventionDefinition[part]}"/>
 	<ui:param name="nameTitle" value="${titleElement.fullName}"/>
 	<ui:param name="mnemonicTitle" value="${titleElement.mnemonic}"/>
-	<ui:param name="element" value="${device[part]}"/>
-	<ui:param name="name" value="${element.name}" />
-	<ui:param name="mnemonic" value="${element.mnemonic}"/>
-<!-- 		filterBy="#{name}"  -->
-<!-- 		sortBy="#{name}" -->
-<!-- 		filterBy="${mnemonic}"  -->
-<!-- 		sortBy="${mnemonic}" -->
-	
+	<ui:param name="fullName" value="#{device[part].name}"/>
+	<ui:param name="mnemonic" value="#{device[part].mnemonic}"/>
+
 	<p:column 
 		headerText="#{nameTitle}"
-		filterMatchMode="contains">	
+		rendered="${mnemonicTitle ==''}"
+		filterMatchMode="contains"	
+		filterBy="#{fullName}" 
+		sortBy="#{fullName}"
+		>
  
-	<h:outputText  id="#{part}" styleClass="#{device.style}" value="#{name}"/>
+	<h:outputText  id="#{part}" styleClass="#{device.style}" value="#{fullName}"/>
 	<p:tooltip for="#{part}" value="#{device[part].description}" rendered="#{device[part].description != null}"/>
 	</p:column>
 	
 	<p:column 
 		headerText="${mnemonicTitle}"
-		rendered="${mnemonicTitle !=''}">
-	<h:outputText value="${mnemonic}" styleClass="#{device.style}"/>
+		rendered="${mnemonicTitle !=''}"
+		filterMatchMode="contains"
+		filterBy="${mnemonic}" 
+		sortBy="${mnemonic}"	
+		>
+	<h:outputText id="#{part}mnemonic" value="${mnemonic}" styleClass="#{device.style}"/>
+	<p:tooltip for ="#{part}mnemonic" value ="#{fullName}"/> 
 	</p:column>
 
 </ui:composition>
