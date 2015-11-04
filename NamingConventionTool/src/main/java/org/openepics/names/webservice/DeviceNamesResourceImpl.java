@@ -56,8 +56,7 @@ public class DeviceNamesResourceImpl implements DeviceNamesResource {
 
 		final List<DeviceNameElement> deviceNames = Lists.newArrayList();
 
-		for (DeviceRevision deviceRevision : namePartService.currentDeviceRevisions(true)) {
-			if(!deviceRevision.isDeleted()){
+		for (DeviceRevision deviceRevision : deviceRevisions) {
 				final DeviceNameElement deviceData = new DeviceNameElement();
 				deviceData.setStatus("ACTIVE");
 				deviceData.setUuid(deviceRevision.getDevice().getUuid());
@@ -68,17 +67,15 @@ public class DeviceNamesResourceImpl implements DeviceNamesResource {
 				deviceData.setInstanceIndex(viewProvider.view(deviceRevision).getInstanceIndex());
 				deviceData.setName(viewProvider.view(deviceRevision).getConventionName());
 				deviceNames.add(deviceData);
-			} else {
-				final DeviceNameElement deviceData = new DeviceNameElement();
-				deviceData.setStatus("DELETED");
-				deviceData.setName(deviceRevision.getConventionName());
-				deviceData.setUuid(deviceRevision.getDevice().getUuid());
-				deviceNames.add(deviceData);
-			}
 		}
-		for(DeviceRevision deviceRevision : namePartService.obsoleteDeviceRevisions()) {
+
+		for(DeviceRevision deviceRevision : namePartService.latestObsoleteDeviceRevisionsGroupedByName()) {
 			final DeviceNameElement deviceData = new DeviceNameElement();
+			if(deviceRevision.isDeleted()){
+				deviceData.setStatus("DELETED");
+			} else{
 			deviceData.setStatus("OBSOLETE");
+			}
 			deviceData.setName(deviceRevision.getConventionName());
 			deviceData.setUuid(deviceRevision.getDevice().getUuid());
 			deviceNames.add(deviceData);

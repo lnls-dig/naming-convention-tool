@@ -6,7 +6,7 @@
 	<artifactId>names-client</artifactId>
 	<description>This is Naming Convention Tool Java API client which can be used by Java clients that want to access Naming Convention Tool services.</description>
 	<name>NamingConventionTool-Client</name>
-	<version>3.0.3</version>
+	<version>3.0.4</version>
 
     <parent>
         <groupId>se.esss.ics</groupId>

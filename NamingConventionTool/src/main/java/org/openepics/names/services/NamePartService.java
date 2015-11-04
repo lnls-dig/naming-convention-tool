@@ -809,6 +809,24 @@ public class NamePartService {
 	}
 
 	/**
+	 * The list of the latest obsolete or deleted, revisions of all devicenames in the database.
+	 *
+	 */
+	public List<DeviceRevision> latestObsoleteDeviceRevisionsGroupedByName() {
+			return em.createQuery("SELECT r FROM DeviceRevision r WHERE (r.id <> (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) OR r.deleted = true) AND r.id= (SELECT MAX(r3.id) FROM DeviceRevision r3 WHERE r3.conventionName=r.conventionName)", DeviceRevision.class).getResultList(); 
+	}
+
+	/**
+	 * The list of the latest obsolete or deleted, revisions of all devicenames in the database.
+	 *
+	 */
+	public DeviceRevision latestObsoleteDeviceRevisionNamed(String conventionName) {
+			
+		List<DeviceRevision> deviceRevisions=	em.createQuery("SELECT r FROM DeviceRevision r WHERE (r.id <> (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) OR r.deleted = true) AND r.id= (SELECT MAX(r3.id) FROM DeviceRevision r3 WHERE r3.conventionName= :conventionName)", DeviceRevision.class).setParameter("conventionName", conventionName).getResultList(); 
+		return deviceRevisions!=null ?deviceRevisions.get(0): null;
+	}
+	
+	/**
 	 * The list of all revisions of the given device, starting from the oldest to the latest.
 	 * @param device the device
 	 */

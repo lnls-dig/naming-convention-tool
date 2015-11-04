@@ -23,6 +23,13 @@ public class DeviceNameElement {
     private String status;
     public DeviceNameElement() {}
     
+    
+    public DeviceNameElement(UUID uuid, String name, String status){
+	    setUuid(uuid);
+	    setName(name);
+	    setStatus(status);
+    }
+    
     public UUID getUuid() { return uuid; }
     public void setUuid(UUID uuid) { this.uuid = uuid; }
 

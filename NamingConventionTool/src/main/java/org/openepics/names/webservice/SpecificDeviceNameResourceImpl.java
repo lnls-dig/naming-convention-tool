@@ -17,17 +17,15 @@
  */
 package org.openepics.names.webservice;
 
-import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import org.openepics.names.jaxb.DeviceNameElement;
 import org.openepics.names.jaxb.SpecificDeviceNameResource;
 import org.openepics.names.model.DeviceRevision;
-import org.openepics.names.services.restricted.RestrictedNamePartService;
+import org.openepics.names.services.NamePartService;
 import org.openepics.names.services.views.DeviceView;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.util.As;
@@ -39,39 +37,33 @@ import org.openepics.names.util.As;
  */
 @Stateless
 public class SpecificDeviceNameResourceImpl implements SpecificDeviceNameResource {
-	@Inject private RestrictedNamePartService namePartService;
+	@Inject private NamePartService namePartService;
 	@Inject private ViewFactory viewFactory;
-
 	@Override
 	public DeviceNameElement getDeviceName(String reqUuid) {
 		final @Nullable DeviceRevision deviceRevision=getDeviceRevsion(reqUuid);
-		final @Nullable DeviceView deviceView = deviceRevision !=null? viewFactory.getView(deviceRevision):null;
-		final DeviceNameElement deviceData = new DeviceNameElement();
-
-		if (deviceRevision != null) {
-			
+		if (deviceRevision != null) {			
 			if(!deviceRevision.isDeleted()){
-				deviceData.setStatus("ACTIVE");
-				deviceData.setUuid(deviceRevision.getDevice().getUuid());
-				deviceData.setName(deviceView.getConventionName());
+				final DeviceNameElement deviceData = new DeviceNameElement(deviceRevision.getDevice().getUuid(),deviceRevision.getConventionName(),"ACTIVE");
+				final @Nullable DeviceView deviceView = deviceRevision !=null? viewFactory.getView(deviceRevision):null;
 				deviceData.setSection(As.notNull(deviceView.getSection().getParent()).getMnemonic());
 				deviceData.setSubSection(deviceView.getSection().getMnemonic());
 				deviceData.setDiscipline(As.notNull(As.notNull(deviceView.getDeviceType().getParent()).getParent()).getMnemonic());
 				deviceData.setDeviceType(deviceView.getDeviceType().getMnemonic());
 				deviceData.setInstanceIndex(deviceView.getInstanceIndex());
 				deviceData.setName(deviceView.getConventionName());
-			} else {
-				deviceData.setStatus("DELETED");
-			}
-			return deviceData;
-		} else {
-			
-			List<DeviceRevision> deviceRevisions=namePartService.devcieRevisionsPreviouslyNamed(reqUuid);
-			if(deviceRevisions!=null && !deviceRevisions.isEmpty()){
-				deviceData.setStatus("OBSOLETE");
 				return deviceData;
 			} else {
+				return new DeviceNameElement(deviceRevision.getDevice().getUuid(),deviceRevision.getConventionName(),"DELETED");
+			}
+		} else {		
+			final @Nullable DeviceRevision obsoleteRevision=namePartService.latestObsoleteDeviceRevisionNamed(reqUuid);
+			if(obsoleteRevision==null){
 				return null;
+			}else if(obsoleteRevision.isDeleted()){
+				return new DeviceNameElement(obsoleteRevision.getDevice().getUuid(),obsoleteRevision.getConventionName(),"DELETED");
+			} else {
+				return new DeviceNameElement(obsoleteRevision.getDevice().getUuid(),obsoleteRevision.getConventionName(),"OBSOLETE");
 			}
 		}
 	}
