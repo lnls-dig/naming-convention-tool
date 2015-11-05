@@ -18,9 +18,11 @@
 				selection="#{deviceTableController.selectedRecords}"
 				selectionMode="multiple" 
 				paginator="true"
-				rows="20"
+				rows="30"
+				first="#{deviceTableController.rowNumber}"
 				resizableColumns="true"
-				scrollRows="20" scrollable="true" liveScroll="true"
+				filteredValue="#{deviceTableController.filteredRecords}"
+				scrollRows="50" scrollable="true" liveScroll="true"
 				widgetVar="deviceTable">
 				<f:facet id="filterTable" name="header">
 					<p:outputLabel for="status" value="Show: "

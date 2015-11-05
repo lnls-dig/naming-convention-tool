@@ -56,8 +56,10 @@ public class DeviceTableController implements Serializable{
 	private String importFileName;
 
 	private List<DeviceRecordView> records;
+	private List<DeviceRecordView> filteredRecords;
 	private DevicesViewFilter displayView=DevicesViewFilter.ACTIVE;
 	private List<DeviceView> historyDeviceNames;
+	private int rowNumber;
 	
 	@PostConstruct
 	public void init(){
@@ -65,11 +67,16 @@ public class DeviceTableController implements Serializable{
 		final @Nullable String deviceName = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("deviceName");
 		update();
 		if(deviceName!=null){
+			rowNumber=0;
 			for (DeviceRecordView record : records) {
+				rowNumber++;
 				if (record.getConventionName().equals(deviceName)){
 					selectRecordManager.setSelectedRecords(Lists.newArrayList(record));
+					break;
 				}
 			}
+		}else{
+			rowNumber=0;
 		}
 	}
 
@@ -234,6 +241,19 @@ public class DeviceTableController implements Serializable{
 
 	public StreamedContent getDownloadableNamesTemplate() {  
 		return new DefaultStreamedContent(this.getClass().getResourceAsStream("NamingImportTemplate.xlsx"), "xlsx", "NamingImportTemplate.xlsx");  
-	} 
+	}
+
+	public List<DeviceRecordView> getFilteredRecords() {
+		return filteredRecords;
+	}
+
+	public void setFilteredRecords(List<DeviceRecordView> filteredRecords) {
+		this.filteredRecords = filteredRecords;
+	}
+
+	public int getRowNumber() {
+		return 30*(rowNumber/30);
+	}
+
 
 }
