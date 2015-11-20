@@ -14,6 +14,19 @@
         <version>2.0.0</version>
         <relativePath></relativePath>
     </parent>
+    
+    <distributionManagement>
+        <repository>
+            <id>artifactory01.esss.lu.se</id>
+            <name>artifactory01.esss.lu.se-releases</name>
+            <url>https://artifactory01.esss.lu.se/artifactory/libs-release-local</url>
+        </repository>
+        <snapshotRepository>
+            <id>artifactory01.esss.lu.se</id>
+            <name>artifactory01.esss.lu.se-snapshots</name>
+            <url>https://artifactory01.esss.lu.se/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 	<dependencies>
         <dependency>
