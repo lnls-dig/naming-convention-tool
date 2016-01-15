@@ -73,7 +73,7 @@ public class InitialDataImportService {
     }
     
     private void fillNameParts(boolean isSection) {
-        final XSSFSheet sheet = workbook.getSheet(isSection ? "LogicalAreaStructure" : "DeviceCategoryStructure");
+        final XSSFSheet sheet = workbook.getSheet(isSection ? "AreaStructure" : "DeviceStructure");
         for (Row row : sheet) {
             if (row.getRowNum() >= 2) {
                 final int parent = (int) ExcelCell.asNumber(row.getCell(0));
@@ -87,7 +87,7 @@ public class InitialDataImportService {
     }
     
     private void fillDeviceNames() {
-        final XSSFSheet sheet = workbook.getSheet("NamedDevices");
+        final XSSFSheet sheet = workbook.getSheet("DeviceInstances");
         final List<DeviceDefinition> devices = Lists.newArrayList();
         for (Row row : sheet) {
             if (row.getRowNum() >= 1) {
