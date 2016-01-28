@@ -4,7 +4,7 @@
 
 	<groupId>org.openepics</groupId>
 	<artifactId>names</artifactId>
-	<version>3.2.4</version>
+	<version>3.2.5</version>
 	<packaging>war</packaging>
 
 	<name>names</name>
@@ -113,7 +113,6 @@
 				</plugins>
 			</build>
 		</profile>
-
 		<profile>
 			<id>test</id>
 			<activation>
@@ -128,6 +127,31 @@
 							<webResources>
 								<resource>
 									<directory>${basedir}/src/main/webapp/WEB-INF/test</directory>
+									<targetPath>WEB-INF/</targetPath>
+									<includes>
+										<include>jboss-web.xml</include>
+									</includes>
+								</resource>
+							</webResources>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>local</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<webResources>
+								<resource>
+									<directory>${basedir}/src/main/webapp/WEB-INF/local</directory>
 									<targetPath>WEB-INF/</targetPath>
 									<includes>
 										<include>jboss-web.xml</include>
