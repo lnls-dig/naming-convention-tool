@@ -39,8 +39,8 @@ import java.util.Map;
  * A service bean used to initialize the database with data from the bundled Excel file when the application is ran for
  * the first time.
  *
- * @author Andraz Pozar <andraz.pozar@cosylab.com>
- * @author Karin Rathsman <karin.rathsman@esss.se>
+ * @author Andraz Pozar 
+ * @author Karin Rathsman 
 */
 
 @Stateless

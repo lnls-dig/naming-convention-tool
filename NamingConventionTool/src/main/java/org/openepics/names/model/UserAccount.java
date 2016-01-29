@@ -27,13 +27,18 @@ import java.util.Objects;
 /**
  * An entity representing a user account used to sing in to the application.
  *
- * @author Vasu V <vuppala@frib.msu.org>
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Vasu V 
+ * @author Marko Kolar 
  */
 @Entity
 public class UserAccount extends Persistable {
 
-    private String username;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6026728360254460697L;
+
+	private String username;
 
     @Enumerated(EnumType.STRING) private Role role;
 
@@ -51,12 +56,12 @@ public class UserAccount extends Persistable {
     }
 
     /**
-     * The name identifying the user
+     *  @return The name identifying the user
      */
     public String getUsername() { return username; }
 
     /**
-     * The role that determines the user's access control permissions
+     *  @return The role that determines the user's access control permissions
      */
     public Role getRole() { return role; }
 

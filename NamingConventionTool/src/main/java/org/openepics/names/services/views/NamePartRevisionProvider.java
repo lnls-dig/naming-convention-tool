@@ -25,19 +25,19 @@ import javax.annotation.Nullable;
 /**
  * An interface for retrieving revisions of NameParts.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar  
  */
 public interface NamePartRevisionProvider {
 
     /**
-     * The relevant (usually current) approved revision of the namePart.
+     * @return The relevant (usually current) approved revision of the namePart.
      *
      * @param namePart the name part to retrieve the revision for
      */
     @Nullable NamePartRevision approvedRevision(NamePart namePart);
 
     /**
-     * The relevant (usually current) pending revision of the namePart.
+     * @return The relevant (usually current) pending revision of the namePart.
      *
      * @param namePart the name part to retrieve the revision for
      */

@@ -20,7 +20,11 @@ package org.openepics.names.services;
 
 import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
-
+/**
+ * Definitions used in GUIs headers
+ * @author karinrathsman
+ *
+ */
 @ManagedBean
 @ApplicationScoped
 public class NamingConventionDefinition  {

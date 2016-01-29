@@ -32,7 +32,7 @@ import javax.persistence.PersistenceContext;
 /**
  * A service bean managing global application settings and database initialization.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar 
  */
 @Singleton
 @Startup
@@ -44,7 +44,7 @@ public class ApplicationService {
     @Inject private NamingConvention namingConvention;
 
     /**
-     * The singleton entity representing the installed Naming Tool application and its configuration.
+     * @return The singleton entity representing the installed Naming Tool application and its configuration.
      */
     public AppInfo appInfo() {
         return em.createQuery("SELECT a FROM AppInfo a", AppInfo.class).getSingleResult();

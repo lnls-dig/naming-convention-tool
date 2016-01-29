@@ -40,9 +40,6 @@ import com.google.common.io.ByteStreams;
 @ManagedBean
 @ViewScoped
 public class DeviceTableController implements Serializable{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -262176781057441889L;
 	@Inject private RestrictedNamePartService namePartService;
 	@Inject private ViewFactory viewFactory;
@@ -147,7 +144,8 @@ public class DeviceTableController implements Serializable{
 	public boolean canShowHistory() { return getSelectedRecord() != null; }
 
 	/**
-	 *  Generates a list of device records for views.
+	 * Generates a list of device records for views.
+	 * @param root Root of the tree node
 	 * @return list of device records
 	 */
 	public List<DeviceRecordView> generateRecords(TreeNode root){		

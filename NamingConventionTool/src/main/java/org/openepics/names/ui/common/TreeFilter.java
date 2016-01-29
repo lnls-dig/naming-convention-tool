@@ -28,12 +28,12 @@ import java.util.List;
 /**
  * A filter that transforms a TreeNode tree into a new filtered tree based on acceptance criteria for node's data.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar  
 */
 public abstract class TreeFilter<T> {
 
     /**
-     * True if the filter should accept the node based on its data.
+     * @return True if the filter should accept the node based on its data.
      *
      * @param nodeData the node's data
      */

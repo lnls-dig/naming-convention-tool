@@ -8,8 +8,8 @@ import javax.ws.rs.core.MediaType;
 /**
  * This resource provides specific device name data.
  * 
- * @author Andraz Pozar <andraz.pozar@cosylab.com>
- * @author Sunil Sah <sunil.sah@cosylab.com>
+ * @author Andraz Pozar  
+ * @author Sunil Sah  
  */
 public interface SpecificDeviceNameResource {
     @GET

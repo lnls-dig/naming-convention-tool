@@ -33,7 +33,7 @@ import org.openepics.names.util.As;
 /**
  * This is implementation of {@link SpecificDeviceNameResource} interface.
  * 
- * @author Andraz Pozar <andraz.pozar@cosylab.com>
+ * @author Andraz Pozar 
  */
 @Stateless
 public class SpecificDeviceNameResourceImpl implements SpecificDeviceNameResource {

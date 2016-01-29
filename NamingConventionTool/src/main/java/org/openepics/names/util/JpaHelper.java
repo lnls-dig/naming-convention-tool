@@ -25,14 +25,15 @@ import java.util.List;
 /**
  * A static utility class containing useful JPA methods.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar  
  */
 public class JpaHelper {
     /**
      * Executes the query and returns the single expected result, or null if the result is empty.
-     *
+     * @param <T> class T 
      * @param query the query to execute
      * @throws NonUniqueResultException if the query returned more than a single result.
+     * @return single result or null of the query.
      */
     public static <T> T getSingleResultOrNull(TypedQuery<T> query) {
         final List<T> results = query.getResultList();

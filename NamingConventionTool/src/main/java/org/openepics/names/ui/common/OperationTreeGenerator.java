@@ -31,25 +31,25 @@ import java.util.List;
  * additional information on what nodes will be affected by an operation. This information is contained in
  * OperationView objects that wrap the original tree nodes' data.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar  
  */
 public abstract class OperationTreeGenerator<T> {
     /**
-     * True if the selected element can be affected by the operation.
+     * @return True if the selected element can be affected by the operation.
      *
      * @param element the selected element
      */
     protected abstract boolean canAffect(T element);
 
     /**
-     * True if for the selected element the tree of its children are also all treated as selected.
+     * @return True if for the selected element the tree of its children are also all treated as selected.
      *
      * @param element the selected element
      */
     protected abstract boolean autoSelectChildren(T element);
 
     /**
-     * True if for the given element its selected children are ignored (treated as if they were not selected)
+     * @return True if for the given element its selected children are ignored (treated as if they were not selected)
      *
      * @param element the element
      * @param isSelected is the element selected
@@ -61,9 +61,7 @@ public abstract class OperationTreeGenerator<T> {
      * elements in the input tree are affected by the operation.
      *
      * @param node the root node of the tree the operation is acting on
-     * @return the root node of a new tree containing OperationViews that describe if an element is affected by the
-     * operation. Subtrees with no affected elements are culled. If no elements are affected by the operation, null will
-     * be returned.
+     * @return the root node of a new tree containing OperationViews that describe if an element is affected by the operation. Subtrees with no affected elements are culled. If no elements are affected by the operation, null will be returned.
      */
     public @Nullable TreeNode apply(@Nullable TreeNode node) {
         return node != null ? view(node, SelectionMode.MANUAL) : null;

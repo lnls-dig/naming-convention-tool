@@ -20,7 +20,7 @@ package org.openepics.names.model;
 /**
  * Status of the name part in the request / approve workflow.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar 
  */
 public enum NamePartRevisionStatus {
     /** The proposed revision has been approved by the administrator. */

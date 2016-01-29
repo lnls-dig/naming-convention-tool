@@ -25,12 +25,14 @@ import java.io.Serializable;
  * A superclass implementing the properties required by JPA. It that should be extended by all classes that need to be
  * persisted to the database.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar 
  */
 @MappedSuperclass
 public class Persistable implements Serializable {
 
-    @Id
+	private static final long serialVersionUID = 8393161299438204843L;
+
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected @Nullable Long id;
 
@@ -39,11 +41,13 @@ public class Persistable implements Serializable {
 
     /**
      * The JPA entity ID.
+     * @return JPA entity id
      */
     public @Nullable Long getId() { return id; }
 
     /**
      * The JPA entity version.
+     * @return The JPA entity version
      */
     public @Nullable Integer getVersion() { return version; }
 }

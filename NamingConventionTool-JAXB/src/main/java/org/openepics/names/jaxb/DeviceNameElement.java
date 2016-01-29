@@ -8,7 +8,7 @@ import java.util.UUID;
 /**
  * Data transfer object representing Devices for JSON and XML serialization.
  *
- * @author Andraz Pozar <andraz.pozar@cosylab.com>
+ * @author Andraz Pozar  
  */
 @XmlRootElement
 public class DeviceNameElement {

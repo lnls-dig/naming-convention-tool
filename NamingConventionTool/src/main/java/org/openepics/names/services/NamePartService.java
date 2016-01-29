@@ -43,8 +43,8 @@ import java.util.UUID;
 /**
  * A service bean managing NamePart and Device entities.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
- * @author Karin Rahtsman <karin.rathsman@esss.se>
+ * @author Marko Kolar  
+ * @author Karin Rahtsman  
  */
 @Stateless
 public class NamePartService {
@@ -58,10 +58,10 @@ public class NamePartService {
 	}
 
 	/**
-	 * True if the mnemonic can be null.
-	 * @param namePartType the type of the name part
-	 * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
-	 * @return
+	 * 
+	 * @param namePartType The type of the name part specifying whether the name part belongs to the Logical Area Structure or the Device Structure
+	 * @param namePart The name part, null if the name part is at the root of the hierarchy
+	 * @return True if the mnemonic can be null.
 	 */
 	public boolean isMnemonicRequired(NamePartType namePartType, @Nullable NamePart namePart) {
 		final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
@@ -70,10 +70,10 @@ public class NamePartService {
 	}
 
 	/**
-	 * True if the mnemonic can be null for child.
-	 * @param namePartType the type of the name part
-	 * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
-	 * @return
+	 * 
+	 * @param namePartType The type of the name part specifying whether the name part belongs to the Logical Area Structure or the Device Structure
+	 * @param namePart The parent of the name part, null if the name part is at the root of the hierarchy
+	 * @return True if the mnemonic of a child name part can be null.
 	 */
 	public boolean isMnemonicRequiredForChild(NamePartType namePartType, NamePart namePart) {
 		final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
@@ -82,10 +82,10 @@ public class NamePartService {
 	}
 
 	/**
-	 * The name of the name part type to be used in dialog header and menus. Example: "Modify mnemonic for namePartTypeName" where namePartTypeName can be section, subsection, discipline etc... 
-	 * @param namePartType
-	 * @param namePart
-	 * @return
+	 * 
+	 * @param namePartType The type of the name part specifying whether the name part belongs to the Logical Area Structure or the Device Structure
+	 * @param namePart The name part, null if the name part is at the root of the hierarchy
+	 * @return The name of the name part type to be used in dialog header and menus. Example: "Modify mnemonic for namePartTypeName" where namePartTypeName can be section, subsection, discipline etc... 
 	 */
 	public String getNamePartTypeName(NamePartType namePartType, NamePart namePart) {
 		final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
@@ -94,10 +94,10 @@ public class NamePartService {
 	}
 
 	/**
-	 * The name of the name part type to be used in dialog header and menus. Example: "Add mnemonic for namePartTypeName" where namePartTypeName can be section, subsection, discipline etc... 
-	 * @param namePartType
-	 * @param namePart
-	 * @return
+	 * 
+	 * @param namePartType The type of the name part specifying whether the name part belongs to the Logical Area Structure or the Device Structure
+	 * @param namePart The name part, null if the name part is at the root of the hierarchy
+	 * @return The name of the name part type to be used in dialog header and menus. Example: "Add mnemonic for namePartTypeName" where namePartTypeName can be section, subsection, discipline etc... 
 	 */
 	public String getNamePartTypeNameForChild(NamePartType namePartType, NamePart namePart) {
 		final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
@@ -106,10 +106,10 @@ public class NamePartService {
 	}
 
 	/**
-	 * The mnemonic of the name part type to be used in dialogs. Example: "' Mnemonic: namePartTypeMnemonic" where namePartTypeMnemonic can be Sec, Dev  etc... 
-	 * @param namePartType
-	 * @param namePart
-	 * @return
+	 * 
+	 * @param namePartType The type of the name part specifying whether the name part belongs to the Logical Area Structure or the Device Structure
+	 * @param namePart The name part, null if the name part is at the root of the hierarchy
+	 * @return The mnemonic of the name part type to be used in dialogs. Example: "' Mnemonic: namePartTypeMnemonic" where namePartTypeMnemonic can be Sec, Dev  etc... 
 	 */
 	public String getNamePartTypeMnemonic(NamePartType namePartType, NamePart namePart) {
 		final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
@@ -118,10 +118,10 @@ public class NamePartService {
 	}
 
 	/**
-	 * The mnemonic of the name part type to be used in dialogs. Example: "' Mnemonic: namePartTypeMnemonic" where namePartTypeMnemonic can be Sec, Dev  etc... 
-	 * @param namePartType
-	 * @param namePart
-	 * @return
+	 * 
+	 * @param namePartType The type of the name part specifying whether the name part belongs to the Logical Area Structure or the Device Structure
+	 * @param namePart The name part, null if the name part is at the root of the hierarchy
+	 * @return The mnemonic of the name part type to be used in dialogs. Example: "' Mnemonic: namePartTypeMnemonic" where namePartTypeMnemonic can be Sec, Dev  etc... 
 	 */
 	public String getNamePartTypeMnemonicForChild(NamePartType namePartType, NamePart namePart) {
 		final @Nullable NamePartView namePartView = namePart != null ? view(namePart) : null;
@@ -131,11 +131,11 @@ public class NamePartService {
 
 
 	/**
-	 * True if the mnemonic of a name part is valid in the context of the parent.
-	 *
-	 * @param type the type of the name part
-	 * @param parent of the name part, null if the name part is at the root of the hierarchy
-	 * @param mnemonic the mnemonic name of the name part to test for validity
+	 * 
+	 * @param type The type of the name part specifying whether the name part belongs to the Logical Area Structure or the Device Structure
+	 * @param parent Parent of the name part, null if the name part is at the root of the hierarchy
+	 * @param mnemonic The mnemonic name of the name part to test for validity
+	 * @return True if the mnemonic of a name part is valid in the context of the parent.
 	 */
 	public boolean isMnemonicValid(NamePartType type, @Nullable NamePart parent, @Nullable String mnemonic) {
 		final @Nullable NamePartView namePartParentView = parent != null ? view(parent) : null;
@@ -144,11 +144,11 @@ public class NamePartService {
 	}
 
 	/**
-	 * True if the mnemonic of a name part that is to be added is unique according to the naming convention rules.
 	 * 
-	 * @param type the type of the name part
+	 * @param type The type of the name part specifying whether the name part belongs to the Logical Area Structure or the Device Structure
 	 * @param parent the parent of the name part, null if the name part is at the root of the hierarchy
 	 * @param mnemonic the mnemonic name of the name part to test for uniqueness
+	 * @return True if the mnemonic of a name part that is to be added is unique according to the naming convention rules.
 	 */
 	public boolean isMnemonicUniqueOnAdd(NamePartType type, @Nullable NamePart parent, @Nullable String mnemonic) {        
 		if(mnemonic==null) {
@@ -172,11 +172,10 @@ public class NamePartService {
 	}
 
 	/**
-	 * True if the mnemonic of a name part that is to be modify is unique according to the naming convention rules.
-	 * @param namePart 
+	 * @param namePart The name part, null if the name part is at the root of the hierarchy
 	 * @param parent the parent of the name part, null if the name part is at the 
-	 * @param mnemonic
-	 * @return
+	 * @param mnemonic the mnemonic name of the name part to be tested for uniqueness
+	 * @return True if the mnemonic of a name part that is to be modify is unique according to the naming convention rules.
 	 */
 	public boolean isMnemonicUniqueOnModify(NamePart namePart, @Nullable NamePart parent, String mnemonic){
 		NamePartType namePartType=namePart.getNamePartType();
@@ -199,41 +198,39 @@ public class NamePartService {
 	}
 
 	/**
-	 * True if the instance index of a device defined by a section and device type is valid.
 	 *
-	 * @param section the section containing the device
+	 * @param subsection The subsection containing the device
 	 * @param deviceType the device type of the device
-	 * @param instanceIndex the device instance index to test for validity, or null if no instance index is assigned to
-	 * the device, in which case this is also checked for validity
+	 * @param instanceIndex the device instance index to test for validity, or null if no instance index is assigned to the device, in which case this is also checked for validity
+	 * @return True if the instance index of a device defined by a section and device type is valid.
 	 */
-	public boolean isInstanceIndexValid(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
-		final NamePartView sectionView = view(section);
+	public boolean isInstanceIndexValid(NamePart subsection, NamePart deviceType, @Nullable String instanceIndex) {
+		final NamePartView subsectionView = view(subsection);
 		final NamePartView deviceTypeView = view(deviceType);
-		return namingConvention.isInstanceIndexValid(sectionView.getMnemonicPath(), deviceTypeView.getMnemonicPath(), instanceIndex);
+		return namingConvention.isInstanceIndexValid(subsectionView.getMnemonicPath(), deviceTypeView.getMnemonicPath(), instanceIndex);
 	}
 
 	/**
-	 * True if the device defined by the given section, device type and instance index would have a unique convention name.
 	 *
-	 * @param section the section containing the device
-	 * @param deviceType the device type of the device
-	 * @param instanceIndex the instance index of the device, null if no instance index is assigned to the device
+	 * @param subsection The subsection containing the device
+	 * @param deviceType The device type of the device
+	 * @param instanceIndex The instance index of the device, null if no instance index is assigned to the device
+	 * @return True if the device defined by the given subsection, device type and instance index would have a unique convention name.
 	 */
-	public boolean isDeviceConventionNameUnique(NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
-		final String conventionName = conventionName(section, deviceType, instanceIndex);
+	public boolean isDeviceConventionNameUnique(NamePart subsection, NamePart deviceType, @Nullable String instanceIndex) {
+		final String conventionName = conventionName(subsection, deviceType, instanceIndex);
 		return isDeviceConventionNameUnique(conventionName);
 	}
 
 	/**
-	 * True if the device defined by the given section, devicetype and instance index would have a unique convention name, not taking into account itself.  
-	 * @param section
-	 * @param deviceType
-	 * @param instanceIndex
-	 * @param device
-	 * @return
+	 * @param subsection The subsection containing the device
+	 * @param deviceType The device type 
+	 * @param instanceIndex The instance index to test for validity, or null if no instance index is assigned to the device, in which case this is also checked for validity
+	 * @param device Instance of device
+	 * @return True if the device defined by the given subsection, device type and instance index would have a unique convention name, not taking into account itself.  
 	 */
-	public boolean isDeviceConventionNameUniqueExceptForItself(Device device, NamePart section, NamePart deviceType, @Nullable String instanceIndex) {
-		final String conventionName=conventionName(section, deviceType, instanceIndex);
+	public boolean isDeviceConventionNameUniqueExceptForItself(Device device, NamePart subsection, NamePart deviceType, @Nullable String instanceIndex) {
+		final String conventionName=conventionName(subsection, deviceType, instanceIndex);
 		final String conventionNameEqClass = namingConvention.equivalenceClassRepresentative(conventionName);
 		final DeviceRevision currentRevision = currentRevision(device);
 		String currentConventionNameEqClass=currentRevision.getConventionNameEqClass();
@@ -242,9 +239,9 @@ public class NamePartService {
 	}
 
 	/**
-	 * True if the device with the given convention name have a unique convention name.
 	 *
 	 * @param conventionName the device name to check
+	 * @return True if the device with the given convention name have a unique convention name.
 	 */
 	public boolean isDeviceConventionNameUnique(String conventionName) {
 		final String equivalenceClass = namingConvention.equivalenceClassRepresentative(conventionName);
@@ -256,6 +253,7 @@ public class NamePartService {
 	 *
 	 * @param name the long, descriptive name of the part. Does not need to follow a convention.
 	 * @param mnemonic the short, mnemonic name of the part in accordance with the naming convention
+	 * @param description Description, comment or other relevant information for the name part
 	 * @param namePartType the type of the proposed name part
 	 * @param parent the parent of the proposed name part in the hierarchy. Null if at the top of the hierarchy.
 	 * @param user the user submitting the proposal. Null if the proposal is by an automated process.
@@ -291,6 +289,7 @@ public class NamePartService {
 	 * @param namePart the name part proposed for modification
 	 * @param name the new long, descriptive name of the part. Does not need to follow a convention.
 	 * @param mnemonic the new short, mnemonic name of the part in accordance with the naming convention
+	 * @param description Description, comment or other relevant information for the name part
 	 * @param user the user submitting the proposal. Null if the proposal is by an automated process.
 	 * @param comment the comment the user gave when submitting the proposal. Null if no comment was given.
 	 * @return the resulting proposed NamePart revision
@@ -336,11 +335,10 @@ public class NamePartService {
 	/**
 	 * Submits a proposal for moving an existing name part.
 	 *
-	 * @param namePart the name part proposed for modification
-	 * @param name the new long, descriptive name of the part. Does not need to follow a convention.
-	 * @param mnemonic the new short, mnemonic name of the part in accordance with the naming convention
-	 * @param user the user submitting the proposal. Null if the proposal is by an automated process.
-	 * @param comment the comment the user gave when submitting the proposal. Null if no comment was given.
+	 * @param namePart The name part proposed for move
+	 * @param destinationParent Proposed destination parent of the name part
+	 * @param user The user submitting the proposal. Null if the proposal is by an automated process.
+	 * @param comment The comment or message the user gave when submitting the proposal. Null if no comment was given.
 	 * @return the resulting proposed NamePart revision
 	 */
 	public NamePartRevision moveNamePart(NamePart namePart, @Nullable NamePart destinationParent, @Nullable UserAccount user, @Nullable String comment) {
@@ -388,9 +386,9 @@ public class NamePartService {
 	}
 
 	/**
-	 * True if a name part has dependent devices
-	 * @param namePart
-	 * @return
+	 * 
+	 * @param namePart Name Part
+	 * @return True if the name part has dependent devices
 	 */
 	private boolean hasDevices(NamePart namePart) {
 		List<String> mnemonicPath=getMnemonicPath(namePart);
@@ -414,11 +412,10 @@ public class NamePartService {
 	}
 
 	/**
-	 * True if a name part can be moved into another parent name part, according to the naming convention rules.
-	 * @param sourceParent
-	 * @param destinationParent
+	 * @param sourceParent Source parent of Name part to be moved
+	 * @param destinationParent Destination Parent of Name part to be moved
 	 * @param namePartType
-	 * @return
+	 * @return True if a name part can be moved into another parent name part, according to the naming convention rules.
 	 */
 	private boolean canNamePartMove(NamePart sourceParent, NamePart destinationParent, NamePartType namePartType){
 		List<String> destinationPath=getMnemonicPath(destinationParent);
@@ -428,9 +425,15 @@ public class NamePartService {
 		return namingConvention.canNamePartMove(sourcePath, sourceType, destinationPath, destinationType);	
 	}
 
-	private boolean isMnemonicRequiredForChild(NamePart namePartParent, NamePartType type){
-		final List<String> mnemonicPath = ImmutableList.<String>builder().addAll(getMnemonicPath(namePartParent)).add("").build();
-		NamePartType mnemonicType=namePartParent!=null? namePartParent.getNamePartType():type;
+	/**
+	 * 
+	 * @param namePart Name Part
+	 * @param type Name Part Type specifying if the name part belongs to the Area Structure or the Device Structure
+	 * @return True Mnemonic of child name part of this namepart  
+	 */
+	private boolean isMnemonicRequiredForChild(NamePart namePart, NamePartType type){
+		final List<String> mnemonicPath = ImmutableList.<String>builder().addAll(getMnemonicPath(namePart)).add("").build();
+		NamePartType mnemonicType=namePart!=null? namePart.getNamePartType():type;
 		return namingConvention.isMnemonicRequired(mnemonicPath, mnemonicType);
 	}
 
@@ -447,9 +450,8 @@ public class NamePartService {
 	}
 
 	/**
-	 * Returns true if any name parts in the same branch, from top to bottom, have any pending changes.  
-	 * @param namePartView
-	 * @return
+	 * @param namePartView View of Name Part
+	 * @return True if any name parts in the same branch, from top to bottom, have any pending changes.   
 	 */
 	private boolean pendingPath(NamePartView namePartView){
 		if(namePartView.isPendingInThisLevelAndAbove()){
@@ -459,6 +461,11 @@ public class NamePartService {
 		}
 	}
 
+	/**
+	 * 
+	 * @param namePart Name Part in the Device Structure or Area Structure
+ 	 * @return True if any of the children of the name part is pending approval for being added, modified or deleted  
+	 */
 	private boolean hasPendingChildren(NamePart namePart) {
 		for (NamePart child : approvedAndProposedChildren(namePart)) {
 			if(child.getNamePartType().equals(NamePartRevisionStatus.PENDING)){
@@ -580,11 +587,10 @@ public class NamePartService {
 	}
 
 	/**
-	 * The list of devices associated by the given name part (contained under a section or of a given device type)
 	 *
 	 * @param namePart the name part
-	 * @param recursive true if the list should also contain devices associated by the name part's children
-	 * deeper down in the hierarchy
+	 * @param recursive true if the list should also contain devices associated by the name part's children deeper down in the hierarchy
+	 * @return The list of devices associated by the given name part (contained under a section or of a given device type)
 	 */
 	public List<Device> associatedDevices(NamePart namePart, boolean recursive) {
 		final List<Device> associatedDevices = Lists.newArrayList();
@@ -604,10 +610,10 @@ public class NamePartService {
 	}
 
 	/**
-	 * The list of current, most recent approved revisions of all name parts of a given type in the database.
 	 *
 	 * @param type the type of the name parts
 	 * @param includeDeleted true if the list should also include revisions for deleted name parts
+	 * @return The list of current, most recent approved revisions of all name parts of a given type in the database.
 	 */
 	public List<NamePartRevision> currentApprovedNamePartRevisions(NamePartType type, boolean includeDeleted) {
 		if (includeDeleted)
@@ -618,17 +624,17 @@ public class NamePartService {
 	}
 
 	/**
-	 * The list of all revisions
+	 * @return The list of all revisions
 	 */
 	public List<NamePartRevision> allNamePartRevisions() {
 		return em.createQuery("SELECT r FROM NamePartRevision r", NamePartRevision.class).getResultList();
 	}
 
 	/**
-	 * The list of revisions pending approval of all name parts of the given type in the database.
 	 *
 	 * @param type the type of the name parts
 	 * @param includeDeleted true if the list should also include revisions for deleted name parts
+	 * @return The list of revisions pending approval of all name parts of the given type in the database.
 	 */
 	public List<NamePartRevision> currentPendingNamePartRevisions(NamePartType type, boolean includeDeleted) {
 		if (includeDeleted)
@@ -639,27 +645,26 @@ public class NamePartService {
 	}
 
 	/**
-	 * The list of all revisions of the given name part, including approved, pending, canceled or rejected, starting
-	 * from the oldest to the latest.
 	 * @param namePart the name part
+	 * @return The list of all revisions of the given name part, including approved, pending, canceled or rejected, starting from the oldest to the latest.
 	 */
 	public List<NamePartRevision> revisions(NamePart namePart) {
 		return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart ORDER BY r.id", NamePartRevision.class).setParameter("namePart", namePart).getResultList();
 	}
 
 	/**
-	 * The current, most recent approved revision of the given name part. Null if no approved revision exists for this name part.
 	 *
 	 * @param namePart the name part
+	 * @return The current, most recent approved revision of the given name part. Null if no approved revision exists for this name part.
 	 */
 	public @Nullable NamePartRevision approvedRevision(NamePart namePart) {
 		return JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND r.status = :status ORDER BY r.id DESC", NamePartRevision.class).setParameter("namePart", namePart).setParameter("status", NamePartRevisionStatus.APPROVED).setMaxResults(1));
 	}
 
 	/**
-	 * The revision of the given name part currently pending approval. Null if no revision is pending approval.
 	 *
 	 * @param namePart the name part
+	 * @return The revision of the given name part currently pending approval. Null if no revision is pending approval.
 	 */
 	public @Nullable NamePartRevision pendingRevision(NamePart namePart) {
 		final @Nullable NamePartRevision lastPendingOrApprovedRevision = JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM NamePartRevision r WHERE r.namePart = :namePart AND (r.status = :approved OR r.status = :pending) ORDER BY r.id DESC", NamePartRevision.class).setParameter("namePart", namePart).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setMaxResults(1));
@@ -788,15 +793,14 @@ public class NamePartService {
 	}
 
 	/**
-	 * The list of all revisions of obsolete devcies in the database. 
-	 * @return
+	 * @return The list of all revisions of obsolete devices in the database. 
 	 */
 	public List<DeviceRevision> obsoleteDeviceRevisions(){
 		return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.id <> (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device)", DeviceRevision.class).getResultList();
 	}
 
 	/**
-	 * The list of current, most recent revisions of all devices in the database.
+	 * @return The list of current, most recent revisions of all devices in the database.
 	 *
 	 * @param includeDeleted true if the list should also include revisions for deleted devices
 	 */
@@ -809,7 +813,7 @@ public class NamePartService {
 	}
 
 	/**
-	 * The list of the latest obsolete or deleted, revisions of all devicenames in the database.
+	 * @return The list of the latest obsolete or deleted, revisions of all devicenames in the database.
 	 *
 	 */
 	public List<DeviceRevision> latestObsoleteDeviceRevisionsGroupedByName() {
@@ -817,7 +821,8 @@ public class NamePartService {
 	}
 
 	/**
-	 * The list of the latest obsolete or deleted, revisions of all devicenames in the database.
+	 * @param conventionName The convention name to be searched for
+	 * @return The list of the latest obsolete or deleted, revisions of all device names in the database.
 	 *
 	 */
 	public DeviceRevision latestObsoleteDeviceRevisionNamed(String conventionName) {
@@ -827,7 +832,7 @@ public class NamePartService {
 	}
 	
 	/**
-	 * The list of all revisions of the given device, starting from the oldest to the latest.
+	 * @return The list of all revisions of the given device, starting from the oldest to the latest.
 	 * @param device the device
 	 */
 	public List<DeviceRevision> revisions(Device device) {
@@ -835,7 +840,7 @@ public class NamePartService {
 	}
 
 	/**
-	 * The current, most recent revision of the given device
+	 * @return The current, most recent revision of the given device
 	 *
 	 * @param device the device
 	 */
@@ -844,7 +849,7 @@ public class NamePartService {
 	}
 
 	/**
-	 * The current, most recent revision of the device with the given UUID. Null if none found.
+	 * @return The current, most recent revision of the device with the given UUID. Null if none found.
 	 *
 	 * @param deviceUuid the UUID of the device
 	 */
@@ -934,7 +939,7 @@ public class NamePartService {
 	}
 
 	/**
-	 * The list of current, most recent approved revisions of all name parts of a given type in the database with a null parent.
+	 * @return The list of current, most recent approved revisions of all name parts of a given type in the database with a null parent.
 	 *
 	 * @param type the type of the name parts
 	 * @param includeDeleted true if the list should also include revisions for deleted name parts
@@ -948,10 +953,9 @@ public class NamePartService {
 	}	
 	
 	/**
-	 * The list of current, most recent approved revisions of all name parts of a given parent revision in the database. 
-	 * @param parent 
+	 * @param parent Parent revision
 	 * @param includeDeleted true if the list should also include revisions for deleted name parts
-	 * @return
+	 * @return The list of current, most recent approved revisions of all name parts of a given parent revision in the database. 
 	 */
 	public List<NamePartRevision> currentApprovedChildrenOfNamePartRevision(NamePartRevision parent, boolean includeDeleted) {
 		NamePart namePartParent=parent.getNamePart();

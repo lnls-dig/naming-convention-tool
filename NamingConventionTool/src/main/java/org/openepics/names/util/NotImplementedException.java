@@ -20,7 +20,12 @@ package org.openepics.names.util;
 /**
  * An exception signaling that functionality has not yet been implemented.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar  
  */
 public class NotImplementedException extends RuntimeException {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3680937616667249613L;
 }

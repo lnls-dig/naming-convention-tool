@@ -27,17 +27,16 @@ import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 
 import org.openepics.names.services.views.DeviceRecordView;
-
 import com.google.common.collect.Lists;
 
+/**
+ * Bean to preserve status of tree node (expanded or collapsed) during a session. 
+ * @author Karin Rathsman 
+ */
 @SessionScoped
 public class SessionViewService implements Serializable{
 
 	private static final long serialVersionUID = 827187290632697101L;
-	/**
-	 * Bean to preserve status of tree node (expanded or collapsed) during a session. 
-	 * @author Karin Rathsman <karin.rathsman@esss.se>
-	 */
 	private Map<Object,Boolean> nodeMap = new HashMap<Object,Boolean>();
 	private List<DeviceRecordView> selectedRecords;
 

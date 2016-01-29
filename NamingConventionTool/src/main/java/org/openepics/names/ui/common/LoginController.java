@@ -18,8 +18,8 @@ import se.esss.ics.rbac.loginmodules.service.Message;
 /**
  * A UI controller bean for the login / logout button and form.
  *
- * @author Vasu V <vuppala@frib.msu.org>
- * @author K. Rathsman <karin.rathsman@esss.se>
+ * @author Vasu V  
+ * @author K. Rathsman  
  */
 @ManagedBean
 @ViewScoped

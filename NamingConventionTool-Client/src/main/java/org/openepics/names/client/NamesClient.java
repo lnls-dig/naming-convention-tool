@@ -8,12 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.openepics.names.jaxb.DeviceNameElement;
-import org.openepics.names.jaxb.DeviceNamesResource;
-
-import javax.ws.rs.PathParam;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
@@ -22,8 +17,9 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 /**
  * This is the naming service client API that clients can use to access the service.
- * 
- * @author Sunil Sah <sunil.sah@cosylab.com>
+ * @author Sunil Sah
+ * @author karinrathsman
+ *
  */
 public class NamesClient {
 
@@ -31,8 +27,6 @@ public class NamesClient {
 
     private static final String BASE_URL_PROPERTY_NAME = "names.servicesBaseURL";
     private static final String PROPERTIES_FILENAME = "names.properties";
-    
-    private static final String MEDIA_TYPE_APPLICATION_JSON = "application/json";
     private static final String DEVICE_NAMES_PATH = "deviceNames";
     private static final String SLASH = "/";
     
@@ -44,7 +38,7 @@ public class NamesClient {
 	 * found on the class path. If the file is not found, the following default values are used:
 	 * 
 	 * <ul>
-	 * <li><code>names.servicesBaseURL<code> = https://localhost:8080/names/rest</li>
+	 * <li><code>names.servicesBaseURL</code> = https://localhost:8080/names/rest</li>
 	 * </ul>
 	 * 
 	 * Values can also be specified by setting the system properties, which override the default and file definitions.

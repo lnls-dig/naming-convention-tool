@@ -11,8 +11,8 @@ import javax.ws.rs.core.MediaType;
  * This resource provides bulk device name data, and has a subresource for retrieving data of specific
  * device names.
  * 
- * @author Andraz Pozar <andraz.pozar@cosylab.com>
- * @author Sunil Sah <sunil.sah@cosylab.com>
+ * @author Andraz Pozar  
+ * @author Sunil Sah  
  */
 @Path("deviceNames")
 public interface DeviceNamesResource {

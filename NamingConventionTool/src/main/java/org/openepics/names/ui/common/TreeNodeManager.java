@@ -35,7 +35,7 @@ import org.primefaces.model.TreeNode;
 import com.google.common.collect.Lists;
 
 /**
- * @author Karin Rathsman <Karin.Rathsman@esss.se>
+ * @author Karin Rathsman  
  *
  */
 @ManagedBean
@@ -43,10 +43,12 @@ import com.google.common.collect.Lists;
 public class TreeNodeManager{
 
 	@Inject private SessionViewService sessionViewService;
+
 	/**
 	 * 
+	 * @param node Tree node 
+	 * @return the root of the tree node
 	 */
-			
 	public static TreeNode root(TreeNode node){
 		if(node==null || node.getParent() == null){
 			return node;
@@ -55,6 +57,11 @@ public class TreeNodeManager{
 		}
 	}
 	
+	/**
+	 * 
+	 * @param node Tree node
+	 * @return List of node and successive children
+	 */
 	public static List<TreeNode> nodeList(TreeNode node) {
 		final List<TreeNode> nodeList = Lists.newArrayList();
 		if(node!=null){
@@ -66,6 +73,11 @@ public class TreeNodeManager{
 		return nodeList;
 	}
 	
+	/**
+	 * 
+	 * @param node Tree node
+	 * @return List of successive parents of the node
+	 */
 	public static List<TreeNode> parentList(TreeNode node){
 		final List<TreeNode> nodeList = Lists.newArrayList();
 		if(node.getParent()!=null) nodeList.addAll(parentList(node.getParent()));
@@ -87,24 +99,40 @@ public class TreeNodeManager{
 		}
 	}
 
+	/**
+	 * Set treeNode and its children to be expanded/collapsed according to a list
+	 * @param treeNode The tree node root to be customized 
+	 */
 	public void expandCustomized(TreeNode treeNode){
 		for(TreeNode node: nodeList(treeNode)){
 			node.setExpanded(isExpanded(node));
 		}
 	}
 	
+	/**
+	 * Expand treeNode and its children
+	 * @param treeNode The tree node root
+	 */
 	public void expandAll(TreeNode treeNode){
 		for (TreeNode node : nodeList(treeNode)) {
 			expand(node);
 		}
 	}
 	
+	/**
+	 * Collapse treeNode and its children
+	 * @param treeNode The tree node root
+	 */
 	public void collapseAll(TreeNode treeNode){
 		for (TreeNode node : nodeList(treeNode)) {
 			collapse(node);
 		}
 	}
 
+	/**
+	 * Expand TreeNode
+	 * @param treeNode the node to expand
+	 */
 	public void expand(TreeNode treeNode) {
 		if(treeNode!=null && !isExpanded(treeNode)&& getNamePart(treeNode)!=null) {		
 			treeNode.setExpanded(true);
@@ -112,6 +140,10 @@ public class TreeNodeManager{
 		}
 	}
 
+	/**
+	 * Collapse tree node
+	 * @param treeNode the node to collapse
+	 */
 	public void collapse(TreeNode treeNode) {
 		if(treeNode!=null && isExpanded(treeNode)&& getNamePart(treeNode)!=null) {
 			treeNode.setExpanded(false);
@@ -119,18 +151,30 @@ public class TreeNodeManager{
 		}		
 	}
 	
+	/**
+	 * Expand all parent nodes to a tree node
+	 * @param treeNode the node to expand recursively to root node 
+	 */
 	public void expandParents(TreeNode treeNode) {
 		for (TreeNode node : parentList(treeNode)) {
 			expand(node);
 		}
 	}
 
+	/**
+	 * Expands node on an event
+	 * @param event containing the treeNode
+	 */
 	public void onNodeExpand(NodeExpandEvent event){
 		if(event!=null && event.getTreeNode() !=null){
 			expand(event.getTreeNode());
 		}
 	}
 
+	/** 
+	 * Collapses node on an even
+	 * @param event containing the treeNode
+	 */
 	public void onNodeCollapse(NodeCollapseEvent event){
 		if(event!=null && event.getTreeNode() !=null){
 			collapse(event.getTreeNode());

@@ -30,7 +30,7 @@ import java.util.Iterator;
 /**
  * A global JSF exception handler that displays caught exceptions in the UI as popup messages.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar  
  */
 public class CustomExceptionHandler extends ExceptionHandlerWrapper {
     

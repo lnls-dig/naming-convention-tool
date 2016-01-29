@@ -26,12 +26,13 @@ import java.util.UUID;
 /**
  * An entity representing a device.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar
  */
 @Entity
 public class Device extends Persistable {
 
-    private String uuid;
+	private static final long serialVersionUID = 8489649071981076533L;
+	private String uuid;
 
     protected Device() {}
 
@@ -44,7 +45,7 @@ public class Device extends Persistable {
     }
 
     /**
-     * The universally unique identifier.
+     * @return The universally unique identifier.
      */
     public UUID getUuid() { return UUID.fromString(uuid); }
 

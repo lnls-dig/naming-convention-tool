@@ -29,8 +29,8 @@ import java.util.List;
 /**
  * An empty stub for the naming convention used by FRIB.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
- * @author Karin Rathsman <karin.rathsman@esss.se>
+ * @author Marko Kolar  
+ * @author Karin Rathsman  
  */
 @Alternative
 @Stateless

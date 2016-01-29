@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * A view provider that can provide views for a large number of name parts or devices in an efficient way.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar  
  */
 public class BatchViewProvider {
 
@@ -67,14 +67,16 @@ public class BatchViewProvider {
     }
 
     /**
-     * The view of the name part
+     * @param namePart a name part
+     * @return The view of the name part
      */
     public NamePartView view(NamePart namePart) {
         return view(As.notNull(revisionByNamePart.get(namePart)));
     }
 
     /**
-     * The view of the name part revision
+     * @param revision a revision of a name part
+     * @return The view of the name part revision
      */
     public NamePartView view(NamePartRevision revision) {
         final @Nullable NamePartView existingView = viewsByNamePart.get(revision.getNamePart());
@@ -88,14 +90,16 @@ public class BatchViewProvider {
     }
 
     /**
-     * The view of the device
+     * @param device a device
+     * @return The view of the device
      */
     public DeviceView view(Device device) {
         return view(As.notNull(revisionsByDevice.get(device)));
     }
 
     /**
-     * The view of the device revision
+     * @param revision a revision of a device
+     * @return The view of the device revision
      */
     public DeviceView view(DeviceRevision revision) {
         final @Nullable DeviceView existingView = viewsByDevice.get(revision.getDevice());

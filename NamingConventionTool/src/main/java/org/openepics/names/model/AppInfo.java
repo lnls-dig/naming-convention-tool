@@ -25,12 +25,16 @@ import javax.persistence.Entity;
  * only used to indicate that the database has been initialized. Later it could carry things like schema version and
  * application configuration.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar
  */
 @Entity
 public class AppInfo extends Persistable {
     
-    private int schemaVersion;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8040585866896629942L;
+	private int schemaVersion;
   
     public int getSchemaVersion() { return schemaVersion; }
     

@@ -33,8 +33,8 @@ import java.util.List;
 /**
  * A naming convention definition used by ESS.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
- * @author Karin Rathsman <karin.rathsman@esss.se>
+ * @author Marko Kolar 
+ * @author Karin Rathsman 
  */
 @Alternative
 @Stateless

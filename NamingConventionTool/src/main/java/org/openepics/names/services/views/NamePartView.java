@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableList;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartRevisionStatus;
-import org.openepics.names.model.NamePartType;
 
 import javax.annotation.Nullable;
 
@@ -32,8 +31,8 @@ import java.util.Objects;
 /**
  * A view of a NamePart that makes it easy to query some of its properties and relations in an object-related fashion.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
- * @author Karin Rathsman <karin.rathsman@esss.se>
+ * @author Marko Kolar  
+ * @author Karin Rathsman 
  */
 public class NamePartView {
 
@@ -60,12 +59,13 @@ public class NamePartView {
     }
    
     /**
-     * The name part this is a view of.
+     * @return The name part this is a view of.
      */    
     public NamePart getNamePart() { return getCurrentOrElsePendingRevision().getNamePart(); }
 
     /**
      * Calls getCurrentOrElsePendingRevision(), here for compatibility with old code only.
+     * @return Current or else pending revision of the name part
      */
     @Deprecated
     public NamePartRevision getNameEvent() { return getCurrentOrElsePendingRevision(); }
@@ -74,7 +74,7 @@ public class NamePartView {
     public Long getId() { return getCurrentOrElsePendingRevision().getId(); }
 
     /**
-     * The view of the name part's parent, null if it does not have one.
+     * @return The view of the name part's parent, null if it does not have one.
      */
     public @Nullable NamePartView getParent() {
         final @Nullable NamePart parent = getCurrentOrElsePendingRevision().getParent();
@@ -89,12 +89,12 @@ public class NamePartView {
     }
 
     /**
-     * The depth level in the name part hierarchy, starting at 0 for root nodes.
+     * @return The depth level in the name part hierarchy, starting at 0 for root nodes.
      */
     public int getLevel() { return getParent() != null ? getParent().getLevel() + 1 : 0; }
 
     /**
-     * The object describing the pending change of the name part. Null if no change is pending.
+     * @return The object describing the pending change of the name part. Null if no change is pending.
      */
     public @Nullable Change getPendingChange() {
         if (pendingRevision == null) {
@@ -181,40 +181,40 @@ public class NamePartView {
     }
     
     /**
-     * True if the name part is deleted.
+     * @return True if the name part is deleted.
      */
     public boolean isDeleted() { return getCurrentOrElsePendingRevision().isDeleted();
         
     }
     
     /**
-     * The current revision of the name part. Null if there is no current revision, only a pending one.
+     * @return The current revision of the name part. Null if there is no current revision, only a pending one.
      */
     public @Nullable NamePartRevision getCurrentRevision() { return currentRevision; }
 
     /**
-     * The pending revision of the name part. Null if no revision is pending.
+     * @return The pending revision of the name part. Null if no revision is pending.
      */
     public @Nullable NamePartRevision getPendingRevision() { return pendingRevision; }
 
     /**
-     * The full name of the part. Does not need to follow a convention.
+     * @return The full name of the part. Does not need to follow a convention.
      */
     public String getName() { return getCurrentOrElsePendingRevision().getName(); }
     
     /**
-     * The description of the part.
+     * @return The description of the part.
      */
     public String getDescription() { return getCurrentOrElsePendingRevision().getDescription();}
 
     /**
-     * The short, mnemonic name of the part in accordance with the naming convention.
+     * @return The short, mnemonic name of the part in accordance with the naming convention.
      */
     public String getMnemonic() { return getCurrentOrElsePendingRevision().getMnemonic(); }
 
     /**
-     * The list of name part descriptive names starting from the root of the hierarchy to this name part.
-     * @return 
+     * @return The list of name part descriptive names starting from the root of the hierarchy to this name part.
+     *
      */    
     public List<String> getNamePath() {
         final ImmutableList.Builder<String> pathElements = ImmutableList.builder();
@@ -234,7 +234,7 @@ public class NamePartView {
 //    }
     
     /**
-     * The list of name part mnemonic names starting from the root of the hierarchy to this name part.
+     * @return The list of name part mnemonic names starting from the root of the hierarchy to this name part.
      */
     public List<String> getMnemonicPath() {
         final ImmutableList.Builder<String> pathElements = ImmutableList.builder();
@@ -245,9 +245,8 @@ public class NamePartView {
     }
 
     /**
-     * The list of name part mnemonic names starting from the root of the hierarchy to the child that is be added to this name part.
-     * @param mnemonic
-     * @return
+     * @return The list of name part mnemonic names starting from the root of the hierarchy to the child that is be added to this name part.
+     * @param mnemonic the mnemonic of the name part
      */
     public List<String> getMnemonicPathWithChild(String mnemonic) {
         final ImmutableList.Builder<String> pathElements = ImmutableList.builder();
@@ -260,14 +259,14 @@ public class NamePartView {
 
     
     /**
-     * The name part's pending revision, if any, current revision otherwise.
+     * @return The name part's pending revision, if any, current revision otherwise.
      */
     public NamePartRevision getPendingOrElseCurrentRevision() {
         return pendingRevision != null ? pendingRevision : currentRevision;
     }
 
     /**
-     * The name part's current revision, if any, pending revision otherwise.
+     * @return The name part's current revision, if any, pending revision otherwise.
      */
     public NamePartRevision getCurrentOrElsePendingRevision() {
         return currentRevision != null ? currentRevision : pendingRevision;
@@ -285,7 +284,7 @@ public class NamePartView {
         }
                 
         /**
-         * The status of the proposed change in the request / approve workflow.
+         * @return The status of the proposed change in the request / approve workflow.
          */
         public NamePartRevisionStatus getStatus() { return status; }
     }
@@ -324,19 +323,18 @@ public class NamePartView {
         }
 
         /**
-         * The new descriptive name proposed by the change. Null if the name has not changed.
+         * @return The new descriptive name proposed by the change. Null if the name has not changed.
          */
         public @Nullable String getNewName() { return newName; }
 
         /**
-         * The new mnemonic name proposed by the change. Null if the name has not changed.
+         * @return The new mnemonic name proposed by the change. Null if the name has not changed.
          */
         public @Nullable String getNewMnemonic() { return newMnemonic; }
 
         
         /** 
-         * The new description proposed by the change. Null if the description has not changed. 
-         * @return
+         * @return The new description proposed by the change. Null if the description has not changed. 
          */
 		public @Nullable String getNewDescription() { return newDescription; }
     }

@@ -40,7 +40,7 @@ import com.google.common.collect.Lists;
 /**
  * This is implementation of {@link DeviceNamesResource} interface.
  * 
- * @author Andraz Pozar <andraz.pozar@cosylab.com>
+ * @author Andraz Pozar  
  */
 @Stateless
 public class DeviceNamesResourceImpl implements DeviceNamesResource {

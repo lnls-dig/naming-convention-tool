@@ -26,8 +26,8 @@ import javax.annotation.Nullable;
 /**
  * Specifies all the parameters that define a new device to be added to the system.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
- * @author Karin Rathsman <karin.rathsman@esss.se>
+ * @author Marko Kolar 
+ * @author Karin Rathsman 
  */
 public final class DeviceDefinition {
     private final NamePart section;
@@ -38,8 +38,8 @@ public final class DeviceDefinition {
     /**
      * @param section the section containing the device
      * @param deviceType the type of the device
-     * @param instanceIndex an additional identifier that, in combination with other attributes, determine the unique
-     * convention name of the device. Null if omitted.
+     * @param instanceIndex an additional identifier that, in combination with other attributes, determine the unique convention name of the device. Null if omitted.
+     * @param additionalInfo Comment or description of the device
      */
     public DeviceDefinition(NamePart section, NamePart deviceType, @Nullable String instanceIndex, @Nullable String additionalInfo) {
         this.section = section;
@@ -49,18 +49,17 @@ public final class DeviceDefinition {
     }
 
     /**
-     * The section containing the device.
+     * @return The section containing the device.
      */
     public NamePart section() { return section; }
 
     /**
-     * The type of the device.
+     * @return The type of the device.
      */
     public NamePart deviceType() { return deviceType; }
 
     /**
-     * An additional identifier that, in combination with other attributes, determine the unique convention name of the
-     * device. Null if omitted.
+     * @return An additional identifier that, in combination with other attributes, determine the unique convention name of the device. Null if omitted.
      */
     public @Nullable String instanceIndex() { return instanceIndex; }
 

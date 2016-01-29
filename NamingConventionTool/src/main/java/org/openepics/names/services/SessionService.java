@@ -30,28 +30,28 @@ import se.esss.ics.rbac.loginmodules.service.Message;
  *
  * The used session service is configured through beans.xml using the CDI alternatives mechanism.
  *
- * @author Karin Rathsman <karin.rathsman@esss.se>
+ * @author Karin Rathsman 
  */
 public interface SessionService extends Serializable{
 
 	/**
-	 * Logged in user. 
-	 * @return
+	 * 
+	 * @return Logged in user. 
 	 */
 	UserAccount user();
 	
 	/**
-	 * True if the user is logged in.
+	 * @return True if the user is logged in.
 	 */
 	boolean isLoggedIn();
 
 	/**
-	 * True if the user is an editor.
+	 * @return True if the user is an editor.
 	 */
 	boolean isEditor();
 
 	/**
-	 * True if the user is a superuser.
+	 * @return True if the user is a superuser.
 	 */
 	boolean isSuperUser();
 
@@ -62,16 +62,15 @@ public interface SessionService extends Serializable{
 	void update();
 
 	/**
-	 * Username of logged in user.
-	 * @return
+	 * @return User name of logged in user.
 	 */
 	String getUsername();
 	
 	/**
 	 * Performs authentication of the user identified by the given username and authenticated by the given password.
 	 * 
-	 * @param username the username
-	 * @param password the password
+	 * @param username The username
+	 * @param password The password
 	 * @return a message describing the result
 	 */
 	Message login(String username, String password);

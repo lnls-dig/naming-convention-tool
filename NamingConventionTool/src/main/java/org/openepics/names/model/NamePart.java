@@ -29,12 +29,17 @@ import java.util.UUID;
  * An entity representing either a named section of the Area Structure or a named device type of the Device
  * Structure, depending on the specified namePartType.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar 
  */
 @Entity
 public class NamePart extends Persistable {
 
-    private String uuid;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1674808840579429369L;
+
+	private String uuid;
 
     @Enumerated(EnumType.STRING)
     private NamePartType namePartType;
@@ -53,12 +58,12 @@ public class NamePart extends Persistable {
     }
 
     /**
-     * The universally unique identifier.
+     * @return The universally unique identifier.
      */
     public UUID getUuid() { return UUID.fromString(uuid); }
 
     /**
-     * The type of the NamePart.
+     * @return The type of the NamePart.
      */
     public NamePartType getNamePartType() { return namePartType; }
 

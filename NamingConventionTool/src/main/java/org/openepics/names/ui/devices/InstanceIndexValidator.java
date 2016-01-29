@@ -32,7 +32,7 @@ import javax.faces.validator.ValidatorException;
 /**
  * The validator for the Instance index field in the Add form.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar  
  */
 @RequestScoped
 @FacesValidator("instanceIndexValidator")

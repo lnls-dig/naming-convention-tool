@@ -14,8 +14,8 @@
     <validation-mode>NONE</validation-mode>
     
     <!-- Use for development purposes only -->
-<!--     <properties> -->
-<!--       <property name="hibernate.hbm2ddl.auto" value="update"/> -->
-<!--     </properties>  -->
+    <properties>
+      <property name="hibernate.hbm2ddl.auto" value="update"/>
+    </properties> 
   </persistence-unit>
 </persistence>

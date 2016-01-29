@@ -24,12 +24,13 @@ import javax.annotation.Nullable;
 /**
  * A static utility class for casting @Nullable values to non-@Nullable.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar  
  */
 public class As {
     /**
-     * The cast of the value declared nullable to the same type that does not permit null values. Throws an exception if
-     * the input value is, in fact, null.
+     * @param value a value declared nullable 
+     * @param <T> arbitrary class
+     * @return The cast of the value declared nullable to the same type that does not permit null values. Throws an exception if the input value is, in fact, null.
      */
     public static <T> T notNull(@Nullable T value) {
         Preconditions.checkNotNull(value);

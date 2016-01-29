@@ -20,7 +20,7 @@ package org.openepics.names.util;
 /**
  * A static utility class for marking places in code in a standard, IDE-aware fashion.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar  
  */
 public class Marker {
 

@@ -28,8 +28,8 @@ import javax.persistence.PersistenceContext;
 /**
  * A service bean managing UserAccount entities.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
- * @author K. Rathsman <karin.rathsman@esss.se>
+ * @author Marko Kolar  
+ * @author K. Rathsman  
  */
 @Stateless
 public class UserService {
@@ -37,9 +37,8 @@ public class UserService {
 	@PersistenceContext private EntityManager em;
 
 	/**
-	 * The UserAccount of the user with the given user name.
-	 *
 	 * @param userName The name of the user
+	 * @return The UserAccount of the user with the given user name.
 	 */
 	public UserAccount userWithName(String userName) {
 		return em.createQuery("SELECT u FROM UserAccount u WHERE u.username = :userName", UserAccount.class).setParameter("userName", userName).getSingleResult();
@@ -47,8 +46,8 @@ public class UserService {
 
 	/**
 	 * Creates new user with the given user name if not already exists.  
-	 * @param userName
-	 * @param role
+	 * @param userName The user name
+	 * @param role The Role
 	 */
 	public void createUser(String userName, Role role){
 		try {
@@ -59,9 +58,9 @@ public class UserService {
 	} 
 
 	/**
-	 * The EntityManager-attached entity corresponding to the given UserAccount entity.
 	 *
 	 * @param user the (possibly detached) UserAccount entity
+	 * @return The EntityManager-attached entity corresponding to the given UserAccount entity.
 	 */
 	public UserAccount emAttached(UserAccount user) {
 		return As.notNull(em.find(UserAccount.class, user.getId()));

@@ -20,7 +20,7 @@ package org.openepics.names.ui.common;
 /**
  * A wrapper for TreeNode's data with additional information on whether the node is affected by an operation.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
+ * @author Marko Kolar  
  */
 public class OperationView<T> {
 
@@ -37,12 +37,12 @@ public class OperationView<T> {
     }
 
     /**
-     * The element possibly affected by the operation.
+     * @return The element possibly affected by the operation.
      */
     public T getData() { return data; }
 
     /**
-     * True if the element is affected.
+     * @return True if the element is affected.
      */
     public boolean isAffected() { return isAffected; }
 }

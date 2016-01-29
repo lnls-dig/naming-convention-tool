@@ -30,7 +30,7 @@ import org.openepics.names.services.SessionViewService;
 import org.openepics.names.services.views.DeviceRecordView;
 
 /**
- * @author Karin Rathsman <Karin.Rathsman@esss.se>
+ * @author Karin Rathsman  
  *
  */
 

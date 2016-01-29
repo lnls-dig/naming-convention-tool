@@ -49,8 +49,8 @@ import java.util.List;
 /**
  * A UI controller bean for the Logical Area Structure and Device Category Structure screens.
  *
- * @author Vasu V <vuppala@frib.msu.org>
- * @author Karin Rathsman <karin.rathsman@esss.se>
+ * @author Vasu V  
+ * @author Karin Rathsman  
  */
 @ManagedBean
 @ViewScoped

@@ -3,7 +3,11 @@ package org.openepics.names.services.views;
 import org.openepics.names.model.Device;
 import org.openepics.names.model.NamePart;
 
-
+/**
+ * View for instances of device records in table 
+ * @author karinrathsman
+ *
+ */
 public class DeviceRecordView {
 	private Long id;
 	private Boolean deleted;

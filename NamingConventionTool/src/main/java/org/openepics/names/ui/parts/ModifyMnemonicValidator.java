@@ -31,8 +31,8 @@ import javax.faces.validator.ValidatorException;
 /**
  * The validator for the Mnemonic field in the Modify form.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
- * @author Karin Rathsman <karin.rathsman@esss.se>
+ * @author Marko Kolar  
+ * @author Karin Rathsman  
  */
 @RequestScoped
 @FacesValidator("custom.modifyMnemonicValidator")

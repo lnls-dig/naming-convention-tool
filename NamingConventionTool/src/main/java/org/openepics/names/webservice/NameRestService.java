@@ -24,7 +24,7 @@ import javax.ws.rs.core.Application;
 /**
  * This represents the JAX-RS application which hosts all REST resources of the naming tool.
  *
- * @author Andraz Pozar <andraz.pozar@cosylab.com>
+ * @author Andraz Pozar 
  */
 @javax.ws.rs.ApplicationPath("/rest")
 public class NameRestService extends Application {

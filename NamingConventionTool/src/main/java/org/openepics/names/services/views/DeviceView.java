@@ -28,8 +28,8 @@ import javax.annotation.Nullable;
  * A view of a Device (its particular revision) that makes it easy to query some of its properties and relations in an
  * object-related fashion.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
- * @author Karin Rathsman <karin.rathsman@esss.se>
+ * @author Marko Kolar  
+ * @author Karin Rathsman  
  */
 public class DeviceView {
 
@@ -59,22 +59,22 @@ public class DeviceView {
     }
 
     /**
-     * The device's current revision.
+     * @return The device's current revision.
      */
     public DeviceRevision getDevice() { return currentRevision; }
 
     @Deprecated
     public Long getId() { return currentRevision.getId(); }
 
-    /**A
-     * The convention name of the device.
+    /**
+     * @return The convention name of the device.
      */
     public String getConventionName() {
         return currentRevision.getConventionName();
     }
 
     /**
-     * The view of the section containing the device.
+     * @return The view of the section containing the device.
      */
     public NamePartView getSection() {
         if (sectionView == null) {
@@ -84,7 +84,7 @@ public class DeviceView {
     }
 
     /**
-     * The view of the device's device type.
+     * @return The view of the device's device type.
      */
     public NamePartView getDeviceType() {
         if (deviceTypeView == null) {
@@ -94,19 +94,17 @@ public class DeviceView {
     }
 
     /**
-     * An additional identifier that, in combination with other attributes, determine the unique convention name of the
-     * device. Null if omitted.
+     * @return An additional identifier that, in combination with other attributes, determine the unique convention name of the device. Null if omitted.
      */
     public @Nullable String getInstanceIndex() { return currentRevision.getInstanceIndex(); }
 
     /**
-     * The user who proposed the current device revision.
+     * @return The user who proposed the current device revision.
      */
     public UserAccount getRequestedBy() { return currentRevision.getRequestedBy(); }
 
     /** 
-     * Additional information (description, comment etc.) of the device
-     * @return
+     * @return Additional information (description, comment etc.) of the device
      */
 	public @Nullable String getAdditionalInfo() { return currentRevision.getAdditionalInfo();}
 }

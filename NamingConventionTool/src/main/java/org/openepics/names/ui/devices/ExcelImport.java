@@ -98,12 +98,12 @@ public class ExcelImport {
         }
 
         /**
-         * The row where the error happened.
+         * @return The row where the error happened.
          */
         public int getRowNumber() { return rowNumber; }
 
         /**
-         * The type of the entity that was not found.
+         * @return The type of the entity that was not found.
          */
         public NamePartType getNamePartType() { return namePartType; } 
     }

@@ -28,8 +28,8 @@ import javax.inject.Inject;
 /**
  * A bean exposing the information about the logged in user to the UI.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
- * @author Karin Rathsman <karin.rathsman@esss.se>
+ * @author Marko Kolar  
+ * @author Karin Rathsman
  */
 @ManagedBean
 @ViewScoped

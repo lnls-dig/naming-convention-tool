@@ -38,8 +38,8 @@ import se.esss.ics.rbac.loginmodules.service.Message;
 /**
  * A session bean holding the UserAccount entity representing the signed in user.
  *
- * @author Marko Kolar <marko.kolar@cosylab.com>
- * @author Karin Rathsman <karin.rathsman@esss.se>
+ * @author Marko Kolar  
+ * @author Karin Rathsman  
  */
 @Alternative
 @SessionScoped

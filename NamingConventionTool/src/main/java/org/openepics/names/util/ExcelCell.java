@@ -24,14 +24,15 @@ import org.apache.poi.ss.usermodel.Cell;
 /**
  * A static utility class for reading single Excel file cell
  *
- * @author Andraz Pozar <andraz.pozar@cosylab.com>
+ * @author Andraz Pozar  
  */
 public class ExcelCell {
     
     /**
-     * Creating a String from Excel file cell. If cell contains numeric value, this value is cast to String. If there is no
-     * value for this cell, null is returned.
-     */
+     * Creating a String from Excel file cell. 
+	 * @param cell Excel file cell. 
+	 * @return Cell value as string. If cell contains numeric value, this value is cast to String. If there is no value for this cell, null is returned.
+	 */
     public static @Nullable String asString(@Nullable Cell cell) {
         if (cell != null) {
             if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
@@ -50,7 +51,9 @@ public class ExcelCell {
     
     /**
      * Reading Excel file cell with numeric value and returning its value
-     */
+	 * @param cell Excel file cell. 
+	 * @return Cell value as number. 
+	 */
     public static double asNumber(Cell cell) {
         return cell.getNumericCellValue();
     }
