@@ -360,7 +360,8 @@ public class NamePartsController implements Serializable {
 		rootWithModifications = getRootTreeNode(true);
 		rootWithoutModifications = getRootTreeNode(false);
 		modifyDisplayView();
-		treeNodeManager.expandCustomized(viewRoot); 
+		treeNodeManager.expandCustomized(viewRoot);
+		treeNodeManager.selectCustomized(viewRoot);
 	}
 
 	public synchronized void onExpandAll(){
@@ -734,9 +735,6 @@ public class NamePartsController implements Serializable {
 		}));
 	}
 
-
-	
-	
 	public void prepareDeletePopup() {
 		final List<NamePartView> targets = linearizedTargets(deleteView);
 		final List<Device> affectedDevices = Lists.newArrayList();
@@ -760,7 +758,7 @@ public class NamePartsController implements Serializable {
 		formComment=null;
 		this.affectedDevices = affectedDevices;
 		operation=Operation.APPROVE;
-		RequestContext.getCurrentInstance().reset("ApproveForm:approveRequset");					
+		RequestContext.getCurrentInstance().reset("ApproveForm:approveRequest");					
 	}
 
 	public void prepareRejectPopup() {
