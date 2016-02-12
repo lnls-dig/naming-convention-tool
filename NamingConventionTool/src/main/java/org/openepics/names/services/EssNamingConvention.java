@@ -125,10 +125,6 @@ public class EssNamingConvention implements NamingConvention {
 		List<String> path;
 		boolean areaStructure;
 		boolean deviceStructure;
-		/**
-		 * @return the level
-		 */
-
 		Integer level;				
 
 		NameElement(List<String> path, NamePartType type){

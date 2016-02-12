@@ -414,7 +414,7 @@ public class NamePartService {
 	/**
 	 * @param sourceParent Source parent of Name part to be moved
 	 * @param destinationParent Destination Parent of Name part to be moved
-	 * @param namePartType
+	 * @param namePartType Name Part type, area or device structure
 	 * @return True if a name part can be moved into another parent name part, according to the naming convention rules.
 	 */
 	private boolean canNamePartMove(NamePart sourceParent, NamePart destinationParent, NamePartType namePartType){
