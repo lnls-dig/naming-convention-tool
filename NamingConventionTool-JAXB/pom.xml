@@ -6,7 +6,7 @@
 	<artifactId>names-jaxb</artifactId>
 	<description>JAXB objects used by NamingServiceTool. These objects are used by the services and the clients.</description>
 	<name>NamingConventionTool-JAXB</name>
-	<version>3.0.2</version>
+	<version>3.0.1</version>
 
 	<parent>
 		<groupId>se.esss.ics</groupId>
