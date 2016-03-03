@@ -380,4 +380,17 @@ public class RestrictedNamePartService {
 		return namePartService.currentApprovedChildrenOfNamePartRevision(parent, includeDeleted);
 	}
 
+	public List<NamePartRevision> approvedChildrenRevisions(NamePart namePart, boolean includeDeleted) {
+		return namePartService.approvedChildrenRevisions(namePart,includeDeleted);
+	}
+
+	public List<NamePartRevision> currentApprovedNamePartRevisionRoots(NamePartType type, boolean includeDeleted) {
+		return namePartService.currentApprovedNamePartRevisionRoots(type, includeDeleted);
+	}
+	
+	public List<DeviceRevision> devicesRevisionsIn(NamePart subsection, NamePart deviceType, boolean includeDeleted){
+		return namePartService.deviceRevisionsIn(subsection, deviceType,includeDeleted);
+	}
+	
+
 }

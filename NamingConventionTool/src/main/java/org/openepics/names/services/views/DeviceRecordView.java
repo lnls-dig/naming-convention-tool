@@ -1,7 +1,9 @@
 package org.openepics.names.services.views;
 
 import org.openepics.names.model.Device;
+import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePart;
+import org.openepics.names.ui.common.ViewFactory;
 
 /**
  * View for instances of device records in table 
@@ -9,75 +11,89 @@ import org.openepics.names.model.NamePart;
  *
  */
 public class DeviceRecordView {
-	private Long id;
-	private Boolean deleted;
-	private String conventionName;
-	private DeviceView deviceView;
+	private DeviceRevision deviceRevision;
+	private NamePartView deviceTypeView;
+	private NamePartView subsectionView;
 	private DeviceElement section;
 	private DeviceElement subsection;
 	private DeviceElement superSection;
 	private DeviceElement discipline;
 	private DeviceElement deviceGroup;
 	private DeviceElement deviceType;
-	private String style;
-
-	public DeviceRecordView(DeviceView deviceView) {
-		this.deviceView=deviceView;
-		this.conventionName=deviceView.getConventionName();
+	private ViewFactory viewFactory;
+	
+	public DeviceRecordView(ViewFactory viewFactory, DeviceRevision deviceRevision) {
+		this.viewFactory=viewFactory;		
+		this.deviceRevision=deviceRevision;
 		update();
 	}
+
+    /**
+     * @return The view of the subsection containing the device.
+     */
+    public NamePartView getSubsectionView() {
+        if (subsectionView == null) {
+            subsectionView = viewFactory.getView(deviceRevision.getSection());
+        }
+        return subsectionView;
+    }
+
+    /**
+     * @return The view of the device type containing the device.
+     */
+    public NamePartView getDeviceTypeView() {
+        if (deviceTypeView == null) {
+            deviceTypeView = viewFactory.getView(deviceRevision.getDeviceType());
+        }
+        return deviceTypeView;
+    }
 	
-	public void update(){
-		id=deviceView.getDevice().getDevice().getId();
-		deleted=deviceView.getDevice().isDeleted();
-		style=deleted? "Deleted":"Approved";
-		NamePartView view=deviceView.getSection();
-		subsection=new DeviceElement(view);
-		view=view.getParent();
-		section=new DeviceElement(view);
-		view=view.getParent();
-		superSection=new DeviceElement(view);
-		view=deviceView.getDeviceType();		
-		deviceType=new DeviceElement(view);
-		view=view.getParent();
-		deviceGroup=new DeviceElement(view);
-		view=view.getParent();
-		discipline=new DeviceElement(view);		
+	public void update(){		
+		deviceTypeView=null;
+		subsectionView=null;
+		subsection=null;
+		section=null;
+		superSection=null;
+		deviceType=null;
+		deviceGroup=null;
+		discipline=null;
 	}
-		
+	
 	public String getInstanceIndex(){
-		return deviceView.getInstanceIndex();
+		return deviceRevision.getInstanceIndex();
 	}
 	
 	public String getConventionName() {
-		return conventionName;
+		return deviceRevision.getConventionName();
 	}
 	
 	public String getDescription(){
-		return deviceView.getAdditionalInfo();
+		return deviceRevision.getAdditionalInfo();
 	}
 
 	public Long getId(){
-		return id;
+		return deviceRevision.getDevice().getId();
 	}
 	
 	public String getStyle(){
-		return style;
+		return deviceRevision.isDeleted()? "Deleted":"Approved";
 	}
 	
 	public  Device getDevice(){
-		return getDeviceView().getDevice().getDevice(); 
+		return deviceRevision.getDevice(); 
 	}
 	
 	public DeviceElement getSubsection() {
+		if(subsection==null){
+			subsection=new DeviceElement(getSubsectionView());
+		}
 		return subsection;
 	}	
-	
-	public DeviceView getDeviceView() {
-		return deviceView;
-	}
-	
+		
 	public DeviceElement getSection() {
+		if(section==null){
+			section=new DeviceElement(getSubsectionView().getParent());
+		}
 		return section;
 	}
 
@@ -85,12 +101,18 @@ public class DeviceRecordView {
 	 * @return the superSection
 	 */
 	public DeviceElement getSuperSection() {
+		if(superSection==null){
+			superSection=new DeviceElement(getSubsectionView().getParent().getParent());
+		}
 		return superSection;
 	}
 	/**
 	 * @return the discipline
 	 */
 	public DeviceElement getDiscipline() {
+		if(discipline==null){
+			discipline=new DeviceElement(getDeviceTypeView().getParent().getParent());
+		}
 		return discipline;
 	}
 
@@ -98,6 +120,9 @@ public class DeviceRecordView {
 	 * @return the deviceGroup
 	 */
 	public DeviceElement getDeviceGroup() {
+		if(deviceGroup==null){
+			deviceGroup=new DeviceElement(getDeviceTypeView().getParent());
+		}
 		return deviceGroup;
 	}
 
@@ -105,14 +130,17 @@ public class DeviceRecordView {
 	 * @return the deviceType
 	 */
 	public DeviceElement getDeviceType() {
+		if(deviceType==null){
+			deviceType=new DeviceElement(getDeviceTypeView());
+		}
+
 		return deviceType;
 	}
 		
 	public boolean isDeleted(){
-		return deleted;
+		return deviceRevision.isDeleted();
 	}
-	
-	
+		
 	public class DeviceElement{
 		private String name;
 		private String mnemonic;
@@ -144,4 +172,9 @@ public class DeviceRecordView {
 		
 	}
 	
+	
+	@Override
+	public boolean equals(Object other){
+		return other instanceof DeviceRecordView ? ((DeviceRecordView) other).getId().equals(this.getId()) : false;
+	}
 }

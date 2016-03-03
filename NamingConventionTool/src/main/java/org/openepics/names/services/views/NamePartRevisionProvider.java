@@ -20,6 +20,8 @@ package org.openepics.names.services.views;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 /**
@@ -42,4 +44,11 @@ public interface NamePartRevisionProvider {
      * @param namePart the name part to retrieve the revision for
      */
     @Nullable NamePartRevision pendingRevision(NamePart namePart);
+       
+    /**
+     * 
+     * @param namePart the name part to retrieve the list for
+     * @return The relevant list of approved children revision of the namePart.  
+     */
+    @Nullable List<NamePartRevision> approvedChildrenRevisions(NamePart namePart);
 }

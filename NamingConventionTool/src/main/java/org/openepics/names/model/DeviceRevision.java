@@ -97,7 +97,7 @@ public class DeviceRevision extends Persistable {
      * @return The device the revision pertains to.
      */
     public Device getDevice() { return device; }
-
+    
     /**
      * @return The time when the revision was proposed.
      */

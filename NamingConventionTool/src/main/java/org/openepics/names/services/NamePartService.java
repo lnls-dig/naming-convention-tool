@@ -623,6 +623,17 @@ public class NamePartService {
 		}
 	}
 
+	
+	public List<NamePartRevision> currentApprovedNamePartRevisionRoots(NamePartType type, boolean includeDeleted) {
+		if (includeDeleted)
+			return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :approved) AND r.parent IS NULL ORDER BY r.name", NamePartRevision.class).setParameter("type", type).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
+		else {
+			return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.namePart.namePartType = :type AND r2.status = :approved) AND r.deleted = FALSE AND r.parent IS NULL ORDER BY r.name", NamePartRevision.class).setParameter("type", type).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
+		}
+	}
+
+	
+	
 	/**
 	 * @return The list of all revisions
 	 */
@@ -790,8 +801,8 @@ public class NamePartService {
 		} else {
 			return currentRevision;
 		}
-	}
-
+	}	
+	
 	/**
 	 * @return The list of all revisions of obsolete devices in the database. 
 	 */
@@ -799,6 +810,18 @@ public class NamePartService {
 		return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.id <> (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device)", DeviceRevision.class).getResultList();
 	}
 
+
+	public List<DeviceRevision> filteredDeviceRevisions(boolean includeDeleted, List<NamePart> subsections, List<NamePart> deviceTypes){
+		List<DeviceRevision> devices=Lists.newArrayList();
+		for(NamePart subsection : subsections) {
+			for(NamePart deviceType:deviceTypes){
+				List<DeviceRevision> temporary=devicesRevisionsOf(subsection, deviceType);
+				if(temporary!=null) devices.addAll(devicesRevisionsOf(subsection, deviceType));
+			}
+		}
+		return devices;		
+	}
+	
 	/**
 	 * @return The list of current, most recent revisions of all devices in the database.
 	 *
@@ -857,11 +880,21 @@ public class NamePartService {
 		return JpaHelper.getSingleResultOrNull(em.createQuery("SELECT r FROM DeviceRevision r WHERE r.device.uuid = :uuid ORDER BY r.id DESC", DeviceRevision.class).setParameter("uuid", deviceUuid.toString()).setMaxResults(1));
 	}
 
+	/**
+	 * 
+	 * @param deviceName device name 
+	 * @return the current device revision with the given device name  
+	 */
 	public @Nullable DeviceRevision currentDeviceRevision(String deviceName) {
 		List<DeviceRevision> deviceRevisions= em.createQuery("SELECT r FROM DeviceRevision r WHERE  r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.conventionName = :conventionName", DeviceRevision.class).setParameter("conventionName", deviceName).getResultList();
 		return !deviceRevisions.isEmpty()? deviceRevisions.get(0):null;
 	}
 
+	/**
+	 * 
+	 * @param deviceName the name of the device
+	 * @return list of device revisions previously with the given device name
+	 */
 	public List<DeviceRevision> devcieRevisionsPreviouslyNamed(String deviceName){
 		return em.createQuery("SELECT r FROM DeviceRevision r WHERE  r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device AND r2.conventionName = :conventionName)", DeviceRevision.class).setParameter("conventionName", deviceName).getResultList();
 	}
@@ -970,6 +1003,10 @@ public class NamePartService {
 		final NamePartRevisionProvider revisionProvider = new NamePartRevisionProvider() {
 			@Override public @Nullable NamePartRevision approvedRevision(NamePart namePart) { return NamePartService.this.approvedRevision(namePart); }
 			@Override public @Nullable NamePartRevision pendingRevision(NamePart namePart) { return NamePartService.this.pendingRevision(namePart); }
+			@Override
+			public List<NamePartRevision> approvedChildrenRevisions(NamePart namePart) {
+				return NamePartService.this.approvedChildrenRevisions(namePart, true);
+			}
 		};
 		return new NamePartView(revisionProvider, approvedRevision(namePart), pendingRevision(namePart), null);
 	}
@@ -980,5 +1017,29 @@ public class NamePartService {
 
 	private List<Device> devicesOfType(NamePart deviceType) {
 		return em.createQuery("SELECT r.device FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.deviceType = :deviceType AND r.deleted = false", Device.class).setParameter("deviceType", deviceType).getResultList();
+	}	
+	private List<DeviceRevision> devicesRevisionsOf(NamePart section, NamePart deviceType) {
+		return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.section = :section AND r.deviceType = :deviceType AND r.deleted = false", DeviceRevision.class).setParameter("section", section).setParameter("deviceType", deviceType).getResultList();
+	}
+	/**
+	 * Query the approved name part revisions with specified name part as parent 
+	 * @param namePartParent parent name part
+	 * @param includeDeleted boolean flag indicating whether deleted name parts shall be included or not
+	 * @return ordered list of current approved name part revisions with specified name part as parent 
+	 */
+	public List<NamePartRevision> approvedChildrenRevisions(NamePart namePartParent, boolean includeDeleted) {
+		if (includeDeleted)
+				return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) AND r.parent = :parent ORDER BY r.name", NamePartRevision.class).setParameter("parent", namePartParent).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
+			else {
+				return em.createQuery("SELECT r FROM NamePartRevision r WHERE r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) AND r.deleted = FALSE AND r.parent= :parent ORDER BY r.name", NamePartRevision.class).setParameter("parent", namePartParent).setParameter("approved", NamePartRevisionStatus.APPROVED).getResultList();
+			}
+		}
+
+	public List<DeviceRevision> deviceRevisionsIn(NamePart subsection, NamePart deviceType, boolean includeDeleted){
+		if(includeDeleted){
+			return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.section = :section AND r.deviceType= :deviceType", DeviceRevision.class).setParameter("section", subsection).setParameter("deviceType", deviceType).getResultList();
+		} else {
+			return em.createQuery("SELECT r FROM DeviceRevision r WHERE r.id = (SELECT MAX(r2.id) FROM DeviceRevision r2 WHERE r2.device = r.device) AND r.section = :section AND r.deviceType= :deviceType AND r.deleted = FALSE", DeviceRevision.class).setParameter("section", subsection).setParameter("deviceType", deviceType).getResultList();
+		}
 	}	
 }

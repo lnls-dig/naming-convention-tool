@@ -18,6 +18,7 @@
 package org.openepics.names.services.views;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
@@ -61,7 +62,9 @@ public class NamePartView {
     /**
      * @return The name part this is a view of.
      */    
-    public NamePart getNamePart() { return getCurrentOrElsePendingRevision().getNamePart(); }
+    public NamePart getNamePart() { 
+    	return getCurrentOrElsePendingRevision().getNamePart(); 
+    }
 
     /**
      * Calls getCurrentOrElsePendingRevision(), here for compatibility with old code only.
@@ -87,11 +90,27 @@ public class NamePartView {
             return null;
         }
     }
+    
+    /**
+     * 
+     * @return The list of view of the name parts approved children, null if it does not have any. 
+     */
+	public @Nullable List<NamePartView> getCurrentApprovedChildren() {
+	     final @Nullable NamePart namePart = getNamePart();
+	     final List<NamePartRevision> childRevisions=namePartRevisionProvider.approvedChildrenRevisions(namePart);
+	     final List<NamePartView> children=Lists.newArrayList();
+	     for(NamePartRevision childRevision:childRevisions){
+	    	 children.add(new NamePartView(namePartRevisionProvider,childRevision,null,this));
+	     }
+	     return children;	
+	}
 
     /**
      * @return The depth level in the name part hierarchy, starting at 0 for root nodes.
      */
-    public int getLevel() { return getParent() != null ? getParent().getLevel() + 1 : 0; }
+    public int getLevel() { 
+    	return getParent() != null ? getParent().getLevel() + 1 : 0; 
+    }
 
     /**
      * @return The object describing the pending change of the name part. Null if no change is pending.
@@ -110,14 +129,26 @@ public class NamePartView {
         }
     }
     
+    /**
+     * 
+     * @return true if the name part is pending deletion
+     */
     public boolean isPendingDeletion(){
     	return pendingRevision!=null && pendingRevision.isDeleted();
     }
     
+    /**
+     * 
+     * @return true if the name part is new and not yet approved.
+     */
     public boolean isProposed(){
     	return pendingRevision!=null && !pendingRevision.isDeleted() && currentRevision==null;
     }
     
+    /**
+     * 
+     * @return true if the name part has previously been approved but is pending modification
+     */
     public boolean isPendingModification() {
     	return pendingRevision!=null && !pendingRevision.isDeleted() && currentRevision!=null;
     }
@@ -132,50 +163,99 @@ public class NamePartView {
     	}
     	return false;
     }
+    
+    /**
+     * 
+     * @return true if the full name is pending modification.
+     */
     public boolean isNameModified(){
     	return isPendingModification() && !pendingRevision.getName().equals(currentRevision.getName());
     }
     
+    /**
+     * 
+     * @return true if the mnemonic is pending modification
+     */
     public boolean isMnemonicModified(){
     	return isPendingModification() && !Objects.toString(pendingRevision.getMnemonic(),"").equals(Objects.toString(currentRevision.getMnemonic(),""));
     }
 
+    /**
+     * 
+     * @return true if the description/comment is pending modification
+     */
     public boolean isDescriptionModified(){
     	return isPendingModification() && !Objects.toString(pendingRevision.getDescription(),"").equals(Objects.toString(currentRevision.getDescription(),""));
     }
     
+    /**
+     * 
+     * @return true if the parent is pending modification
+     */
     public boolean isParentModified(){
     	return isPendingModification() && !Objects.equals(pendingRevision.getParent(),currentRevision.getParent());
     }
 
+    /**
+     * 
+     * @return the pending full name
+     */
     public @Nullable String getPendingName(){
     	return isNameModified() ? pendingRevision.getName() : null;
     }
     
+    /** 
+     * 
+     * @return the pending mnemonic
+     */
     public @Nullable String getPendingMnemonic(){
     	return isMnemonicModified() ? pendingRevision.getMnemonic() : null;
     }
     
+    /**
+     * 
+     * @return the pending description/comment
+     */
     public @Nullable String getPendingDescription(){
     	return isDescriptionModified() ? pendingRevision.getDescription() : null;
     }
     
+    /**
+     * 
+     * @return the pending parent name part
+     */
     public @Nullable NamePart getPendingParent(){
     	return isParentModified()? pendingRevision.getParent() : null;
     }
     
+    /** 
+     * 
+     * @return the pending or else current name
+     */
     public String getNewName(){
     	return getPendingOrElseCurrentRevision().getName();
     }
     
+    /**
+     * 
+     * @return the pending or else current mnemonic
+     */
     public String getNewMnemonic(){
     	return getPendingOrElseCurrentRevision().getMnemonic();
     }
     
+    /**
+     * 
+     * @return the pending or else current description
+     */
     public String getNewDescription(){
     	return getPendingOrElseCurrentRevision().getDescription();
     }
     
+    /** 
+     * 
+     * @return the pending or else current parent
+     */
     public NamePart getNewParent(){
     	return getPendingOrElseCurrentRevision().getParent();
     }
@@ -183,34 +263,44 @@ public class NamePartView {
     /**
      * @return True if the name part is deleted.
      */
-    public boolean isDeleted() { return getCurrentOrElsePendingRevision().isDeleted();
-        
+    public boolean isDeleted() { 
+    	return getCurrentOrElsePendingRevision().isDeleted();
     }
     
     /**
      * @return The current revision of the name part. Null if there is no current revision, only a pending one.
      */
-    public @Nullable NamePartRevision getCurrentRevision() { return currentRevision; }
+    public @Nullable NamePartRevision getCurrentRevision() { 
+    	return currentRevision; 
+    }
 
     /**
      * @return The pending revision of the name part. Null if no revision is pending.
      */
-    public @Nullable NamePartRevision getPendingRevision() { return pendingRevision; }
+    public @Nullable NamePartRevision getPendingRevision() { 
+    	return pendingRevision; 
+    }
 
     /**
      * @return The full name of the part. Does not need to follow a convention.
      */
-    public String getName() { return getCurrentOrElsePendingRevision().getName(); }
+    public String getName() { 
+    	return getCurrentOrElsePendingRevision().getName(); 
+    }
     
     /**
      * @return The description of the part.
      */
-    public String getDescription() { return getCurrentOrElsePendingRevision().getDescription();}
+    public String getDescription() { 
+    	return getCurrentOrElsePendingRevision().getDescription();
+    }
 
     /**
      * @return The short, mnemonic name of the part in accordance with the naming convention.
      */
-    public String getMnemonic() { return getCurrentOrElsePendingRevision().getMnemonic(); }
+    public String getMnemonic() { 
+    	return getCurrentOrElsePendingRevision().getMnemonic(); 
+    }
 
     /**
      * @return The list of name part descriptive names starting from the root of the hierarchy to this name part.
@@ -338,4 +428,6 @@ public class NamePartView {
          */
 		public @Nullable String getNewDescription() { return newDescription; }
     }
+
+   
 }

@@ -58,5 +58,10 @@ public class SelectRecordManager{
 	public @Nullable DeviceRecordView getSelectedRecord(){
 		return sessionViewService.getSelectedRecord();
 	}
+	
+//	public boolean isSelected(DeviceRecordView record){
+//		DeviceRecordView selected=sessionViewService.getSelectedRecord();
+//		return selected!=null? selected.equals(record):false;
+//	}
 
 }

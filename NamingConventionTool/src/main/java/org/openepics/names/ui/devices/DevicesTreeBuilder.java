@@ -25,10 +25,13 @@ import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
+import org.openepics.names.services.SessionViewService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
+import org.openepics.names.services.views.DeviceRecordView;
 import org.openepics.names.services.views.DeviceView;
 import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.ui.common.AlphanumComparator;
+import org.openepics.names.ui.common.TreeNodeManager;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.util.As;
@@ -51,36 +54,97 @@ public class DevicesTreeBuilder {
     @Inject private RestrictedNamePartService namePartService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private ViewFactory viewFactory;
+    @Inject private TreeNodeManager treeNodeManager;
 
     private HashMap<NamePart, Set<DeviceRevision>> devicesBySection;
     private HashMap<NamePart, NamePartView> viewByDeviceType;
+    
+	/**
+	 * Produces a list of name part views. 
+	 * @param view view of the root name part.
+	 * @param includeDeleted boolean flag indicating whether deleted name parts shall be included 
+	 * @param includeUnfiltered boolean flag indicating whether unfiltered name parts shall be included
+	 * @return the list of name part views starting form the included view as root
+ 	 */
+	private List<NamePartView> namePartViewList(NamePartView view, boolean includeDeleted, boolean includeUnfiltered){
+		final List<NamePartView> views = Lists.newArrayList();
+		final List<NamePartView> children=Lists.newArrayList();
+		if(view!=null && (!view.isDeleted() || includeDeleted) ){
+			boolean filtered=treeNodeManager.isFiltered(view) || includeUnfiltered;			
+			for(NamePartView child:view.getCurrentApprovedChildren()){					
+				children.addAll(namePartViewList(child, includeDeleted, filtered));
+			}
+			boolean hasFilteredChildren= children!=null && !children.isEmpty();
+						
+			if(hasFilteredChildren || filtered){
+				views.add(view);
+				views.addAll(children);
+			}
+		}
+		return views;
+	}
+	
+	private List<DeviceRecordView> devicesIn(NamePartView subsection, NamePartView deviceType, boolean includeDeleted){
+	    List<DeviceRecordView> temporary=Lists.newArrayList();
+//	    if(area.getLevel()<2) return temporary;
+		for (DeviceRevision deviceRevision : namePartService.devicesRevisionsIn(subsection.getNamePart(), deviceType.getNamePart(), includeDeleted)) {       	
+        	DeviceRecordView record=viewFactory.getRecordView(deviceRevision);
+        	temporary.add(record);
+    }
+		return temporary;
 
+	}
+	
+	/**
+	 * Generates a filtered and grouped list of all namePartViews.
+	 * @param type namePartType  
+	 * @param includeDeleted boolean flag to indicate whether deleted name parts shall be included.
+ 	 * @return filtered and grouped list for the specified name part type.
+	 */
+	private List<NamePartView> filteredNamePartViewList(NamePartType type, boolean includeDeleted){
+        List<NamePartView> namePartViews=Lists.newArrayList();
+        for(NamePartRevision namePartRevision : namePartService.currentApprovedNamePartRevisionRoots(type, includeDeleted)) {
+        	NamePartView root=viewFactory.getView(namePartRevision.getNamePart());
+        	namePartViews.addAll(namePartViewList(root, includeDeleted, false));
+        }
+        return namePartViews;
+	}
+	
+	public List<DeviceRecordView> deviceRecords(boolean includeDeleted){
+        List<DeviceRecordView> temporary=Lists.newArrayList();        
+        for(NamePartView areaView: filteredNamePartViewList(NamePartType.SECTION, includeDeleted)){
+        	for(NamePartView deviceView: filteredNamePartViewList(NamePartType.DEVICE_TYPE,includeDeleted))
+            	temporary.addAll(devicesIn(areaView,deviceView,includeDeleted));
+        }
+		return temporary;
+	}
+      
     /**
      * Produces a tree of sections with contained devices as leaf nodes from the approved revisions in the database.
      *
      * @param withDeleted true if the tree should include deleted devices
      * @return the root node of the tree
      */
+	@Deprecated
 	public TreeNode devicesTree(boolean withDeleted) {
 		final List<NamePartRevision> sectionRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, withDeleted);
-        final TreeNode sectionTree = namePartTreeBuilder.newNamePartTree(sectionRevisions, Lists.<NamePartRevision>newArrayList(), false);
-
+        final TreeNode sectionTree = namePartTreeBuilder.newNamePartTree(sectionRevisions);
+        
         final List<NamePartRevision> deviceTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, withDeleted);
-        final TreeNode deviceTypeTree = namePartTreeBuilder.newNamePartTree(deviceTypeRevisions, Lists.<NamePartRevision>newArrayList(), false);
+        final TreeNode deviceTypeTree = namePartTreeBuilder.newNamePartTree(deviceTypeRevisions);
         viewByDeviceType = Maps.newHashMap();
         populateDeviceTypeViews(deviceTypeTree);
-        
         devicesBySection = Maps.newHashMap();
         for (DeviceRevision device : namePartService.currentDeviceRevisions(withDeleted)) {
         	final Set<DeviceRevision> devicesForSection = devicesForSection(device.getSection());
         	devicesForSection.add(device);
-        }
-        
+        }       
         populateDeviceNodes(sectionTree);
 
         return sectionTree;
 	}
-
+	
+	@Deprecated
     private void populateDeviceTypeViews(TreeNode node) {
         for (TreeNode child : node.getChildren()) {
             populateDeviceTypeViews(child);
@@ -91,7 +155,8 @@ public class DevicesTreeBuilder {
             viewByDeviceType.put(deviceTypeView.getNamePart(), deviceTypeView);
         }
     }
-
+	
+	@Deprecated
     private Set<DeviceRevision> devicesForSection(NamePart section) {
         final Set<DeviceRevision> currentSet = devicesBySection.get(section);
         if (currentSet == null) {
@@ -103,10 +168,12 @@ public class DevicesTreeBuilder {
         }
     }
 
+	@Deprecated
     private NamePartView deviceTypeView(NamePart deviceType) {
         return As.notNull(viewByDeviceType.get(deviceType));
     }
 	
+	@Deprecated
 	private void populateDeviceNodes(TreeNode node) {
 	    for (TreeNode child : node.getChildren()) {
 			populateDeviceNodes(child);

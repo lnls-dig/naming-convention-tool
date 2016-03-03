@@ -12,42 +12,41 @@
 			<p:wizard id="wizard" widgetVar="wiz" 
 				flowListener="#{deviceWizardController.onFlowProcess}"
 				showStepStatus="false" >
-				<p:tab id="areaTab" title="Area">
+				<p:tab id="areaTab" title="Area" >
 					<p>Which part of the facility does the device provide service to?</p>
-					<h3>1. Expand (by clicking the triangle) and select functional area:</h3>
+					<h3>1. Select:</h3>
 					<p:separator />
 					<p:tree value="#{deviceWizardController.sections}"
-						selectionMode="single" var="section"
-						selection="#{deviceWizardController.formSelectedSection}"
+						selectionMode="#{selectionMode}" 
+						var="section"
+						selection="#{formSelectedSection}"
 						dynamic="true">
 						<p:ajax event="expand" listener="#{treeNodeManager.onNodeExpand}" />
-						<p:ajax event="collapse"
-							listener="#{treeNodeManager.onNodeCollapse}" />
+						<p:ajax event="collapse" listener="#{treeNodeManager.onNodeCollapse}" />
+<!-- 						<p:ajax event="select" listener="#{treeNodeManager.onNodeSelectRecursively}" /> -->
+<!-- 						<p:ajax event="unselect" listener="#{treeNodeManager.onNodeUnselectRecursively}" /> -->
 						<p:treeNode>
-							<h:outputText value="${deviceWizardController.mnemonic(section)} "
-								styleClass="sec"
+							<h:outputText value="${deviceWizardController.mnemonic(section)} " styleClass="sec"
 								rendered="#{deviceWizardController.mnemonic(section) != null}" />
 							<h:outputText id="SectionName" value=" #{section.name}" />
 							<p:tooltip for="SectionName" value="#{section.description}" />
-							<h:outputText value=" (#{section.mnemonic})"
-								rendered="#{section.mnemonic !=null}" />
+							<h:outputText value=" (#{section.mnemonic})" rendered="#{section.mnemonic !=null}" />
 						</p:treeNode>
 					</p:tree>
 					<p:separator />
 					<p:messages />
-					<p>Name elements are described and managed in the area structure.</p>
+					<p>Expand nodes by clicking the triangles.</p> <p>Name elements are described and managed in the area structure.</p>
 				</p:tab>
 				<p:tab id="deviceTab" title="Device">
-					<p>What kind of device is it?</p>
-					<h3>2. Expand (by clicking the triangle) and select device definition:</h3>
+					<p>What kind of function does the device provide?</p>
+					<h3>2. Select:</h3>
 					<p:separator />
 					<p:tree value="#{deviceWizardController.deviceTypes}"
-						selectionMode="single" var="devType"
-						selection="#{deviceWizardController.formSelectedDeviceType}"
+						selectionMode="#{selectionMode}" var="devType"
+						selection="#{formSelectedDeviceType}"
 						dynamic="true">
 						<p:ajax event="expand" listener="#{treeNodeManager.onNodeExpand}" />
-						<p:ajax event="collapse"
-							listener="#{treeNodeManager.onNodeCollapse}" />
+						<p:ajax event="collapse" listener="#{treeNodeManager.onNodeCollapse}" />
 						<p:treeNode>
 							<h:outputText
 								value=" ${deviceWizardController.mnemonic(devType)} "
@@ -61,29 +60,23 @@
 					</p:tree>
 					<p:separator />
 					<p:messages />
-					<p>Name elements are described and managed in the device
+					<p>Expand nodes by clicking the triangles.</p> <p>Name elements are described and managed in the device
 						structure.</p>
 				</p:tab>
-				<p:tab id="instanceTab" title="Instance">
+				<p:tab id="instanceTab" title="Instance" rendered="#{deviceWizardController.isTabRendered(2)}">
 					<h3>3. Enter instance index:</h3>
 					<p:inputText id="InstanceIndex"
 						value="#{deviceWizardController.formInstanceIndex}"
 						style="width:480px" maxlenght="6">
 						<f:validator validatorId="instanceIndexValidator" />
 					</p:inputText>
-<!-- 					<p:inputText id="InstanceIndex" -->
-<!-- 						value="#{deviceWizardController.formInstanceIndex}" -->
-<!-- 						onkeyup="displayIndexLengthWarningOnAdd()" -->
-<!-- 						style="width:480px" maxlenght="6"> -->
-<!-- 						<f:validator validatorId="instanceIndexValidator" /> -->
-<!-- 					</p:inputText> -->					
-<!-- 					<div id="=indexLengthWarning" -->
-<!-- 						class="ui-message ui-message-warn ui-widget ui-corner-all" -->
-<!-- 						style="display: none"> -->
-<!-- 						<span class="ui-message-warn-icon"></span> <span -->
-<!-- 							class="ui-message-warn-detail">Instance index should -->
-<!-- 							preferably be less than 4 characters although 6 is allowed.</span> -->
-<!-- 					</div> -->
+					<div id="=indexLengthWarning"
+						class="ui-message ui-message-warn ui-widget ui-corner-all"
+						style="display: none">
+						<span class="ui-message-warn-icon"></span> <span
+							class="ui-message-warn-detail">Instance index should
+							preferably be less than 4 characters although 6 is allowed.</span>
+					</div>
 					<p:message for="InstanceIndex" />
 
 					<h4>The instance index is validated against the following
@@ -113,7 +106,7 @@
 						<li>Names should be easy to pronounce and memorise.</li>
 					</ol>
 				</p:tab>
-				<p:tab id="finishTab" title="Finish">
+				<p:tab id="finishTab" title="Finish" rendered="#{deviceWizardController.isTabRendered(3)}">
 					<div class="wizardStyle">
 						<h3>4. Finish:</h3>
 						<h4>Review the Device Name:</h4>
@@ -129,15 +122,30 @@
 							<p:commandButton id="Submit" value="Submit"
 								update=":ManageNameForm :ManageNameForm:devicesTree"
 								style="float:right"
-								actionListener="#{deviceWizardController[submitHandler]}"
-								disabled="#{deviceWizardController.formSelectedSection == null || deviceWizardController.formSelectedDeviceType == null}"
-								oncomplete="#{deviceTableController.update()}"
+								actionListener="#{deviceWizardController.onSubmit}"
+								disabled="#{formSelectedSection == null || formSelectedDeviceType == null}"
 								onclick="PF(#{widgetName}).hide()"/>
 							<p:commandButton value="Cancel"
 								onclick="PF(#{widgetName}).hide()"
 								style="float:right" />
 						</div>
 					</div>
+				</p:tab>
+				<p:tab id="filterTab" title="Finish" rendered="#{deviceWizardController.isTabRendered(4)}">
+					<div class="wizardStyle">
+						<h3>3. Finish:</h3>
+						<h4>Submit your filtering requests. These will be saved for the rest remainder of this session.</h4>
+						<div align="right">
+							<p:commandButton id="Filter" value="Submit"
+								update=":ManageNameForm :ManageNameForm:devicesTree"
+								style="float:right"
+								actionListener="#{deviceWizardController.onSubmit}"
+								onclick="PF(#{widgetName}).hide()"/>
+							<p:commandButton value="Cancel"
+								onclick="PF(#{widgetName}).hide()"
+								style="float:right" />
+						</div>
+					</div>				
 				</p:tab>
 			</p:wizard>
 

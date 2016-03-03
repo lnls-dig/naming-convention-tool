@@ -20,12 +20,12 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 
+import org.openepics.names.model.NamePart;
 import org.openepics.names.services.views.DeviceRecordView;
 import com.google.common.collect.Lists;
 
@@ -37,46 +37,113 @@ import com.google.common.collect.Lists;
 public class SessionViewService implements Serializable{
 
 	private static final long serialVersionUID = 827187290632697101L;
-	private Map<Object,Boolean> nodeMap = new HashMap<Object,Boolean>();
+	private Map<Object,NodeStatus> nodeMap;
 	private List<DeviceRecordView> selectedRecords;
 
 	@Inject
 	public SessionViewService(){
-		init();
+		nodeMap= new HashMap<Object,NodeStatus>();
 		selectedRecords=null;
 	}
 
-	public void init(){
+	private NodeStatus nodeStatus(Object object){
 		if(nodeMap==null){
-			nodeMap = new HashMap<Object,Boolean>();
+			nodeMap= new HashMap<Object,NodeStatus>();
+		} 
+		if (!nodeMap.containsKey(object)){
+			nodeMap.put(object, new NodeStatus());
 		}
-	}	
+		return nodeMap.get(object);
+	}
+	
+	/**
+	 * 
+	 * @param object node object
+	 * @return true if object is expanded or object is null.
+	 */
+	public boolean isExpanded(@Nullable Object object){
+		return object!=null ? nodeStatus(object).isExpanded():true; 
+	}
+	
+	/**
+	 * 
+	 * @param object node object
+	 * @return true if object is selected. False if object is null.
+	 */
+	public boolean isSelected(@Nullable Object object){
+		return object!=null ? nodeStatus(object).isSelected() :false;
+	}
 
-	public boolean isExpanded(Object object){
-		try {
-			return object!=null ? nodeMap.get(object): true;			
-		} catch (Exception e) {
-			collapse(object);
-			return false;			
+	/**
+	 * 
+	 * @param object node object
+	 * @return true if object is filtered. False if object is null
+	 */
+	public boolean isFiltered(@Nullable Object object) {
+		return object!=null ? nodeStatus(object).isFiltered() :false;
+	}
+
+	
+	/**
+	 * expands object
+	 * @param object data with node status.
+	 */
+	public void expand(@Nullable Object object) {
+		if(object!=null){
+			nodeStatus(object).setExpanded(true);		
 		}
 	}
 
-	public void expand(Object object) {
-		nodeMap.put(object, true);		
-	}
-
+	/**
+	 * collapses object
+	 * @param object data with node status.
+	 */
 	public void collapse(Object object) {
-		nodeMap.put(object, false);
+		if(object!=null){
+			nodeStatus(object).setExpanded(false);		
+		}
+	}
+
+	/**
+	 * selects object
+	 * @param object data with node status.
+	 */
+	public void select(Object object) {
+		if(object!=null){
+			nodeStatus(object).setSelected(true);		
+		}
+	}
+
+	/**
+	 * unselects object
+	 * @param object data with node status.
+	 */
+	public void unselect(Object object) {
+		if(object!=null){
+			nodeStatus(object).setSelected(false);		
+		}
+	}
+	
+	public void unfilter(Object object) {
+		if(object!=null){
+			nodeStatus(object).setFiltered(false);		
+		}
+		
+	}
+
+	public void filter(Object object) {
+		if(object!=null){
+			nodeStatus(object).setFiltered(true);		
+		}
 	}
 
 	@PreDestroy
 	public void cleanup(){
 		nodeMap.clear();
 	}
-
+		
 	public void setSelectedRecords(@Nullable List<DeviceRecordView> selectedRecords) {
 		this.selectedRecords=selectedRecords;
-
 	}
 
 	public @Nullable List<DeviceRecordView> getSelectedRecords() {
@@ -87,7 +154,8 @@ public class SessionViewService implements Serializable{
 		if(selectedRecords!=null){
 			List<DeviceRecordView> temporary=Lists.newArrayList();
 			for (DeviceRecordView deviceRecordView : selectedRecords) {
-				if(!deviceRecordView.getDeviceView().getDevice().isDeleted()){
+//				if(!deviceRecordView.getDeviceView().getDevice().isDeleted()){
+				if(!deviceRecordView.isDeleted()){
 					temporary.add(deviceRecordView);
 				}
 			}
@@ -96,6 +164,65 @@ public class SessionViewService implements Serializable{
 	}
 
 	public @Nullable DeviceRecordView getSelectedRecord() {
-		return getSelectedRecords()!=null && getSelectedRecords().size()==1? getSelectedRecords().get(0):null;		
+		return getSelectedRecords()!=null && getSelectedRecords().size()==1? getSelectedRecords().get(0):null;
 	}
+	
+	
+	public class NodeStatus {
+		private boolean expanded;
+		private boolean selected;
+		private boolean filtered;
+		
+		private NodeStatus(){
+			this.expanded=false;
+			this.selected=false;
+			this.filtered=true;
+		}
+		/**		
+		 * @param filtered the filtered to set
+		 */
+		public void setFiltered(boolean filtered) {
+			this.filtered=filtered;
+		}
+		
+		/**
+		 * 
+		 * @return true if filtered
+		 */
+		public boolean isFiltered(){
+			return filtered;
+		}
+
+		
+		/**
+		 * @return true if expanded
+		 */
+		public boolean isExpanded() {
+			return expanded;
+		}
+		/**
+		 * @param expanded the expanded to set
+		 */
+		public void setExpanded(boolean expanded) {
+			this.expanded = expanded;
+		}
+		/**
+		 * @return true if selected
+		 */
+		public boolean isSelected() {
+			return selected;
+		}
+		/**
+		 * @param selected the selected to set
+		 */
+		public void setSelected(boolean selected) {
+			this.selected = selected;
+		}
+		
+	}
+
+
+
+
+		 
 }

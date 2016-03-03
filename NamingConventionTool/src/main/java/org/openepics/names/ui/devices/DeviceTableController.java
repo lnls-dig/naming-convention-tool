@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
@@ -26,6 +27,7 @@ import org.openepics.names.services.views.DeviceView;
 import org.openepics.names.ui.common.SelectRecordManager;
 import org.openepics.names.ui.common.TreeNodeManager;
 import org.openepics.names.ui.common.ViewFactory;
+import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.util.As;
 import org.openepics.names.util.UnhandledCaseException;
 import org.primefaces.event.FileUploadEvent;
@@ -35,6 +37,7 @@ import org.primefaces.model.TreeNode;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 
 @ManagedBean
@@ -45,6 +48,7 @@ public class DeviceTableController implements Serializable{
 	@Inject private ViewFactory viewFactory;
 	@Inject private SelectRecordManager selectRecordManager;
 	@Inject private DevicesTreeBuilder devicesTreeBuilder;
+	@Inject private NamePartTreeBuilder namePartTreeBuilder;
 	@Inject private ExcelImport excelImport;
 	private byte[] importData;
 	
@@ -61,6 +65,14 @@ public class DeviceTableController implements Serializable{
 	@PostConstruct
 	public void init(){
 		displayView=DevicesViewFilter.ACTIVE;
+		selectDeviceInUrl();
+	}
+
+
+	/**
+	 * Selects the deviceName from the URL and sets the rowNumber
+	 */
+	private void selectDeviceInUrl() {
 		final @Nullable String deviceName = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("deviceName");
 		update();
 		if(deviceName!=null){
@@ -74,16 +86,21 @@ public class DeviceTableController implements Serializable{
 			}
 		}else{
 			rowNumber=0;
-		}
+		}		
 	}
 
+	/**
+	 * update all data
+	 */
 	public void update(){
 		boolean includeDeleted= displayView==DevicesViewFilter.ARCHIVED;
-		records=generateRecords(devicesTreeBuilder.devicesTree(includeDeleted));
+		records=devicesTreeBuilder.deviceRecords(includeDeleted);		
 	}
 	
-	
-
+	/** 
+	 * 
+	 * @return Link to the device in the controls configuration database (CCDB) 
+ 	 */
 	public String getCcdbUrl(){
 		return getSelectedRecord()!=null? System.getProperty("names.ccdbURL").concat("?name=").concat(getSelectedRecord().getConventionName()):"";		
 	}
@@ -141,6 +158,10 @@ public class DeviceTableController implements Serializable{
 		return false;	
 	}
 
+	public boolean canFilter(){
+		return true;
+	}
+	
 	public boolean canShowHistory() { return getSelectedRecord() != null; }
 
 	/**
@@ -153,7 +174,8 @@ public class DeviceTableController implements Serializable{
 		final List<DeviceRecordView> recordList=Lists.newArrayList();
 		for(TreeNode node: TreeNodeManager.nodeList(root)){
 			if(node.getData() instanceof DeviceView){
-				recordList.add(new DeviceRecordView((DeviceView) node.getData()));				
+//				recordList.add(new DeviceRecordView((DeviceView) node.getData()));	
+				
 			}
 		}
 		return recordList;
@@ -179,7 +201,9 @@ public class DeviceTableController implements Serializable{
 			for(DeviceRecordView record: selectRecordManager.getSelectedRecords()){
 
 				if(!record.isDeleted()) {
-					namePartService.deleteDevice(record.getDeviceView().getDevice().getDevice());
+//					namePartService.deleteDevice(record.getDeviceView().getDevice().getDevice());
+					namePartService.deleteDevice(record.getDevice());
+
 					count++;
 				}
 			}

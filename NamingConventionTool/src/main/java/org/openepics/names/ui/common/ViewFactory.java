@@ -4,9 +4,12 @@ import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
+import org.openepics.names.services.views.DeviceRecordView;
 import org.openepics.names.services.views.DeviceView;
 import org.openepics.names.services.views.NamePartRevisionProvider;
 import org.openepics.names.services.views.NamePartView;
+
+import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.faces.bean.ManagedBean;
@@ -62,6 +65,11 @@ public class ViewFactory {
         return new DeviceView(this, deviceRevision, null, null);
     }
 
+    public DeviceRecordView getRecordView(DeviceRevision deviceRevision){
+    	return new DeviceRecordView(this,deviceRevision);
+    }
+    
+    
     /**
      * @return A view of the device based at the given revision. The views of the device's section and device type can optionally be provided when available, so the data does not need to be queried from the database later.
      *
@@ -76,7 +84,12 @@ public class ViewFactory {
     private NamePartRevisionProvider namePartRevisionProvider() {
         return new NamePartRevisionProvider() {
             @Override public @Nullable NamePartRevision approvedRevision(NamePart namePart) { return namePartService.approvedRevision(namePart); }
-            @Override public @Nullable NamePartRevision pendingRevision(NamePart namePart) { return namePartService.pendingRevision(namePart); }
+            @Override public @Nullable NamePartRevision pendingRevision(NamePart namePart) { return namePartService.pendingRevision(namePart);}
+            @Override public @Nullable List<NamePartRevision> approvedChildrenRevisions(NamePart namePart) {return namePartService.approvedChildrenRevisions(namePart,true); }
         };
     }
+    
+    
+    
+    
 }

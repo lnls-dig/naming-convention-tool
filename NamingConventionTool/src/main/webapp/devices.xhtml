@@ -36,17 +36,23 @@
 						<f:selectItem itemLabel="Archived" itemValue="ARCHIVED" />
 					</p:selectOneMenu>						
 						<p:menuButton id="ncReqMenu" value="Actions" style="float:right">
+						<p:menuitem value="Filter" icon="ui-icon-gear"
+							update=":filterDeviceNameForm"
+							oncomplete="PF('filterDeviceName').show()" 
+							title="Filter"
+							actionListener="#{deviceWizardController.prepareFilterPopup()}"
+							disabled="${!(deviceTableController.canFilter())}" />
 						<p:menuitem value="Add" icon="ui-icon-plus"
 							update=":addDeviceNameForm"
 							oncomplete="PF('addDeviceName').show()" 
 							title="Add Device Name"
-							actionListener="#{deviceWizardController.preparePopup('add')}"
+							actionListener="#{deviceWizardController.prepareAddPopup()}"
 							disabled="${!(deviceTableController.canAdd())}"
 							rendered="#{userManager.editor}"/>
 						<p:menuitem value="Modify" icon="ui-icon-pencil"
-							update=":modDeviceNameForm"
-							oncomplete="PF('modDeviceName').show()"
-							actionListener="#{deviceWizardController.preparePopup('mod')}"
+							update=":modifyDeviceNameForm"
+							oncomplete="PF('modifyDeviceName').show()"
+							actionListener="#{deviceWizardController.prepareModifyPopup()}"
 							title="Modify Device Name" 
 							rendered="#{userManager.editor}"
 							disabled="${!(deviceTableController.canModify())}" />
@@ -121,17 +127,29 @@
 					value="#{deviceTableController.historyEvents}" />
 			</ui:include>
 		</h:form>
+		<!-- 		======================== Filter form ============================-->
+		<ui:include src="/WEB-INF/includes/devices-wizard.xhtml">
+			<ui:param name="dialogTitle" value="Filter" />
+			<ui:param name="widgetName" value="filterDeviceName" />
+			<ui:param name="selectionMode" value="checkbox" />
+			<ui:param name="formSelectedSection" value="#{deviceWizardController.formSelectedSections}"/>
+			<ui:param name="formSelectedDeviceType" value="#{deviceWizardController.formSelectedDeviceTypes}"/>
+		</ui:include>
 		<!-- 		======================== Add form ============================-->
 		<ui:include src="/WEB-INF/includes/devices-wizard.xhtml">
 			<ui:param name="dialogTitle" value="Add Device Name" />
 			<ui:param name="widgetName" value="addDeviceName" />
-			<ui:param name="submitHandler" value="onAdd" />
+			<ui:param name="selectionMode" value="single" />
+			<ui:param name="formSelectedSection" value="#{deviceWizardController.formSelectedSubsection}"/>
+			<ui:param name="formSelectedDeviceType" value="#{deviceWizardController.formSelectedDeviceType}"/>
 		</ui:include>
 		<!-- 		============================ Modify form =====================-->
 		<ui:include src="/WEB-INF/includes/devices-wizard.xhtml">
 			<ui:param name="dialogTitle" value="Modify Device Name" />
-			<ui:param name="widgetName" value="modDeviceName" />
-			<ui:param name="submitHandler" value="onModify" />
+			<ui:param name="widgetName" value="modifyDeviceName" />
+			<ui:param name="selectionMode" value="single" />
+			<ui:param name="formSelectedSection" value="#{deviceWizardController.formSelectedSubsection}"/>
+			<ui:param name="formSelectedDeviceType" value="#{deviceWizardController.formSelectedDeviceType}"/>
 		</ui:include>
 		<!-- 		============================ Delete form =====================-->
 		<ui:include src="/WEB-INF/includes/devices-delete.xhtml"/>

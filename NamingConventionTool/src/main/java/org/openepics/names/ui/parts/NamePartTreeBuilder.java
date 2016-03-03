@@ -43,6 +43,32 @@ public class NamePartTreeBuilder {
 
     @Inject private ViewFactory viewFactory;
 
+
+
+    /**
+     * Builds a tree of NamePartViews from the provided lists of revisions.
+     *
+     * @param approvedRevisions the list of approved NamePart revisions
+     * @return the root node of the tree
+     */
+	public TreeNode newNamePartTree(List<NamePartRevision> approvedRevisions){
+			return newNamePartTree(approvedRevisions,Lists.<NamePartRevision>newArrayList(),false,0,null);	
+	}
+
+    
+    
+    /**
+     * Builds a tree of NamePartViews from the provided lists of revisions.
+     *
+     * @param approvedRevisions the list of approved NamePart revisions
+     * @param selectableLevel Nodes can be selected from this level on starting from root.
+     * @param selectedNamePart selectedNamePart
+     * @return the root node of the tree
+     */
+	public TreeNode newNamePartTree(List<NamePartRevision> approvedRevisions, int selectableLevel, @Nullable NamePart selectedNamePart){
+			return newNamePartTree(approvedRevisions,Lists.<NamePartRevision>newArrayList(),false,selectableLevel, selectedNamePart);		
+	}
+
     /**
      * Builds a tree of NamePartViews from the provided lists of revisions.
      *
