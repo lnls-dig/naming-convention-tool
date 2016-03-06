@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -30,12 +31,33 @@ public class LoginController implements Serializable {
 	@Inject private SessionService sessionService;
 	private String inputUsername;
 	private String inputPassword;
-
+	
 	@PostConstruct
 	public synchronized void init() {
 
 	}
 
+	public String getActiveIndex(){
+		String viewId=FacesContext.getCurrentInstance().getViewRoot().getViewId();
+		final @Nullable String type = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
+
+		if(viewId.equals("/index.xhtml")) {
+			return "0";
+		} else if(viewId.equals("/about.xhtml")) {
+			return "1";
+		}if(viewId.equals("/devices.xhtml")) {
+			return "2";
+		}if(viewId.equals("/parts.xhtml")&& type.equals("section")) {
+			return "3";
+		}if(viewId.equals("/parts.xhtml")&& type.equals("deviceType")) {
+			return "4";
+		}if(viewId.equals("/help.xhtml")) {
+			return "5";
+		} else {
+			return "0";
+		}
+	
+	}
 	public void prepareLoginPopup() {
 		inputUsername = null;
 		clearPassword();
@@ -49,6 +71,7 @@ public class LoginController implements Serializable {
 		try {
 		    Message m = sessionService.login(inputUsername, inputPassword);
 			if (m.isSuccessful()) {
+//			    showMessage(FacesMessage.SEVERITY_INFO, "Signed in sucessfull", m.getMessage()); 
 				LOGGER.log(Level.INFO, "Login successful for "+ inputUsername);
 			} else {
 			    showMessage(FacesMessage.SEVERITY_ERROR, "Failed to sign in", m.getMessage()); 
@@ -68,18 +91,23 @@ public class LoginController implements Serializable {
 		return sessionService.getUsername();
 	}
 	
-	public synchronized void signOut() {
+	public synchronized String signOut() {
 		try {
 			Message m = sessionService.logout();
 			if (m.isSuccessful()) {
 				LOGGER.log(Level.INFO, "Logout successful");
+//			    showMessage(FacesMessage.SEVERITY_INFO, "Sign out sucessfull", m.getMessage()); 
+
 			} else {
+			    showMessage(FacesMessage.SEVERITY_ERROR, "Failed to sign out", m.getMessage()); 
 			    throw new SecurityException(m.getMessage());
 			}
 		} finally {
 			prepareLoginPopup();
 			sessionService.update();
 		}
+			 return FacesContext.getCurrentInstance().getViewRoot().getViewId();
+
 	}
 	
     public String getInputUsername() { return inputUsername; }
@@ -92,6 +120,4 @@ public class LoginController implements Serializable {
 		FacesContext context = FacesContext.getCurrentInstance();
 		context.addMessage(null, new FacesMessage(severity, summary, message));
 	}
-
-
 }

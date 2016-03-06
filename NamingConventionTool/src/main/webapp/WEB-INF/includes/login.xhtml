@@ -10,9 +10,7 @@
 	<h:form id="loginForm">
 	<p:growl globalOnly="true" id="msgs" showDetail="true"
 					sticky="false" life="10000" />
-		<p:dialog id="loginDialog" widgetVar="loginDialog" header="Sign In"
-			modal="true" visible="#{!loginController.loggedIn}"
-			closable="false" >
+		<p:dialog id="loginDialog" widgetVar="loginDialog" header="Sign In" modal="true" visible="#{!loginController.loggedIn}" closable="false" >
 			<h:panelGrid id="grid" columns="2">
 				<p:outputLabel for="userid" value="Username:" />
 				<h:panelGroup>
@@ -30,8 +28,8 @@
 				</h:panelGroup>
 				<f:facet name="footer">
 				<p:separator />					
-						<p:commandButton id="submit" value="Sign In" update="msgs :full" oncomplete="location.reload(true)"
-							action="#{loginController.signIn()}" style="float: right" />
+						<p:commandButton id="submit" value="Sign In" update=":full :loginForm"
+							action="#{loginController.signIn()}" style="float: right"/>
 	   					<p:defaultCommand target="submit" />
 				</f:facet>
 			</h:panelGrid>

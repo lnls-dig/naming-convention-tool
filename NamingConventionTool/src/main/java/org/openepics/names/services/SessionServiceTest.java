@@ -22,6 +22,7 @@ import java.security.Principal;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Alternative;
@@ -29,6 +30,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.openepics.names.model.Role;
 import org.openepics.names.model.UserAccount;
@@ -47,9 +49,11 @@ public class SessionServiceTest implements SessionService {
     private static final long serialVersionUID = -8467983622257857750L;
     @Inject private UserService userService;
 	@Inject protected HttpServletRequest servletRequest;
+
 	private static final Logger LOGGER = Logger.getLogger(SessionServiceTest.class.getName());
     private UserAccount user = null;
 
+    
     /*
      * (non-Javadoc)
      * @see org.openepics.names.services.SessionService#update()
@@ -58,7 +62,6 @@ public class SessionServiceTest implements SessionService {
     public void update() {
         final Principal principal = FacesContext.getCurrentInstance().getExternalContext().getUserPrincipal();
         user = principal != null ? userService.userWithName(principal.getName()) : null;
-        if (!isLoggedIn()) getRequest().getSession().invalidate();
     }
 
 	/* (non-Javadoc)
@@ -97,6 +100,7 @@ public class SessionServiceTest implements SessionService {
 		return isLoggedIn() ? user.getUsername(): null;
 	}	
 
+	
 	private HttpServletRequest getRequest() {
 		return (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 	}
@@ -123,6 +127,8 @@ public class SessionServiceTest implements SessionService {
             return new Message("Sign Out successful.",true);
         } catch (ServletException e) {
             return new Message(e.getMessage(),false);
+        } finally {
+        	getRequest().getSession().invalidate();
         }
     }
 }

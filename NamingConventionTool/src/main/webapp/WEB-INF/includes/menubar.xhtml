@@ -10,29 +10,13 @@
 		<h:form id="menu" rendered="#{loginController.loggedIn}">
 		<p:growl globalOnly="true" id="messages" showDetail="true"
 			sticky="false" life="10000" />
-		<p:tabMenu id="mainMenu" activeIndex="${param.i}">
-			<p:menuitem value="Home" icon="ui-icon-home" outcome="index.xhtml">
-				<f:param name="i" value="0" />
-			</p:menuitem>
-			<p:menuitem value="About" icon="ui-icon-home" outcome="about.xhtml">
-				<f:param name="i" value="1" />
-			</p:menuitem>						
-			<p:menuitem value="Device Registry" icon="ui-icon-wrench" outcome="devices.xhtml">
-				<f:param name="i" value="2" />
-			</p:menuitem>
-			<p:menuitem value="Area Structure" icon="ui-icon-folder-open"
-				outcome="parts.xhtml?type=section">
-				<f:param name="i" value="3" />
-			</p:menuitem>
-			<p:menuitem value="Device Structure" icon="ui-icon-folder-open" outcome="parts.xhtml?type=deviceType">
-				<f:param name="i" value="4" />
-			</p:menuitem>
-			<p:menuitem value="Help" icon="ui-icon-help" outcome="help.xhtml">
-				<f:param name="i" value="5" />
-			</p:menuitem>
-<!-- 			<p:menuitem value="API Manual" icon="ui-icon-help" outcome="api-manual.xhtml"> -->
-<!-- 				<f:param name="i" value="6" /> -->
-<!-- 			</p:menuitem> -->
+		<p:tabMenu id="mainMenu" activeIndex="${loginController.activeIndex}">
+			<p:menuitem value="Home" icon="ui-icon-home" outcome="index.xhtml"/>
+			<p:menuitem value="About" icon="ui-icon-home" outcome="about.xhtml"/>
+			<p:menuitem value="Device Registry" icon="ui-icon-wrench" outcome="devices.xhtml"/>
+			<p:menuitem value="Area Structure" icon="ui-icon-folder-open" outcome="parts.xhtml?type=section"/>			
+			<p:menuitem value="Device Structure" icon="ui-icon-folder-open" outcome="parts.xhtml?type=deviceType"/>
+			<p:menuitem value="Help" icon="ui-icon-help" outcome="help.xhtml"/>
 		</p:tabMenu>
 	</h:form>
 

@@ -3,6 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
+    xmlns:rc="http://java.sun.com/jsf/composite/comps"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html">
 
@@ -117,6 +118,7 @@
 <h:body>
 	<p:outputPanel id="full" layout="block" style="overflow:hidden">
 		<p:panel id="logoPanel" styleClass="ui-widget-header">
+		<h:form id="logoutForm" rendered="#{loginController.loggedIn}">
 			<div id="user" style="float: right">
 					<p:outputLabel for="signout" value="#{loginController.username}"
 					styleClass="ui-widget-header" />
@@ -126,6 +128,7 @@
 					action="#{loginController.signOut()}"
 					rendered="#{loginController.loggedIn}"/>
 			</div>
+		</h:form>
 			<div id="title">
 				<h:outputText value="#{msgs.title}" />
 			</div>
