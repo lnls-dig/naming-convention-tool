@@ -31,6 +31,7 @@ import org.openepics.names.services.views.DeviceRecordView;
 import org.openepics.names.services.views.DeviceView;
 import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.ui.common.AlphanumComparator;
+import org.openepics.names.ui.common.SelectRecordManager;
 import org.openepics.names.ui.common.TreeNodeManager;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
@@ -55,44 +56,23 @@ public class DevicesTreeBuilder {
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private ViewFactory viewFactory;
     @Inject private TreeNodeManager treeNodeManager;
+    @Inject private SelectRecordManager recordManager;
 
     private HashMap<NamePart, Set<DeviceRevision>> devicesBySection;
+    private HashMap<NamePart, Set<DeviceRevision>> devicesByDeviceType;
+    
     private HashMap<NamePart, NamePartView> viewByDeviceType;
     
-	/**
-	 * Produces a list of name part views. 
-	 * @param view view of the root name part.
-	 * @param includeDeleted boolean flag indicating whether deleted name parts shall be included 
-	 * @param includeUnfiltered boolean flag indicating whether unfiltered name parts shall be included
-	 * @return the list of name part views starting form the included view as root
- 	 */
-	private List<NamePartView> namePartViewList(NamePartView view, boolean includeDeleted, boolean includeUnfiltered){
-		final List<NamePartView> views = Lists.newArrayList();
-		final List<NamePartView> children=Lists.newArrayList();
-		if(view!=null && (!view.isDeleted() || includeDeleted) ){
-			boolean filtered=treeNodeManager.isFiltered(view) || includeUnfiltered;			
-			for(NamePartView child:view.getCurrentApprovedChildren()){					
-				children.addAll(namePartViewList(child, includeDeleted, filtered));
-			}
-			boolean hasFilteredChildren= children!=null && !children.isEmpty();
-						
-			if(hasFilteredChildren || filtered){
-				views.add(view);
-				views.addAll(children);
-			}
-		}
-		return views;
-	}
 	
-	private List<DeviceRecordView> devicesIn(NamePartView subsection, NamePartView deviceType, boolean includeDeleted){
+	private List<DeviceRecordView> devicesIn(NamePart subsection, NamePart deviceType, boolean includeDeleted){
 	    List<DeviceRecordView> temporary=Lists.newArrayList();
-//	    if(area.getLevel()<2) return temporary;
-		for (DeviceRevision deviceRevision : namePartService.devicesRevisionsIn(subsection.getNamePart(), deviceType.getNamePart(), includeDeleted)) {       	
-        	DeviceRecordView record=viewFactory.getRecordView(deviceRevision);
-        	temporary.add(record);
-    }
+	    for(DeviceRevision revision: devicesBySection.get(subsection)){
+	    	if(devicesByDeviceType.get(deviceType).contains(revision)){
+	        	DeviceRecordView record=viewFactory.getRecordView(revision);
+	        	temporary.add(record);
+	    	}
+	    }	    
 		return temporary;
-
 	}
 	
 	/**
@@ -101,21 +81,37 @@ public class DevicesTreeBuilder {
 	 * @param includeDeleted boolean flag to indicate whether deleted name parts shall be included.
  	 * @return filtered and grouped list for the specified name part type.
 	 */
-	private List<NamePartView> filteredNamePartViewList(NamePartType type, boolean includeDeleted){
-        List<NamePartView> namePartViews=Lists.newArrayList();
-        for(NamePartRevision namePartRevision : namePartService.currentApprovedNamePartRevisionRoots(type, includeDeleted)) {
-        	NamePartView root=viewFactory.getView(namePartRevision.getNamePart());
-        	namePartViews.addAll(namePartViewList(root, includeDeleted, false));
+	private List<NamePart> filteredNamePartViewList(NamePartType type, boolean includeDeleted){
+		List<NamePart> nameParts=Lists.newArrayList();
+		final List<NamePartRevision> revisions = namePartService.currentApprovedNamePartRevisions(type, includeDeleted);
+        final TreeNode treeNode = namePartTreeBuilder.newNamePartTree(revisions);
+        for(TreeNode node: treeNodeManager.filteredNodeList(treeNode,includeDeleted, false)){
+        	NamePart namePart =node.getData() instanceof NamePartView ? ((NamePartView) node.getData()).getNamePart():null;
+        	if(namePart!=null && (devicesBySection.containsKey(namePart)||devicesByDeviceType.containsKey(namePart))){
+        		nameParts.add(namePart);
+        	}
         }
-        return namePartViews;
+        return nameParts;
 	}
 	
-	public List<DeviceRecordView> deviceRecords(boolean includeDeleted){
+	public List<DeviceRecordView> deviceRecords(){
+        devicesByDeviceType = Maps.newHashMap();
+        devicesBySection = Maps.newHashMap();
+        boolean includeDeleted=recordManager.isIncludeDeleted();
+        for (DeviceRevision device : namePartService.currentDeviceRevisions(includeDeleted)) {
+        	final Set<DeviceRevision> devicesForSection = devicesForSection(device.getSection());
+        	devicesForSection.add(device);
+        	final Set<DeviceRevision> devicesForDeviceType=devicesForDeviceType(device.getDeviceType());
+        	devicesForDeviceType.add(device);
+        }       
+
         List<DeviceRecordView> temporary=Lists.newArrayList();        
-        for(NamePartView areaView: filteredNamePartViewList(NamePartType.SECTION, includeDeleted)){
-        	for(NamePartView deviceView: filteredNamePartViewList(NamePartType.DEVICE_TYPE,includeDeleted))
-            	temporary.addAll(devicesIn(areaView,deviceView,includeDeleted));
-        }
+        for(NamePart section: filteredNamePartViewList(NamePartType.SECTION, includeDeleted)){
+       	for(NamePart deviceType: filteredNamePartViewList(NamePartType.DEVICE_TYPE,includeDeleted)){
+           	temporary.addAll(devicesIn(section,deviceType,includeDeleted));
+        	}
+        	
+       }
 		return temporary;
 	}
       
@@ -156,12 +152,23 @@ public class DevicesTreeBuilder {
         }
     }
 	
-	@Deprecated
+
     private Set<DeviceRevision> devicesForSection(NamePart section) {
         final Set<DeviceRevision> currentSet = devicesBySection.get(section);
         if (currentSet == null) {
             final Set<DeviceRevision> newSet = Sets.newHashSet();
             devicesBySection.put(section, newSet);
+            return newSet;
+        } else {
+            return currentSet;
+        }
+    }
+    
+    private Set<DeviceRevision> devicesForDeviceType(NamePart deviceType) {
+        final Set<DeviceRevision> currentSet = devicesByDeviceType.get(deviceType);
+        if (currentSet == null) {
+            final Set<DeviceRevision> newSet = Sets.newHashSet();
+            devicesByDeviceType.put(deviceType, newSet);
             return newSet;
         } else {
             return currentSet;

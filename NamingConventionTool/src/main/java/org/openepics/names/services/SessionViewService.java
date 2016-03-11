@@ -39,11 +39,13 @@ public class SessionViewService implements Serializable{
 	private static final long serialVersionUID = 827187290632697101L;
 	private Map<Object,NodeStatus> nodeMap;
 	private List<DeviceRecordView> selectedRecords;
+	private boolean includeDeleted;
 
 	@Inject
 	public SessionViewService(){
 		nodeMap= new HashMap<Object,NodeStatus>();
 		selectedRecords=null;
+		setIncludeDeleted(false);
 	}
 
 	private NodeStatus nodeStatus(Object object){
@@ -168,6 +170,21 @@ public class SessionViewService implements Serializable{
 	}
 	
 	
+	/**
+	 * @return the includeDeleted
+	 */
+	public boolean isIncludeDeleted() {
+		return includeDeleted;
+	}
+
+	/**
+	 * @param includeDeleted the includeDeleted to set
+	 */
+	public void setIncludeDeleted(boolean includeDeleted) {
+		this.includeDeleted = includeDeleted;
+	}
+
+
 	public class NodeStatus {
 		private boolean expanded;
 		private boolean selected;
@@ -176,7 +193,7 @@ public class SessionViewService implements Serializable{
 		private NodeStatus(){
 			this.expanded=false;
 			this.selected=false;
-			this.filtered=true;
+			this.filtered=false;
 		}
 		/**		
 		 * @param filtered the filtered to set
@@ -192,7 +209,6 @@ public class SessionViewService implements Serializable{
 		public boolean isFiltered(){
 			return filtered;
 		}
-
 		
 		/**
 		 * @return true if expanded
@@ -217,12 +233,6 @@ public class SessionViewService implements Serializable{
 		 */
 		public void setSelected(boolean selected) {
 			this.selected = selected;
-		}
-		
-	}
-
-
-
-
-		 
+		}	
+	}		 
 }

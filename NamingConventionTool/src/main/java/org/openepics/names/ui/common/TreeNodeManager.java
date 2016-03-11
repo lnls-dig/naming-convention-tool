@@ -35,6 +35,7 @@ import org.primefaces.event.NodeCollapseEvent;
 import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.event.NodeSelectEvent;
 import org.primefaces.event.NodeUnselectEvent;
+import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
 import com.google.common.collect.Lists;
@@ -347,7 +348,70 @@ public class TreeNodeManager{
 		expandCustomized(treeNode);
 	}
 
-	public boolean isFiltered(NamePartView view) {
-		return sessionViewService.isFiltered(view.getNamePart());
+	
+	/** 
+	 * 
+	 * @param node TreeNode populated with NamePartViews as data
+	 * @param includeDeleted Logical flag indicating whether deleted should be included or not
+	 * @param includeUnfiltered Logical flag indicating whether unfiltered data should be included or not
+	 * @return Filtered list of treeNodes staring from the root
+	 */
+	public List<TreeNode> filteredNodeList(TreeNode node, boolean includeDeleted, boolean includeUnfiltered){
+//		final List<TreeNode> views = Lists.newArrayList();
+//		final List<TreeNode> children=Lists.newArrayList();
+//		NamePartView view= node.getData() instanceof NamePartView?  (NamePartView) node.getData():null;
+//			if(view==null || (!view.isDeleted() || includeDeleted) ){
+//				boolean filtered = view!=null && sessionViewService.isFiltered(view.getNamePart()) || includeUnfiltered;			
+//				for(TreeNode child:node.getChildren()){					
+//					children.addAll(filteredNodeList(child, includeDeleted, filtered));
+//				}
+//				boolean hasFilteredChildren= children!=null && !children.isEmpty();
+//							
+//				if(hasFilteredChildren || filtered){
+//					views.add(node);
+//					views.addAll(children);
+//				}
+//			}
+//			return views;
+		
+		return nodeList(filteredNode(node, includeDeleted,includeUnfiltered));
 	}
+
+
+	public TreeNode filteredNode(TreeNode node, boolean includeUnfiltered){
+		return filteredNode(node, sessionViewService.isIncludeDeleted(), includeUnfiltered);
+	}
+	
+	public TreeNode filteredNode(TreeNode node, boolean includeDeleted, boolean includeUnfiltered){
+		NamePartView view= node.getData() instanceof NamePartView? (NamePartView) node.getData():null;
+		if(view!=null && view.isDeleted() && ! includeDeleted ){
+			return null;
+		} else {
+			final boolean included = includeUnfiltered || view!=null && sessionViewService.isFiltered(view.getNamePart());	
+			final List<TreeNode> filteredChildren=Lists.newArrayList();
+			for(TreeNode child:node.getChildren()){
+				final TreeNode filteredChild = filteredNode(child, includeDeleted, included);
+				if(filteredChild!=null) filteredChildren.add(filteredChild);
+			}
+			final boolean hasIncludedChildren= !filteredChildren.isEmpty();
+
+			if(included || hasIncludedChildren ){
+				final DefaultTreeNode filteredNode = new DefaultTreeNode(view,null);
+				filteredNode.setChildren(filteredChildren);
+				for(TreeNode child :filteredNode.getChildren()){
+					child.setParent(filteredNode);
+				}
+				filteredNode.setExpanded(node.isExpanded());
+//				filteredNode.setRowKey(node.getRowKey());
+				filteredNode.setSelectable(node.isSelectable());
+				filteredNode.setType(node.getType());
+				filteredNode.setSelected(node.isSelected());
+				filteredNode.setPartialSelected(node.isPartialSelected());
+				return filteredNode;
+			}else{
+				return null;
+			}
+		}
+	}	
+
 }

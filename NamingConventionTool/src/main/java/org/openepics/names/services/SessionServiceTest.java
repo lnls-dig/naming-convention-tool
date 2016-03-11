@@ -114,7 +114,8 @@ public class SessionServiceTest implements SessionService {
     public Message login(String username, String password) {
         try {
             getRequest().login(username, password);
-            return new Message("Sign In successful.",true);
+//        	getRequest().login("namesadmin", "namesadmin");
+        	return new Message("Sign In successful.",true);
         } catch (ServletException e) {
             return new Message(e.getMessage(),false);
         }

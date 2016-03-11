@@ -6,15 +6,33 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html">
 
-	<h:form id="#{widgetName}Form">
-		<p:dialog id="dialog" widgetVar="#{widgetName}"
-			header="#{dialogTitle}" width="800" onShow="PF('wiz').loadStep('areaTab',true)">
+	<h:form id="#{action}DeviceNameForm">
+		<p:dialog id="dialog" widgetVar="#{action}DeviceName"
+			header="#{dialogTitle}" width="800" onShow="PF('wiz').loadStep('firstTab',true)" >
 			<p:wizard id="wizard" widgetVar="wiz" 
 				flowListener="#{deviceWizardController.onFlowProcess}"
 				showStepStatus="false" >
+				<p:tab id="firstTab" title="Deleted" rendered="#{deviceWizardController.isTabRendered(0)}">
+					<div class="wizardStyle">
+					<h4> Follow the instructions to set a global filter that will enhance the visibility of data relevant to you and improve performance of the service. </h4>
+						<h3> 1. Would you like to view deleted names? </h3>
+						
+					<p:outputLabel for="status" value="Show: " style="float:left" />
+											
+					<p:selectOneMenu id="status"
+						value="#{deviceTableController.viewFilter}" style="float:left" >
+						<p:ajax event="change" listener="#{deviceWizardController.updateViewFilter()}"
+							oncomplete="resizePanel()" update="#{action}DeviceNameForm:areaTab #{action}DeviceNameForm:deviceTab"/>
+						<f:selectItem itemLabel="Active" itemValue="ACTIVE"
+							noSelectionOption="true" />
+						<f:selectItem itemLabel="Archived" itemValue="ARCHIVED" />
+					</p:selectOneMenu>	
+					</div>
+				</p:tab>
+				
 				<p:tab id="areaTab" title="Area" >
-					<p>Which part of the facility does the device provide service to?</p>
-					<h3>1. Select:</h3>
+					<h3> <h:outputText value="#{areaQuestion}" /></h3>
+					<p>Select:</p>
 					<p:separator />
 					<p:tree value="#{deviceWizardController.sections}"
 						selectionMode="#{selectionMode}" 
@@ -23,12 +41,10 @@
 						dynamic="true">
 						<p:ajax event="expand" listener="#{treeNodeManager.onNodeExpand}" />
 						<p:ajax event="collapse" listener="#{treeNodeManager.onNodeCollapse}" />
-<!-- 						<p:ajax event="select" listener="#{treeNodeManager.onNodeSelectRecursively}" /> -->
-<!-- 						<p:ajax event="unselect" listener="#{treeNodeManager.onNodeUnselectRecursively}" /> -->
 						<p:treeNode>
-							<h:outputText value="${deviceWizardController.mnemonic(section)} " styleClass="sec"
+							<h:outputText value="${deviceWizardController.mnemonic(section)} " styleClass="${deviceWizardController.mnemonicStyle(section)}"
 								rendered="#{deviceWizardController.mnemonic(section) != null}" />
-							<h:outputText id="SectionName" value=" #{section.name}" />
+							<h:outputText id="SectionName" value=" #{section.name}" styleClass="${deviceWizardController.nameStyle(section)}"/>
 							<p:tooltip for="SectionName" value="#{section.description}" />
 							<h:outputText value=" (#{section.mnemonic})" rendered="#{section.mnemonic !=null}" />
 						</p:treeNode>
@@ -38,8 +54,8 @@
 					<p>Expand nodes by clicking the triangles.</p> <p>Name elements are described and managed in the area structure.</p>
 				</p:tab>
 				<p:tab id="deviceTab" title="Device">
-					<p>What kind of function does the device provide?</p>
-					<h3>2. Select:</h3>
+					<h3> <h:outputText value="#{deviceQuestion}" /></h3>
+					<p>Select:</p>
 					<p:separator />
 					<p:tree value="#{deviceWizardController.deviceTypes}"
 						selectionMode="#{selectionMode}" var="devType"
@@ -50,12 +66,12 @@
 						<p:treeNode>
 							<h:outputText
 								value=" ${deviceWizardController.mnemonic(devType)} "
-								styleClass="dev"
+								styleClass="${deviceWizardController.mnemonicStyle(devType)}"
 								rendered="#{deviceWizardController.mnemonic(devType) != null}" />
-							<h:outputText id="DeviceName" value="#{devType.name}" />
+							<h:outputText id="DeviceName" value="#{devType.name}" styleClass="${deviceWizardController.nameStyle(devType)}"/>
 							<p:tooltip for="DeviceName" value="devType.description" />
 							<h:outputText value=" (#{devType.mnemonic})"
-								rendered="#{devType.mnemonic != null}" />
+								rendered="#{devType.mnemonic != null}" styleClass="${deviceWizardController.nameStyle(devType)}"/>
 						</p:treeNode>
 					</p:tree>
 					<p:separator />
@@ -63,7 +79,7 @@
 					<p>Expand nodes by clicking the triangles.</p> <p>Name elements are described and managed in the device
 						structure.</p>
 				</p:tab>
-				<p:tab id="instanceTab" title="Instance" rendered="#{deviceWizardController.isTabRendered(2)}">
+				<p:tab id="instanceTab" title="Instance" rendered="#{deviceWizardController.isTabRendered(3)}">
 					<h3>3. Enter instance index:</h3>
 					<p:inputText id="InstanceIndex"
 						value="#{deviceWizardController.formInstanceIndex}"
@@ -106,18 +122,17 @@
 						<li>Names should be easy to pronounce and memorise.</li>
 					</ol>
 				</p:tab>
-				<p:tab id="finishTab" title="Finish" rendered="#{deviceWizardController.isTabRendered(3)}">
+				<p:tab id="finishTab" title="Finish" rendered="#{deviceWizardController.isTabRendered(4)}">
 					<div class="wizardStyle">
-						<h3>4. Finish:</h3>
-						<h4>Review the Device Name:</h4>
+						<h3>4. Review the Device Name:</h3>
 						<kbd>
 							<h:outputText value="#{deviceWizardController.formDeviceName}" />
 						</kbd>
-						<h4>Enter description or comment (optional):</h4>
+						<h3>5. Enter description or comment (optional):</h3>
 						<p:inputTextarea id="AdditionalInfo"
 							value="#{deviceWizardController.formAdditionalInfo}"
 							style="width:460px; height:200px" />
-						<h4>Confirm:</h4>
+						<h3>6. Confirm:</h3>
 						<div align="right">
 							<p:commandButton id="Submit" value="Submit"
 								update=":ManageNameForm :ManageNameForm:devicesTree"
@@ -126,22 +141,24 @@
 								disabled="#{formSelectedSection == null || formSelectedDeviceType == null}"
 								onclick="PF(#{widgetName}).hide()"/>
 							<p:commandButton value="Cancel"
-								onclick="PF(#{widgetName}).hide()"
+								actionListener="#{deviceWizardController.onCancel}"
 								style="float:right" />
 						</div>
 					</div>
 				</p:tab>
-				<p:tab id="filterTab" title="Finish" rendered="#{deviceWizardController.isTabRendered(4)}">
+				<p:tab id="filterTab" title="Finish" rendered="#{deviceWizardController.isTabRendered(5)}">
 					<div class="wizardStyle">
-						<h3>3. Finish:</h3>
-						<h4>Submit your filtering requests. These will be saved for the rest remainder of this session.</h4>
+						<h3>3. Confirm:</h3>
+						<h4>The global filter setting will be saved for the remainder of this session.</h4>
 						<div align="right">
 							<p:commandButton id="Filter" value="Submit"
-								update=":ManageNameForm :ManageNameForm:devicesTree"
+								update="@form :ManageNameForm :ManageNameForm:devicesTree"
 								style="float:right"
 								actionListener="#{deviceWizardController.onSubmit}"
-								onclick="PF(#{widgetName}).hide()"/>
-							<p:commandButton value="Cancel"
+								onclick="PF(#{widgetName}).hide()"
+								oncomplete="resizePanel()"/>
+							<p:commandButton value="Cancel" 
+								actionListener="#{deviceWizardController.onCancel}"
 								onclick="PF(#{widgetName}).hide()"
 								style="float:right" />
 						</div>

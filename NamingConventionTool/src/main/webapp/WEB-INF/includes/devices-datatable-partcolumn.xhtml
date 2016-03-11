@@ -17,8 +17,6 @@
 	<p:column 
 		headerText="#{nameTitle}"
 		rendered="${mnemonicTitle ==''}"
-		filterMatchMode="contains"	
-		filterBy="#{fullName}" 
 		sortBy="#{fullName}"
 		>
  
@@ -29,8 +27,6 @@
 	<p:column 
 		headerText="${mnemonicTitle}"
 		rendered="${mnemonicTitle !=''}"
-		filterMatchMode="contains"
-		filterBy="${mnemonic}" 
 		sortBy="${mnemonic}"	
 		>
 	<h:outputText id="#{part}mnemonic" value="${mnemonic}" styleClass="#{device.style}"/>

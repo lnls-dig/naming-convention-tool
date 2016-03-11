@@ -7,10 +7,10 @@
 	xmlns:fc="http://java.sun.com/jsf/composite/comps"
 	xmlns:h="http://java.sun.com/jsf/html">
 
-		<h:form id="menu" rendered="#{loginController.loggedIn}">
+		<h:form id="menu" >
 		<p:growl globalOnly="true" id="messages" showDetail="true"
 			sticky="false" life="10000" />
-		<p:tabMenu id="mainMenu" activeIndex="${loginController.activeIndex}">
+		<p:tabMenu id="mainMenu" activeIndex="${loginController.activeIndex}" rendered="#{loginController.loggedIn}">
 			<p:menuitem value="Home" icon="ui-icon-home" outcome="index.xhtml"/>
 			<p:menuitem value="About" icon="ui-icon-home" outcome="about.xhtml"/>
 			<p:menuitem value="Device Registry" icon="ui-icon-wrench" outcome="devices.xhtml"/>

@@ -59,6 +59,14 @@ public class SelectRecordManager{
 		return sessionViewService.getSelectedRecord();
 	}
 	
+	public boolean isIncludeDeleted(){
+		return sessionViewService.isIncludeDeleted();
+	}
+
+	public void setIncludeDeleted(boolean includeDeleted){
+		sessionViewService.setIncludeDeleted(includeDeleted);
+	}
+
 //	public boolean isSelected(DeviceRecordView record){
 //		DeviceRecordView selected=sessionViewService.getSelectedRecord();
 //		return selected!=null? selected.equals(record):false;

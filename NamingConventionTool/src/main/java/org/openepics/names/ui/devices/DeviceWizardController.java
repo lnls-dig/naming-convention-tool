@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -19,6 +20,7 @@ import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.DeviceRecordView;
 import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.ui.common.TreeNodeManager;
+import org.openepics.names.ui.devices.DeviceTableController.DevicesViewFilter;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.util.As;
 import org.primefaces.context.RequestContext;
@@ -39,6 +41,7 @@ public class DeviceWizardController implements Serializable{
 	@Inject private TreeNodeManager treeNodeManager;
 	@Inject private NamingConvention namingConvention;
 	
+	private String action;
 	private TreeNode sections;
 	private TreeNode deviceTypes;
 	private String formInstanceIndex;
@@ -49,37 +52,50 @@ public class DeviceWizardController implements Serializable{
 	private TreeNode[] formSelectedSections;
 	private TreeNode[] formSelectedDeviceTypes;
 	final private @Nullable DeviceRecordView selectedRecord=deviceTableController().getSelectedRecord();
-	private Operation operation;
-	private final List<String> tabs=Lists.newArrayList("areaTab","deviceTab","instanceTab", "finishTab", "filterTab");
+	private Operation activeOperation;
+	private final List<String> tabs=Lists.newArrayList("firstTab","areaTab","deviceTab","instanceTab", "finishTab", "filterTab");
 	
+		
 	/** 
-	 * 
+	 * Activates and prepares the device wizard according to the specified action 
+	 * @param action string indicating the operation to be performed (add, modify or filter) 
 	 */
-	public void init(){
+	public void activateWizard(String action){
+		setAction(action);
 		sections = getTreeNode(NamePartType.SECTION);
 		deviceTypes =  getTreeNode(NamePartType.DEVICE_TYPE);		
 		formSelectedSubsection = findSelectedTreeNode(sections);
 		formSelectedDeviceType = findSelectedTreeNode(deviceTypes);
 		formInstanceIndex = selectedRecord!=null? selectedRecord.getInstanceIndex():null;
 		formDescription = selectedRecord!=null? selectedRecord.getDescription():null;
-		formDeviceName = selectedRecord!=null? selectedRecord.getConventionName():null;		
+		formDeviceName = selectedRecord!=null? selectedRecord.getConventionName():null;
+		resetForm();
+	}
+		
+	public void updateViewFilter(){
+		sections = getTreeNode(NamePartType.SECTION);
+		deviceTypes =  getTreeNode(NamePartType.DEVICE_TYPE);
+		resetForm();
 	}
 	
-//	/**
-//	 * @return the selectedRecord
-//	 */
-//	public DeviceRecordView getSelectedRecord() {
-//		return selectedRecord;
-//	}
+	private void resetForm() {
+		RequestContext.getCurrentInstance().reset(action.concat("DeviceNameForm"));
+	}
 
-	
-	
-//	/**
-//	 * @param selectedRecord the selectedRecord to set
-//	 */
-//	public void setSelectedRecord(DeviceRecordView selectedRecord) {
-//		this.selectedRecord = selectedRecord;
-//	}
+	/**
+	 * Inactivates the device wizard
+	 */
+	public void inactivateWizard(){
+		sections = null;
+		deviceTypes =  null;		
+		formSelectedSubsection = null;
+		formSelectedDeviceType = null;
+		formInstanceIndex = null;
+		formDescription = null;
+		formDeviceName = null;
+		resetForm();
+		setAction(null);
+	}
 
 	/**
 	 * @return the formSelectedSections
@@ -93,33 +109,6 @@ public class DeviceWizardController implements Serializable{
 	 */
 	public void setFormSelectedSections(TreeNode[] formSelectedSections) {
 		this.formSelectedSections = formSelectedSections;
-	}
-	
-	/**
-	 * Prepares the add pop-up wizard
-	 */
-	public synchronized void prepareAddPopup() {
-		operation=Operation.ADD;
-		init();
-		RequestContext.getCurrentInstance().reset("addDeviceNameForm");
-	}
-
-	/**
-	 * Prepares the modify pop-up wizard
-	 */
-	public synchronized void prepareModifyPopup() {
-		operation=Operation.MODIFY;	
-		init();
-		RequestContext.getCurrentInstance().reset("modifyDeviceNameForm");
-	}
-	
-	/**
-	 * Prepares the filter pop-up wizard
-	 */
-	public synchronized void prepareFilterPopup() {
-		operation=Operation.FILTER;
-		init();
-		RequestContext.getCurrentInstance().reset("filterDeviceNameForm");
 	}
 		
 	private static NamePartView namePartView(TreeNode treeNode){
@@ -188,7 +177,7 @@ public class DeviceWizardController implements Serializable{
 	 * @return true if the instance index is unique according to naming convention rules
 	 */
 	public boolean isInstanceIndexUnique(@Nullable String instanceIndex) {
-		switch (operation) {
+		switch (activeOperation) {
 		case MODIFY:
 			final NamePart section = selectedSubsection();
 			final NamePart deviceType = selectedDeviceType();
@@ -207,16 +196,14 @@ public class DeviceWizardController implements Serializable{
 		}
 	}
 	
-	
-	
 	public boolean isTabRendered(int tab){
-		if(tab<0 || tab>tabs.size()-1 || operation==null){
+		if(tab<0 || tab>tabs.size()-1 || activeOperation==null){
 			return false;
 		}
-		switch(operation){
-		case ADD: return tab!=4 ;
-		case MODIFY: return tab!=4;
-		case FILTER: return tab!=2 && tab!=3;
+		switch(activeOperation){
+		case ADD: return tab!=0 && tab!=5 ;
+		case MODIFY: return tab!=0 && tab!=5;
+		case FILTER: return tab!=3 && tab!=4;
 		default: return true;
 		}
 	}
@@ -225,22 +212,23 @@ public class DeviceWizardController implements Serializable{
 		final String oldStep= event.getOldStep();
 		final String newStep=event.getNewStep();
 		final int next= tabs.indexOf(newStep);
-		final int prev=tabs.indexOf(oldStep);
+		final int prev= tabs.indexOf(oldStep);
 			
-		if(isTabRendered(prev) && next>prev && (operation.equals(Operation.ADD)|| operation.equals(Operation.MODIFY))){
-			if(prev==0){
+		if(isTabRendered(prev) && next>prev && (activeOperation.equals(Operation.ADD)|| activeOperation.equals(Operation.MODIFY))){
+			if(prev==1){
 				if(formSelectedSubsection==null){
 					showMessage(null, FacesMessage.SEVERITY_ERROR, "Validation Error:"," Please select from list");
 					return oldStep;
 				} 
-			} else if(prev==1){
+			} else if(prev==2){
 				if(formSelectedDeviceType==null) {
 					showMessage(null, FacesMessage.SEVERITY_ERROR, "Validation Error:"," Please select from list");
 					return oldStep;
 				}
 			}			
 		}
-		return newStep;
+		
+		return isTabRendered(next)? newStep : tabs.get(next+1);
 	}	
 
 		
@@ -263,6 +251,24 @@ public class DeviceWizardController implements Serializable{
 		return mnemonic != null ? mnemonic: "";
 	}
 
+	public String mnemonicStyle(NamePartView namePartView){
+		if(namePartView.isDeleted()){
+			return "Deleted";
+		}else {
+			NamePartType namePartType= namePartView.getNamePart().getNamePartType();
+			return namePartType.equals(NamePartType.SECTION) ? "sec":"dev";
+		}
+	}
+	
+	public String nameStyle(NamePartView namePartView){
+		if(namePartView.isDeleted()){
+			return "Deleted";
+		}else {
+			return "Approved";
+		}
+	}
+
+	
 	public String formAreaName(){
 
 		final List<String> sectionPath = ((NamePartView) formSelectedSubsection.getData()).getMnemonicPath();
@@ -270,53 +276,32 @@ public class DeviceWizardController implements Serializable{
 		return formAreaName != null ? formAreaName: "";
 	}
 
-	public void onAdd() {
-		try {
-			final DeviceRevision rev = namePartService.addDevice(selectedSubsection(), selectedDeviceType(), getFormInstanceIndex(), getFormAdditionalInfo());
-			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name "+rev.getConventionName()+ " has been added.");
-		} finally {
-//			init();
-//			RequestContext.getCurrentInstance().reset("addDeviceNameForm");
-		}
-	}
-
-	private void onModify() {
-		try {
-			final DeviceRevision rev = namePartService.modifyDevice(As.notNull(selectedRecord).getDevice(), selectedSubsection(), selectedDeviceType(), getFormInstanceIndex(), getFormAdditionalInfo());
-			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been modified as " +rev.getConventionName());
-		} finally {
-//			init();
-//			RequestContext.getCurrentInstance().reset("modifyDeviceNameForm");
-		}
-	}
-
 	public void onSubmit(){
-		switch (operation) {
-		case ADD:
-			onAdd();
-			break;
-		case MODIFY:
-			onModify();
-			break;
-		case FILTER:
-			onFilter();
-		default:
-			break;
+		try {
+			switch (activeOperation) {
+			case ADD:
+				final DeviceRevision addrev = namePartService.addDevice(selectedSubsection(), selectedDeviceType(), getFormInstanceIndex(), getFormAdditionalInfo());
+				showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name "+addrev.getConventionName()+ " has been added.");
+				break;
+			case MODIFY:
+				final DeviceRevision modrev = namePartService.modifyDevice(As.notNull(selectedRecord).getDevice(), selectedSubsection(), selectedDeviceType(), getFormInstanceIndex(), getFormAdditionalInfo());
+				showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been modified as " +modrev.getConventionName());
+				break;
+			case FILTER:
+				treeNodeManager.filterSelected(sections);
+				treeNodeManager.filterSelected(deviceTypes);
+//				showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Filter set");
+			default:
+				break;
+			}
+		} finally {
+			deviceTableController().update();
+			inactivateWizard();
 		}
-		deviceTableController().update();
 	}
 
-
-	private void onFilter() {
-		try {
-			treeNodeManager.filterSelected(sections);
-			treeNodeManager.filterSelected(deviceTypes);
-			showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Filter set");
-		} finally {
-//			init();
-//			RequestContext.getCurrentInstance().reset("modifyDeviceNameForm");
-		}
-		
+	public void onCancel(){
+		inactivateWizard();
 	}
 
 	/**
@@ -427,57 +412,14 @@ public class DeviceWizardController implements Serializable{
 		this.formSelectedDeviceType = formSelectedDeviceType;
 	}
 
-//	/**
-//	 * @return the deviceView
-//	 */
-//	public DeviceView getDeviceView() {
-//		return deviceView;
-//	}
-//
-//	/**
-//	 * @param deviceView the deviceView to set
-//	 */
-//	public void setDeviceView(@Nullable DeviceView deviceView) {
-//		this.deviceView = deviceView!=null? deviceView: null;
-//	}
-
-
-	
-//	/**
-//	 * @return the subsection
-//	 */
-//	public NamePart getSubsection() {
-//		return subsection;
-//	}
-//
-//	/**
-//	 * @param subsection the subsection to set
-//	 */
-//	public void setSubsection(@Nullable NamePart subsection) {
-//		this.subsection = subsection!=null? subsection: null;
-//	}
-//
-//	/**
-//	 * @return the deviceType
-//	 */
-//	public NamePart getDeviceType() {
-//		return deviceType;
-//	}
-//
-//	/**
-//	 * @param deviceType the deviceType to set
-//	 */
-//	public void setDeviceType(@Nullable NamePart deviceType) {
-//		this.deviceType = deviceType;
-//	}
 	
 	/**
 	 * 
 	 * @param structure NamePartType 
-	 * @return 
+	 * @return treeNode root
 	 */
 	private TreeNode getTreeNode(NamePartType structure){
-		final List<NamePartRevision> approvedRevisions = namePartService.currentApprovedNamePartRevisions(structure, false);
+		final List<NamePartRevision> approvedRevisions = namePartService.currentApprovedNamePartRevisions(structure, true);
 		NamePart selectedNamePart=null;
 		switch(structure){
 		case SECTION:
@@ -489,19 +431,13 @@ public class DeviceWizardController implements Serializable{
 		}
 		
 		TreeNode node;
-		switch (operation) {
-		case ADD:
-			node=namePartTreeBuilder.newNamePartTree(approvedRevisions,2, selectedNamePart);			
-			break;
-		case MODIFY:
-			node=namePartTreeBuilder.newNamePartTree(approvedRevisions,2, selectedNamePart);		
-			break;
+		switch (activeOperation) {
 		case FILTER:
-			node=namePartTreeBuilder.newNamePartTree(approvedRevisions,0, null);		
+			node=treeNodeManager.filteredNode(namePartTreeBuilder.newNamePartTree(approvedRevisions,0, null),true);		
 			treeNodeManager.selectFiltered(node);
 			break;
 		default:
-			node=null;
+			node=treeNodeManager.filteredNode(namePartTreeBuilder.newNamePartTree(approvedRevisions,2, selectedNamePart),false,false);	
 			break;
 		}
 		treeNodeManager.expandCustomized(node);
@@ -510,6 +446,7 @@ public class DeviceWizardController implements Serializable{
 	
 	
 	private TreeNode findSelectedTreeNode(TreeNode node) {
+		if(node==null) return null;
 		if (node.isSelected()) {
 			treeNodeManager.expandParents(node);
 			return node;
@@ -523,6 +460,7 @@ public class DeviceWizardController implements Serializable{
 			return null;
 		}
 	}
+	
 	
 	private void showMessage(@Nullable String notificationChannel, FacesMessage.Severity severity, String summary, String message) {
 		FacesContext context = FacesContext.getCurrentInstance();
@@ -541,6 +479,24 @@ public class DeviceWizardController implements Serializable{
 	public void setFormSelectedDeviceTypes(TreeNode[] formSelectedDeviceTypes) {
 		this.formSelectedDeviceTypes = formSelectedDeviceTypes;
 	}
+
+		
+	/**
+	 * @return the action
+	 */
+	public String getAction() {
+		return action;
+	}
+
+
+	/**
+	 * @param action the action to set
+	 */
+	private void setAction(String action) {
+		this.action = action;
+		activeOperation=action!=null? Operation.valueOf(action.toUpperCase()):null;
+	}
+
 	public enum Operation{
 		FILTER, ADD, MODIFY
 	}

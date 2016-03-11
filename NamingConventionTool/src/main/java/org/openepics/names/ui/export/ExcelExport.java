@@ -27,9 +27,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openepics.names.model.DeviceRevision;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
+import org.openepics.names.services.SessionViewService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.BatchViewProvider;
 import org.openepics.names.services.views.NamePartView;
+import org.openepics.names.ui.common.TreeNodeManager;
 import org.openepics.names.ui.common.ViewFactory;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.util.As;
@@ -50,6 +52,8 @@ public class ExcelExport {
     
     @Inject private RestrictedNamePartService namePartService;
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
+    @Inject private SessionViewService sessionViewService;
+    @Inject private TreeNodeManager treeNodeManager;
 
     /**
      * Exports the entities from the database, producing a stream which can be streamed to the user over HTTP.
@@ -58,14 +62,16 @@ public class ExcelExport {
      */
     public InputStream exportFile() {
         final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, false);
-        final TreeNode sectionsTree = namePartTreeBuilder.newNamePartTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true);
+        final TreeNode sectionsTree = treeNodeManager.filteredNode(namePartTreeBuilder.newNamePartTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true),false,false);
 
         final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false);
-        final TreeNode typesTree = namePartTreeBuilder.newNamePartTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true);
+        final TreeNode typesTree = treeNodeManager.filteredNode(namePartTreeBuilder.newNamePartTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true), false,false);
 
         final List<DeviceRevision> devices = Lists.newArrayList();
         for (DeviceRevision deviceRevision : namePartService.currentDeviceRevisions(false)) {
-            devices.add(deviceRevision);
+        	boolean filteredSection=sessionViewService.isFiltered(deviceRevision.getSection());
+        	boolean filteredDeviceType=sessionViewService.isFiltered(deviceRevision.getDeviceType());
+        	if(filteredSection&&filteredDeviceType) devices.add(deviceRevision);
         }
         
         final XSSFWorkbook workbook = exportWorkbook(sectionsTree, typesTree, devices);

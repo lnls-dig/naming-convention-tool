@@ -19,8 +19,10 @@ import javax.inject.Inject;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openepics.names.model.DeviceRevision;
+import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
+import org.openepics.names.services.SessionViewService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.DeviceRecordView;
 import org.openepics.names.services.views.DeviceView;
@@ -50,6 +52,7 @@ public class DeviceTableController implements Serializable{
 	@Inject private DevicesTreeBuilder devicesTreeBuilder;
 	@Inject private NamePartTreeBuilder namePartTreeBuilder;
 	@Inject private ExcelImport excelImport;
+	@Inject private SessionViewService sessionViewService;
 	private byte[] importData;
 	
 
@@ -58,13 +61,11 @@ public class DeviceTableController implements Serializable{
 
 	private List<DeviceRecordView> records;
 	private List<DeviceRecordView> filteredRecords;
-	private DevicesViewFilter displayView=DevicesViewFilter.ACTIVE;
 	private List<DeviceView> historyDeviceNames;
 	private int rowNumber;
 	
 	@PostConstruct
 	public void init(){
-		displayView=DevicesViewFilter.ACTIVE;
 		selectDeviceInUrl();
 	}
 
@@ -74,6 +75,13 @@ public class DeviceTableController implements Serializable{
 	 */
 	private void selectDeviceInUrl() {
 		final @Nullable String deviceName = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("deviceName");
+		if(deviceName!=null){
+			final DeviceRevision deviceRevision=namePartService.currentDeviceRevision(deviceName);
+			final NamePart section=deviceRevision.getSection();
+			final NamePart deviceType=deviceRevision.getDeviceType();
+			sessionViewService.filter(section);
+			sessionViewService.filter(deviceType);
+		}
 		update();
 		if(deviceName!=null){
 			rowNumber=0;
@@ -93,10 +101,9 @@ public class DeviceTableController implements Serializable{
 	 * update all data
 	 */
 	public void update(){
-		boolean includeDeleted= displayView==DevicesViewFilter.ARCHIVED;
-		records=devicesTreeBuilder.deviceRecords(includeDeleted);		
+		records=devicesTreeBuilder.deviceRecords();		
 	}
-	
+		
 	/** 
 	 * 
 	 * @return Link to the device in the controls configuration database (CCDB) 
@@ -181,8 +188,16 @@ public class DeviceTableController implements Serializable{
 		return recordList;
 	}
 
-	public DevicesViewFilter getViewFilter() {return displayView; }
-	public void setViewFilter(DevicesViewFilter viewFilter) { this.displayView = viewFilter; }
+	public DevicesViewFilter getViewFilter() {
+		return selectRecordManager.isIncludeDeleted()? DevicesViewFilter.ARCHIVED: DevicesViewFilter.ACTIVE; 
+	}
+	public void setViewFilter(DevicesViewFilter viewFilter) { 
+		switch(viewFilter){
+		case ARCHIVED: selectRecordManager.setIncludeDeleted(true);
+			break;
+		default: selectRecordManager.setIncludeDeleted(false); 
+		}
+	}
 
 	public void loadHistory() {
 		historyDeviceNames = Lists.transform(namePartService.revisions(As.notNull(getSelectedRecord()).getDevice()), new Function<DeviceRevision, DeviceView>() {
@@ -276,6 +291,5 @@ public class DeviceTableController implements Serializable{
 	public int getRowNumber() {
 		return 30*(rowNumber/30);
 	}
-
 
 }

@@ -14,6 +14,9 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.openepics.names.services.SessionService;
+import org.openepics.names.ui.devices.DeviceTableController;
+import org.openepics.names.ui.parts.NamePartsController;
+
 import se.esss.ics.rbac.loginmodules.service.Message;
 
 /**
@@ -39,24 +42,31 @@ public class LoginController implements Serializable {
 
 	public String getActiveIndex(){
 		String viewId=FacesContext.getCurrentInstance().getViewRoot().getViewId();
-		final @Nullable String type = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
-
 		if(viewId.equals("/index.xhtml")) {
 			return "0";
-		} else if(viewId.equals("/about.xhtml")) {
+		}else if(viewId.equals("/about.xhtml")) {
 			return "1";
-		}if(viewId.equals("/devices.xhtml")) {
+		}else if(viewId.equals("/devices.xhtml")) {
 			return "2";
-		}if(viewId.equals("/parts.xhtml")&& type.equals("section")) {
-			return "3";
-		}if(viewId.equals("/parts.xhtml")&& type.equals("deviceType")) {
-			return "4";
-		}if(viewId.equals("/help.xhtml")) {
+		}else if(viewId.equals("/parts.xhtml")){
+			String type = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
+			if(type==null){
+				FacesContext facesContext=FacesContext.getCurrentInstance();
+				NamePartsController namePartsController=(NamePartsController) facesContext.getApplication().getExpressionFactory().createValueExpression(facesContext.getELContext(), "#{namePartsController}", Object.class).getValue(facesContext.getELContext()); 
+				type=namePartsController.getType();
+			}
+			if(type!=null && type.equals("section")) {
+				return "3";
+			}else if (type!=null && type.equals("deviceType")) {
+				return "4";	
+			} else {
+				return "0";
+			}
+		}else if(viewId.equals("/help.xhtml")) {
 			return "5";
 		} else {
 			return "0";
 		}
-	
 	}
 	public void prepareLoginPopup() {
 		inputUsername = null;

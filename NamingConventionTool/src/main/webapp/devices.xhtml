@@ -7,8 +7,8 @@
 	xmlns:h="http://java.sun.com/jsf/html">
 	<ui:define name="content">
 		<h:form id="ManageNameForm">
-			<p:growl globalOnly="true" id="devicesMsgs" showDetail="true"
-				sticky="false" life="10000" />
+<!-- 			<p:growl globalOnly="true" id="devicesMsgs" showDetail="true" -->
+<!-- 				sticky="false" life="10000" /> -->
 			<!-- =================== Table ============================ -->
 			<p:dataTable 
 				id="devicesTree" 
@@ -23,36 +23,27 @@
 				resizableColumns="true"
 				filteredValue="#{deviceTableController.filteredRecords}"
 				scrollRows="50" scrollable="true" liveScroll="true"
+				emptyMessage="No records found. Set global filter under the action menu button to view some data"
 				widgetVar="deviceTable">
 				<f:facet id="filterTable" name="header">
-					<p:outputLabel for="status" value="Show: "
-						styleClass="ui-widget-header" style="float:left" />
-					<p:selectOneMenu id="status"
-						value="#{deviceTableController.viewFilter}" style="float:left">
-						<p:ajax event="change" update="devicesTree" listener="#{deviceTableController.update()}"
-							oncomplete="resizePanel()" />
-						<f:selectItem itemLabel="Active" itemValue="ACTIVE"
-							noSelectionOption="true" />
-						<f:selectItem itemLabel="Archived" itemValue="ARCHIVED" />
-					</p:selectOneMenu>						
 						<p:menuButton id="ncReqMenu" value="Actions" style="float:right">
 						<p:menuitem value="Filter" icon="ui-icon-gear"
 							update=":filterDeviceNameForm"
+							title="Set Global Filter"
+							action="#{deviceWizardController.activateWizard('filter')}"
 							oncomplete="PF('filterDeviceName').show()" 
-							title="Filter"
-							actionListener="#{deviceWizardController.prepareFilterPopup()}"
 							disabled="${!(deviceTableController.canFilter())}" />
 						<p:menuitem value="Add" icon="ui-icon-plus"
 							update=":addDeviceNameForm"
 							oncomplete="PF('addDeviceName').show()" 
 							title="Add Device Name"
-							actionListener="#{deviceWizardController.prepareAddPopup()}"
+							actionListener="#{deviceWizardController.activateWizard('add')}"
 							disabled="${!(deviceTableController.canAdd())}"
 							rendered="#{userManager.editor}"/>
 						<p:menuitem value="Modify" icon="ui-icon-pencil"
 							update=":modifyDeviceNameForm"
 							oncomplete="PF('modifyDeviceName').show()"
-							actionListener="#{deviceWizardController.prepareModifyPopup()}"
+							actionListener="#{deviceWizardController.activateWizard('modify')}"
 							title="Modify Device Name" 
 							rendered="#{userManager.editor}"
 							disabled="${!(deviceTableController.canModify())}" />
@@ -129,7 +120,11 @@
 		</h:form>
 		<!-- 		======================== Filter form ============================-->
 		<ui:include src="/WEB-INF/includes/devices-wizard.xhtml">
-			<ui:param name="dialogTitle" value="Filter" />
+<!-- 			<ui:param name="rendered" value="#{deviceWizardController.action.equals('filter')}"/> -->
+			<ui:param name="action" value="filter"/>
+			<ui:param name="areaQuestion" value="2. Which areas of the facility is relevant to you?" />
+			<ui:param name="deviceQuestion" value="3. What kind of devices are relevant to you?" />
+			<ui:param name="dialogTitle" value="Set global filter" />
 			<ui:param name="widgetName" value="filterDeviceName" />
 			<ui:param name="selectionMode" value="checkbox" />
 			<ui:param name="formSelectedSection" value="#{deviceWizardController.formSelectedSections}"/>
@@ -137,6 +132,9 @@
 		</ui:include>
 		<!-- 		======================== Add form ============================-->
 		<ui:include src="/WEB-INF/includes/devices-wizard.xhtml">
+			<ui:param name="action" value="add"/>
+			<ui:param name="areaQuestion" value=" 1. Which part of the facility does the device provide service to?" />
+			<ui:param name="deviceQuestion" value="2. What kind of service does the device provide?" />
 			<ui:param name="dialogTitle" value="Add Device Name" />
 			<ui:param name="widgetName" value="addDeviceName" />
 			<ui:param name="selectionMode" value="single" />
@@ -145,6 +143,9 @@
 		</ui:include>
 		<!-- 		============================ Modify form =====================-->
 		<ui:include src="/WEB-INF/includes/devices-wizard.xhtml">
+			<ui:param name="action" value="modify"/>
+			<ui:param name="areaQuestion" value="1. Which part of the facility does the device provide service to?" />
+			<ui:param name="deviceQuestion" value="2. What kind of service does the device provide?" />
 			<ui:param name="dialogTitle" value="Modify Device Name" />
 			<ui:param name="widgetName" value="modifyDeviceName" />
 			<ui:param name="selectionMode" value="single" />

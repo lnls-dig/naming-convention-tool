@@ -72,6 +72,7 @@ public class NamePartsController implements Serializable {
 	private TreeNode rootWithoutModifications;
 	private TreeNode viewRoot;
 	private TreeNode[] selectedNodes;
+	private String type;
 
 	private TreeNode deleteView;
 	private TreeNode approveView;
@@ -91,14 +92,22 @@ public class NamePartsController implements Serializable {
 	private int formNamePartLevel;
 	private final List<String> tabs=Lists.newArrayList("namePartTab","parentTab","descriptionTab", "finishTab");
 		
+	/**
+	 * @return the type
+	 */
+	public String getType() {
+		return type;
+	}
+
+
 	@PostConstruct
 	public void init(){
-		@Nullable String typeParam = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
-		if (typeParam == null) {
+		type = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
+		if (type == null) {
 			Marker.doNothing();
-		} else if (typeParam.equals("section")) {
+		} else if (type.equals("section")) {
 			namePartType = NamePartType.SECTION;	
-		} else if (typeParam.equals("deviceType")) {
+		} else if (type.equals("deviceType")) {
 			namePartType = NamePartType.DEVICE_TYPE;	
 		} else {
 			throw new IllegalStateException();
@@ -490,8 +499,8 @@ public class NamePartsController implements Serializable {
 			break;
 		default: Marker.doNothing();
 		}
-	 	
 	}
+	
 	public void onAdd() {
 		try {
 			namePartService.addNamePart(formName, formMnemonic, formDescription, namePartType, formParent , formComment);
