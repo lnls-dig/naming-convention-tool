@@ -65,8 +65,8 @@ public class ViewFactory {
         return new DeviceView(this, deviceRevision, null, null);
     }
 
-    public DeviceRecordView getRecordView(DeviceRevision deviceRevision){
-    	return new DeviceRecordView(this,deviceRevision);
+    public DeviceRecordView getRecordView(DeviceRevision deviceRevision, NamePartView subsectionView, NamePartView deviceTypeView ){
+    	return new DeviceRecordView(this, deviceRevision, subsectionView, deviceTypeView);
     }
     
     

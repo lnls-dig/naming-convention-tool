@@ -22,19 +22,21 @@ public class DeviceRecordView {
 	private DeviceElement deviceType;
 	private ViewFactory viewFactory;
 	
-	public DeviceRecordView(ViewFactory viewFactory, DeviceRevision deviceRevision) {
+	public DeviceRecordView(ViewFactory viewFactory, DeviceRevision deviceRevision, NamePartView subsectionView, NamePartView deviceTypeView) {
 		this.viewFactory=viewFactory;		
 		this.deviceRevision=deviceRevision;
-		update();
+		this.deviceTypeView=deviceTypeView;
+		this.subsectionView=subsectionView;
+//		update();
 	}
 
     /**
      * @return The view of the subsection containing the device.
      */
     public NamePartView getSubsectionView() {
-        if (subsectionView == null) {
-            subsectionView = viewFactory.getView(deviceRevision.getSection());
-        }
+//        if (subsectionView == null) {
+//            subsectionView = viewFactory.getView(deviceRevision.getSection());
+//        }
         return subsectionView;
     }
 
@@ -42,9 +44,9 @@ public class DeviceRecordView {
      * @return The view of the device type containing the device.
      */
     public NamePartView getDeviceTypeView() {
-        if (deviceTypeView == null) {
-            deviceTypeView = viewFactory.getView(deviceRevision.getDeviceType());
-        }
+//        if (deviceTypeView == null) {
+//            deviceTypeView = viewFactory.getView(deviceRevision.getDeviceType());
+//        }
         return deviceTypeView;
     }
 	

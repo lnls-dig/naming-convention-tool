@@ -50,7 +50,7 @@ public class DeviceTableController implements Serializable{
 	@Inject private ViewFactory viewFactory;
 	@Inject private SelectRecordManager selectRecordManager;
 	@Inject private DevicesTreeBuilder devicesTreeBuilder;
-	@Inject private NamePartTreeBuilder namePartTreeBuilder;
+//	@Inject private NamePartTreeBuilder namePartTreeBuilder;
 	@Inject private ExcelImport excelImport;
 	@Inject private SessionViewService sessionViewService;
 	private byte[] importData;
@@ -120,7 +120,6 @@ public class DeviceTableController implements Serializable{
 				names.add(new SelectItem(part.getName(),part.getName(), part.getDescription()));
 			}
 		}
-
 		return names;
 	}
 
@@ -171,22 +170,20 @@ public class DeviceTableController implements Serializable{
 	
 	public boolean canShowHistory() { return getSelectedRecord() != null; }
 
-	/**
-	 * Generates a list of device records for views.
-	 * @param root Root of the tree node
-	 * @return list of device records
-	 */
-	public List<DeviceRecordView> generateRecords(TreeNode root){		
-		
-		final List<DeviceRecordView> recordList=Lists.newArrayList();
-		for(TreeNode node: TreeNodeManager.nodeList(root)){
-			if(node.getData() instanceof DeviceView){
-//				recordList.add(new DeviceRecordView((DeviceView) node.getData()));	
-				
-			}
-		}
-		return recordList;
-	}
+//	/**
+//	 * Generates a list of device records for views.
+//	 * @param root Root of the tree node
+//	 * @return list of device records
+//	 */
+//	public List<DeviceRecordView> generateRecords(TreeNode root){				
+//		final List<DeviceRecordView> recordList=Lists.newArrayList();
+//		for(TreeNode node: TreeNodeManager.nodeList(root)){
+//			if(node.getData() instanceof DeviceView){
+////				recordList.add(new DeviceRecordView((DeviceView) node.getData()));	
+//			}
+//		}
+//		return recordList;
+//	}
 
 	public DevicesViewFilter getViewFilter() {
 		return selectRecordManager.isIncludeDeleted()? DevicesViewFilter.ARCHIVED: DevicesViewFilter.ACTIVE; 
