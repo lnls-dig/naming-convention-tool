@@ -79,7 +79,7 @@
 				<p:separator />
 				<f:facet name="footer">
 					<p:commandButton id="btn" value="Submit" style="float: right"
-						update=":ReqSubForm:reqMenu :ReqSubForm :ReqSubForm:partsMsgs" 
+						update=":ReqSubForm:reqMenu :ReqSubForm" 
 						actionListener="#{namePartsController[submitHandler]}" 
 						onclick="if (!args.validationFailed) PF(#{widgetId}).hide()"
 						disabled="#{facesContext.validationFailed}"/>

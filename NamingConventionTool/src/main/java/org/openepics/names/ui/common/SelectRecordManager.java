@@ -67,6 +67,14 @@ public class SelectRecordManager{
 		sessionViewService.setIncludeDeleted(includeDeleted);
 	}
 
+	public boolean isIncludeOffsite() {
+		return sessionViewService.isIncludeOffsite();
+	}
+
+	public void setIncludeOffsite(boolean includeOffsite) {
+		sessionViewService.setIncludeOffsite(includeOffsite);		
+	}
+
 //	public boolean isSelected(DeviceRecordView record){
 //		DeviceRecordView selected=sessionViewService.getSelectedRecord();
 //		return selected!=null? selected.equals(record):false;

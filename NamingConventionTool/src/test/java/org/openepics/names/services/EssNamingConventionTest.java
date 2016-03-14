@@ -54,18 +54,18 @@ public class EssNamingConventionTest {
     	return namingConvention.isMnemonicValid(ImmutableList.of("Dis","",mnemonic), NamePartType.DEVICE_TYPE);
     }
     
+    
     @Test 
     public void isSuperSectionNameValidTest(){
     	assertTrue("Empty super section is allowed", testSuperSection(""));
         assertTrue("Only Zeros are allowed",testSuperSection("000"));   
     	assertTrue("Alphabetic super section is allowed",testSuperSection("Sup"));
-        assertFalse("Blanks are not allowed", testSuperSection("Sup "));
+        assertFalse("Blanks are not allowed", testSuperSection("Su "));
         assertTrue("Numeric super section is allowed",testSuperSection("123"));
-        assertTrue("AlphaNumeric super section is allowed",testSuperSection("Sup0"));
+        assertTrue("AlphaNumeric super section is allowed",testSuperSection("S0p"));
         assertFalse("Non-Alphanumerical subsection is not allowed",testSuperSection("Sup:"));
         assertTrue("Short super section is allowed", testSuperSection("1"));
-        assertTrue("Long super section is allowed", testSuperSection("123456"));
-        assertTrue("Very long super section is allowed",testSuperSection("123456789012345"));
+        assertFalse("Long super section is not allowed", testSuperSection("1234"));
     }
     
     @Test
@@ -146,7 +146,7 @@ public class EssNamingConventionTest {
         assertFalse("Empty section is not allowed",namingConvention.isMnemonicValid(ImmutableList.of("Sup", "  "), NamePartType.SECTION));
         assertFalse("Non-alphanumerical char are not allowed", namingConvention.isMnemonicValid(ImmutableList.of("Sup", "Sec!"), NamePartType.SECTION));
         assertTrue(namingConvention.isMnemonicValid(ImmutableList.of("Lin", "Sec", "cryo"), NamePartType.SECTION));
-        assertTrue(namingConvention.isMnemonicValid(ImmutableList.of("Acc1"), NamePartType.SECTION));
+        assertTrue(namingConvention.isMnemonicValid(ImmutableList.of("Ac1"), NamePartType.SECTION));
         assertTrue(namingConvention.isMnemonicValid(ImmutableList.of("Acc"), NamePartType.SECTION));
         assertTrue(namingConvention.isMnemonicValid(ImmutableList.of("Acc", "Sec"), NamePartType.SECTION));
         assertTrue(namingConvention.isMnemonicValid(ImmutableList.of("Lin", "Sec", "Cryo"), NamePartType.SECTION));
@@ -226,12 +226,28 @@ public class EssNamingConventionTest {
     
     @Test
     public void conventionNameTest() {
-        final List<String> sectionPath = ImmutableList.of("Sup", "Sec", "Sub");
+        final List<String> sectionPath = ImmutableList.of("", "Sec", "Sub");
+        final List<String> offsiteSectionPath = ImmutableList.of("Sup", "Sec", "Sub");
         final List<String> deviceTypePath = ImmutableList.of("Dis", "Cat", "Dev");
         assertEquals(namingConvention.conventionName(sectionPath, deviceTypePath, "Idx"), "Sec-Sub:Dis-Dev-Idx");
+        assertEquals(namingConvention.conventionName(offsiteSectionPath, deviceTypePath, "Idx"), "Sup-Sec-Sub:Dis-Dev-Idx");
         assertEquals(namingConvention.conventionName(sectionPath, deviceTypePath, ""),"Sec-Sub:Dis-Dev");
         assertEquals(namingConvention.conventionName(sectionPath, ImmutableList.of("Dis","Cat"), "Idx"),null);
     }
+    
+    @Test 
+    public void canSuperSectionCoexistIfEqualTest(){
+    	assertFalse("SuperSection and SuperSection cannot coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("Sup"), NamePartType.SECTION, ImmutableList.of("Sup"), NamePartType.SECTION));
+    	assertTrue("SuperSection and SuperSection can coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of(""), NamePartType.SECTION, ImmutableList.of(""), NamePartType.SECTION));
+    	assertTrue("SuperSection and Section can coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("Sup"), NamePartType.SECTION, ImmutableList.of("", "Sup"), NamePartType.SECTION));
+    	assertTrue("SuperSection and Section cannot coexist in a parent child relation", namingConvention.canMnemonicsCoexist(ImmutableList.of("Sup"), NamePartType.SECTION, ImmutableList.of("Sup","","Sup"),NamePartType.SECTION));
+    	assertFalse("Section and Section cannot coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("Sup", "Sec"), NamePartType.SECTION, ImmutableList.of("Sup","","Sec"),NamePartType.SECTION));
+    	assertTrue("Section and Section can coexist 1", namingConvention.canMnemonicsCoexist(ImmutableList.of("Su1", "Sec"), NamePartType.SECTION, ImmutableList.of("Su2","Sec"),NamePartType.SECTION));
+    	assertTrue("Section and Section can coexist 2", namingConvention.canMnemonicsCoexist(ImmutableList.of("", "Sec"), NamePartType.SECTION, ImmutableList.of("Sup","Sec"),NamePartType.SECTION));
+    }
+
+    
+    
     
     @Test 
     public void canDisciplineCoexistIfEqualTest(){

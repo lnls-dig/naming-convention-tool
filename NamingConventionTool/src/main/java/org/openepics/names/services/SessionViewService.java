@@ -40,6 +40,7 @@ public class SessionViewService implements Serializable{
 	private Map<Object,NodeStatus> nodeMap;
 	private List<DeviceRecordView> selectedRecords;
 	private boolean includeDeleted;
+	private boolean includeOffsite;
 
 	@Inject
 	public SessionViewService(){
@@ -185,6 +186,21 @@ public class SessionViewService implements Serializable{
 	}
 
 
+	/**
+	 * @return the includeOffsite
+	 */
+	public boolean isIncludeOffsite() {
+		return includeOffsite;
+	}
+
+	/**
+	 * @param includeOffsite the includeOffsite to set
+	 */
+	public void setIncludeOffsite(boolean includeOffsite) {
+		this.includeOffsite = includeOffsite;
+	}
+
+
 	public class NodeStatus {
 		private boolean expanded;
 		private boolean selected;
@@ -234,5 +250,8 @@ public class SessionViewService implements Serializable{
 		public void setSelected(boolean selected) {
 			this.selected = selected;
 		}	
-	}		 
+	}
+
+
+		 
 }

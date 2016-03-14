@@ -180,7 +180,7 @@ public class NamePartService {
 	public boolean isMnemonicUniqueOnModify(NamePart namePart, @Nullable NamePart parent, String mnemonic){
 		NamePartType namePartType=namePart.getNamePartType();
 		final List<String> newMnemonicPath = ImmutableList.<String>builder().addAll(getMnemonicPath(parent)).add(mnemonic!=null? mnemonic:"").build();
-		if(namingConvention.isMnemonicRequired(newMnemonicPath, namePartType)){
+//		if(namingConvention.isMnemonicRequired(newMnemonicPath, namePartType)) {
 			final String mnemonicEquivalenceClass = namingConvention.equivalenceClassRepresentative(mnemonic);    	
 			final List<NamePartRevision> sameEqClassRevisions = em.createQuery("SELECT r FROM NamePartRevision r WHERE (r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :approved) OR r.id = (SELECT MAX(r2.id) FROM NamePartRevision r2 WHERE r2.namePart = r.namePart AND r2.status = :pending)) AND r.deleted = FALSE AND r.mnemonicEqClass = :mnemonicEquivalenceClass", NamePartRevision.class).setParameter("approved", NamePartRevisionStatus.APPROVED).setParameter("pending", NamePartRevisionStatus.PENDING).setParameter("mnemonicEquivalenceClass", mnemonicEquivalenceClass).getResultList();
 			for (NamePartRevision sameEqClassRevision : sameEqClassRevisions) {
@@ -192,8 +192,9 @@ public class NamePartService {
 						return false;
 					}           
 				}    	
-			}
-		}
+			}			
+//		}
+		
 		return true;
 	}
 

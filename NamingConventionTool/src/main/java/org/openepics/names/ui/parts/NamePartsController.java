@@ -78,6 +78,8 @@ public class NamePartsController implements Serializable {
 	private TreeNode approveView;
 	private TreeNode cancelView;
 
+	private SiteOperation siteOperation;
+
 	private String formName;
 	private String formMnemonic;
 	private String formDescription;
@@ -99,7 +101,6 @@ public class NamePartsController implements Serializable {
 		return type;
 	}
 
-
 	@PostConstruct
 	public void init(){
 		type = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("type");
@@ -114,6 +115,35 @@ public class NamePartsController implements Serializable {
 		}
 		update();
 	}
+	
+	/**
+	 * @return the offsiteOperation
+	 */
+	public boolean isOffsiteOperation() {
+		return isFormSuperSection() && siteOperation.equals(SiteOperation.OFFSITE);
+	}
+
+	
+	/**
+	 * @return the siteOperation
+	 */
+	public SiteOperation getSiteOperation() {
+		return siteOperation;
+	}
+
+
+	/**
+	 * @param siteOperation the siteOperation to set
+	 */
+	public void setSiteOperation(SiteOperation siteOperation) {
+		this.siteOperation = siteOperation;
+		if(isFormSuperSection()) formMnemonic=null;
+	}
+
+	private enum SiteOperation{
+		ONSITE, OFFSITE
+	}
+
 	
 	/**
 	 * @return the formNamePartNode
@@ -145,7 +175,8 @@ public class NamePartsController implements Serializable {
 
 	public void updateNamePartForm(){
 		if(formNamePartNode!=null){
-			final NamePartRevision namePartRevision = ((NamePartView) formNamePartNode.getData()).getCurrentOrElsePendingRevision();
+			NamePartView formNamePartView=(NamePartView) formNamePartNode.getData();
+			final NamePartRevision namePartRevision = (formNamePartView).getCurrentOrElsePendingRevision();
 			formName = namePartRevision.getName();
 			formMnemonic = namePartRevision.getMnemonic();
 			formDescription =  namePartRevision.getDescription();
@@ -157,7 +188,9 @@ public class NamePartsController implements Serializable {
 			}
 			formParentNode=formNamePartNode.getParent();
 			updateParentForm();
+			updateSiteOperation();
 		} else {
+			setSiteOperation(SiteOperation.ONSITE);
 			formName =null;
 			formMnemonic = null;
 			formDescription = null;
@@ -173,6 +206,17 @@ public class NamePartsController implements Serializable {
 		}
 	}
 	
+	public void updateSiteOperation(){
+		if(isFormSuperSection() && formMnemonic!=null && !formMnemonic.isEmpty()){
+			siteOperation=SiteOperation.OFFSITE;
+		} else {
+			siteOperation=SiteOperation.ONSITE;
+		}
+
+	}
+	public boolean isFormSuperSection(){
+		return formParent==null && namePartType.equals(NamePartType.SECTION);
+	}
 
 	public @Nullable NamePart getFormParent(){
 		return formParent;
@@ -404,10 +448,15 @@ public class NamePartsController implements Serializable {
 	}
 	
 	public boolean isMnemonicRequired(){
-		if(operation.equals(Operation.ADD)){
-			return namePartService.isMnemonicRequiredForChild(namePartType,formParent);
-		} else {
-			return namePartService.isMnemonicRequired(namePartType, formNamePart);
+		switch (operation) {
+		case ADD:{
+			return isOffsiteOperation() || namePartService.isMnemonicRequiredForChild(namePartType,formParent);
+		}
+		case MODIFY: {
+			return isOffsiteOperation() || namePartService.isMnemonicRequired(namePartType, formNamePart);
+		}
+		default:
+			return false;
 		}
 //		final @Nullable NamePart  namePart= getSelectedName() !=null? getSelectedName().getNamePart():null;
 //		return namePart!=null ? namePartService.isMnemonicRequired(namePartType,namePart): true;
@@ -909,4 +958,5 @@ public class NamePartsController implements Serializable {
 	private enum Operation{
 		VIEW, APPROVE, DELETE, REJECT, CANCEL, MODIFY, ADD, MOVE
 	}
+	
 }

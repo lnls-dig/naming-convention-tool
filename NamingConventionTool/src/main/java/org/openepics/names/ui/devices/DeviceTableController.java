@@ -185,17 +185,34 @@ public class DeviceTableController implements Serializable{
 //		return recordList;
 //	}
 
-	public DevicesViewFilter getViewFilter() {
+	public DevicesViewFilter getActiveViewFilter() {
 		return selectRecordManager.isIncludeDeleted()? DevicesViewFilter.ARCHIVED: DevicesViewFilter.ACTIVE; 
 	}
-	public void setViewFilter(DevicesViewFilter viewFilter) { 
+	public void setActiveViewFilter(DevicesViewFilter viewFilter) { 
 		switch(viewFilter){
 		case ARCHIVED: selectRecordManager.setIncludeDeleted(true);
+			break;
+		case ACTIVE: selectRecordManager.setIncludeDeleted(false);
 			break;
 		default: selectRecordManager.setIncludeDeleted(false); 
 		}
 	}
 
+	public DevicesViewFilter getSiteViewFilter() {
+		return selectRecordManager.isIncludeOffsite()? DevicesViewFilter.OFFSITE: DevicesViewFilter.ONSITE; 
+	}
+	public void setSiteViewFilter(DevicesViewFilter viewFilter) { 
+		switch(viewFilter){
+		case OFFSITE: selectRecordManager.setIncludeOffsite(true);
+			break;
+		case ONSITE: selectRecordManager.setIncludeOffsite(false);
+			break;
+		default: selectRecordManager.setIncludeOffsite(false); 
+		}
+	}
+
+	
+	
 	public void loadHistory() {
 		historyDeviceNames = Lists.transform(namePartService.revisions(As.notNull(getSelectedRecord()).getDevice()), new Function<DeviceRevision, DeviceView>() {
 			@Override public DeviceView apply(DeviceRevision f) { return viewFactory.getView(f);}
@@ -236,7 +253,7 @@ public class DeviceTableController implements Serializable{
 	}
 	
 	enum DevicesViewFilter {
-		ACTIVE, ARCHIVED
+		ACTIVE, ARCHIVED, OFFSITE, ONSITE 
 	}
 	
 	public void onImport() {

@@ -61,21 +61,38 @@
  				</p:tab>
 				
 				<p:tab id="descriptionTab" rendered="#{namePartsController.descriptionTabRendered}">
-				<div class="wizardStyle">
-				
+				<div class="wizardStyle">				
 					<h:panelGrid id="gridId" columns="2" width="100%">
-					
-						<p:outputLabel for="idesc" value="Full Name:" />
+
+							<p:outputLabel for="operation" value="Operation:"
+								rendered="${namePartsController.formSuperSection}" />
+							<h:panelGroup rendered="${namePartsController.formSuperSection}">
+								<p:selectOneRadio id="operation"
+									value="#{namePartsController.siteOperation}"
+									update="outputlabel icode" plain="true">
+									<f:selectItem itemLabel=" On-site " itemValue="ONSITE" />
+									<f:selectItem itemLabel=" Off-site (test stand) "
+										itemValue="OFFSITE" />
+									<p:ajax process="@this" update="outputlabel icode @this" />
+								</p:selectOneRadio>
+							</h:panelGroup>
+
+							<p:outputLabel for="idesc" value="Full Name:" />
 						<h:panelGroup>
 							<p:inputText id="idesc" value="#{namePartsController.formName}" required="true" style="width:100%" />
 							<p:watermark for="idesc" value="#{namePartsController.getNamePartTypeName()}" />
 						</h:panelGroup>
 
-						<p:outputLabel for="icode" rendered="#{namePartsController.isMnemonicRequired()}" value="Mnemonic:" />
-						<h:panelGroup rendered="#{namePartsController.isMnemonicRequired()}">
-							<p:inputText id="icode" value="#{namePartsController.formMnemonic}" onkeyup="displayMnemonicLengthWarning()"
-								rendered="#{namePartsController.isMnemonicRequired()}" required="#{namePartsController.isMnemonicRequired()}" style="width:100%">
-								<f:validator validatorId="custom.mnemonicValidator" />
+						<p:outputLabel id="outputlabel" for="icode" 
+						disabled="#{!namePartsController.isMnemonicRequired()}" 
+						rendered="#{namePartsController.isMnemonicRequired()|| namePartsController.formSuperSection}" value="Mnemonic:" />
+						<h:panelGroup id="mnemonicPanel" rendered="#{namePartsController.isMnemonicRequired()|| namePartsController.formSuperSection}">
+							<p:inputText id="icode" value="#{namePartsController.formMnemonic}" 
+							onkeyup="displayMnemonicLengthWarning()"
+							disabled="#{!namePartsController.isMnemonicRequired()}" 
+							required="#{namePartsController.isMnemonicRequired()}" 
+							style="width:100%">
+							<f:validator validatorId="custom.mnemonicValidator" />
 							</p:inputText>
 							<p:watermark for="icode" value="#{namePartsController.getNamePartTypeMnemonic()}" />
 						</h:panelGroup>
