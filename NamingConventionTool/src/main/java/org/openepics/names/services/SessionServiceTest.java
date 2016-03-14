@@ -113,8 +113,8 @@ public class SessionServiceTest implements SessionService {
     @Override
     public Message login(String username, String password) {
         try {
-        	username="namesadmin";
-        	password="namesadmin";
+//        	username="namesadmin";
+//        	password="namesadmin";
         	getRequest().login(username, password);
         	return new Message("Sign In successful.",true);
         } catch (ServletException e) {
