@@ -79,7 +79,7 @@ public class DeviceWizardController implements Serializable{
 	}
 	
 	private void resetForm() {
-		RequestContext.getCurrentInstance().reset(action.concat("DeviceNameForm"));
+//		RequestContext.getCurrentInstance().reset(action.concat("DeviceNameForm"));
 	}
 
 	/**

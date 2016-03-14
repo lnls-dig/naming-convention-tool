@@ -107,15 +107,20 @@ public class DevicesTreeBuilder {
         }       
 
         List<DeviceRecordView> temporary=Lists.newArrayList();        
-        for(NamePartView subsectionView: filteredNamePartViewList(NamePartType.SECTION, includeDeleted)){
-       	for(NamePartView deviceTypeView: filteredNamePartViewList(NamePartType.DEVICE_TYPE,includeDeleted)){
+        final List<NamePartView> subsectionViews= filteredNamePartViewList(NamePartType.SECTION, includeDeleted);
+        final List<NamePartView> deviceTypeViews= filteredNamePartViewList(NamePartType.DEVICE_TYPE, includeDeleted);
+        for(NamePartView subsectionView: subsectionViews){
+       	for(NamePartView deviceTypeView: deviceTypeViews){
            	temporary.addAll(devicesIn(subsectionView,deviceTypeView,includeDeleted));
         	}
         	
        }
 		return temporary;
+	
 	}
       
+
+	
     /**
      * Produces a tree of sections with contained devices as leaf nodes from the approved revisions in the database.
      *
