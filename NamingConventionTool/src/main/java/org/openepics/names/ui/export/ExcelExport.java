@@ -30,15 +30,18 @@ import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.SessionViewService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.BatchViewProvider;
+import org.openepics.names.services.views.DeviceRecordView;
 import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.ui.common.TreeNodeManager;
 import org.openepics.names.ui.common.ViewFactory;
+import org.openepics.names.ui.devices.DeviceTableController;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.util.As;
 import org.primefaces.model.TreeNode;
 
 import javax.annotation.Nullable;
 import javax.ejb.Stateless;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -50,32 +53,50 @@ import java.util.List;
 @Stateless
 public class ExcelExport {
     
-    @Inject private RestrictedNamePartService namePartService;
-    @Inject private NamePartTreeBuilder namePartTreeBuilder;
-    @Inject private SessionViewService sessionViewService;
-    @Inject private TreeNodeManager treeNodeManager;
+//    @Inject private RestrictedNamePartService namePartService;
+//    @Inject private NamePartTreeBuilder namePartTreeBuilder;
+//    @Inject private SessionViewService sessionViewService;
+//    @Inject private TreeNodeManager treeNodeManager;
 
+	/**
+	 * 
+	 * @return current bean controlling the device record table.
+	 */
+	private final DeviceTableController deviceTableController(){
+		FacesContext facesContext=FacesContext.getCurrentInstance();
+        return (DeviceTableController) facesContext.getApplication().getExpressionFactory().createValueExpression(facesContext.getELContext(), "#{deviceTableController}", Object.class).getValue(facesContext.getELContext()); 
+	}
+
+    
     /**
      * Exports the entities from the database, producing a stream which can be streamed to the user over HTTP.
      *
      * @return an Excel input stream containing the exported data
      */
     public InputStream exportFile() {
-        final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, false);
-        final TreeNode sectionsTree = treeNodeManager.filteredNode(namePartTreeBuilder.newNamePartTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true),false,false);
+//        final List<NamePartRevision> approvedSectionsRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, false);
+//        final TreeNode sectionsTree = treeNodeManager.filteredNode(namePartTreeBuilder.newNamePartTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true));
 
-        final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false);
-        final TreeNode typesTree = treeNodeManager.filteredNode(namePartTreeBuilder.newNamePartTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true), false,false);
-
-        final List<DeviceRevision> devices = Lists.newArrayList();
-        for (DeviceRevision deviceRevision : namePartService.currentDeviceRevisions(false)) {
-        	boolean filteredSection=sessionViewService.isFiltered(deviceRevision.getSection());
-        	boolean filteredDeviceType=sessionViewService.isFiltered(deviceRevision.getDeviceType());
-        	if(filteredSection&&filteredDeviceType) devices.add(deviceRevision);
-        }
+        deviceTableController().update();
+        final TreeNode areaStructure=deviceTableController().getAreaStructure();
+        final TreeNode deviceStructure=deviceTableController().getDeviceStructure();
+        final List<DeviceRecordView> records=deviceTableController().getRecords(); 
         
-        final XSSFWorkbook workbook = exportWorkbook(sectionsTree, typesTree, devices);
-                 
+//        final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false);
+//        final TreeNode typesTree = treeNodeManager.filteredNode(namePartTreeBuilder.newNamePartTree(approvedTypeRevisions, Lists.<NamePartRevision>newArrayList(), true));
+        
+        
+//        final List<DeviceRevision> devices = Lists.newArrayList();
+//        for (DeviceRevision deviceRevision : namePartService.currentDeviceRevisions(false)) {
+//        	boolean filteredSection=sessionViewService.isFiltered(deviceRevision.getSection());
+//        	boolean filteredDeviceType=sessionViewService.isFiltered(deviceRevision.getDeviceType());
+//        	if(filteredSection&&filteredDeviceType) devices.add(deviceRevision);
+//        }
+        
+//        final XSSFWorkbook workbook = exportWorkbook(sectionsTree, typesTree, devices);
+        final XSSFWorkbook workbook = exportWorkbook(areaStructure, deviceStructure, records);
+
+        
         final InputStream inputStream;
         try {
             final File temporaryFile = File.createTempFile("temp", "xlsx");
@@ -90,7 +111,7 @@ public class ExcelExport {
         return inputStream;       
     }
     
-    private XSSFWorkbook exportWorkbook(TreeNode sectionsTree, TreeNode typesTree, List<DeviceRevision> devices) {
+    private XSSFWorkbook exportWorkbook(TreeNode sectionsTree, TreeNode typesTree, List<DeviceRecordView> devices) {
         final XSSFWorkbook workbook = new XSSFWorkbook();
 
         final XSSFSheet superSectionSheet = createSheetWithHeader(workbook, "SuperSection", "SuperSection::ID", "SuperSection::FullName", "SuperSection::Name", "SuperSection::Date Modified");
@@ -111,7 +132,7 @@ public class ExcelExport {
         final XSSFSheet deviceTypeSheet = createSheetWithHeader(workbook, "DeviceType", "Discipline::FullName", "Discipline::Name", "Category::FullName", "Category::Name", "DeviceType::ID", "DeviceType::FullName", "DeviceType::Name", "DeviceType::Date Modified");
         fillNamePartSheet(deviceTypeSheet, 3, typesTree);
 
-        final XSSFSheet namedDeviceSheet = createSheetWithHeader(workbook, "NamedDevice", "ID", "Section", "SubSection", "Discipline", "DeviceType", "InstanceIndex", "Comment", "Name", "Date Modified");
+        final XSSFSheet namedDeviceSheet = createSheetWithHeader(workbook, "NamedDevice", "ID", "Super Section", "Section", "SubSection", "Discipline", "DeviceType", "InstanceIndex", "Comment", "Name", "Date Modified");
         fillDeviceSheet(namedDeviceSheet, devices);
         
         return workbook;
@@ -124,11 +145,11 @@ public class ExcelExport {
     private void fillNamePartSheet(XSSFSheet sheet, int maxLevel, int currentLevel, TreeNode node, List<String> rowData) {
         for (TreeNode child : node.getChildren()) {
             final @Nullable NamePartView childView = (NamePartView) child.getData();
-            if (childView != null) {
+            if (childView != null ) {
                 if (currentLevel < maxLevel) {
                     final List<String> ancestorData = ImmutableList.<String>builder().addAll(rowData).add(childView.getName(), childView.getMnemonic()!=null? childView.getMnemonic():"").build();
                     fillNamePartSheet(sheet, maxLevel, currentLevel + 1, child, ancestorData);
-                } else {
+                } else if (!childView.isDeleted()){
                     final Row row = appendRow(sheet);
                     for (String sectionInfo : rowData) {
                         appendCell(row, sectionInfo);
@@ -144,25 +165,49 @@ public class ExcelExport {
         }        
     }
     
-    private void fillDeviceSheet(XSSFSheet sheet, List<DeviceRevision> devices) {
-        final List<NamePartRevision> sectionRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, false);
-        final List<NamePartRevision> deviceTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false);
-        final List<DeviceRevision> deviceRevisions = namePartService.currentDeviceRevisions(false);
-        final BatchViewProvider viewProvider = new BatchViewProvider(sectionRevisions, deviceTypeRevisions, deviceRevisions);
-        for (DeviceRevision device : devices) {
+//    private void fillDeviceSheet(XSSFSheet sheet, List<DeviceRevision> devices) {
+//        final List<NamePartRevision> sectionRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, false);
+//        final List<NamePartRevision> deviceTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false);
+//        final List<DeviceRevision> deviceRevisions = namePartService.currentDeviceRevisions(false);
+//        final BatchViewProvider viewProvider = new BatchViewProvider(sectionRevisions, deviceTypeRevisions, deviceRevisions);
+//        for (DeviceRevision device : devices) {
+//            final Row row = appendRow(sheet);
+//            appendCell(row, device.getDevice().getUuid().toString());
+//            appendCell(row, As.notNull(viewProvider.view(device.getSection()).getParent().getParent()).getMnemonic());
+//            appendCell(row, As.notNull(viewProvider.view(device.getSection()).getParent()).getMnemonic());
+//            appendCell(row, viewProvider.view(device.getSection()).getMnemonic());
+//            appendCell(row, As.notNull(As.notNull(viewProvider.view(device.getDeviceType()).getParent()).getParent()).getMnemonic());
+//            appendCell(row, viewProvider.view(device.getDeviceType()).getMnemonic());
+//            appendCell(row, viewProvider.view(device).getInstanceIndex());
+//            appendCell(row, viewProvider.view(device).getAdditionalInfo());
+//            appendCell(row, viewProvider.view(device).getConventionName());
+//            appendCell(row, new SimpleDateFormat("yyyy-MM-dd").format(device.getRequestDate()));
+//        }
+//    }
+
+    private void fillDeviceSheet(XSSFSheet sheet, List<DeviceRecordView> records) {
+//        final List<NamePartRevision> sectionRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.SECTION, false);
+//        final List<NamePartRevision> deviceTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false);
+//        final List<DeviceRevision> deviceRevisions = namePartService.currentDeviceRevisions(false);
+//       final BatchViewProvider viewProvider = new BatchViewProvider(sectionRevisions, deviceTypeRevisions, deviceRevisions);
+        for (DeviceRecordView record : records) {
+        	if(!record.isDeleted()){
             final Row row = appendRow(sheet);
-            appendCell(row, device.getDevice().getUuid().toString());
-            appendCell(row, As.notNull(viewProvider.view(device.getSection()).getParent()).getMnemonic());
-            appendCell(row, viewProvider.view(device.getSection()).getMnemonic());
-            appendCell(row, As.notNull(As.notNull(viewProvider.view(device.getDeviceType()).getParent()).getParent()).getMnemonic());
-            appendCell(row, viewProvider.view(device.getDeviceType()).getMnemonic());
-            appendCell(row, viewProvider.view(device).getInstanceIndex());
-            appendCell(row, viewProvider.view(device).getAdditionalInfo());
-            appendCell(row, viewProvider.view(device).getConventionName());
-            appendCell(row, new SimpleDateFormat("yyyy-MM-dd").format(device.getRequestDate()));
+            appendCell(row, record.getDevice().getUuid().toString());
+            appendCell(row, record.getSuperSection().getMnemonic());
+            appendCell(row, record.getSection().getMnemonic());
+            appendCell(row, record.getSubsection().getMnemonic());
+            appendCell(row, record.getDiscipline().getMnemonic());
+            appendCell(row, record.getDeviceGroup().getMnemonic());
+            appendCell(row, record.getInstanceIndex());
+            appendCell(row, record.getDescription());
+            appendCell(row, record.getConventionName());
+            appendCell(row, new SimpleDateFormat("yyyy-MM-dd").format(record.getDeviceRevision().getRequestDate()));
+        	}
         }
     }
 
+    
     private XSSFSheet createSheetWithHeader(XSSFWorkbook workbook, String sheetName, String... columnNames) {
         final XSSFSheet sheet = workbook.createSheet(sheetName);
         final Row row = appendRow(sheet);

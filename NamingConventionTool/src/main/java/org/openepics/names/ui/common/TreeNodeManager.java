@@ -27,6 +27,7 @@ import javax.inject.Inject;
 
 import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
+import org.openepics.names.model.NamePartType;
 import org.openepics.names.services.SessionViewService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.NamePartView;
@@ -135,12 +136,14 @@ public class TreeNodeManager{
 	 * Set the selectable level in the treeNode recursively starting from the root. 
 	 * @param treeNode The tree node root.
 	 * @param level first selectable level below the root tree node. 
+	 * @param selectDeleted boolean flag indicating whether deleted name parts should be selectable or not
 	 */
-	private void setSelectable(TreeNode treeNode, int level){
-		treeNode.setSelectable(level<=0);
+	public void setSelectableLevel(TreeNode treeNode, int level, boolean selectDeleted ){
+		boolean deleted= treeNode.getData() instanceof NamePartView && ((NamePartView) treeNode.getData()).isDeleted();
+		treeNode.setSelectable(level<=0 && (!deleted || selectDeleted));
 		int nextLevel=level-1;
 		for (TreeNode child : treeNode.getChildren()) {
-			setSelectable(child,nextLevel);	
+			setSelectableLevel(child,nextLevel,selectDeleted);	
 		}
 	}
 	
@@ -162,13 +165,11 @@ public class TreeNodeManager{
 	 */
 	public void expandSelected(TreeNode treeNode){
 		for(TreeNode node: nodeList(treeNode)){
-			if(node.isSelected()){
+			if(isSelected(node)){
 				expandParents(node);
 			}
 		}
 	}
-	
-	
 	
 	/**
 	 * 
@@ -345,7 +346,6 @@ public class TreeNodeManager{
 			}
 		}
 		selectCustomized(treeNode);
-		expandCustomized(treeNode);
 	}
 
 	
@@ -374,44 +374,95 @@ public class TreeNodeManager{
 //			}
 //			return views;
 		
-		return nodeList(filteredNode(node, includeDeleted,includeUnfiltered));
+//		return nodeList(filteredNode(node, includeDeleted,includeUnfiltered));
+		return nodeList(node);
 	}
 
 
-	public TreeNode filteredNode(TreeNode node, boolean includeUnfiltered){
-		return filteredNode(node, sessionViewService.isIncludeDeleted(), includeUnfiltered);
+//	public TreeNode filteredNode(TreeNode node, boolean includeUnfiltered){
+//		return filteredNode(node, sessionViewService.isIncludeDeleted(), includeUnfiltered);
+//	}
+	public TreeNode filteredNode(TreeNode node){
+		return filteredNode(viewFilteredNode(node,false,true,true,false),false);
 	}
-	
-	public TreeNode filteredNode(TreeNode node, boolean includeDeleted, boolean includeUnfiltered){
-		NamePartView view= node.getData() instanceof NamePartView? (NamePartView) node.getData():null;
-		if(view!=null && view.isDeleted() && ! includeDeleted ){
-			return null;
-		} else {
-			final boolean included = includeUnfiltered || view!=null && sessionViewService.isFiltered(view.getNamePart());	
-			final List<TreeNode> filteredChildren=Lists.newArrayList();
-			for(TreeNode child:node.getChildren()){
-				final TreeNode filteredChild = filteredNode(child, includeDeleted, included);
-				if(filteredChild!=null) filteredChildren.add(filteredChild);
-			}
-			final boolean hasIncludedChildren= !filteredChildren.isEmpty();
 
-			if(included || hasIncludedChildren ){
-				final DefaultTreeNode filteredNode = new DefaultTreeNode(view,null);
-				filteredNode.setChildren(filteredChildren);
-				for(TreeNode child :filteredNode.getChildren()){
-					child.setParent(filteredNode);
-				}
-				filteredNode.setExpanded(node.isExpanded());
-//				filteredNode.setRowKey(node.getRowKey());
-				filteredNode.setSelectable(node.isSelectable());
-				filteredNode.setType(node.getType());
-				filteredNode.setSelected(node.isSelected());
-				filteredNode.setPartialSelected(node.isPartialSelected());
-				return filteredNode;
-			}else{
+	public @Nullable TreeNode viewFilteredNode(TreeNode node, boolean acceptArchived, boolean acceptActive, boolean acceptOnsite, boolean acceptOffsite){
+		NamePartView view= node!=null && node.getData() instanceof NamePartView? (NamePartView) node.getData():null;
+		if(view!=null && !(acceptArchived&&acceptActive&&acceptOffsite&&acceptOnsite)){
+			if(!(acceptArchived || acceptActive) || !(acceptOnsite||acceptOffsite)){
 				return null;
+			} else {
+				final boolean archived=view.isDeleted();
+				final boolean active=!archived;
+				if(!(archived &&acceptArchived || active&&acceptActive)) return null;								
+				final boolean superSection=view.getParent()==null&& view.getNamePart().getNamePartType().equals(NamePartType.SECTION);
+				if(superSection) {
+					final boolean onsite = view.getMnemonic()==null || view.getMnemonic().isEmpty();
+					final boolean offsite= !onsite;
+					if(!(offsite&&acceptOffsite || onsite&&acceptOnsite)) return null;
+				}
 			}
 		}
-	}	
+		final List<TreeNode> filteredChildren=Lists.newArrayList();
+		for(TreeNode child:node.getChildren()){
+			final TreeNode filteredChild = viewFilteredNode(child, acceptArchived,acceptActive,acceptOnsite,acceptOffsite);
+			if(filteredChild!=null) filteredChildren.add(filteredChild);
+		}
+		final DefaultTreeNode filteredNode = new DefaultTreeNode(node.getData(),null);
+		filteredNode.setChildren(filteredChildren);
+		for(TreeNode child :filteredNode.getChildren()){
+			child.setParent(filteredNode);
+		}
+		filteredNode.setExpanded(node.isExpanded());
+		filteredNode.setRowKey(node.getRowKey());
+		filteredNode.setSelectable(node.isSelectable());
+		filteredNode.setType(node.getType());
+		filteredNode.setSelected(node.isSelected());
+		filteredNode.setPartialSelected(node.isPartialSelected());
+		return filteredNode;
+	}
+
+	
+	public @Nullable TreeNode filteredNode(TreeNode node, boolean includeUnfiltered){
+		NamePartView view= node!=null && node.getData() instanceof NamePartView? (NamePartView) node.getData():null;
+		final boolean included = includeUnfiltered || view!=null && sessionViewService.isFiltered(view.getNamePart());	
+		final List<TreeNode> filteredChildren=Lists.newArrayList();
+		for(TreeNode child:node.getChildren()){
+			final TreeNode filteredChild = filteredNode(child, included);
+			if(filteredChild!=null) filteredChildren.add(filteredChild);
+		}
+		final boolean hasIncludedChildren= !filteredChildren.isEmpty();
+
+		if(included || hasIncludedChildren ){
+			final DefaultTreeNode filteredNode = new DefaultTreeNode(node.getData(),null);
+			filteredNode.setChildren(filteredChildren);
+			for(TreeNode child :filteredNode.getChildren()){
+				child.setParent(filteredNode);
+			}
+			filteredNode.setExpanded(node.isExpanded());
+			filteredNode.setRowKey(node.getRowKey());
+			filteredNode.setSelectable(node.isSelectable());
+			filteredNode.setType(node.getType());
+			filteredNode.setSelected(node.isSelected());
+			filteredNode.setPartialSelected(node.isPartialSelected());
+			return filteredNode;
+		}else{
+			return null;
+		}
+	}	 
+	
+	public List<Object> treeNodeDataLevel(TreeNode node, int level){
+		final List<Object> nodeDataList = Lists.newArrayList();
+		if(level==0) {
+			nodeDataList.add(node.getData());
+		} else {
+			final int nextLevel=level-1;
+			for(TreeNode child :node.getChildren()){
+				nodeDataList.addAll(treeNodeDataLevel(child,nextLevel));
+			}
+		}
+		return nodeDataList;
+	}
+
 
 }

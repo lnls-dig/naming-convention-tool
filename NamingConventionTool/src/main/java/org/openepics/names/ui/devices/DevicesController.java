@@ -53,17 +53,17 @@ public class DevicesController implements Serializable {
 	@Inject private ExcelExport excelExport;
 
 
-	private TreeNode viewDevice;
+//	private TreeNode viewDevice;
 	private TreeNode deleteView;
-
-	private String deviceNameFilter, appliedDeviceNameFilter = "";
-	private String deviceTypeFilter, appliedDeviceTypeFilter = "";
+//
+//	private String deviceNameFilter, appliedDeviceNameFilter = "";
+//	private String deviceTypeFilter, appliedDeviceTypeFilter = "";
 	
 
 
-	public String sectionPath(DeviceView deviceView) {
-		return Joiner.on(" ▸ ").join(deviceView.getSection().getNamePath());
-	}
+//	public String sectionPath(DeviceView deviceView) {
+//		return Joiner.on(" ▸ ").join(deviceView.getSection().getNamePath());
+//	}
 
 
 //	public @Nullable String getDeviceNameFilter() { return deviceNameFilter; }
@@ -136,9 +136,9 @@ public class DevicesController implements Serializable {
 	}
 
 
-	public String deviceTypePath(DeviceView deviceView) {
-		return Joiner.on(" ▸ ").join(deviceView.getDeviceType().getNamePath());
-	}
+//	public String deviceTypePath(DeviceView deviceView) {
+//		return Joiner.on(" ▸ ").join(deviceView.getDeviceType().getNamePath());
+//	}
 
 
 

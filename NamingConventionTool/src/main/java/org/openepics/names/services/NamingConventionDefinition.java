@@ -28,7 +28,7 @@ import javax.faces.bean.ManagedBean;
 @ManagedBean
 @ApplicationScoped
 public class NamingConventionDefinition  {
-	private final NameDefinition superSection=new NameDefinition("Super Section","","High level area of the facility restricted to a particular use. Used for filtering and sorting purposes only. Not part of the convention names");
+	private final NameDefinition superSection=new NameDefinition("Super Section","","High level area of the facility restricted to a particular use. Used for filtering and sorting purposes. Not part of the convention names except for offsite systems,which do not follow the naming convention");
 	private final NameDefinition section=new NameDefinition("Section","Sec", "Level 2 of Area Structure");
 	private final NameDefinition subsection=new NameDefinition("Subsection","Sub","Level 3 of Area Structure"); 
 	private final NameDefinition discipline=new NameDefinition("Discipline","Dis","Branch of knowledge indicating the context in which a device is used");

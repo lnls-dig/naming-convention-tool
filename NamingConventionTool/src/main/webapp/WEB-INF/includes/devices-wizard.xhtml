@@ -8,48 +8,10 @@
 
 	<h:form id="#{action}DeviceNameForm">
 		<p:dialog id="dialog" widgetVar="#{action}DeviceName"
-			header="#{dialogTitle}" width="800" onShow="PF('wiz').loadStep('firstTab',true)" >
+			header="#{dialogTitle}" width="800" onShow="PF('wiz').loadStep('areaTab',true)" >
 			<p:wizard id="wizard" widgetVar="wiz" 
 				flowListener="#{deviceWizardController.onFlowProcess}"
 				showStepStatus="false" >
-				<p:tab id="firstTab" title="Deleted" rendered="#{deviceWizardController.isTabRendered(0)}">
-					<div class="wizardStyle">
-					<h4> Follow the instructions to set a global filter that will enhance the visibility of data relevant to you and improve performance of the service. </h4>
-						<h3> 1. Set global filter options </h3>
-<!-- 					<h:panelGrid id="gridId" columns="2" width="100%"> -->
-
-<!-- 							<p:outputLabel for="operation" value="Show off-site systems (test-stands) and devices:" /> -->
-<!-- 							<h:panelGroup > -->
-<!-- 								<p:selectOneRadio id="operation" -->
-<!-- 									value="#{deviceTableController.siteViewFilter}" -->
-<!-- 									 plain="true"> -->
-<!-- 									<f:selectItem itemLabel=" No " itemValue="ONSITE" /> -->
-<!-- 									<f:selectItem itemLabel=" Yes " itemValue="OFFSITE" /> -->
-<!-- 									<p:ajax process="@this" update="areaTab deviceTab @this" /> -->
-<!-- 								</p:selectOneRadio> -->
-<!-- 							</h:panelGroup> -->
-<!-- 							<p:outputLabel for="active" value="Show deleted systems and devices:" /> -->
-<!-- 							<h:panelGroup> -->
-<!-- 								<p:selectOneRadio id="active" -->
-<!-- 									value="#{deviceTableController.activeViewFilter}" -->
-<!-- 									 plain="true"> -->
-<!-- 									<f:selectItem itemLabel=" No " itemValue="ACTIVE" /> -->
-<!-- 									<f:selectItem itemLabel=" Yes " itemValue="ARCHIVED" /> -->
-<!-- 									<p:ajax process="@this" update="areaTab deviceTab @this" /> -->
-<!-- 								</p:selectOneRadio>							 -->
-<!-- 							</h:panelGroup> -->
-<!-- 				  </h:panelGrid> -->
-					<p:outputLabel for="status" value="Show: " style="float:left" />
-											
-					<p:selectOneMenu id="status" value="#{deviceTableController.activeViewFilter}" style="float:left" >
-						<p:ajax event="change" listener="#{deviceWizardController.updateViewFilter()}"
-							oncomplete="resizePanel()" update="#{action}DeviceNameForm:areaTab #{action}DeviceNameForm:deviceTab"/>
-						<f:selectItem itemLabel="Active" itemValue="ACTIVE"
-							noSelectionOption="true" />
-						<f:selectItem itemLabel="Archived" itemValue="ARCHIVED" />
-					</p:selectOneMenu>	
-					</div>
-				</p:tab>
 				
 				<p:tab id="areaTab" title="Area" >
 					<h3> <h:outputText value="#{areaQuestion}" /></h3>
@@ -65,9 +27,8 @@
 						<p:treeNode>
 							<h:outputText value="${deviceWizardController.mnemonic(section)} " styleClass="${deviceWizardController.mnemonicStyle(section)}"
 								rendered="#{deviceWizardController.mnemonic(section) != null}" />
-							<h:outputText id="SectionName" value=" #{section.name}" styleClass="${deviceWizardController.nameStyle(section)}"/>
+							<h:outputText id="SectionName" value=" #{section.toString()}" styleClass="${deviceWizardController.nameStyle(section)}"/>
 							<p:tooltip for="SectionName" value="#{section.description}" />
-							<h:outputText value=" (#{section.mnemonic})" rendered="#{section.mnemonic !=null}" />
 						</p:treeNode>
 					</p:tree>
 					<p:separator />
@@ -89,10 +50,8 @@
 								value=" ${deviceWizardController.mnemonic(devType)} "
 								styleClass="${deviceWizardController.mnemonicStyle(devType)}"
 								rendered="#{deviceWizardController.mnemonic(devType) != null}" />
-							<h:outputText id="DeviceName" value="#{devType.name}" styleClass="${deviceWizardController.nameStyle(devType)}"/>
+							<h:outputText id="DeviceName" value="#{devType.toString()}" styleClass="${deviceWizardController.nameStyle(devType)}"/>
 							<p:tooltip for="DeviceName" value="devType.description" />
-							<h:outputText value=" (#{devType.mnemonic})"
-								rendered="#{devType.mnemonic != null}" styleClass="${deviceWizardController.nameStyle(devType)}"/>
 						</p:treeNode>
 					</p:tree>
 					<p:separator />
@@ -100,7 +59,7 @@
 					<p>Expand nodes by clicking the triangles.</p> <p>Name elements are described and managed in the device
 						structure.</p>
 				</p:tab>
-				<p:tab id="instanceTab" title="Instance" rendered="#{deviceWizardController.isTabRendered(3)}">
+				<p:tab id="instanceTab" title="Instance" rendered="#{deviceWizardController.isTabRendered(2)}">
 					<h3>3. Enter instance index:</h3>
 					<p:inputText id="InstanceIndex"
 						value="#{deviceWizardController.formInstanceIndex}"
@@ -143,7 +102,7 @@
 						<li>Names should be easy to pronounce and memorise.</li>
 					</ol>
 				</p:tab>
-				<p:tab id="finishTab" title="Finish" rendered="#{deviceWizardController.isTabRendered(4)}">
+				<p:tab id="finishTab" title="Finish" rendered="#{deviceWizardController.isTabRendered(3)}">
 					<div class="wizardStyle">
 						<h3>4. Review the Device Name:</h3>
 						<kbd>
@@ -167,7 +126,7 @@
 						</div>
 					</div>
 				</p:tab>
-				<p:tab id="filterTab" title="Finish" rendered="#{deviceWizardController.isTabRendered(5)}">
+				<p:tab id="filterTab" title="Finish" rendered="#{deviceWizardController.isTabRendered(4)}">
 					<div class="wizardStyle">
 						<h3>3. Confirm:</h3>
 						<h4>The global filter setting will be saved for the remainder of this session.</h4>

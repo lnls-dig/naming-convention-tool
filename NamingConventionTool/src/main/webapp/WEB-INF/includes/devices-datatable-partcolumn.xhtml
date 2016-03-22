@@ -7,30 +7,33 @@
 	xmlns:fc="http://java.sun.com/jsf/composite/comps"
 	xmlns:h="http://java.sun.com/jsf/html">
 
-
 	<ui:param name="titleElement" value="${namingConventionDefinition[part]}"/>
 	<ui:param name="nameTitle" value="${titleElement.fullName}"/>
 	<ui:param name="mnemonicTitle" value="${titleElement.mnemonic}"/>
-	<ui:param name="fullName" value="#{device[part].name}"/>
-	<ui:param name="mnemonic" value="#{device[part].mnemonic}"/>
+	<ui:param name="fullName" value="#{device[part].toString()}"/>
+<!-- 	<ui:param name="mnemonic" value="#{device[part].mnemonic}"/> -->
+<!-- 	<ui:param name="filterlist" value="${deviceTableController[parts]}"/> -->
 
-	<p:column 
-		headerText="#{nameTitle}"
-		rendered="${mnemonicTitle ==''}"
-		sortBy="#{fullName}"
-		>
- 
-	<h:outputText  id="#{part}" styleClass="#{device.style}" value="#{fullName}"/>
-	<p:tooltip for="#{part}" value="#{device[part].description}" rendered="#{device[part].description != null}"/>
-	</p:column>
-	
-	<p:column 
-		headerText="${mnemonicTitle}"
-		rendered="${mnemonicTitle !=''}"
-		sortBy="${mnemonic}"	
-		>
-	<h:outputText id="#{part}mnemonic" value="${mnemonic}" styleClass="#{device.style}"/>
-	<p:tooltip for ="#{part}mnemonic" value ="#{fullName}"/> 
+	<p:column headerText="#{nameTitle}" sortBy="#{fullName}" >
+<!-- 		<f:facet name="filter"> -->
+<!-- 			<p:selectCheckboxMenu label="${nameTitle}" onchange="PF('deviceTable').filter()" scrollHeight="150"> -->
+<!-- 				<f:selectItems value="#{filterlist}" /> -->
+<!-- 			</p:selectCheckboxMenu> -->
+<!-- 		</f:facet> -->
+		<h:outputText id="#{part}" styleClass="#{device[part].style}"
+			value="#{fullName}" />
+		<p:tooltip for="#{part}" value="#{device[part].description}"
+			rendered="#{device[part].description != null}" />
 	</p:column>
 
+<!-- 		<p:column  -->
+<!-- 		headerText="${mnemonicTitle}" -->
+<!-- 		rendered="${mnemonicTitle !=''}" -->
+<!-- 		sortBy="${mnemonic}"  -->
+<!-- 		filterBy="#{mnemonic}" -->
+<!-- 		filterMatchMode="contains" -->
+<!-- 		> -->
+<!--  	<h:outputText id="#{part}mnemonic" value="${mnemonic}" styleClass="#{device.style}"/>  -->
+<!--  	<p:tooltip for ="#{part}mnemonic" value ="#{fullName}"/>  -->
+<!-- 	</p:column> -->
 </ui:composition>

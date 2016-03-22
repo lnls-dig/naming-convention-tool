@@ -59,6 +59,16 @@ public class NamePartView {
         this.parentView = parentView;
     }
    
+    @Override
+    public String toString(){
+ 	   if(getMnemonic()!=null) {
+ 		   return getName() + " ("+getMnemonic()+")";
+ 	   } else {
+ 		   return getName();
+ 	   }
+    }
+
+    
     /**
      * @return The name part this is a view of.
      */    
@@ -362,7 +372,15 @@ public class NamePartView {
         return currentRevision != null ? currentRevision : pendingRevision;
     }
 
-
+    /**
+     * 
+     * @return The CSS style depending on the status of the current name part. 
+     */
+    public String getStyle(){
+    	return isDeleted()? "Deleted":"Approved";
+    }
+    
+    
     /**
      * A view of a proposed change to a name part.
      */
@@ -428,6 +446,5 @@ public class NamePartView {
          */
 		public @Nullable String getNewDescription() { return newDescription; }
     }
-
-   
+    
 }

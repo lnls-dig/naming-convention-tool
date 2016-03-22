@@ -1,12 +1,9 @@
 package org.openepics.names.ui.devices;
-
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
@@ -19,17 +16,15 @@ import javax.inject.Inject;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openepics.names.model.DeviceRevision;
-import org.openepics.names.model.NamePart;
 import org.openepics.names.model.NamePartRevision;
 import org.openepics.names.model.NamePartType;
-import org.openepics.names.services.SessionViewService;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.DeviceRecordView;
 import org.openepics.names.services.views.DeviceView;
+import org.openepics.names.services.views.NamePartView;
 import org.openepics.names.ui.common.SelectRecordManager;
 import org.openepics.names.ui.common.TreeNodeManager;
 import org.openepics.names.ui.common.ViewFactory;
-import org.openepics.names.ui.parts.NamePartTreeBuilder;
 import org.openepics.names.util.As;
 import org.openepics.names.util.UnhandledCaseException;
 import org.primefaces.event.FileUploadEvent;
@@ -39,7 +34,6 @@ import org.primefaces.model.TreeNode;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 
 @ManagedBean
@@ -50,20 +44,32 @@ public class DeviceTableController implements Serializable{
 	@Inject private ViewFactory viewFactory;
 	@Inject private SelectRecordManager selectRecordManager;
 	@Inject private DevicesTreeBuilder devicesTreeBuilder;
-//	@Inject private NamePartTreeBuilder namePartTreeBuilder;
 	@Inject private ExcelImport excelImport;
-	@Inject private SessionViewService sessionViewService;
+	@Inject private TreeNodeManager treeNodeManager;
 	private byte[] importData;
-	
-
-	
 	private String importFileName;
-
+	private List<DeviceRecordView> originalRecords;
 	private List<DeviceRecordView> records;
 	private List<DeviceRecordView> filteredRecords;
 	private List<DeviceView> historyDeviceNames;
 	private int rowNumber;
+	private DevicesViewFilter[] selectedViewFilter;
+	private TreeNode originalAreaStructure;
+	private TreeNode originalDeviceStructure;
+	private TreeNode areaStructure;
+
+
+	private TreeNode deviceStructure;
+//	private List<String> superSections;
+//	private List<String> sections;
+//	private List<String> subsections;
+//	private List<String> disciplines;
+//	private List<String> deviceGroups;
+//	private List<String> deviceTypes;
+	private TreeNode filteredAreaStructure;
+	private TreeNode filteredDeviceStructure;
 	
+		
 	@PostConstruct
 	public void init(){
 		selectDeviceInUrl();
@@ -76,11 +82,11 @@ public class DeviceTableController implements Serializable{
 	private void selectDeviceInUrl() {
 		final @Nullable String deviceName = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("deviceName");
 		if(deviceName!=null){
-			final DeviceRevision deviceRevision=namePartService.currentDeviceRevision(deviceName);
-			final NamePart section=deviceRevision.getSection();
-			final NamePart deviceType=deviceRevision.getDeviceType();
-			sessionViewService.filter(section);
-			sessionViewService.filter(deviceType);
+//			final DeviceRevision deviceRevision=namePartService.currentDeviceRevision(deviceName);
+//			final NamePart section=deviceRevision.getSection();
+//			final NamePart deviceType=deviceRevision.getDeviceType();
+//			sessionViewService.filter(section);
+//			sessionViewService.filter(deviceType);
 		}
 		update();
 		if(deviceName!=null){
@@ -101,9 +107,14 @@ public class DeviceTableController implements Serializable{
 	 * update all data
 	 */
 	public void update(){
-		records=devicesTreeBuilder.deviceRecords();		
+		originalAreaStructure=As.notNull(devicesTreeBuilder.getAreaStructure());
+		originalDeviceStructure=As.notNull(devicesTreeBuilder.getDeviceStructure());
+		originalRecords=As.notNull(devicesTreeBuilder.deviceRecords());
+		updateViewFilter();
+//		setSelectedRecords(filteredRecords(getSelectedRecords()));
 	}
 		
+
 	/** 
 	 * 
 	 * @return Link to the device in the controls configuration database (CCDB) 
@@ -169,49 +180,6 @@ public class DeviceTableController implements Serializable{
 	}
 	
 	public boolean canShowHistory() { return getSelectedRecord() != null; }
-
-//	/**
-//	 * Generates a list of device records for views.
-//	 * @param root Root of the tree node
-//	 * @return list of device records
-//	 */
-//	public List<DeviceRecordView> generateRecords(TreeNode root){				
-//		final List<DeviceRecordView> recordList=Lists.newArrayList();
-//		for(TreeNode node: TreeNodeManager.nodeList(root)){
-//			if(node.getData() instanceof DeviceView){
-////				recordList.add(new DeviceRecordView((DeviceView) node.getData()));	
-//			}
-//		}
-//		return recordList;
-//	}
-
-	public DevicesViewFilter getActiveViewFilter() {
-		return selectRecordManager.isIncludeDeleted()? DevicesViewFilter.ARCHIVED: DevicesViewFilter.ACTIVE; 
-	}
-	public void setActiveViewFilter(DevicesViewFilter viewFilter) { 
-		switch(viewFilter){
-		case ARCHIVED: selectRecordManager.setIncludeDeleted(true);
-			break;
-		case ACTIVE: selectRecordManager.setIncludeDeleted(false);
-			break;
-		default: selectRecordManager.setIncludeDeleted(false); 
-		}
-	}
-
-	public DevicesViewFilter getSiteViewFilter() {
-		return selectRecordManager.isIncludeOffsite()? DevicesViewFilter.OFFSITE: DevicesViewFilter.ONSITE; 
-	}
-	public void setSiteViewFilter(DevicesViewFilter viewFilter) { 
-		switch(viewFilter){
-		case OFFSITE: selectRecordManager.setIncludeOffsite(true);
-			break;
-		case ONSITE: selectRecordManager.setIncludeOffsite(false);
-			break;
-		default: selectRecordManager.setIncludeOffsite(false); 
-		}
-	}
-
-	
 	
 	public void loadHistory() {
 		historyDeviceNames = Lists.transform(namePartService.revisions(As.notNull(getSelectedRecord()).getDevice()), new Function<DeviceRevision, DeviceView>() {
@@ -228,11 +196,8 @@ public class DeviceTableController implements Serializable{
 		int count=0;
 		try{			
 			for(DeviceRecordView record: selectRecordManager.getSelectedRecords()){
-
 				if(!record.isDeleted()) {
-//					namePartService.deleteDevice(record.getDeviceView().getDevice().getDevice());
 					namePartService.deleteDevice(record.getDevice());
-
 					count++;
 				}
 			}
@@ -252,8 +217,70 @@ public class DeviceTableController implements Serializable{
 		return n + " device name" + (n > 1 ? "s have been " : " has been ");
 	}
 	
+	
+	public void updateViewFilter(){
+		areaStructure=viewFilteredNamePartStructure(originalAreaStructure);
+		deviceStructure=viewFilteredNamePartStructure(originalDeviceStructure);
+		updateFilter();
+		}
+	
+	public synchronized void updateFilter() {
+		filteredAreaStructure=treeNodeManager.filteredNode(areaStructure,false);
+		filteredDeviceStructure =treeNodeManager.filteredNode(deviceStructure,false);
+		records=filteredRecords(originalRecords);
+		filteredRecords=null;		
+	}
+
+	private TreeNode viewFilteredNamePartStructure(TreeNode originalNamePartStructure){
+		List<DevicesViewFilter> filters=Lists.newArrayList(getSelectedViewFilter());
+//		boolean acceptActive=filters.contains(DevicesViewFilter.ACTIVE);
+		boolean acceptArchived=filters.contains(DevicesViewFilter.ARCHIVED);
+		boolean acceptOnsite=filters.contains(DevicesViewFilter.ONSITE);
+		boolean acceptOffsite=filters.contains(DevicesViewFilter.OFFSITE);
+		return treeNodeManager.viewFilteredNode(As.notNull(originalNamePartStructure), acceptArchived, true, acceptOnsite, acceptOffsite);
+	}
+	
+	private List<DeviceRecordView> filteredRecords(List<DeviceRecordView> originalRecords){
+		if(originalRecords==null||originalRecords.isEmpty()) return originalRecords;
+		List<DeviceRecordView> filteredRecords=Lists.newArrayList();
+		List<DevicesViewFilter> filters=Lists.newArrayList(getSelectedViewFilter());
+		boolean acceptActive=filters.contains(DevicesViewFilter.ACTIVE);
+		boolean acceptArchived=filters.contains(DevicesViewFilter.ARCHIVED);
+		List<NamePartView> subsections=namePartViews(filteredAreaStructure, 3);
+		List<NamePartView> deviceTypes=namePartViews(filteredDeviceStructure,3);
+		
+		for( DeviceRecordView record: originalRecords){
+			if(subsections.contains(record.getSubsection()) && deviceTypes.contains(record.getDeviceType())&& (acceptActive&&!record.isDeleted() || acceptArchived&&record.isDeleted())){
+				filteredRecords.add(record);
+			};
+		}
+		return filteredRecords;
+	}
+	
+	
+	public DevicesViewFilter[] getViewFilter(){
+		return DevicesViewFilter.values();
+	}
+	
+	/**
+	 * @return the selectedViewFilter
+	 */
+	public DevicesViewFilter[] getSelectedViewFilter() {
+		if(selectedViewFilter==null){
+			selectedViewFilter=new DevicesViewFilter[] {DevicesViewFilter.ACTIVE,DevicesViewFilter.ONSITE};
+		}
+		return selectedViewFilter;
+	}
+
+	/**
+	 * @param selectedViewFilter the selectedViewFilter to set
+	 */
+	public void setSelectedViewFilter(DevicesViewFilter[] selectedViewFilter) {
+		this.selectedViewFilter = selectedViewFilter;
+	}
+
 	enum DevicesViewFilter {
-		ACTIVE, ARCHIVED, OFFSITE, ONSITE 
+		ACTIVE, ARCHIVED, ONSITE, OFFSITE
 	}
 	
 	public void onImport() {
@@ -306,4 +333,97 @@ public class DeviceTableController implements Serializable{
 		return 30*(rowNumber/30);
 	}
 
+	
+	/**
+	 * @return the namePartViews contained in the specified level of the specified node   
+	 * @param node treeNode containing the  namePartView
+	 * @param level the desired level. 
+	 */
+	private List<NamePartView> namePartViews(TreeNode node, int level) {
+		final List<NamePartView> names =Lists.newArrayList();
+		if(node!=null){
+		final @Nullable List<Object> dataLevel= treeNodeManager.treeNodeDataLevel(node, level);
+		for(Object data:dataLevel){
+			if(data instanceof NamePartView)
+			names.add((NamePartView) data);
+		}
+		}
+		return names;
+	}
+
+//	private void generateNamePartViews(){
+//		superSections=namePartViews(areaStructure,1);
+//		sections=namePartViews(areaStructure,2);
+//		subsections=namePartViews(areaStructure,3);
+//		disciplines=namePartViews(deviceStructure,1);
+//		deviceGroups=namePartViews(deviceStructure,2);
+//		deviceTypes=namePartViews(deviceStructure,3);
+//	}
+	
+	
+
+//	/**
+//	 * @return the superSections
+//	 */
+//	public List<String> getSuperSections() {
+//		return superSections;
+//	}
+//
+//	
+//	/**
+//	 * @return the sections
+//	 */
+//	public List<String> getSections() {
+//		return sections;
+//	}
+//
+//	/**
+//	 * @return the subsections
+//	 */
+//	public List<String> getSubsections() {
+//		return subsections;
+//	}
+//
+//	/**
+//	 * @return the disciplines
+//	 */
+//	public List<String> getDisciplines() {
+//		return disciplines;
+//	}
+//
+//	/**
+//	 * @return the deviceGroups
+//	 */
+//	public List<String> getDeviceGroups() {
+//		return deviceGroups;
+//	}
+//
+//
+//	/**
+//	 * @return the deviceTypes
+//	 */
+//	public List<String> getDeviceTypes() {
+//		return deviceTypes;
+//	}
+
+	/**
+	 * @return the areaStructure
+	 */
+	public TreeNode getAreaStructure() {
+		return areaStructure;
+	}
+
+
+	/**
+	 * @return the deviceStructure
+	 */
+	public TreeNode getDeviceStructure() {
+		return deviceStructure;
+	}
+
+
+
 }
+
+
+

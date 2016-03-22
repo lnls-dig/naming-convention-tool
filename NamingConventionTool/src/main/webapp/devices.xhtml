@@ -23,16 +23,28 @@
 				resizableColumns="true"
 				filteredValue="#{deviceTableController.filteredRecords}"
 				scrollRows="50" scrollable="true" liveScroll="true"
-				emptyMessage="No records found. Set global filter under the action menu button to view some data"
+				emptyMessage="No records found."
 				widgetVar="deviceTable">
 				<f:facet id="filterTable" name="header">
-						<p:menuButton id="ncReqMenu" value="Actions" style="float:right">
-						<p:menuitem value="Filter" icon="ui-icon-gear"
+				<p:commandButton id="toggler" type="button" value="Columns" icon="ui-icon-calculator" style="float:left" />
+    	   		<p:columnToggler datasource="devicesTree" trigger="toggler" />
+					<p:selectCheckboxMenu  id ="viewbutton" label="View" value="#{deviceTableController.selectedViewFilter}" style= "float:left"> 
+						<f:selectItems value="#{deviceTableController.viewFilter}"/>
+						<p:ajax process="@this" listener="#{deviceTableController.updateViewFilter()}" update="devicesTree @this" />
+					</p:selectCheckboxMenu>
+	 			    <p:commandButton id="filter" value="Filter" icon="ui-icon-gear" style="float:left" 
+	 			    		title="Set Global Filter"
 							update=":filterDeviceNameForm"
-							title="Set Global Filter"
 							action="#{deviceWizardController.activateWizard('filter')}"
 							oncomplete="PF('filterDeviceName').show()" 
 							disabled="${!(deviceTableController.canFilter())}" />
+ 					<p:menuButton id="ncReqMenu" value="Actions" style="float:right">
+<!-- 						<p:menuitem value="Filter" icon="ui-icon-gear" -->
+<!-- 							update=":filterDeviceNameForm" -->
+<!-- 							title="Set Global Filter" -->
+<!-- 							action="#{deviceWizardController.activateWizard('filter')}" -->
+<!-- 							oncomplete="PF('filterDeviceName').show()"  -->
+<!-- 							disabled="${!(deviceTableController.canFilter())}" /> -->
 						<p:menuitem value="Add" icon="ui-icon-plus"
 							update=":addDeviceNameForm"
 							oncomplete="PF('addDeviceName').show()" 
@@ -71,40 +83,39 @@
 							<p:fileDownload value="#{devicesController.allDataExport}" />
 						</p:menuitem>						
 					</p:menuButton>
-					<p:commandButton id="toggler" type="button" value="Columns" icon="ui-icon-calculator" style="float:right" />
-        			<p:columnToggler datasource="devicesTree" trigger="toggler" />	
-					
 				</f:facet>
+
 				<p:ajax event="rowSelect" update="ncReqMenu" />
 				<p:ajax event="rowUnselect" update="ncReqMenu" />
 				<ui:include
 					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
 					<ui:param name="part" value="superSection" />
+					<ui:param name="parts" value="superSections" />
 				</ui:include>
 				<ui:include
 					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
 					<ui:param name="part" value="section" />
-					<ui:param name="parts" value="sectionNames" />
+					<ui:param name="parts" value="sections" />
 				</ui:include>
 				<ui:include
 					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
 					<ui:param name="part" value="subsection" />
-					<ui:param name="parts" value="subsectionNames" />
+					<ui:param name="parts" value="subsections" />
 				</ui:include>
 				<ui:include
 					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
 					<ui:param name="part" value="discipline" />
-					<ui:param name="parts" value="disciplineNames" />
+					<ui:param name="parts" value="disciplines" />
 				</ui:include>
 				<ui:include 					
 				src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
 					<ui:param name="part" value="deviceGroup" />
-					<ui:param name="parts" value="deviceGroupNames" />
+					<ui:param name="parts" value="deviceGroups" />
 				</ui:include>
 				<ui:include
 					src="/WEB-INF/includes/devices-datatable-partcolumn.xhtml">
 					<ui:param name="part" value="deviceType" />
-					<ui:param name="parts" value="deviceTypeNames" />
+					<ui:param name="parts" value="deviceTypes" />
 				</ui:include>
 				<p:column headerText="Device Name" sortBy="#{device.conventionName}" filterBy="#{device.conventionName}">
 					<h:outputText id="DevName" value="#{device.conventionName}" styleClass="#{device.style}" />

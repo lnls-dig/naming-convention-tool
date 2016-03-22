@@ -209,7 +209,7 @@ public class SessionViewService implements Serializable{
 		private NodeStatus(){
 			this.expanded=false;
 			this.selected=false;
-			this.filtered=false;
+			this.filtered=true;
 		}
 		/**		
 		 * @param filtered the filtered to set

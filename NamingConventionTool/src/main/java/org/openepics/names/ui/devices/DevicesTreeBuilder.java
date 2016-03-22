@@ -40,6 +40,7 @@ import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
 import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
@@ -56,14 +57,20 @@ public class DevicesTreeBuilder {
     @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private ViewFactory viewFactory;
     @Inject private TreeNodeManager treeNodeManager;
-    @Inject private SelectRecordManager recordManager;
 
     private HashMap<NamePart, Set<DeviceRevision>> devicesBySection;
     private HashMap<NamePart, Set<DeviceRevision>> devicesByDeviceType;
     
+    private TreeNode areaStructure;
+    private TreeNode deviceStructure;
+    
     private HashMap<NamePart, NamePartView> viewByDeviceType;
     
-	
+	@PostConstruct
+	public void init(){
+		areaStructure=namePartStructure(NamePartType.SECTION);
+		deviceStructure=namePartStructure(NamePartType.DEVICE_TYPE);
+	}
 	private List<DeviceRecordView> devicesIn(NamePartView subsectionView, NamePartView deviceTypeView, boolean includeDeleted){
 	    List<DeviceRecordView> temporary=Lists.newArrayList();
 	    for(DeviceRevision revision: devicesBySection.get(subsectionView.getNamePart())){
@@ -71,8 +78,21 @@ public class DevicesTreeBuilder {
 	        	DeviceRecordView record=viewFactory.getRecordView(revision,subsectionView, deviceTypeView);
 	        	temporary.add(record);
 	    	}
-	    }	    
+	    }	
+        Collections.sort(temporary, new Comparator<DeviceRecordView>() {
+            @Override public int compare(DeviceRecordView left, DeviceRecordView right) {
+                final AlphanumComparator alphanumComparator = new AlphanumComparator();
+                return alphanumComparator.compare(left.getConventionName(), right.getConventionName());
+            }
+        });
+
+	    
 		return temporary;
+	}
+	
+	private TreeNode namePartStructure(NamePartType type){
+		final List<NamePartRevision> revisions = namePartService.currentApprovedNamePartRevisions(type,true);
+        return namePartTreeBuilder.newNamePartTree(revisions);    
 	}
 	
 	/**
@@ -81,11 +101,9 @@ public class DevicesTreeBuilder {
 	 * @param includeDeleted boolean flag to indicate whether deleted name parts shall be included.
  	 * @return filtered and grouped list for the specified name part type.
 	 */
-	private List<NamePartView> filteredNamePartViewList(NamePartType type, boolean includeDeleted){
+	private List<NamePartView> namePartViewList(TreeNode namePartStructure){
 		List<NamePartView> namePartViews=Lists.newArrayList();
-		final List<NamePartRevision> revisions = namePartService.currentApprovedNamePartRevisions(type, includeDeleted);
-        final TreeNode treeNode = namePartTreeBuilder.newNamePartTree(revisions);
-        for(TreeNode node: treeNodeManager.filteredNodeList(treeNode,includeDeleted, false)){
+        for(TreeNode node: treeNodeManager.filteredNodeList(namePartStructure,true, false)){
         	NamePartView namePartView =node.getData() instanceof NamePartView ? (NamePartView) node.getData() :null;
         	NamePart namePart =namePartView!=null? namePartView.getNamePart():null;
         	if(namePart!=null && (devicesBySection.containsKey(namePart)||devicesByDeviceType.containsKey(namePart))){
@@ -98,8 +116,8 @@ public class DevicesTreeBuilder {
 	public List<DeviceRecordView> deviceRecords(){
         devicesByDeviceType = Maps.newHashMap();
         devicesBySection = Maps.newHashMap();
-        boolean includeDeleted=recordManager.isIncludeDeleted();
-        for (DeviceRevision device : namePartService.currentDeviceRevisions(includeDeleted)) {
+        boolean includeDeleted=true;
+        for (DeviceRevision device : namePartService.currentDeviceRevisions(true)) {
         	final Set<DeviceRevision> devicesForSection = devicesForSection(device.getSection());
         	devicesForSection.add(device);
         	final Set<DeviceRevision> devicesForDeviceType=devicesForDeviceType(device.getDeviceType());
@@ -107,19 +125,15 @@ public class DevicesTreeBuilder {
         }       
 
         List<DeviceRecordView> temporary=Lists.newArrayList();        
-        final List<NamePartView> subsectionViews= filteredNamePartViewList(NamePartType.SECTION, includeDeleted);
-        final List<NamePartView> deviceTypeViews= filteredNamePartViewList(NamePartType.DEVICE_TYPE, includeDeleted);
+        final List<NamePartView> subsectionViews= namePartViewList(areaStructure);
+        final List<NamePartView> deviceTypeViews= namePartViewList(deviceStructure);
         for(NamePartView subsectionView: subsectionViews){
        	for(NamePartView deviceTypeView: deviceTypeViews){
            	temporary.addAll(devicesIn(subsectionView,deviceTypeView,includeDeleted));
         	}
-        	
        }
 		return temporary;
-	
 	}
-      
-
 	
     /**
      * Produces a tree of sections with contained devices as leaf nodes from the approved revisions in the database.
@@ -213,5 +227,22 @@ public class DevicesTreeBuilder {
             }
         }
 	}
+	/**
+	 * @return the areaStructure
+	 */
+	public TreeNode getAreaStructure() {
+		if(areaStructure==null){
+			areaStructure=namePartStructure(NamePartType.SECTION);
+		}
+		return areaStructure;
+	}
+
+	/**
+	 * @return the deviceStructure
+	 */
+	public TreeNode getDeviceStructure() {
+		return deviceStructure;
+	}
+
 	
 }
