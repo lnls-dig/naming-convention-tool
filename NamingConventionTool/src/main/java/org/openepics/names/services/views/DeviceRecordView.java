@@ -28,7 +28,7 @@ public class DeviceRecordView {
 //		update();
 	}
 
-	public void update(){		
+	private void update(){		
 		deviceType=null;
 		subsection=null;
 		section=null;
@@ -43,9 +43,9 @@ public class DeviceRecordView {
      * @return The view of the subsection containing the device.
      */
     public NamePartView getSubsection() {
-        if (subsection == null) {
-            subsection = viewFactory.getView(deviceRevision.getSection());
-        }
+//        if (subsection == null) {
+//            subsection = viewFactory.getView(deviceRevision.getSection());
+//        }
         return subsection;
     }
 
@@ -53,9 +53,9 @@ public class DeviceRecordView {
      * @return The view of the device type containing the device.
      */
     public NamePartView getDeviceType() {
-        if (deviceType == null) {
-            deviceType = viewFactory.getView(deviceRevision.getDeviceType());
-        }
+//        if (deviceType == null) {
+//            deviceType = viewFactory.getView(deviceRevision.getDeviceType());
+//        }
         return deviceType;
     }
 	
@@ -112,11 +112,11 @@ public class DeviceRecordView {
 	}
 
 	public Long getId(){
-		return deviceRevision.getDevice().getId();
+		return getDevice().getId();
 	}
 	
 	public String getStyle(){
-		return deviceRevision.isDeleted()? "Deleted":"Approved";
+		return isDeleted()? "Deleted":"Approved";
 	}
 	
 	public  Device getDevice(){

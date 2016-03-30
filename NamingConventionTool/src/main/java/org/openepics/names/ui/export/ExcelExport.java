@@ -78,8 +78,8 @@ public class ExcelExport {
 //        final TreeNode sectionsTree = treeNodeManager.filteredNode(namePartTreeBuilder.newNamePartTree(approvedSectionsRevisions, Lists.<NamePartRevision>newArrayList(), true));
 
         deviceTableController().update();
-        final TreeNode areaStructure=deviceTableController().getAreaStructure();
-        final TreeNode deviceStructure=deviceTableController().getDeviceStructure();
+        final TreeNode areaStructure=deviceTableController().getFilteredAreaStructure();
+        final TreeNode deviceStructure=deviceTableController().getFilteredDeviceStructure();
         final List<DeviceRecordView> records=deviceTableController().getRecords(); 
         
 //        final List<NamePartRevision> approvedTypeRevisions = namePartService.currentApprovedNamePartRevisions(NamePartType.DEVICE_TYPE, false);
@@ -114,25 +114,25 @@ public class ExcelExport {
     private XSSFWorkbook exportWorkbook(TreeNode sectionsTree, TreeNode typesTree, List<DeviceRecordView> devices) {
         final XSSFWorkbook workbook = new XSSFWorkbook();
 
-        final XSSFSheet superSectionSheet = createSheetWithHeader(workbook, "SuperSection", "SuperSection::ID", "SuperSection::FullName", "SuperSection::Name", "SuperSection::Date Modified");
+        final XSSFSheet superSectionSheet = createSheetWithHeader(workbook, "Super Section", "Super Section::ID", "Super Section::FullName", "Super Section::Mnemonic", "Super Section::Date Modified");
         fillNamePartSheet(superSectionSheet, 1, sectionsTree);
 
-        final XSSFSheet sectionSheet = createSheetWithHeader(workbook, "Section", "SuperSection::FullName", "SuperSection::Name", "Section::ID", "Section::FullName", "Section::Name", "Section::Date Modified");
+        final XSSFSheet sectionSheet = createSheetWithHeader(workbook, "Section", "Super Section::FullName", "Super Section::Mnemonic", "Section::ID", "Section::FullName", "Section::Mnemonic", "Section::Date Modified");
         fillNamePartSheet(sectionSheet, 2, sectionsTree);
 
-        final XSSFSheet subSectionSheet = createSheetWithHeader(workbook, "SubSection", "SuperSection::FullName", "SuperSection::Name", "Section::FullName", "Section::Name", "SubSection::ID", "SubSection::FullName", "SubSection::Name", "SubSection::Date Modified");
+        final XSSFSheet subSectionSheet = createSheetWithHeader(workbook, "Subsection", "Super Section::FullName", "Super Section::Mnemonic", "Section::FullName", "Section::Mnemonic", "Subsection::ID", "Subsection::FullName", "Subsection::Mnemonic", "Subsection::Date Modified");
         fillNamePartSheet(subSectionSheet, 3, sectionsTree);
 
-        final XSSFSheet disciplineSheet = createSheetWithHeader(workbook, "Discipline", "Discipline::ID", "Discipline::FullName", "Discipline::Name", "Discipline::Date Modified");
+        final XSSFSheet disciplineSheet = createSheetWithHeader(workbook, "Discipline", "Discipline::ID", "Discipline::FullName", "Discipline::Mnemonic", "Discipline::Date Modified");
         fillNamePartSheet(disciplineSheet, 1, typesTree);
 
-        final XSSFSheet categorySheet = createSheetWithHeader(workbook, "Category", "Discipline::FullName", "Discipline::Name", "Category::ID", "Category::FullName", "Category::Name", "Category::Date Modified");
+        final XSSFSheet categorySheet = createSheetWithHeader(workbook, "Device Group", "Discipline::FullName", "Discipline::Mnemonic", "Device Group::ID", "Device Group::FullName", "Device Group::Mnemonic", "Device Group::Date Modified");
         fillNamePartSheet(categorySheet, 2, typesTree);
 
-        final XSSFSheet deviceTypeSheet = createSheetWithHeader(workbook, "DeviceType", "Discipline::FullName", "Discipline::Name", "Category::FullName", "Category::Name", "DeviceType::ID", "DeviceType::FullName", "DeviceType::Name", "DeviceType::Date Modified");
+        final XSSFSheet deviceTypeSheet = createSheetWithHeader(workbook, "Device Type", "Discipline::FullName", "Discipline::Mnemonic", "Device Group::FullName", "Device Group::Mnemonic", "Device Type::ID", "Device Type::FullName", "Device Type::Mnemonic", "Device Type::Date Modified");
         fillNamePartSheet(deviceTypeSheet, 3, typesTree);
 
-        final XSSFSheet namedDeviceSheet = createSheetWithHeader(workbook, "NamedDevice", "ID", "Super Section", "Section", "SubSection", "Discipline", "DeviceType", "InstanceIndex", "Comment", "Name", "Date Modified");
+        final XSSFSheet namedDeviceSheet = createSheetWithHeader(workbook, "Device Names", "ID", "Super Section", "Section", "Subsection", "Discipline", "Device Type", "Instance Index", "Description/Comment", "Device Name", "Date Modified");
         fillDeviceSheet(namedDeviceSheet, devices);
         
         return workbook;

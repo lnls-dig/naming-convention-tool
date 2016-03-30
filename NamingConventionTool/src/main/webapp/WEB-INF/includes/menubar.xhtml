@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core"
@@ -13,9 +13,9 @@
 		<p:tabMenu id="mainMenu" activeIndex="${loginController.activeIndex}" rendered="#{loginController.loggedIn}">
 			<p:menuitem value="Home" icon="ui-icon-home" outcome="index.xhtml"/>
 			<p:menuitem value="About" icon="ui-icon-home" outcome="about.xhtml"/>
-			<p:menuitem value="Device Registry" icon="ui-icon-wrench" outcome="devices.xhtml"/>
-			<p:menuitem value="Area Structure" icon="ui-icon-folder-open" outcome="parts.xhtml?type=section"/>			
-			<p:menuitem value="Device Structure" icon="ui-icon-folder-open" outcome="parts.xhtml?type=deviceType"/>
+			<p:menuitem value="Device Registry" icon="ui-icon-wrench" outcome="devices.xhtml" onclick="start()" oncomplete="stop()"/>
+			<p:menuitem value="Area Structure" icon="ui-icon-folder-open" outcome="parts.xhtml?type=section" onclick="start()" oncomplete="stop()"/>			
+			<p:menuitem value="Device Structure" icon="ui-icon-folder-open" outcome="parts.xhtml?type=deviceType" onclick="start()" oncomplete="stop()"/>
 			<p:menuitem value="Help" icon="ui-icon-help" outcome="help.xhtml"/>
 		</p:tabMenu>
 	</h:form>

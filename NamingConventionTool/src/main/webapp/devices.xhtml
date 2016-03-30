@@ -1,12 +1,13 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
+
 <ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
 	template="/WEB-INF/namesTemplate.xhtml"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html">
 	<ui:define name="content">
-		<h:form id="ManageNameForm">
+		<h:form id="ManageNameForm" >
 <!-- 			<p:growl globalOnly="true" id="devicesMsgs" showDetail="true" -->
 <!-- 				sticky="false" life="10000" /> -->
 			<!-- =================== Table ============================ -->
@@ -19,32 +20,29 @@
 				selectionMode="multiple" 
 				paginator="true"
 				rows="30"
+				paginatorAlwaysVisible="true"
 				first="#{deviceTableController.rowNumber}"
 				resizableColumns="true"
 				filteredValue="#{deviceTableController.filteredRecords}"
-				scrollRows="50" scrollable="true" liveScroll="true"
 				emptyMessage="No records found."
 				widgetVar="deviceTable">
 				<f:facet id="filterTable" name="header">
-				<p:commandButton id="toggler" type="button" value="Columns" icon="ui-icon-calculator" style="float:left" />
-    	   		<p:columnToggler datasource="devicesTree" trigger="toggler" />
-					<p:selectCheckboxMenu  id ="viewbutton" label="View" value="#{deviceTableController.selectedViewFilter}" style= "float:left"> 
-						<f:selectItems value="#{deviceTableController.viewFilter}"/>
-						<p:ajax process="@this" listener="#{deviceTableController.updateViewFilter()}" update="devicesTree @this" />
+					<p:selectCheckboxMenu id="viewbutton" label="View"
+						value="#{deviceTableController.selectedViewFilter}"
+						style="float:left">
+						<f:selectItems value="#{deviceTableController.viewFilter}" />
+						<p:ajax process="@this" 
+							listener="#{deviceTableController.updateViewFilter()}"
+							update="devicesTree @form" 
+							oncomplete="PF('deviceTable').filter()"/>
 					</p:selectCheckboxMenu>
-	 			    <p:commandButton id="filter" value="Filter" icon="ui-icon-gear" style="float:left" 
-	 			    		title="Set Global Filter"
-							update=":filterDeviceNameForm"
-							action="#{deviceWizardController.activateWizard('filter')}"
-							oncomplete="PF('filterDeviceName').show()" 
-							disabled="${!(deviceTableController.canFilter())}" />
- 					<p:menuButton id="ncReqMenu" value="Actions" style="float:right">
-<!-- 						<p:menuitem value="Filter" icon="ui-icon-gear" -->
-<!-- 							update=":filterDeviceNameForm" -->
-<!-- 							title="Set Global Filter" -->
-<!-- 							action="#{deviceWizardController.activateWizard('filter')}" -->
-<!-- 							oncomplete="PF('filterDeviceName').show()"  -->
-<!-- 							disabled="${!(deviceTableController.canFilter())}" /> -->
+					<p:commandButton id="filter" value="Global Filter"
+						icon="ui-icon-gear" style="float:left" title="Set Global Filter"
+						update=":filterDeviceNameForm"
+						action="#{deviceWizardController.activateWizard('filter')}"
+						oncomplete="PF('filterDeviceName').show()"
+						disabled="${!(deviceTableController.canFilter())}" />
+					<p:menuButton id="ncReqMenu" value="Actions" style="float:right">
 						<p:menuitem value="Add" icon="ui-icon-plus"
 							update=":addDeviceNameForm"
 							oncomplete="PF('addDeviceName').show()" 
@@ -81,8 +79,12 @@
 							disabled="${!(userManager.isLoggedIn())}" immediate="true"
 							onclick="PrimeFaces.monitorDownload(start, stop)">
 							<p:fileDownload value="#{devicesController.allDataExport}" />
-						</p:menuitem>						
+						</p:menuitem>	
+											
 					</p:menuButton>
+						<p:commandButton id="toggler" type="button" value="Columns"
+						icon="ui-icon-calculator" style="float:right" />
+					<p:columnToggler datasource="devicesTree" trigger="toggler" />
 				</f:facet>
 
 				<p:ajax event="rowSelect" update="ncReqMenu" />
@@ -117,12 +119,12 @@
 					<ui:param name="part" value="deviceType" />
 					<ui:param name="parts" value="deviceTypes" />
 				</ui:include>
-				<p:column headerText="Device Name" sortBy="#{device.conventionName}" filterBy="#{device.conventionName}">
+				<p:column headerText="Device Name" sortBy="#{device.conventionName}" filterBy="#{device.conventionName}" filterMatchMode="contains">
 					<h:outputText id="DevName" value="#{device.conventionName}" styleClass="#{device.style}" />
 					<p:tooltip for="DevName" value="#{device.description}"
 						rendered="#{device.description != null}" />
 				</p:column>
-			</p:dataTable>
+			</p:dataTable>			
 			<!-- 		======================== History ============================-->
 			<ui:include src="/WEB-INF/includes/devices-history.xhtml">
 				<ui:param name="historyHandler"
@@ -133,8 +135,8 @@
 		<ui:include src="/WEB-INF/includes/devices-wizard.xhtml">
 <!-- 			<ui:param name="rendered" value="#{deviceWizardController.action.equals('filter')}"/> -->
 			<ui:param name="action" value="filter"/>
-			<ui:param name="areaQuestion" value="2. Which areas of the facility is relevant to you?" />
-			<ui:param name="deviceQuestion" value="3. What kind of devices are relevant to you?" />
+			<ui:param name="areaQuestion" value="1. Which areas of the facility is relevant to you?" />
+			<ui:param name="deviceQuestion" value="2. What kind of devices are relevant to you?" />
 			<ui:param name="dialogTitle" value="Set global filter" />
 			<ui:param name="widgetName" value="filterDeviceName" />
 			<ui:param name="selectionMode" value="checkbox" />
@@ -193,8 +195,8 @@
 					<p:commandButton value="Cancel" style="float: right"
 						onclick="PF('batchImport').hide();" />
 					<p:commandButton value="Import" style="float: right"
-						update=":ManageNameForm :ManageNameForm:devicesTree:ncReqMenu"
-						oncomplete=" #{deviceTableController.update()}; PF('batchImport').hide()"
+						update=":menu :ManageNameForm :ManageNameForm:devicesTree:ncReqMenu"
+						oncomplete=" #{deviceTableController.update()}; PF('batchImport').hide(); PF('deviceTable').filter()"
 						action="#{deviceTableController.onImport()}"
 						disabled="#{deviceTableController.importFileName == null}" />
 				</h:panelGroup>

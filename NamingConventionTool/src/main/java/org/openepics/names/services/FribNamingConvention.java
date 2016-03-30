@@ -90,4 +90,9 @@ public class FribNamingConvention implements NamingConvention {
 		throw new NotImplementedException();
 	}
 
+	@Override
+	public String conventionName(List<String> path, NamePartType type) {
+		throw new NotImplementedException();
+	}
+
 }

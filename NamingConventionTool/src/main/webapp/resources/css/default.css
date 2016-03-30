@@ -41,6 +41,9 @@ th{
 	border: 1px solid #FFFFFF !important;
 	background: #006A91 !important;
 	text-align:left !important;
+	box-shadow:none;
+	outline:none;
+	width:100%;
 }
 
 

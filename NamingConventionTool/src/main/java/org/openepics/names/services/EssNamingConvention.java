@@ -86,6 +86,11 @@ public class EssNamingConvention implements NamingConvention {
 		}
 	}
 
+	@Override
+	public String conventionName(List<String> path, NamePartType type){
+		return(new NameElement(path, type).getDefinition());
+	}
+
 	private static String removeLeadingZeros(String string){
 		return string!=null? string.replaceAll("(?<=[A-Za-z])0+", "") : null;
 	}
@@ -97,6 +102,8 @@ public class EssNamingConvention implements NamingConvention {
 			return (name.length() >= nMin && name.length() <= nMax) && name.matches("^[a-zA-Z0-9]+$");
 		}
 	}
+	
+	
 	@Override
 	public String deviceDefinition(List<String> deviceTypePath) {
 		return(new NameElement(deviceTypePath, NamePartType.DEVICE_TYPE)).getDefinition();
@@ -137,10 +144,25 @@ public class EssNamingConvention implements NamingConvention {
 			this.level= !( path==null || path.isEmpty())  ? path.size(): 0;
 		}
 
+
 		public boolean canMoveTo(NameElement nameElement) {
 			return(this.getTypeMnemonic().equals(nameElement.getTypeMnemonic()));
 		}
 
+		String getConventionName(){
+			String name="";
+			for(String string:path){
+				if(string!=null&& !string.isEmpty()){
+					if(!name.isEmpty()){
+						name=name.concat("-").concat(string);
+					} else {
+						name=string;
+					}
+				}
+			}
+			return name;		
+		}
+		
 		String getDefinition() {
 			if(isDeviceType()){
 				return getDiscipline()+"-"+getDeviceType();
@@ -165,6 +187,7 @@ public class EssNamingConvention implements NamingConvention {
 				return null;
 			}
 		}
+
 		String getTypeName(){			
 			return getNameDefinition()!=null? getNameDefinition().getFullName(): "";
 		}
@@ -241,14 +264,14 @@ public class EssNamingConvention implements NamingConvention {
 
 		boolean canCoexistWith(NameElement other) {
 			boolean sameSectionDifferentSuperSection= isSection() && other.isSection() && ! getSuperSection().equals(other.getSuperSection());
-			boolean sameOffsiteSuperSection=isSuperSection() && other.isSuperSection() && isOffsite();
-			if (sameOffsiteSuperSection){
+			
+			if (isSuperSection() && other.isSuperSection() && isOffsite()){
 				return false;
 			} else if (isReserved() && other.isReserved()&& !sameSectionDifferentSuperSection){ 
 				return false;
 			} else if ((isDeviceType()||isDiscipline()) && (other.isDeviceType()||other.isDiscipline()) && getDiscipline().equals(other.getDiscipline())){
 				return false;
-			} else if ((isSubsection()||isSection()) && (other.isSubsection()||other.isSection()) && getSection().equals(other.getSection()) && !sameSectionDifferentSuperSection){
+			} else if ((isSubsection()||isSection()) && (other.isSubsection()||other.isSection()) && getSection().equals(other.getSection()) && getSuperSection().equals(other.getSuperSection())){
 				return false;
 			} else if ((isReserved() && other.isRequired() || other.isReserved() && isRequired() ) && mnemonicEquals(other) &&!sameSectionDifferentSuperSection){
 				return false;

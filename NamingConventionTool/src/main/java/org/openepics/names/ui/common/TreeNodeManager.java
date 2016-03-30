@@ -51,9 +51,6 @@ import com.google.common.collect.Lists;
 public class TreeNodeManager{
 
 	
-	@Inject private NamePartTreeBuilder namePartTreeBuilder;
-	@Inject private RestrictedNamePartService namePartService;
-
 	@Inject private SessionViewService sessionViewService;
 
 	/**
@@ -227,8 +224,10 @@ public class TreeNodeManager{
 	 * @param treeNode the node to expand recursively to root node 
 	 */
 	public void expandParents(TreeNode treeNode) {
+		if (treeNode!=null){
 		for (TreeNode node : parentList(treeNode)) {
 			expand(node);
+		}
 		}
 	}
 
@@ -357,24 +356,6 @@ public class TreeNodeManager{
 	 * @return Filtered list of treeNodes staring from the root
 	 */
 	public List<TreeNode> filteredNodeList(TreeNode node, boolean includeDeleted, boolean includeUnfiltered){
-//		final List<TreeNode> views = Lists.newArrayList();
-//		final List<TreeNode> children=Lists.newArrayList();
-//		NamePartView view= node.getData() instanceof NamePartView?  (NamePartView) node.getData():null;
-//			if(view==null || (!view.isDeleted() || includeDeleted) ){
-//				boolean filtered = view!=null && sessionViewService.isFiltered(view.getNamePart()) || includeUnfiltered;			
-//				for(TreeNode child:node.getChildren()){					
-//					children.addAll(filteredNodeList(child, includeDeleted, filtered));
-//				}
-//				boolean hasFilteredChildren= children!=null && !children.isEmpty();
-//							
-//				if(hasFilteredChildren || filtered){
-//					views.add(node);
-//					views.addAll(children);
-//				}
-//			}
-//			return views;
-		
-//		return nodeList(filteredNode(node, includeDeleted,includeUnfiltered));
 		return nodeList(node);
 	}
 
@@ -464,5 +445,15 @@ public class TreeNodeManager{
 		return nodeDataList;
 	}
 
-
+	public List<TreeNode> selectedNodes(TreeNode node){
+		final List<TreeNode> nodes=Lists.newArrayList();
+		if(node.isSelected()){
+			nodes.add(node);
+		}
+		for (TreeNode child : node.getChildren()) {
+			nodes.addAll(selectedNodes(child));
+		}
+		return nodes;
+	}
+	
 }

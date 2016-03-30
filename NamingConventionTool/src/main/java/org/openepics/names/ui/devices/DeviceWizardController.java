@@ -19,6 +19,7 @@ import org.openepics.names.services.NamingConvention;
 import org.openepics.names.services.restricted.RestrictedNamePartService;
 import org.openepics.names.services.views.DeviceRecordView;
 import org.openepics.names.services.views.NamePartView;
+import org.openepics.names.ui.common.SelectRecordManager;
 import org.openepics.names.ui.common.TreeNodeManager;
 import org.openepics.names.ui.devices.DeviceTableController.DevicesViewFilter;
 import org.openepics.names.ui.parts.NamePartTreeBuilder;
@@ -36,14 +37,12 @@ import com.google.common.collect.Lists;
 public class DeviceWizardController implements Serializable{
 	private static final long serialVersionUID = 5971357727446485557L;
 	
-	@Inject private NamePartTreeBuilder namePartTreeBuilder;
 	@Inject private RestrictedNamePartService namePartService;
 	@Inject private TreeNodeManager treeNodeManager;
 	@Inject private NamingConvention namingConvention;
+	@Inject private SelectRecordManager selectRecordManager;
 	
 	private String action;
-	private TreeNode sections;
-	private TreeNode deviceTypes;
 	private String formInstanceIndex;
 	private String formDescription;
 	private String formDeviceName;
@@ -51,9 +50,13 @@ public class DeviceWizardController implements Serializable{
 	private TreeNode formSelectedDeviceType;
 	private TreeNode[] formSelectedSections;
 	private TreeNode[] formSelectedDeviceTypes;
-	final private @Nullable DeviceRecordView selectedRecord=deviceTableController().getSelectedRecord();
+	private TreeNode areaStructure;
+	private TreeNode deviceStructure;
+	private @Nullable DeviceRecordView selectedRecord;
 	private Operation activeOperation;
+	private DeviceTableController deviceTableController;
 	private final List<String> tabs=Lists.newArrayList("areaTab","deviceTab","instanceTab", "finishTab", "filterTab");
+
 	
 		
 	/** 
@@ -62,47 +65,59 @@ public class DeviceWizardController implements Serializable{
 	 */
 	public void activateWizard(String action){
 		setAction(action);
-		sections = getTreeNode(NamePartType.SECTION);
-		deviceTypes =  getTreeNode(NamePartType.DEVICE_TYPE);
+		deviceTableController=As.notNull(deviceTableController());
+		
 		switch(activeOperation){
+		case ADD:
+			areaStructure=deviceTableController.getFilteredAreaStructure();
+			deviceStructure=deviceTableController.getFilteredDeviceStructure();
+			selectedRecord=null;
+//			selectRecordManager.setSelectedRecords(null);
+			formSelectedSubsection = prepareTreeNode(areaStructure, null);
+			formSelectedDeviceType = prepareTreeNode(deviceStructure, null);
+			formInstanceIndex = null;
+			formDescription = null;
+			formDeviceName = null;	
+		break;
 		case MODIFY: 
-				formSelectedSubsection = findSelectedTreeNode(sections);
-				formSelectedDeviceType = findSelectedTreeNode(deviceTypes);
-				formInstanceIndex = selectedRecord!=null? selectedRecord.getInstanceIndex():null;
-				formDescription = selectedRecord!=null? selectedRecord.getDescription():null;
-				formDeviceName = selectedRecord!=null? selectedRecord.getConventionName():null;
-			break;
-			default: 
-				formSelectedSubsection = null;
-				formSelectedDeviceType = null;
-				formInstanceIndex = null;
-				formDescription = null;
-				formDeviceName = null;				
+			areaStructure=deviceTableController.getFilteredAreaStructure();
+			deviceStructure=deviceTableController.getFilteredDeviceStructure();
+			selectedRecord=As.notNull(deviceTableController.getSelectedRecord());
+			formSelectedSubsection = As.notNull(prepareTreeNode(areaStructure,selectedRecord.getSubsection()));
+			formSelectedDeviceType = As.notNull(prepareTreeNode(deviceStructure,selectedRecord.getDeviceType()));
+			formInstanceIndex = selectedRecord.getInstanceIndex();
+			formDescription = selectedRecord.getDescription();
+			formDeviceName =  selectedRecord.getConventionName();
+		break;
+		default: 
+			areaStructure=deviceTableController.getAreaStructure();
+			deviceStructure=deviceTableController.getDeviceStructure();
+			selectedRecord=null;
+			formSelectedSubsection = prepareTreeNode(areaStructure, null);
+			formSelectedDeviceType = prepareTreeNode(deviceStructure, null);
+			formInstanceIndex = null;
+			formDescription = null;
+			formDeviceName = null;				
 		} 
+//		resetForm();
 	}
 		
-	public void updateViewFilter(){
-		sections = getTreeNode(NamePartType.SECTION);
-		deviceTypes =  getTreeNode(NamePartType.DEVICE_TYPE);
-	}
 	
 	private void resetForm() {
-//		RequestContext.getCurrentInstance().reset(action.concat("DeviceNameForm"));
+		RequestContext.getCurrentInstance().reset(action.concat("DeviceNameForm"));
 	}
 
 	/**
 	 * Inactivates the device wizard
 	 */
 	public void inactivateWizard(){
-		sections = null;
-		deviceTypes =  null;		
 		formSelectedSubsection = null;
 		formSelectedDeviceType = null;
 		formInstanceIndex = null;
 		formDescription = null;
 		formDeviceName = null;
-		resetForm();
-		setAction(null);
+//		resetForm();
+//		setAction(null);
 	}
 
 	/**
@@ -276,7 +291,6 @@ public class DeviceWizardController implements Serializable{
 		}
 	}
 
-	
 	public String formAreaName(){
 
 		final List<String> sectionPath = ((NamePartView) formSelectedSubsection.getData()).getMnemonicPath();
@@ -290,18 +304,18 @@ public class DeviceWizardController implements Serializable{
 			case ADD:
 				final DeviceRevision addrev = namePartService.addDevice(selectedSubsection(), selectedDeviceType(), getFormInstanceIndex(), getFormAdditionalInfo());
 				showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name "+addrev.getConventionName()+ " has been added.");
-				deviceTableController().update();
+//				deviceTableController().update();
 
 				break;
 			case MODIFY:
 				final DeviceRevision modrev = namePartService.modifyDevice(As.notNull(selectedRecord).getDevice(), selectedSubsection(), selectedDeviceType(), getFormInstanceIndex(), getFormAdditionalInfo());
 				showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Device name has been modified as " +modrev.getConventionName());
-				deviceTableController().update();
+//				deviceTableController().update();
 				break;
 			case FILTER:
-				treeNodeManager.filterSelected(sections);
-				treeNodeManager.filterSelected(deviceTypes);
-				deviceTableController().updateFilter();
+				treeNodeManager.filterSelected(areaStructure);
+				treeNodeManager.filterSelected(deviceStructure);
+//				deviceTableController().updateFilter();
 //				showMessage(null, FacesMessage.SEVERITY_INFO, "Success", "Filter set");
 			default:
 				break;
@@ -320,37 +334,37 @@ public class DeviceWizardController implements Serializable{
 	 * @return current bean controlling the device record table.
 	 */
 	private final DeviceTableController deviceTableController(){
-		FacesContext facesContext=FacesContext.getCurrentInstance();
-        return (DeviceTableController) facesContext.getApplication().getExpressionFactory().createValueExpression(facesContext.getELContext(), "#{deviceTableController}", Object.class).getValue(facesContext.getELContext()); 
+			FacesContext facesContext=FacesContext.getCurrentInstance();
+			return (DeviceTableController) facesContext.getApplication().getExpressionFactory().createValueExpression(facesContext.getELContext(), "#{deviceTableController}", Object.class).getValue(facesContext.getELContext()); 
 	}
 	
 	/**
 	 * @return the sections
 	 */
 	public TreeNode getSections() {
-		return sections;
+		return areaStructure;
 	}
 
-	/**
-	 * @param sections the sections to set
-	 */
-	public void setSections(TreeNode sections) {
-		this.sections = sections;
-	}
+//	/**
+//	 * @param sections the sections to set
+//	 */
+//	public void setSections(TreeNode sections) {
+//		this.areaStructure = sections;
+//	}
 
 	/**
 	 * @return the deviceTypes
 	 */
 	public TreeNode getDeviceTypes() {
-		return deviceTypes;
+		return deviceStructure;
 	}
 
-	/**
-	 * @param deviceTypes the deviceTypes to set
-	 */
-	public void setDeviceTypes(TreeNode deviceTypes) {
-		this.deviceTypes = deviceTypes;
-	}
+//	/**
+//	 * @param deviceTypes the deviceTypes to set
+//	 */
+//	public void setDeviceTypes(TreeNode deviceTypes) {
+//		this.deviceStructure = deviceTypes;
+//	}
 
 	/**
 	 * @return the formInstanceIndex
@@ -426,67 +440,56 @@ public class DeviceWizardController implements Serializable{
 	
 	/**
 	 * 
-	 * @param structure NamePartType 
-	 * @return treeNode root
+	 * @param node treeNode to prepare
+	 * @param view NamePartView to become selected if not null
+	 * @return single selected treeNode
 	 */
-	private TreeNode getTreeNode(NamePartType structure){
-		NamePart selectedNamePart=null;
-		TreeNode node=null;
-		switch(structure){
-		case SECTION:
-			node=deviceTableController().getAreaStructure();
-			selectedNamePart=selectedRecord!=null ? selectedRecord.getSubsection().getNamePart():null;
-			selectNode(node,selectedNamePart);
-			break;
-		case DEVICE_TYPE:
-			node=deviceTableController().getDeviceStructure();
-			selectedNamePart=selectedRecord!=null ? selectedRecord.getDeviceType().getNamePart():null;
-			selectNode(node,selectedNamePart);
-			break;
-		default:
-			node=null;
-			selectedNamePart=null;
-		}
-		
+	private @Nullable TreeNode prepareTreeNode(TreeNode node, NamePartView view){
+		unSelectAll(node);
 		switch (activeOperation) {
 		case FILTER:
-			treeNodeManager.selectFiltered(node);
 			treeNodeManager.setSelectableLevel(node,0,true);
-			break;
+			treeNodeManager.selectFiltered(node);
+			return null;
+//			break;
 		default:
 			treeNodeManager.setSelectableLevel(node,3,false);
-			break;
-		}
-		treeNodeManager.expandCustomized(node);
-		return node;
-	}
-	
-	private TreeNode findSelectedTreeNode(TreeNode node) {
-		if(node==null) return null;
-		if (node.isSelected()) {
-			treeNodeManager.expandParents(node);
-			return node;
-		} else {
-			for (TreeNode child : node.getChildren()) {
-				final TreeNode selectedChildNode = findSelectedTreeNode(child);
-				if (selectedChildNode != null) {
-					return selectedChildNode;
+			List<TreeNode> treeNodes=nodesOf(node,view);
+			TreeNode treeNode= treeNodes!=null&& treeNodes.size()==1 ?treeNodes.get(0):null; 
+				if(treeNode!=null){
+					treeNode.setSelected(true);
+					expandParents(treeNode);
 				}
+			return treeNode;
+		}
+	}
+	private void unSelectAll(TreeNode node){
+		if(node!=null){
+			node.setSelected(false);
+			for(TreeNode child: node.getChildren()){
+				unSelectAll(child);
 			}
-			return null;
 		}
 	}
 	
-	private void selectNode(TreeNode node, NamePart namePart){
-		NamePartView view= node!=null && node.getData() instanceof NamePartView? (NamePartView) node.getData():null;
-		if(view!=null && view.getNamePart().equals(namePart)){
-			node.setSelected(true);
-		} else {
-		for (TreeNode child : node.getChildren()) {
-			selectNode(child,namePart);
-		}
+	private void expandParents(TreeNode node){
+		if(node!=null && node.getParent()!=null){
+			node.getParent().setExpanded(true);
+			expandParents(node.getParent());
 		}
 	}
+	
+	private List<TreeNode> nodesOf(TreeNode node, NamePartView view){
+		List<TreeNode> treeNodes=Lists.newArrayList();
+		NamePartView namePartView= node!=null && node.getData() instanceof NamePartView? (NamePartView) node.getData():null;
+		if(namePartView!=null && namePartView.equals(view)){
+			treeNodes.add(node);
+		}
+		for (TreeNode child : node.getChildren()) {
+			treeNodes.addAll(nodesOf(child,view));
+		}
+		return treeNodes;
+	}		
 	
 	private void showMessage(@Nullable String notificationChannel, FacesMessage.Severity severity, String summary, String message) {
 		FacesContext context = FacesContext.getCurrentInstance();
@@ -524,7 +527,7 @@ public class DeviceWizardController implements Serializable{
 	}
 
 	public enum Operation{
-		FILTER, ADD, MODIFY
+		FILTER, ADD, MODIFY, INACTIVATE
 	}
 
 }

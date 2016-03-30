@@ -60,6 +60,11 @@ public class NamePartView {
     }
    
     @Override
+    public boolean equals(Object other){
+    	return other instanceof NamePartView? this.getNamePart().getId().equals(((NamePartView) other).getNamePart().getId()):false;
+    }
+    
+    @Override
     public String toString(){
  	   if(getMnemonic()!=null) {
  		   return getName() + " ("+getMnemonic()+")";

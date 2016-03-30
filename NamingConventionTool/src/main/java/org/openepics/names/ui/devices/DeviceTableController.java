@@ -82,11 +82,6 @@ public class DeviceTableController implements Serializable{
 	private void selectDeviceInUrl() {
 		final @Nullable String deviceName = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("deviceName");
 		if(deviceName!=null){
-//			final DeviceRevision deviceRevision=namePartService.currentDeviceRevision(deviceName);
-//			final NamePart section=deviceRevision.getSection();
-//			final NamePart deviceType=deviceRevision.getDeviceType();
-//			sessionViewService.filter(section);
-//			sessionViewService.filter(deviceType);
 		}
 		update();
 		if(deviceName!=null){
@@ -111,7 +106,6 @@ public class DeviceTableController implements Serializable{
 		originalDeviceStructure=As.notNull(devicesTreeBuilder.getDeviceStructure());
 		originalRecords=As.notNull(devicesTreeBuilder.deviceRecords());
 		updateViewFilter();
-//		setSelectedRecords(filteredRecords(getSelectedRecords()));
 	}
 		
 
@@ -158,7 +152,8 @@ public class DeviceTableController implements Serializable{
 	}
 
 	public boolean canAdd(){
-		return getSelectedRecords()==null || getSelectedRecords().isEmpty();
+//		return getSelectedRecords()==null || getSelectedRecords().isEmpty();
+		return true;
 	}
 
 	public boolean canConfigure(){
@@ -214,7 +209,7 @@ public class DeviceTableController implements Serializable{
 
 	
 	private String printedAffectedQuantity(int n) {
-		return n + " device name" + (n > 1 ? "s have been " : " has been ");
+		return  n + " device name" + (n > 1 ? "s have been " : " has been ");
 	}
 	
 	
@@ -227,8 +222,7 @@ public class DeviceTableController implements Serializable{
 	public synchronized void updateFilter() {
 		filteredAreaStructure=treeNodeManager.filteredNode(areaStructure,false);
 		filteredDeviceStructure =treeNodeManager.filteredNode(deviceStructure,false);
-		records=filteredRecords(originalRecords);
-		filteredRecords=null;		
+		records=filteredRecords(originalRecords);	
 	}
 
 	private TreeNode viewFilteredNamePartStructure(TreeNode originalNamePartStructure){
@@ -267,7 +261,7 @@ public class DeviceTableController implements Serializable{
 	 */
 	public DevicesViewFilter[] getSelectedViewFilter() {
 		if(selectedViewFilter==null){
-			selectedViewFilter=new DevicesViewFilter[] {DevicesViewFilter.ACTIVE,DevicesViewFilter.ONSITE};
+			selectedViewFilter=new DevicesViewFilter[] {DevicesViewFilter.ACTIVE,DevicesViewFilter.ONSITE,DevicesViewFilter.OFFSITE};
 		}
 		return selectedViewFilter;
 	}
@@ -419,6 +413,16 @@ public class DeviceTableController implements Serializable{
 	 */
 	public TreeNode getDeviceStructure() {
 		return deviceStructure;
+	}
+
+
+	public TreeNode getFilteredAreaStructure() {
+		return filteredAreaStructure;
+	}
+
+
+	public TreeNode getFilteredDeviceStructure() {
+		return filteredDeviceStructure;
 	}
 
 

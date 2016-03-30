@@ -58,7 +58,7 @@ import java.util.Set;
 public class ExcelImport {
 
     @Inject private RestrictedNamePartService namePartService;
-    @Inject private NamePartTreeBuilder namePartTreeBuilder;
+//    @Inject private NamePartTreeBuilder namePartTreeBuilder;
     @Inject private DevicesTreeBuilder devicesTreeBuilder;
     @Inject private NamingConvention namingConvention;
     @Inject private TreeNodeManager treeNodeManager;
@@ -134,7 +134,7 @@ public class ExcelImport {
             final XSSFSheet sheet = workbook.getSheetAt(0);
             for (Row row : sheet) {
                 if (row.getRowNum() > 0) {
-                	if (row.getLastCellNum() < 4 ) {
+                	if (row.getLastCellNum() < 5 ) {
                         return new ColumnCountFailureExcelImportResult();
                     } else {
                     	final String superSection=ExcelCell.asString(row.getCell(0));
@@ -197,11 +197,8 @@ public class ExcelImport {
 			if (object!=null && object instanceof NamePartView){
 				NamePartView view=(NamePartView) object;
 				if(!view.isDeleted()){
-					if(view.getNamePart().getNamePartType().equals(NamePartType.SECTION)){
-					namePartMap.put( namingConvention.areaName(view.getMnemonicPath()),view.getNamePart());
-					}else if(view.getNamePart().getNamePartType().equals(NamePartType.DEVICE_TYPE)){
-						namePartMap.put(namingConvention.deviceDefinition(view.getMnemonicPath()),view.getNamePart());
-					}
+					String namePartDefinition=namingConvention.conventionName(view.getMnemonicPath(),view.getNamePart().getNamePartType());
+					namePartMap.put(namePartDefinition,view.getNamePart());
 				}
 			}
 		}
@@ -232,7 +229,7 @@ public class ExcelImport {
 		mnemonicPath.add(trim(superSection));
 		mnemonicPath.add(trim(section));
 		mnemonicPath.add(trim(subsection));
-		return subsectionMap.get(namingConvention.areaName(mnemonicPath));
+		return subsectionMap.get(namingConvention.conventionName(mnemonicPath,NamePartType.SECTION));
 	}
 
 	private NamePart getDeviceType(String discipline, @Nullable String deviceGroup, String deviceType) {
@@ -240,7 +237,7 @@ public class ExcelImport {
 		mnemonicPath.add(trim(discipline));
 		mnemonicPath.add(trim(deviceGroup));
 		mnemonicPath.add(trim(deviceType));
-		return deviceTypeMap.get(namingConvention.deviceDefinition(mnemonicPath));
+		return deviceTypeMap.get(namingConvention.conventionName(mnemonicPath,NamePartType.DEVICE_TYPE));
 	}
 	private static String trim(String string) {
 		return string!=null? string.trim():"";

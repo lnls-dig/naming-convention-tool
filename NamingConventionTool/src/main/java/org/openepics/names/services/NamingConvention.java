@@ -76,13 +76,15 @@ public interface NamingConvention {
      * @param deviceTypePath the list of device type names starting from the root of the hierarchy to the specific subtype of the device
      * @return The device definition of the device defined by it device type. 
      */
+    @Deprecated
 	String deviceDefinition(List<String> deviceTypePath);
 
     /**
      * @param sectionPath the list of section names starting from the root of the hierarchy to the specific subsection containing the device
      * @return The area name of the device. 
      */
-	String areaName(List<String> sectionPath);
+    @Deprecated
+    String areaName(List<String> sectionPath);
 
 	
 	/**
@@ -115,4 +117,10 @@ public interface NamingConvention {
 	 */
 	boolean canNamePartMove(List<String> sourcePath, NamePartType sourceNamePartType, List<String>destinationPath, NamePartType destinationNamePartType );
 
+	/**
+	 * @param path
+	 * @param type
+	 * @return The composite name of a namepart including string name part string and according to naming convention rules Eg. (sec-sub) for a subsection or (dis-dev) for a deviceType.
+	 */
+	String conventionName(List<String> path, NamePartType type);
 }

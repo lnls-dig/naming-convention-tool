@@ -244,6 +244,8 @@ public class EssNamingConventionTest {
     	assertFalse("Section and Section cannot coexist", namingConvention.canMnemonicsCoexist(ImmutableList.of("Sup", "Sec"), NamePartType.SECTION, ImmutableList.of("Sup","","Sec"),NamePartType.SECTION));
     	assertTrue("Section and Section can coexist 1", namingConvention.canMnemonicsCoexist(ImmutableList.of("Su1", "Sec"), NamePartType.SECTION, ImmutableList.of("Su2","Sec"),NamePartType.SECTION));
     	assertTrue("Section and Section can coexist 2", namingConvention.canMnemonicsCoexist(ImmutableList.of("", "Sec"), NamePartType.SECTION, ImmutableList.of("Sup","Sec"),NamePartType.SECTION));
+    	assertTrue("Subsection and subsection can coexist 1",namingConvention.canMnemonicsCoexist(ImmutableList.of("","Sec","Sub"), NamePartType.SECTION, ImmutableList.of("Sup","Sec","Sub"), NamePartType.SECTION));
+    	assertTrue("Subsection and subsection can coexist 2",namingConvention.canMnemonicsCoexist(ImmutableList.of("Su1","Sec","Sub"), NamePartType.SECTION, ImmutableList.of("Su2","Sec","Sub"), NamePartType.SECTION));
     }
 
     

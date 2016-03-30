@@ -61,9 +61,9 @@ public class DevicesController implements Serializable {
 	
 
 
-//	public String sectionPath(DeviceView deviceView) {
-//		return Joiner.on(" ▸ ").join(deviceView.getSection().getNamePath());
-//	}
+	public String sectionPath(DeviceView deviceView) {
+		return Joiner.on(" ▸ ").join(deviceView.getSection().getNamePath());
+	}
 
 
 //	public @Nullable String getDeviceNameFilter() { return deviceNameFilter; }
@@ -136,9 +136,9 @@ public class DevicesController implements Serializable {
 	}
 
 
-//	public String deviceTypePath(DeviceView deviceView) {
-//		return Joiner.on(" ▸ ").join(deviceView.getDeviceType().getNamePath());
-//	}
+	public String deviceTypePath(DeviceView deviceView) {
+		return Joiner.on(" ▸ ").join(deviceView.getDeviceType().getNamePath());
+	}
 
 
 
