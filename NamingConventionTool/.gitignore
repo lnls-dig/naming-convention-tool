@@ -1,6 +1,0 @@
-/target
-.classpath
-.settings/
-.idea
-src/main/webapp/WEB-INF/.faces-config.xml.jsfdia
-src/main/resources/META-INF/persistence.xml
